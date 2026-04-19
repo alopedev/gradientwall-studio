@@ -1,0 +1,16 @@
+node_modules
+dist
+.DS_Store
+*.local
+.vite
+*.tsbuildinfo
+index.html.legacy
+
+# Editor
+.idea
+.vscode
+
+# Env
+.env
+.env.*
+!.env.example
