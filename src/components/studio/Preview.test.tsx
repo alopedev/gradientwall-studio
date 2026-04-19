@@ -47,5 +47,23 @@ describe("<Preview />", () => {
     expect(canvases.length).toBeGreaterThanOrEqual(1);
   });
 
+  it("Mockup toggle is only visible when device=mobile", () => {
+    render(<Preview />);
+    expect(screen.getByRole("button", { name: /mockup/i })).toBeInTheDocument();
+    // Switching to desktop should hide the mockup button
+    fireEvent.click(screen.getByRole("button", { name: /desktop/i }));
+    expect(screen.queryByRole("button", { name: /mockup/i })).not.toBeInTheDocument();
+  });
+
+  it("Mockup toggle flips on click and renders dual iPhone chrome (big clock + Monday date)", () => {
+    render(<Preview />);
+    const mockup = screen.getByRole("button", { name: /mockup/i });
+    fireEvent.click(mockup);
+    expect(mockup).toHaveAttribute("aria-pressed", "true");
+    // Lock chrome renders a large "9:41" time + date string
+    expect(screen.getAllByText("9:41").length).toBeGreaterThanOrEqual(2); // status bar × 2 + lock clock
+    expect(screen.getByText(/Monday/i)).toBeInTheDocument();
+  });
+
   afterEach(() => vi.restoreAllMocks());
 });

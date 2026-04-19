@@ -4,6 +4,7 @@ import { useConfigStore } from "@/store";
 import { renderGradient } from "@/lib/gradient";
 import { DEVICES, DEVICE_SIZES } from "@/lib/palettes";
 import { downloadWallpaper } from "@/lib/download";
+import { IPhoneMockup } from "./IPhoneMockup";
 
 export function Preview() {
   const { device, colors, style, blur, grain, seed, setDevice, randomize } = useConfigStore(
@@ -21,7 +22,11 @@ export function Preview() {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [downloading, setDownloading] = useState(false);
+  const [mockupMode, setMockupMode] = useState(false);
   const d = DEVICE_SIZES[device];
+  // Mockup only makes sense on the mobile aspect. Force it off if the user
+  // switches devices while it's on.
+  const showMockup = mockupMode && device === "mobile";
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -45,22 +50,36 @@ export function Preview() {
         className="absolute top-3.5 z-[3] flex gap-1.5 left-1/2 -translate-x-1/2 md:left-3.5 md:translate-x-0"
         role="tablist"
       >
-        {DEVICES.map((d) => {
-          const active = device === d;
+        {DEVICES.map((dev) => {
+          const active = device === dev;
           return (
             <button
-              key={d}
-              onClick={() => setDevice(d)}
+              key={dev}
+              onClick={() => setDevice(dev)}
               className={`rounded-full px-2.5 md:px-3 py-1.5 text-[10px] md:text-[11px] tracking-[0.1em] uppercase font-sans transition-colors duration-150 backdrop-blur-md ${
                 active
                   ? "bg-white text-[#07070a] border border-white"
                   : "bg-black/55 text-white/75 border border-white/14 hover:text-white"
               }`}
             >
-              {d}
+              {dev}
             </button>
           );
         })}
+        {device === "mobile" && (
+          <button
+            onClick={() => setMockupMode((v) => !v)}
+            aria-pressed={mockupMode}
+            title="Preview inside an iPhone frame (lock + home)"
+            className={`ml-1 rounded-full px-2.5 md:px-3 py-1.5 text-[10px] md:text-[11px] tracking-[0.1em] uppercase font-sans transition-colors duration-150 backdrop-blur-md ${
+              mockupMode
+                ? "bg-white text-[#07070a] border border-white"
+                : "bg-black/55 text-white/75 border border-white/14 hover:text-white"
+            }`}
+          >
+            Mockup
+          </button>
+        )}
       </div>
 
       {/* Info badge: top-right on md+, centered below device bar on mobile. */}
@@ -68,26 +87,33 @@ export function Preview() {
         {DEVICE_SIZES[device].label}
       </div>
 
-      {/* Stage — flex container fits the wallpaper via CSS aspect-ratio. */}
+      {/* Stage — either the fit-to-aspect wallpaper or the dual-iPhone mockup. */}
       <div className="absolute inset-0 flex items-center justify-center p-14" style={{ background: "#000" }}>
-        <div
-          className="relative overflow-hidden rounded-lg transition-[aspect-ratio] duration-[400ms]"
-          style={{
-            aspectRatio: `${d.w} / ${d.h}`,
-            maxWidth: "100%",
-            maxHeight: "100%",
-            background: "#111",
-            boxShadow: "0 30px 80px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.04)",
-            transitionTimingFunction: "cubic-bezier(.2,.7,.2,1)",
-          }}
-        >
-          <canvas ref={canvasRef} className="block w-full h-full" />
+        {showMockup ? (
+          <div className="flex items-center justify-center gap-6 h-full w-full">
+            <IPhoneMockup variant="lock" colors={colors} style={style} blur={blur} seed={seed} grain={grain} />
+            <IPhoneMockup variant="home" colors={colors} style={style} blur={blur} seed={seed} grain={grain} />
+          </div>
+        ) : (
           <div
-            className="absolute inset-0 pointer-events-none wallpaper-grain mix-blend-overlay"
-            style={{ opacity: grain / 100 }}
-            aria-hidden
-          />
-        </div>
+            className="relative overflow-hidden rounded-lg transition-[aspect-ratio] duration-[400ms]"
+            style={{
+              aspectRatio: `${d.w} / ${d.h}`,
+              maxWidth: "100%",
+              maxHeight: "100%",
+              background: "#111",
+              boxShadow: "0 30px 80px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.04)",
+              transitionTimingFunction: "cubic-bezier(.2,.7,.2,1)",
+            }}
+          >
+            <canvas ref={canvasRef} className="block w-full h-full" />
+            <div
+              className="absolute inset-0 pointer-events-none wallpaper-grain mix-blend-overlay"
+              style={{ opacity: grain / 100 }}
+              aria-hidden
+            />
+          </div>
+        )}
       </div>
 
       {/* Action buttons */}
