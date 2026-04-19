@@ -115,6 +115,37 @@ describe("buildGradientSpec — structural invariants", () => {
     }
   });
 
+  it("aurora style produces colors.length × 2 band layers + 1 horizon glow (9 layers)", () => {
+    const spec = buildGradientSpec(baseOpts({ style: "aurora" }));
+    // 4 colors × 2 bands each + 1 horizon = 9 layers
+    expect(spec.layers).toHaveLength(9);
+    spec.layers.forEach((l) => expect(l.fill.kind).toBe("radial"));
+  });
+
+  it("aurora bands are placed off-canvas vertically (curtain fade look)", () => {
+    const spec = buildGradientSpec(baseOpts({ style: "aurora", w: 1000, h: 2000 }));
+    // First 8 layers are the band pairs; band centers are either above (cy < 0)
+    // or below (cy > h) the canvas. This is what creates the soft vertical drape.
+    const bands = spec.layers.slice(0, 8);
+    bands.forEach((layer) => {
+      if (layer.fill.kind !== "radial") throw new Error("expected radial");
+      const cy = layer.fill.cy;
+      const offCanvas = cy < 0 || cy > 2000;
+      expect(offCanvas).toBe(true);
+    });
+  });
+
+  it("aurora uses semi-transparent #RRGGBBaa starts (soft blending) vs mesh/blobs opaque", () => {
+    const spec = buildGradientSpec(baseOpts({ style: "aurora" }));
+    // First 8 layers: bands. Check they start with the aa alpha suffix.
+    for (let i = 0; i < 8; i++) {
+      const fill = spec.layers[i].fill;
+      if (fill.kind !== "radial") throw new Error("expected radial");
+      expect(fill.stops[0].color).toMatch(/^#[0-9a-f]{6}aa$/i);
+      expect(fill.stops[1].color).toMatch(/^#[0-9a-f]{6}00$/i);
+    }
+  });
+
   it("mesh/blobs stops end in fully transparent (#RRGGBB00) variant of the base color", () => {
     for (const style of ["mesh", "blobs"] as const) {
       const spec = buildGradientSpec(baseOpts({ style }));
@@ -149,7 +180,7 @@ describe("buildGradientSpec — regression snapshots", () => {
   // Capture a matrix of (style × seed) to guard the core math.
   // Any change to PRNG, positioning, or color encoding will surface here.
   const seeds = [12, 77, 42];
-  const styles = ["mesh", "blobs", "liquid"] as const;
+  const styles = ["mesh", "blobs", "liquid", "aurora"] as const;
 
   for (const style of styles) {
     for (const seed of seeds) {

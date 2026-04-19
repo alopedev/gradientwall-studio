@@ -114,6 +114,56 @@ export function buildGradientSpec(opts: SpecOpts): GradientSpec {
         fill: { kind: "radial", cx, cy, r, stops: [{ offset: 0, color: c }, { offset: 1, color: c + "00" }] },
       });
     }
+  } else if (style === "aurora") {
+    // Vertical aurora-like flowing bands. Each color contributes 2-3 soft
+    // elongated radial gradients stacked along the vertical axis, centered
+    // on wandering x-coordinates — produces the classic "northern lights
+    // draping down" look (macOS Sonoma wallpaper family).
+    //
+    // The radial is stretched vertically by using a very tall r and placing
+    // the center above or below the canvas, so only the soft falloff shows.
+    const bandsPerColor = 2;
+    for (let ci = 0; ci < colors.length; ci++) {
+      const c = colors[ci];
+      for (let bi = 0; bi < bandsPerColor; bi++) {
+        // x wanders across the width; each band gets a different slice
+        const baseX = (ci + bi / bandsPerColor) / colors.length;
+        const cx = (baseX + (rand() - 0.5) * 0.18) * w;
+        // cy placed far above/below so only the soft edge of the gradient
+        // reaches the canvas — creates the "curtain" fade look
+        const above = bi % 2 === 0;
+        const cy = above ? -h * (0.3 + rand() * 0.3) : h * (1.3 + rand() * 0.3);
+        // Very large radius so the gradient covers the full height softly
+        const r = h * (1.3 + rand() * 0.5);
+        layers.push({
+          fill: {
+            kind: "radial",
+            cx,
+            cy,
+            r,
+            // Slight transparency (aa) gives overlapping bands a "blending"
+            // feel without the harder edge of full-alpha mesh layers.
+            stops: [
+              { offset: 0, color: c + "aa" },
+              { offset: 1, color: c + "00" },
+            ],
+          },
+        });
+      }
+    }
+    // Optional subtle horizon glow at the bottom (common in aurora photos)
+    layers.push({
+      fill: {
+        kind: "radial",
+        cx: w * 0.5,
+        cy: h * 1.05,
+        r: w * 0.8,
+        stops: [
+          { offset: 0, color: colors[colors.length - 1] + "55" },
+          { offset: 1, color: colors[colors.length - 1] + "00" },
+        ],
+      },
+    });
   } else if (style === "liquid") {
     const bands = 6;
     for (let i = 0; i < bands; i++) {

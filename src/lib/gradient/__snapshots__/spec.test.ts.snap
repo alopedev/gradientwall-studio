@@ -1,5 +1,524 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`buildGradientSpec — regression snapshots > aurora @ seed 12 1`] = `
+{
+  "background": "#2b1055",
+  "blurPx": 241.91999999999996,
+  "h": 3200,
+  "layers": [
+    {
+      "fill": {
+        "cx": -54.91128320842981,
+        "cy": -1032.6408085227013,
+        "kind": "radial",
+        "r": 5088.257706388831,
+        "stops": [
+          {
+            "color": "#2b1055aa",
+            "offset": 0,
+          },
+          {
+            "color": "#2b105500",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 294.4006261356175,
+        "cy": 4306.660725772381,
+        "kind": "radial",
+        "r": 4181.90049290657,
+        "stops": [
+          {
+            "color": "#2b1055aa",
+            "offset": 0,
+          },
+          {
+            "color": "#2b105500",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 410.8041831560433,
+        "cy": -1574.5251012593505,
+        "kind": "radial",
+        "r": 5047.694767862558,
+        "stops": [
+          {
+            "color": "#7597deaa",
+            "offset": 0,
+          },
+          {
+            "color": "#7597de00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 601.2927844427526,
+        "cy": 4189.22226421535,
+        "kind": "radial",
+        "r": 5644.914430975914,
+        "stops": [
+          {
+            "color": "#7597deaa",
+            "offset": 0,
+          },
+          {
+            "color": "#7597de00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 675.0134854093194,
+        "cy": -1454.6714913100004,
+        "kind": "radial",
+        "r": 5359.55325499177,
+        "stops": [
+          {
+            "color": "#ff6e7faa",
+            "offset": 0,
+          },
+          {
+            "color": "#ff6e7f00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 939.5183363445104,
+        "cy": 4670.113112330437,
+        "kind": "radial",
+        "r": 5436.883395388722,
+        "stops": [
+          {
+            "color": "#ff6e7faa",
+            "offset": 0,
+          },
+          {
+            "color": "#ff6e7f00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 1208.946330039203,
+        "cy": -1191.3287284970284,
+        "kind": "radial",
+        "r": 4647.817342579365,
+        "stops": [
+          {
+            "color": "#ffd86eaa",
+            "offset": 0,
+          },
+          {
+            "color": "#ffd86e00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 1361.5384645186364,
+        "cy": 4532.228520587087,
+        "kind": "radial",
+        "r": 4846.110216751695,
+        "stops": [
+          {
+            "color": "#ffd86eaa",
+            "offset": 0,
+          },
+          {
+            "color": "#ffd86e00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 720,
+        "cy": 3360,
+        "kind": "radial",
+        "r": 1152,
+        "stops": [
+          {
+            "color": "#ffd86e55",
+            "offset": 0,
+          },
+          {
+            "color": "#ffd86e00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+  ],
+  "w": 1440,
+}
+`;
+
+exports[`buildGradientSpec — regression snapshots > aurora @ seed 42 1`] = `
+{
+  "background": "#2b1055",
+  "blurPx": 241.91999999999996,
+  "h": 3200,
+  "layers": [
+    {
+      "fill": {
+        "cx": 26.20609249770641,
+        "cy": -1390.35893663764,
+        "kind": "radial",
+        "r": 5523.945269584656,
+        "stops": [
+          {
+            "color": "#2b1055aa",
+            "offset": 0,
+          },
+          {
+            "color": "#2b105500",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 223.99506354108453,
+        "cy": 4327.821342796087,
+        "kind": "radial",
+        "r": 5002.548067495227,
+        "stops": [
+          {
+            "color": "#2b1055aa",
+            "offset": 0,
+          },
+          {
+            "color": "#2b105500",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 301.2206961303949,
+        "cy": -1559.7548677772284,
+        "kind": "radial",
+        "r": 5544.759437292814,
+        "stops": [
+          {
+            "color": "#7597deaa",
+            "offset": 0,
+          },
+          {
+            "color": "#7597de00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 532.824580682069,
+        "cy": 4399.926784858108,
+        "kind": "radial",
+        "r": 5571.294133588672,
+        "stops": [
+          {
+            "color": "#7597deaa",
+            "offset": 0,
+          },
+          {
+            "color": "#7597de00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 783.6951768435538,
+        "cy": -1254.7214528918266,
+        "kind": "radial",
+        "r": 4475.606140717864,
+        "stops": [
+          {
+            "color": "#ff6e7faa",
+            "offset": 0,
+          },
+          {
+            "color": "#ff6e7f00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 900.1890832230448,
+        "cy": 4819.147537201643,
+        "kind": "radial",
+        "r": 5136.993437483907,
+        "stops": [
+          {
+            "color": "#ff6e7faa",
+            "offset": 0,
+          },
+          {
+            "color": "#ff6e7f00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 951.3960931487381,
+        "cy": -1411.9506467878819,
+        "kind": "radial",
+        "r": 5499.739881455898,
+        "stops": [
+          {
+            "color": "#ffd86eaa",
+            "offset": 0,
+          },
+          {
+            "color": "#ffd86e00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 1143.673441824317,
+        "cy": 4728.631030917168,
+        "kind": "radial",
+        "r": 4210.460729002953,
+        "stops": [
+          {
+            "color": "#ffd86eaa",
+            "offset": 0,
+          },
+          {
+            "color": "#ffd86e00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 720,
+        "cy": 3360,
+        "kind": "radial",
+        "r": 1152,
+        "stops": [
+          {
+            "color": "#ffd86e55",
+            "offset": 0,
+          },
+          {
+            "color": "#ffd86e00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+  ],
+  "w": 1440,
+}
+`;
+
+exports[`buildGradientSpec — regression snapshots > aurora @ seed 77 1`] = `
+{
+  "background": "#2b1055",
+  "blurPx": 241.91999999999996,
+  "h": 3200,
+  "layers": [
+    {
+      "fill": {
+        "cx": -19.284128594398496,
+        "cy": -1000.5309674888849,
+        "kind": "radial",
+        "r": 5273.610767573118,
+        "stops": [
+          {
+            "color": "#2b1055aa",
+            "offset": 0,
+          },
+          {
+            "color": "#2b105500",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 176.34482109323145,
+        "cy": 4271.132127046585,
+        "kind": "radial",
+        "r": 5481.77309691906,
+        "stops": [
+          {
+            "color": "#2b1055aa",
+            "offset": 0,
+          },
+          {
+            "color": "#2b105500",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 459.31209053546195,
+        "cy": -1712.635344788432,
+        "kind": "radial",
+        "r": 4249.545929804444,
+        "stops": [
+          {
+            "color": "#7597deaa",
+            "offset": 0,
+          },
+          {
+            "color": "#7597de00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 457.249591691047,
+        "cy": 5032.860063388944,
+        "kind": "radial",
+        "r": 5094.269382432103,
+        "stops": [
+          {
+            "color": "#7597deaa",
+            "offset": 0,
+          },
+          {
+            "color": "#7597de00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 718.9408195652068,
+        "cy": -1621.790832057595,
+        "kind": "radial",
+        "r": 4835.377332791686,
+        "stops": [
+          {
+            "color": "#ff6e7faa",
+            "offset": 0,
+          },
+          {
+            "color": "#ff6e7f00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 784.3162277162075,
+        "cy": 4285.082298144698,
+        "kind": "radial",
+        "r": 4279.7315197438,
+        "stops": [
+          {
+            "color": "#ff6e7faa",
+            "offset": 0,
+          },
+          {
+            "color": "#ff6e7f00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 1058.3785278372468,
+        "cy": -1446.3235433399677,
+        "kind": "radial",
+        "r": 5722.477246299386,
+        "stops": [
+          {
+            "color": "#ffd86eaa",
+            "offset": 0,
+          },
+          {
+            "color": "#ffd86e00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 1145.3100819513202,
+        "cy": 4436.717763021588,
+        "kind": "radial",
+        "r": 4559.158340319991,
+        "stops": [
+          {
+            "color": "#ffd86eaa",
+            "offset": 0,
+          },
+          {
+            "color": "#ffd86e00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 720,
+        "cy": 3360,
+        "kind": "radial",
+        "r": 1152,
+        "stops": [
+          {
+            "color": "#ffd86e55",
+            "offset": 0,
+          },
+          {
+            "color": "#ffd86e00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+  ],
+  "w": 1440,
+}
+`;
+
 exports[`buildGradientSpec — regression snapshots > blobs @ seed 12 1`] = `
 {
   "background": "#2b1055",

@@ -2,7 +2,7 @@
 export const DEVICES = ["mobile", "tablet", "desktop"] as const;
 export type Device = (typeof DEVICES)[number];
 
-export const STYLES = ["mesh", "blobs", "liquid"] as const;
+export const STYLES = ["mesh", "blobs", "liquid", "aurora"] as const;
 export type Style = (typeof STYLES)[number];
 
 export type Colors4 = [string, string, string, string];
