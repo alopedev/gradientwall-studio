@@ -1,9 +1,8 @@
-import { useStudioStore, type HistoryItem } from "@/store/useStudioStore";
+import { useHistoryStore, loadHistoryItem, type HistoryItem } from "@/store";
 import { useGradientCanvas } from "@/lib/useGradientCanvas";
 
 export function History() {
-  const history = useStudioStore((s) => s.history);
-  const loadHistory = useStudioStore((s) => s.loadHistory);
+  const history = useHistoryStore((s) => s.history);
 
   return (
     <div className="mt-14">
@@ -17,7 +16,7 @@ export function History() {
             Nothing here yet — save your first gradient ↑
           </div>
         ) : (
-          history.map((h, i) => <HistoryCard key={i} item={h} onClick={() => loadHistory(h)} />)
+          history.map((h, i) => <HistoryCard key={i} item={h} onClick={() => loadHistoryItem(h)} />)
         )}
       </div>
     </div>

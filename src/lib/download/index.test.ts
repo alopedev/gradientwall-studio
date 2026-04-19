@@ -1,4 +1,4 @@
-// @vitest-environment happy-dom
+// @vitest-environment jsdom
 import { describe, it, expect, vi } from "vitest";
 import { downloadWallpaper } from "./index";
 import type { Colors4 } from "../palettes";

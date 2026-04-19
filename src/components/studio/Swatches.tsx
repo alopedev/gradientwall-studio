@@ -1,8 +1,8 @@
-import { useStudioStore } from "@/store/useStudioStore";
+import { useConfigStore } from "@/store";
 
 export function Swatches() {
-  const colors = useStudioStore((s) => s.colors);
-  const setColor = useStudioStore((s) => s.setColor);
+  const colors = useConfigStore((s) => s.colors);
+  const setColor = useConfigStore((s) => s.setColor);
 
   return (
     <div className="grid grid-cols-4 gap-2.5">

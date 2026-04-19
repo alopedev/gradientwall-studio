@@ -1,10 +1,9 @@
 import { useRef } from "react";
-import { useStudioStore } from "@/store/useStudioStore";
+import { useUIStore, applyPalette } from "@/store";
 import { PALETTES } from "@/lib/palettes";
 
 export function Palettes() {
-  const activePalette = useStudioStore((s) => s.activePalette);
-  const applyPalette = useStudioStore((s) => s.applyPalette);
+  const activePalette = useUIStore((s) => s.activePalette);
   const refs = useRef<(HTMLDivElement | null)[]>([]);
 
   return (

@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
-import { useStudioStore } from "@/store/useStudioStore";
+import { useConfigStore } from "@/store";
 import { renderGradient } from "@/lib/gradient";
 import { DEVICES, DEVICE_SIZES } from "@/lib/palettes";
 import { downloadWallpaper } from "@/lib/download";
 
 export function Preview() {
-  const { device, colors, style, blur, grain, seed, setDevice, randomize } = useStudioStore(
+  const { device, colors, style, blur, grain, seed, setDevice, randomize } = useConfigStore(
     useShallow((s) => ({
       device: s.device,
       colors: s.colors,

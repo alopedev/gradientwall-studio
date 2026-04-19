@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useStudioStore } from "@/store/useStudioStore";
+import { loadGallerySeed } from "@/store";
 import { GALLERY_SEEDS, type GallerySeed } from "@/lib/palettes";
 import { renderGradient } from "@/lib/gradient";
 
@@ -35,7 +35,6 @@ export function Gallery() {
 }
 
 function GalleryCard({ seed }: { seed: GallerySeed }) {
-  const loadGallerySeed = useStudioStore((s) => s.loadGallerySeed);
   const wrapRef = useRef<HTMLButtonElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [painted, setPainted] = useState(false);

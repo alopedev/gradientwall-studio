@@ -1,5 +1,5 @@
 import { useShallow } from "zustand/react/shallow";
-import { useStudioStore, type SourceTab } from "@/store/useStudioStore";
+import { useConfigStore, useUIStore, save, type SourceTab } from "@/store";
 import { seedToHex } from "@/lib/gradient";
 import { STYLES, type Style } from "@/lib/palettes";
 import { Swatches } from "./Swatches";
@@ -10,22 +10,21 @@ const SOURCE_TABS = ["picker", "palettes"] as const satisfies readonly SourceTab
 const sourceLabel = (t: SourceTab) => (t === "picker" ? "Color picker" : "Palettes");
 
 export function ControlsPanel() {
-  const { activeTab, style, blur, grain, seed, setActiveTab, setStyle, setBlur, setGrain, reshuffle, save } =
-    useStudioStore(
-      useShallow((s) => ({
-        activeTab: s.activeTab,
-        style: s.style,
-        blur: s.blur,
-        grain: s.grain,
-        seed: s.seed,
-        setActiveTab: s.setActiveTab,
-        setStyle: s.setStyle,
-        setBlur: s.setBlur,
-        setGrain: s.setGrain,
-        reshuffle: s.reshuffle,
-        save: s.save,
-      })),
-    );
+  const { style, blur, grain, seed, setStyle, setBlur, setGrain, reshuffle } = useConfigStore(
+    useShallow((s) => ({
+      style: s.style,
+      blur: s.blur,
+      grain: s.grain,
+      seed: s.seed,
+      setStyle: s.setStyle,
+      setBlur: s.setBlur,
+      setGrain: s.setGrain,
+      reshuffle: s.reshuffle,
+    })),
+  );
+  const { activeTab, setActiveTab } = useUIStore(
+    useShallow((s) => ({ activeTab: s.activeTab, setActiveTab: s.setActiveTab })),
+  );
 
   return (
     <div className="liquid p-7 flex flex-col gap-7">
