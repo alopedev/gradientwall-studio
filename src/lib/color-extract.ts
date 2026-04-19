@@ -36,6 +36,20 @@ export function extractColorsFromBitmap(bitmap: ImageBitmap | HTMLImageElement):
   if (!ctx) throw new Error("Canvas 2D unavailable");
   ctx.drawImage(bitmap as CanvasImageSource, 0, 0, size, size);
   const { data } = ctx.getImageData(0, 0, size, size);
+  return extractFromPixels(data);
+}
+
+/**
+ * Pure core: given a flat RGBA pixel buffer, return the 4 dominant colors
+ * as `#RRGGBB` hex strings, sorted dark → light by BT.709 luminance.
+ *
+ * Pixels with alpha < 128 are dropped before clustering. Throws if no
+ * opaque pixels remain.
+ *
+ * This is the testable entry point — `extractColorsFromBitmap` wraps this
+ * with a 96×96 Canvas downsample step.
+ */
+export function extractFromPixels(data: Uint8ClampedArray): Colors4 {
   const pixels: RGB[] = [];
   for (let i = 0; i < data.length; i += 4) {
     const a = data[i + 3];
@@ -45,7 +59,6 @@ export function extractColorsFromBitmap(bitmap: ImageBitmap | HTMLImageElement):
   if (pixels.length === 0) throw new Error("Image has no opaque pixels");
 
   const centroids = kmeans(pixels, 4, 10);
-  // Sort dark → light by perceived luminance
   centroids.sort(byLuminance);
   return centroids.map(rgbToHex) as Colors4;
 }

@@ -28,6 +28,17 @@ export function Preview() {
   // switches devices while it's on.
   const showMockup = mockupMode && device === "mobile";
 
+  // Escape closes Mockup mode for accessibility — mirrors how modal UI
+  // surfaces are dismissed across iOS / macOS.
+  useEffect(() => {
+    if (!mockupMode) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMockupMode(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [mockupMode]);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;

@@ -65,5 +65,22 @@ describe("<Preview />", () => {
     expect(screen.getByText(/Monday/i)).toBeInTheDocument();
   });
 
+  it("pressing Escape while Mockup is active closes it (a11y)", () => {
+    render(<Preview />);
+    const mockup = screen.getByRole("button", { name: /mockup/i });
+    fireEvent.click(mockup);
+    expect(mockup).toHaveAttribute("aria-pressed", "true");
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(mockup).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("Escape when Mockup is already closed does nothing (no crash)", () => {
+    render(<Preview />);
+    const mockup = screen.getByRole("button", { name: /mockup/i });
+    expect(mockup).toHaveAttribute("aria-pressed", "false");
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(mockup).toHaveAttribute("aria-pressed", "false");
+  });
+
   afterEach(() => vi.restoreAllMocks());
 });

@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { IPhoneMockup } from "./IPhoneMockup";
 import type { Colors4 } from "@/lib/palettes";
@@ -27,5 +27,33 @@ describe("<IPhoneMockup />", () => {
   it("mounts a canvas (the wallpaper behind chrome)", () => {
     const { container } = render(<IPhoneMockup variant="lock" {...common} />);
     expect(container.querySelector("canvas")).not.toBeNull();
+  });
+
+  it("re-renders the canvas when spec deps (colors/style/blur/seed) change, but not for grain-only updates", async () => {
+    const gradientModule = await import("@/lib/gradient");
+    const renderSpy = vi.spyOn(gradientModule, "renderGradient");
+    // Stable reference across rerenders so we only vary one prop at a time
+    const colorsA: Colors4 = ["#111111", "#222222", "#333333", "#444444"];
+    const colorsB: Colors4 = ["#000000", "#ff0000", "#00ff00", "#0000ff"];
+
+    const { rerender } = render(<IPhoneMockup variant="lock" colors={colorsA} style="mesh" blur={48} seed={1} grain={45} />);
+    const afterMount = renderSpy.mock.calls.length;
+    expect(afterMount).toBeGreaterThan(0);
+
+    // colors change → effect fires
+    rerender(<IPhoneMockup variant="lock" colors={colorsB} style="mesh" blur={48} seed={1} grain={45} />);
+    expect(renderSpy.mock.calls.length).toBeGreaterThan(afterMount);
+    const afterColors = renderSpy.mock.calls.length;
+
+    // style change → effect fires
+    rerender(<IPhoneMockup variant="lock" colors={colorsB} style="aurora" blur={48} seed={1} grain={45} />);
+    expect(renderSpy.mock.calls.length).toBeGreaterThan(afterColors);
+    const afterStyle = renderSpy.mock.calls.length;
+
+    // grain-only change → effect should NOT fire (grain is a CSS overlay, not a canvas dep)
+    rerender(<IPhoneMockup variant="lock" colors={colorsB} style="aurora" blur={48} seed={1} grain={99} />);
+    expect(renderSpy.mock.calls.length).toBe(afterStyle);
+
+    renderSpy.mockRestore();
   });
 });
