@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useStudioStore } from "@/store/useStudioStore";
 import { renderGradient } from "@/lib/gradient";
@@ -19,31 +19,9 @@ export function Preview() {
     })),
   );
 
-  const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [size, setSize] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
   const [downloading, setDownloading] = useState(false);
-
-  useLayoutEffect(() => {
-    function layout() {
-      const stage = stageRef.current;
-      if (!stage) return;
-      const availW = stage.clientWidth - 112;
-      const availH = stage.clientHeight - 112;
-      const d = DEVICE_SIZES[device];
-      const ratio = d.w / d.h;
-      let w = availW;
-      let h = availW / ratio;
-      if (h > availH) {
-        h = availH;
-        w = availH * ratio;
-      }
-      setSize({ w, h });
-    }
-    layout();
-    window.addEventListener("resize", layout);
-    return () => window.removeEventListener("resize", layout);
-  }, [device]);
+  const d = DEVICE_SIZES[device];
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -90,17 +68,14 @@ export function Preview() {
         {DEVICE_SIZES[device].label}
       </div>
 
-      {/* Stage (canvas fitted) */}
-      <div
-        ref={stageRef}
-        className="absolute inset-0 flex items-center justify-center p-14"
-        style={{ background: "#000" }}
-      >
+      {/* Stage — flex container fits the wallpaper via CSS aspect-ratio. */}
+      <div className="absolute inset-0 flex items-center justify-center p-14" style={{ background: "#000" }}>
         <div
-          className="relative overflow-hidden rounded-lg transition-[width,height] duration-[400ms]"
+          className="relative overflow-hidden rounded-lg transition-[aspect-ratio] duration-[400ms]"
           style={{
-            width: size.w,
-            height: size.h,
+            aspectRatio: `${d.w} / ${d.h}`,
+            maxWidth: "100%",
+            maxHeight: "100%",
             background: "#111",
             boxShadow: "0 30px 80px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.04)",
             transitionTimingFunction: "cubic-bezier(.2,.7,.2,1)",
