@@ -31,8 +31,14 @@ export function IPhoneMockup({ variant, colors, style, blur, seed, grain }: Prop
     seed,
   ]);
 
+  // Aspect-ratio + dual max-* constraints produce a box that scales to fit
+  // inside any container while preserving 9:19.5 (modern iPhone ratio). Works
+  // cleanly in both orientations of the parent slot.
   return (
-    <div className="relative h-full aspect-[9/19.5] max-h-full max-w-full">
+    <div
+      className="relative"
+      style={{ aspectRatio: "9 / 19.5", maxHeight: "100%", maxWidth: "100%", height: "100%" }}
+    >
       {/* Outer body / bezel — subtle metallic gradient */}
       <div className="absolute inset-0 rounded-[14%/7.5%] p-[3px] bg-gradient-to-b from-neutral-600 via-neutral-800 to-neutral-950 shadow-[0_20px_40px_rgba(0,0,0,0.6)]">
         {/* Screen */}
