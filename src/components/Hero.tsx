@@ -1,3 +1,15 @@
+import * as motion from "motion/react-client";
+
+// Entrance timing — editorial, slow, deliberate. Each element arrives with a
+// 120ms offset so the user's eye has time to catch each word before the next
+// element claims attention. Easing is the project's cinematic curve.
+const EASE = [0.2, 0.7, 0.2, 1] as const;
+const fadeUp = (delay: number) => ({
+  initial: { opacity: 0, y: 14 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.7, ease: EASE, delay },
+});
+
 export function Hero() {
   return (
     <section className="relative h-screen min-h-[720px] overflow-hidden isolate">
@@ -28,26 +40,36 @@ export function Hero() {
       />
 
       <div className="relative z-[2] h-full flex flex-col justify-center mx-auto max-w-[1600px] px-[clamp(24px,7vw,120px)] pt-24 md:pt-0 pb-[clamp(120px,18vh,250px)]">
-        <span className="inline-flex items-center gap-2.5 font-sans text-[11px] font-medium uppercase tracking-[0.22em] text-white/75 mb-7">
+        <motion.span
+          {...fadeUp(0.0)}
+          className="inline-flex items-center gap-2.5 font-sans text-[11px] font-medium uppercase tracking-[0.22em] text-white/75 mb-7"
+        >
           <span
             className="h-1.5 w-1.5 rounded-full bg-[#4dffb1]"
             style={{ boxShadow: "0 0 12px #4dffb1" }}
             aria-hidden
           />
           Vol. 04 — Spring edition · Live
-        </span>
+        </motion.span>
 
         <h1 className="m-0 mb-7 leading-[0.96] tracking-[-0.035em] text-[clamp(42px,7vw,64px)]">
-          <span className="block font-sans font-light text-white">Cinematic wallpapers,</span>
-          <span className="block font-serif italic text-white">mixed by hand.</span>
+          <motion.span {...fadeUp(0.12)} className="block font-sans font-light text-white">
+            Cinematic wallpapers,
+          </motion.span>
+          <motion.span {...fadeUp(0.24)} className="block font-serif italic text-white">
+            mixed by hand.
+          </motion.span>
         </h1>
 
-        <p className="m-0 mb-10 max-w-[52ch] text-[clamp(15px,1.15vw,17px)] leading-[1.55] text-white/75 font-sans font-light">
+        <motion.p
+          {...fadeUp(0.4)}
+          className="m-0 mb-10 max-w-[52ch] text-[clamp(15px,1.15vw,17px)] leading-[1.55] text-white/75 font-sans font-light"
+        >
           A small studio for color. Blend four hues into mesh gradients, drifting blobs and soft grain — then pour
           them onto your phone, tablet or desktop in a single click.
-        </p>
+        </motion.p>
 
-        <div className="flex items-center gap-3.5 flex-wrap">
+        <motion.div {...fadeUp(0.55)} className="flex items-center gap-3.5 flex-wrap">
           <a
             href="#studio"
             className="inline-flex items-center gap-2 rounded-[2px] bg-[#f8f8f8] text-[#171717] px-5 py-3.5 text-sm font-sans font-medium tracking-[0.01em] transition-colors duration-150 hover:bg-white"
@@ -60,7 +82,7 @@ export function Hero() {
           >
             Browse the gallery
           </a>
-        </div>
+        </motion.div>
       </div>
 
       {/* Meta bottom row */}

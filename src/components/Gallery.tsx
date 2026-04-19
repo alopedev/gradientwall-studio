@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
+import * as motion from "motion/react-client";
 import { loadGallerySeed } from "@/store";
 import { GALLERY_SEEDS, type GallerySeed } from "@/lib/palettes";
 import { renderGradient } from "@/lib/gradient";
+import { Reveal } from "./ui/Reveal";
 
 export function Gallery() {
   return (
@@ -9,7 +11,7 @@ export function Gallery() {
       id="gallery"
       className="relative mx-auto max-w-[1600px] px-[clamp(24px,5vw,80px)] py-[clamp(60px,9vw,120px)] border-t border-white/8"
     >
-      <div className="grid md:grid-cols-2 gap-12 items-end mb-14">
+      <Reveal className="grid md:grid-cols-2 gap-12 items-end mb-14">
         <div>
           <span className="block mb-4 font-sans text-[11px] tracking-[0.22em] uppercase text-white/40">
             03 — Community
@@ -23,18 +25,19 @@ export function Gallery() {
           A quiet feed of gradients from the GradientWall community. Tap any piece to open it in the studio as a
           starting point.
         </p>
-      </div>
+      </Reveal>
 
+      {/* Gallery cards enter viewport with a 60ms stagger — cinematic cascade */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
-        {GALLERY_SEEDS.map((g) => (
-          <GalleryCard key={g.name} seed={g} />
+        {GALLERY_SEEDS.map((g, i) => (
+          <GalleryCard key={g.name} seed={g} index={i} />
         ))}
       </div>
     </section>
   );
 }
 
-function GalleryCard({ seed }: { seed: GallerySeed }) {
+function GalleryCard({ seed, index }: { seed: GallerySeed; index: number }) {
   const wrapRef = useRef<HTMLButtonElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [painted, setPainted] = useState(false);
@@ -69,12 +72,16 @@ function GalleryCard({ seed }: { seed: GallerySeed }) {
   }, [seed, painted]);
 
   return (
-    <button
+    <motion.button
       ref={wrapRef}
       onClick={() => {
         loadGallerySeed(seed);
         document.getElementById("studio")?.scrollIntoView({ behavior: "smooth", block: "start" });
       }}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.6, ease: [0.2, 0.7, 0.2, 1], delay: (index % 4) * 0.06 }}
       className="relative aspect-[9/16] rounded-[2px] overflow-hidden cursor-pointer transition-transform duration-300 hover:-translate-y-1 p-0 text-left"
       style={{ transitionTimingFunction: "cubic-bezier(.2,.7,.2,1)" }}
     >
@@ -86,6 +93,6 @@ function GalleryCard({ seed }: { seed: GallerySeed }) {
         <span>{seed.name}</span>
         <span className="text-white/75">@{seed.author}</span>
       </div>
-    </button>
+    </motion.button>
   );
 }

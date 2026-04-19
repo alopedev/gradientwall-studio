@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { useShallow } from "zustand/react/shallow";
+import * as motion from "motion/react-client";
 import { useConfigStore, useUIStore, save, type SourceTab } from "@/store";
 import { seedToHex } from "@/lib/gradient";
 import { STYLES, type Style } from "@/lib/palettes";
@@ -77,12 +79,7 @@ export function ControlsPanel() {
       <div className="flex flex-col gap-3.5">
         <LabelRow left="Composition" right={seedToHex(seed)} />
         <div className="flex gap-2">
-          <button
-            onClick={reshuffle}
-            className="flex-1 rounded-[2px] border border-white/14 text-white px-3.5 py-3 text-xs font-sans tracking-[0.14em] uppercase transition-colors duration-150 hover:bg-white/5 hover:border-white/30"
-          >
-            Reshuffle
-          </button>
+          <ReshuffleButton onClick={reshuffle} />
           <button
             onClick={save}
             className="flex-1 rounded-[2px] bg-[#f8f8f8] text-[#171717] px-3.5 py-3 text-xs font-sans font-medium tracking-[0.14em] uppercase transition-colors duration-150 hover:bg-white"
@@ -92,6 +89,31 @@ export function ControlsPanel() {
         </div>
       </div>
     </div>
+  );
+}
+
+function ReshuffleButton({ onClick }: { onClick: () => void }) {
+  // Track how many times the user has reshuffled — each press adds 360° to
+  // the rotation target so Motion animates a full spin every click.
+  const [spins, setSpins] = useState(0);
+  return (
+    <button
+      onClick={() => {
+        onClick();
+        setSpins((s) => s + 1);
+      }}
+      className="flex-1 inline-flex items-center justify-center gap-2 rounded-[2px] border border-white/14 text-white px-3.5 py-3 text-xs font-sans tracking-[0.14em] uppercase transition-colors duration-150 hover:bg-white/5 hover:border-white/30"
+    >
+      <motion.span
+        aria-hidden
+        animate={{ rotate: spins * 360 }}
+        transition={{ duration: 0.55, ease: [0.2, 0.7, 0.2, 1] }}
+        className="inline-block"
+      >
+        ↻
+      </motion.span>
+      Reshuffle
+    </button>
   );
 }
 

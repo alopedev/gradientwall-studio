@@ -1,10 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
+import { AnimatePresence } from "motion/react";
+import * as motion from "motion/react-client";
 import { useConfigStore } from "@/store";
 import { renderGradient } from "@/lib/gradient";
 import { DEVICES, DEVICE_SIZES } from "@/lib/palettes";
 import { downloadWallpaper } from "@/lib/download";
 import { IPhoneMockup } from "./IPhoneMockup";
+
+const EASE = [0.2, 0.7, 0.2, 1] as const;
 
 export function Preview() {
   const { device, colors, style, blur, grain, seed, setDevice, randomize } = useConfigStore(
@@ -22,7 +26,9 @@ export function Preview() {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [downloading, setDownloading] = useState(false);
+  const [justDownloaded, setJustDownloaded] = useState(false);
   const [mockupMode, setMockupMode] = useState(false);
+  const [flashKey, setFlashKey] = useState(0);
   const d = DEVICE_SIZES[device];
   // Mockup only makes sense on the mobile aspect. Force it off if the user
   // switches devices while it's on.
@@ -98,39 +104,82 @@ export function Preview() {
         {DEVICE_SIZES[device].label}
       </div>
 
-      {/* Stage — either the fit-to-aspect wallpaper or the dual-iPhone mockup. */}
+      {/* Stage — either the fit-to-aspect wallpaper or the dual-iPhone mockup.
+          AnimatePresence cross-fades between the two modes when toggled. */}
       <div className="absolute inset-0 flex items-center justify-center p-14" style={{ background: "#000" }}>
-        {showMockup ? (
-          <div className="flex items-center justify-center gap-6 h-full w-full">
-            <IPhoneMockup variant="lock" colors={colors} style={style} blur={blur} seed={seed} grain={grain} />
-            <IPhoneMockup variant="home" colors={colors} style={style} blur={blur} seed={seed} grain={grain} />
-          </div>
-        ) : (
-          <div
-            className="relative overflow-hidden rounded-lg transition-[aspect-ratio] duration-[400ms]"
-            style={{
-              aspectRatio: `${d.w} / ${d.h}`,
-              maxWidth: "100%",
-              maxHeight: "100%",
-              background: "#111",
-              boxShadow: "0 30px 80px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.04)",
-              transitionTimingFunction: "cubic-bezier(.2,.7,.2,1)",
-            }}
-          >
-            <canvas ref={canvasRef} className="block w-full h-full" />
-            <div
-              className="absolute inset-0 pointer-events-none wallpaper-grain mix-blend-overlay"
-              style={{ opacity: grain / 100 }}
-              aria-hidden
-            />
-          </div>
-        )}
+        <AnimatePresence mode="wait">
+          {showMockup ? (
+            <motion.div
+              key="mockup"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.35, ease: EASE }}
+              className="flex items-center justify-center gap-6 h-full w-full"
+            >
+              <motion.div
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: EASE, delay: 0.05 }}
+                className="h-full aspect-[9/19.5]"
+              >
+                <IPhoneMockup variant="lock" colors={colors} style={style} blur={blur} seed={seed} grain={grain} />
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: EASE, delay: 0.18 }}
+                className="h-full aspect-[9/19.5]"
+              >
+                <IPhoneMockup variant="home" colors={colors} style={style} blur={blur} seed={seed} grain={grain} />
+              </motion.div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="fit"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.35, ease: EASE }}
+              className="relative overflow-hidden rounded-lg transition-[aspect-ratio] duration-[400ms]"
+              style={{
+                aspectRatio: `${d.w} / ${d.h}`,
+                maxWidth: "100%",
+                maxHeight: "100%",
+                background: "#111",
+                boxShadow: "0 30px 80px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.04)",
+                transitionTimingFunction: "cubic-bezier(.2,.7,.2,1)",
+              }}
+            >
+              <canvas ref={canvasRef} className="block w-full h-full" />
+              <div
+                className="absolute inset-0 pointer-events-none wallpaper-grain mix-blend-overlay"
+                style={{ opacity: grain / 100 }}
+                aria-hidden
+              />
+              {/* Random flash — fires on each Random click, fades away */}
+              {flashKey > 0 && (
+                <motion.div
+                  key={flashKey}
+                  initial={{ opacity: 0.45 }}
+                  animate={{ opacity: 0 }}
+                  transition={{ duration: 0.32, ease: [0.2, 0.7, 0.2, 1] }}
+                  className="absolute inset-0 pointer-events-none bg-white"
+                  aria-hidden
+                />
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Action buttons */}
       <div className="absolute bottom-3.5 left-3.5 right-3.5 z-[3] flex justify-between gap-2.5">
         <button
-          onClick={randomize}
+          onClick={() => {
+            randomize();
+            setFlashKey((k) => k + 1);
+          }}
           className="inline-flex items-center gap-2 rounded-full bg-black/55 border border-white/14 px-3.5 py-2 text-[11px] tracking-[0.1em] uppercase font-sans text-white/75 backdrop-blur-md transition-colors duration-150 hover:text-white hover:border-white/30"
         >
           ↻ &nbsp;Random
@@ -139,10 +188,14 @@ export function Preview() {
           disabled={downloading}
           onClick={async () => {
             setDownloading(true);
+            setJustDownloaded(false);
             // Yield to browser so the button repaints before the heavy encode blocks.
             await new Promise((r) => requestAnimationFrame(() => r(null)));
             try {
               await downloadWallpaper({ device, colors, style, blur, grain, seed });
+              setJustDownloaded(true);
+              // Clear the ✓ state after a beat so the button returns to ready
+              setTimeout(() => setJustDownloaded(false), 1600);
             } finally {
               setDownloading(false);
             }
@@ -154,6 +207,8 @@ export function Preview() {
               <span className="inline-block h-3 w-3 rounded-full border-2 border-[#171717] border-t-transparent animate-spin" />
               &nbsp;Generating
             </>
+          ) : justDownloaded ? (
+            <>✓ &nbsp;Saved</>
           ) : (
             <>↓ &nbsp;Download</>
           )}

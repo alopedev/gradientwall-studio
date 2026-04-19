@@ -30,15 +30,17 @@ describe("<Preview />", () => {
     expect(useConfigStore.getState().seed).not.toBe(before);
   });
 
-  it("Download button shows 'Generating' during encode + returns to 'Download' after", async () => {
+  it("Download button shows 'Generating' during encode, then '✓ Saved' after, then reverts to 'Download'", async () => {
     render(<Preview />);
     const btn = screen.getByRole("button", { name: /download/i });
     fireEvent.click(btn);
     // The requestAnimationFrame + async pipeline resolves quickly with the mock
     // canvas.toBlob. Wait for the final state.
     await waitFor(() => expect(btn).not.toBeDisabled(), { timeout: 2000 });
-    // After the download completes, the button's label reverts to Download.
-    expect(btn.textContent).toMatch(/download/i);
+    // Immediately after completion, the button shows a success flash.
+    expect(btn.textContent).toMatch(/saved/i);
+    // After ~1.6s the flash clears and the button returns to the default label.
+    await waitFor(() => expect(btn.textContent).toMatch(/download/i), { timeout: 3000 });
   });
 
   it("renders a canvas (the wallpaper preview)", () => {
@@ -55,13 +57,14 @@ describe("<Preview />", () => {
     expect(screen.queryByRole("button", { name: /mockup/i })).not.toBeInTheDocument();
   });
 
-  it("Mockup toggle flips on click and renders dual iPhone chrome (big clock + Monday date)", () => {
+  it("Mockup toggle flips on click and renders dual iPhone chrome (big clock + Monday date)", async () => {
     render(<Preview />);
     const mockup = screen.getByRole("button", { name: /mockup/i });
     fireEvent.click(mockup);
     expect(mockup).toHaveAttribute("aria-pressed", "true");
-    // Lock chrome renders a large "9:41" time + date string
-    expect(screen.getAllByText("9:41").length).toBeGreaterThanOrEqual(2); // status bar × 2 + lock clock
+    // The stage cross-fades in under AnimatePresence mode="wait" — wait for
+    // the chrome (lock clock "9:41" × ≥ 2 and Monday date) to reveal.
+    await waitFor(() => expect(screen.getAllByText("9:41").length).toBeGreaterThanOrEqual(2), { timeout: 2000 });
     expect(screen.getByText(/Monday/i)).toBeInTheDocument();
   });
 
