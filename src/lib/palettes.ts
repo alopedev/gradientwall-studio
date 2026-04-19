@@ -7,6 +7,33 @@ export type Style = (typeof STYLES)[number];
 
 export type Colors4 = [string, string, string, string];
 
+/**
+ * Per-slot on/off mask over the four colors. A slot set to `false` is
+ * excluded from the rendered gradient so the wallpaper renders with 2 or 3
+ * colors instead of all 4. The UI never exposes fewer slots than 4 — this
+ * is purely about which of the 4 feed the renderer.
+ */
+export type ActiveMask = [boolean, boolean, boolean, boolean];
+
+/** Default mask: every slot contributes. */
+export const ALL_ACTIVE: ActiveMask = [true, true, true, true];
+
+/**
+ * Minimum active slots. Fewer than two colors yields a solid fill or near-
+ * solid ramp — not a "gradient" in any useful sense.
+ */
+export const MIN_ACTIVE_COLORS = 2;
+
+/**
+ * Filter a `Colors4` tuple to the subset flagged active in the mask. Used
+ * at render call-sites to build the variable-length ramp fed to the spec.
+ * Defaults to `ALL_ACTIVE` so legacy callers (gallery seeds, un-masked
+ * history items) keep behaving as they did before.
+ */
+export function activeColors(colors: Colors4, active: ActiveMask = ALL_ACTIVE): readonly string[] {
+  return colors.filter((_, i) => active[i]);
+}
+
 export interface DeviceSize {
   w: number;
   h: number;

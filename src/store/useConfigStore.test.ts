@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach } from "vitest";
 import { useConfigStore } from "./useConfigStore";
-import { PALETTES, STYLES } from "@/lib/palettes";
+import { ALL_ACTIVE, PALETTES, STYLES } from "@/lib/palettes";
 
 // Snapshot the pristine state so each test starts fresh.
 const INITIAL = useConfigStore.getState();
@@ -58,5 +58,41 @@ describe("useConfigStore", () => {
     expect(STYLES).toContain(s.style);
     expect(s.colors).toHaveLength(4);
     s.colors.forEach((c) => expect(c).toMatch(/^#[0-9a-f]{6}$/));
+  });
+
+  describe("active mask", () => {
+    it("initializes with all four slots active", () => {
+      expect(useConfigStore.getState().active).toEqual(ALL_ACTIVE);
+    });
+
+    it("toggleColor flips a single slot when four are active", () => {
+      useConfigStore.getState().toggleColor(1);
+      expect(useConfigStore.getState().active).toEqual([true, false, true, true]);
+    });
+
+    it("toggleColor re-enables an inactive slot", () => {
+      useConfigStore.setState({ active: [true, false, true, true] });
+      useConfigStore.getState().toggleColor(1);
+      expect(useConfigStore.getState().active).toEqual([true, true, true, true]);
+    });
+
+    it("refuses to drop below two active slots (silent no-op)", () => {
+      // Arrange: only slots 0 and 2 are active — a third toggle-off would leave only one.
+      useConfigStore.setState({ active: [true, false, true, false] });
+      useConfigStore.getState().toggleColor(0);
+      expect(useConfigStore.getState().active).toEqual([true, false, true, false]);
+    });
+
+    it("setColors resets the active mask to ALL_ACTIVE", () => {
+      useConfigStore.setState({ active: [true, false, true, false] });
+      useConfigStore.getState().setColors(["#000000", "#111111", "#222222", "#333333"]);
+      expect(useConfigStore.getState().active).toEqual(ALL_ACTIVE);
+    });
+
+    it("randomize resets the active mask to ALL_ACTIVE", () => {
+      useConfigStore.setState({ active: [false, true, false, true] });
+      useConfigStore.getState().randomize();
+      expect(useConfigStore.getState().active).toEqual(ALL_ACTIVE);
+    });
   });
 });

@@ -3,6 +3,8 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { Preview } from "./Preview";
 import { useConfigStore } from "@/store/useConfigStore";
 import { resetStores } from "@/test-utils";
+import * as downloadModule from "@/lib/download";
+import type { Colors4 } from "@/lib/palettes";
 
 describe("<Preview />", () => {
   beforeEach(resetStores);
@@ -83,6 +85,37 @@ describe("<Preview />", () => {
     expect(mockup).toHaveAttribute("aria-pressed", "false");
     fireEvent.keyDown(window, { key: "Escape" });
     expect(mockup).toHaveAttribute("aria-pressed", "false");
+  });
+
+  describe("active-mask filtering in the render pipeline", () => {
+    it("Download passes the filtered ramp (only active slots) to downloadWallpaper", async () => {
+      const spy = vi.spyOn(downloadModule, "downloadWallpaper").mockResolvedValue(undefined);
+      useConfigStore.setState({
+        colors: ["#aaaaaa", "#bbbbbb", "#cccccc", "#dddddd"] as Colors4,
+        active: [true, false, true, false],
+      });
+
+      render(<Preview />);
+      fireEvent.click(screen.getByRole("button", { name: /download/i }));
+      await waitFor(() => expect(spy).toHaveBeenCalled(), { timeout: 2000 });
+
+      const opts = spy.mock.calls[0][0];
+      expect(opts.colors).toEqual(["#aaaaaa", "#cccccc"]);
+    });
+
+    it("Download uses all four colors when no slots are deactivated", async () => {
+      const spy = vi.spyOn(downloadModule, "downloadWallpaper").mockResolvedValue(undefined);
+      useConfigStore.setState({
+        colors: ["#aaaaaa", "#bbbbbb", "#cccccc", "#dddddd"] as Colors4,
+        active: [true, true, true, true],
+      });
+
+      render(<Preview />);
+      fireEvent.click(screen.getByRole("button", { name: /download/i }));
+      await waitFor(() => expect(spy).toHaveBeenCalled(), { timeout: 2000 });
+
+      expect(spy.mock.calls[0][0].colors).toEqual(["#aaaaaa", "#bbbbbb", "#cccccc", "#dddddd"]);
+    });
   });
 
   afterEach(() => vi.restoreAllMocks());

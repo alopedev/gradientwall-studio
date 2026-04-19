@@ -176,6 +176,43 @@ describe("buildGradientSpec — structural invariants", () => {
   });
 });
 
+describe("buildGradientSpec — variable-length color ramps", () => {
+  // The spec must accept ramps of 2-4 colors so the "deselect slots" UI works.
+  // All four styles iterate via `colors.length` or `colors[i % length]` — no
+  // hidden `[0..3]` dereferences that would crash on shorter inputs.
+
+  it("accepts a 2-color ramp without errors", () => {
+    expect(() => buildGradientSpec(baseOpts({ colors: ["#112233", "#aabbcc"] }))).not.toThrow();
+  });
+
+  it("mesh produces one radial per color in the ramp (2/3/4)", () => {
+    expect(buildGradientSpec(baseOpts({ colors: ["#a", "#b"], style: "mesh" })).layers).toHaveLength(2);
+    expect(buildGradientSpec(baseOpts({ colors: ["#a", "#b", "#c"], style: "mesh" })).layers).toHaveLength(3);
+  });
+
+  it("aurora produces colors.length × 2 bands + 1 horizon glow", () => {
+    // 2 colors → 4 bands + 1 = 5
+    expect(buildGradientSpec(baseOpts({ colors: ["#a", "#b"], style: "aurora" })).layers).toHaveLength(5);
+    // 3 colors → 6 bands + 1 = 7
+    expect(buildGradientSpec(baseOpts({ colors: ["#a", "#b", "#c"], style: "aurora" })).layers).toHaveLength(7);
+  });
+
+  it("blobs keeps its fixed 14-layer count regardless of ramp length", () => {
+    // blobs iterates `colors[i % colors.length]` — the number of layers is the
+    // visual density knob, independent of how many colors feed the cycle.
+    expect(buildGradientSpec(baseOpts({ colors: ["#a", "#b"], style: "blobs" })).layers).toHaveLength(14);
+  });
+
+  it("liquid keeps its 6 bands + 1 highlight regardless of ramp length", () => {
+    expect(buildGradientSpec(baseOpts({ colors: ["#a", "#b"], style: "liquid" })).layers).toHaveLength(7);
+  });
+
+  it("background is always colors[0] even when the ramp has only two entries", () => {
+    const spec = buildGradientSpec(baseOpts({ colors: ["#112233", "#aabbcc"] }));
+    expect(spec.background).toBe("#112233");
+  });
+});
+
 describe("buildGradientSpec — regression snapshots", () => {
   // Capture a matrix of (style × seed) to guard the core math.
   // Any change to PRNG, positioning, or color encoding will surface here.

@@ -111,3 +111,12 @@ class IOStub {
 }
 Object.defineProperty(globalThis, "IntersectionObserver", { value: IOStub, writable: true, configurable: true });
 Object.defineProperty(window, "IntersectionObserver", { value: IOStub, writable: true, configurable: true });
+
+// jsdom doesn't implement ResizeObserver — stub so fitted-canvas hooks don't throw.
+class ROStub {
+  observe = vi.fn();
+  unobserve = vi.fn();
+  disconnect = vi.fn();
+}
+Object.defineProperty(globalThis, "ResizeObserver", { value: ROStub, writable: true, configurable: true });
+Object.defineProperty(window, "ResizeObserver", { value: ROStub, writable: true, configurable: true });

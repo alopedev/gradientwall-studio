@@ -1,10 +1,11 @@
 import { renderGradient } from "../gradient";
-import type { Colors4, Style } from "../palettes";
+import type { Style } from "../palettes";
+import type { ColorRamp } from "../gradient/spec";
 
 export interface ComposeOpts {
   w: number;
   h: number;
-  colors: Colors4;
+  colors: ColorRamp;
   style: Style;
   blur: number;
   grain: number; // 0-100

@@ -4,7 +4,7 @@ import { save, loadHistoryItem, loadGallerySeed, applyPalette } from "./coordina
 import { useConfigStore } from "./useConfigStore";
 import { useHistoryStore, type HistoryItem } from "./useHistoryStore";
 import { useUIStore } from "./useUIStore";
-import { PALETTES, type Colors4, type GallerySeed } from "@/lib/palettes";
+import { ALL_ACTIVE, PALETTES, type ActiveMask, type Colors4, type GallerySeed } from "@/lib/palettes";
 
 const CONFIG_INITIAL = useConfigStore.getState();
 const HISTORY_INITIAL = useHistoryStore.getState();
@@ -123,6 +123,60 @@ describe("coordinator", () => {
       const beforeColors = useConfigStore.getState().colors;
       applyPalette(999);
       expect(useConfigStore.getState().colors).toBe(beforeColors);
+    });
+  });
+
+  describe("active mask propagation", () => {
+    it("save() snapshots the current active mask alongside colors", () => {
+      useConfigStore.setState({ active: [true, false, true, true] });
+      save();
+      expect(useHistoryStore.getState().history[0].active).toEqual([true, false, true, true]);
+    });
+
+    it("loadHistoryItem() restores the item's active mask", () => {
+      const item: HistoryItem = {
+        colors: ["#111111", "#222222", "#333333", "#444444"] as Colors4,
+        active: [false, true, true, false] as ActiveMask,
+        style: "mesh",
+        blur: 50,
+        grain: 20,
+        seed: 1,
+      };
+      loadHistoryItem(item);
+      expect(useConfigStore.getState().active).toEqual([false, true, true, false]);
+    });
+
+    it("loadHistoryItem() falls back to ALL_ACTIVE when the item predates the mask", () => {
+      // Simulate a history item persisted before the active-mask landed.
+      const legacy: HistoryItem = {
+        colors: ["#111111", "#222222", "#333333", "#444444"] as Colors4,
+        style: "mesh",
+        blur: 50,
+        grain: 20,
+        seed: 1,
+      };
+      useConfigStore.setState({ active: [false, true, false, true] });
+      loadHistoryItem(legacy);
+      expect(useConfigStore.getState().active).toEqual(ALL_ACTIVE);
+    });
+
+    it("loadGallerySeed() resets the active mask to ALL_ACTIVE", () => {
+      useConfigStore.setState({ active: [false, true, false, true] });
+      loadGallerySeed({
+        colors: ["#1a0b2e", "#5b2a86", "#f59e0b", "#fce5b7"] as Colors4,
+        style: "mesh",
+        seed: 12,
+        author: "ani·k",
+        name: "Amber dusk",
+      });
+      expect(useConfigStore.getState().active).toEqual(ALL_ACTIVE);
+    });
+
+    it("applyPalette() resets the active mask to ALL_ACTIVE", () => {
+      useConfigStore.setState({ active: [true, false, false, true] });
+      const unlockedIdx = PALETTES.findIndex((p) => !p.locked);
+      applyPalette(unlockedIdx);
+      expect(useConfigStore.getState().active).toEqual(ALL_ACTIVE);
     });
   });
 });

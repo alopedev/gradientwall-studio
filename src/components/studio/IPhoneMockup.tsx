@@ -45,9 +45,12 @@ export function IPhoneMockup({ variant, grain, source, colors, style, blur, seed
           {source !== undefined ? (
             <SharedSourceCanvas source={source} />
           ) : (
-            <OwnCanvas colors={colors!} style={style!} blur={blur!} seed={seed!} />
+            <>
+              <OwnCanvas colors={colors!} style={style!} blur={blur!} seed={seed!} />
+              {/* Shared-source path bakes grain into the source canvas; here we overlay it. */}
+              <GrainOverlay amount={grain} />
+            </>
           )}
-          <GrainOverlay amount={grain} />
 
           {/* Dynamic island */}
           <div className="absolute top-[1.8%] left-1/2 -translate-x-1/2 w-[32%] h-[2.4%] bg-black rounded-full" />

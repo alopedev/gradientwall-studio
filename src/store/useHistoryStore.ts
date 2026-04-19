@@ -1,8 +1,13 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { GradientConfig } from "@/lib/palettes";
+import type { ActiveMask, GradientConfig } from "@/lib/palettes";
 
-export type HistoryItem = GradientConfig;
+/**
+ * A saved wallpaper config. `active` is optional so items persisted before
+ * the per-slot mask landed still deserialize — the coordinator treats a
+ * missing mask as "all four active".
+ */
+export type HistoryItem = GradientConfig & { active?: ActiveMask };
 
 /**
  * Persisted archive of saved wallpaper configs. Only this store writes to

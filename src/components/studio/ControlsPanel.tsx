@@ -7,14 +7,23 @@ import { STYLES, type Style } from "@/lib/palettes";
 import { EASE } from "@/lib/motion";
 import { Swatches } from "./Swatches";
 import { Palettes } from "./Palettes";
+import { ImageSource } from "./ImageSource";
 import { PillTabs } from "./PillTabs";
 
-const SOURCE_TABS = ["picker", "palettes"] as const satisfies readonly SourceTab[];
-const sourceLabel = (t: SourceTab) => (t === "picker" ? "Color picker" : "Palettes");
+const SOURCE_TABS = ["picker", "palettes", "image"] as const satisfies readonly SourceTab[];
+const sourceLabel = (t: SourceTab) =>
+  t === "picker" ? "Color picker" : t === "palettes" ? "Palettes" : "From image";
+
+const COLOR_COUNT_LABEL: Record<2 | 3 | 4, string> = {
+  2: "Two colors",
+  3: "Three colors",
+  4: "Four colors",
+};
 
 export function ControlsPanel() {
-  const { style, blur, grain, seed, setStyle, setBlur, setGrain, reshuffle } = useConfigStore(
+  const { active, style, blur, grain, seed, setStyle, setBlur, setGrain, reshuffle } = useConfigStore(
     useShallow((s) => ({
+      active: s.active,
       style: s.style,
       blur: s.blur,
       grain: s.grain,
@@ -29,6 +38,8 @@ export function ControlsPanel() {
     useShallow((s) => ({ activeTab: s.activeTab, setActiveTab: s.setActiveTab })),
   );
 
+  const activeCount = active.filter(Boolean).length as 2 | 3 | 4;
+
   return (
     <div className="liquid p-7 flex flex-col gap-7">
       <div className="flex flex-col gap-3.5">
@@ -38,13 +49,18 @@ export function ControlsPanel() {
 
       {activeTab === "picker" ? (
         <div className="flex flex-col gap-3.5">
-          <LabelRow left="Four colors" right="mix · 4/4" />
+          <LabelRow left={COLOR_COUNT_LABEL[activeCount]} right={`mix · ${activeCount}/4`} />
           <Swatches />
         </div>
-      ) : (
+      ) : activeTab === "palettes" ? (
         <div className="flex flex-col gap-3.5">
           <LabelRow left="Curated" right="2 free · more on Premium" />
           <Palettes />
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3.5">
+          <LabelRow left="Upload" right="k-means · 4 colors" />
+          <ImageSource />
         </div>
       )}
 

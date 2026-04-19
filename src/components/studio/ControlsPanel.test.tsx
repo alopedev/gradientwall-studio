@@ -71,4 +71,43 @@ describe("<ControlsPanel />", () => {
     expect(history).toHaveLength(1);
     expect(history[0]).toMatchObject({ style: "blobs", blur: 30, grain: 20, seed: 4242 });
   });
+
+  describe("FROM IMAGE tab", () => {
+    it("exposes a third Source tab labelled 'From image'", () => {
+      render(<ControlsPanel />);
+      expect(screen.getByRole("button", { name: /from image/i })).toBeInTheDocument();
+    });
+
+    it("switching to 'from image' hides the swatches/palettes UI and shows the upload affordance", () => {
+      render(<ControlsPanel />);
+      fireEvent.click(screen.getByRole("button", { name: /from image/i }));
+      expect(useUIStore.getState().activeTab).toBe("image");
+      // The swatches grid (Four colors label) and the curated list (Curated) are both gone.
+      expect(screen.queryByText("Four colors")).not.toBeInTheDocument();
+      expect(screen.queryByText("Curated")).not.toBeInTheDocument();
+      expect(screen.getByLabelText(/upload an image to extract/i)).toBeInTheDocument();
+    });
+  });
+
+  describe("dynamic N-colors label", () => {
+    it("shows 'Four colors' / 'mix · 4/4' when every slot is active", () => {
+      render(<ControlsPanel />);
+      expect(screen.getByText("Four colors")).toBeInTheDocument();
+      expect(screen.getByText(/mix · 4\/4/i)).toBeInTheDocument();
+    });
+
+    it("switches to 'Three colors' / 'mix · 3/4' when one slot is deactivated", () => {
+      useConfigStore.setState({ active: [true, false, true, true] });
+      render(<ControlsPanel />);
+      expect(screen.getByText("Three colors")).toBeInTheDocument();
+      expect(screen.getByText(/mix · 3\/4/i)).toBeInTheDocument();
+    });
+
+    it("switches to 'Two colors' / 'mix · 2/4' when two slots are deactivated", () => {
+      useConfigStore.setState({ active: [true, false, true, false] });
+      render(<ControlsPanel />);
+      expect(screen.getByText("Two colors")).toBeInTheDocument();
+      expect(screen.getByText(/mix · 2\/4/i)).toBeInTheDocument();
+    });
+  });
 });

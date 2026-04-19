@@ -1,4 +1,4 @@
-import { PALETTES, type Colors4, type GallerySeed } from "@/lib/palettes";
+import { ALL_ACTIVE, PALETTES, type ActiveMask, type Colors4, type GallerySeed } from "@/lib/palettes";
 import { useConfigStore } from "./useConfigStore";
 import { useHistoryStore, type HistoryItem } from "./useHistoryStore";
 import { useUIStore } from "./useUIStore";
@@ -14,16 +14,28 @@ const MAX_HISTORY = 12;
 
 /** Snapshot the current config and prepend it to history (capped at 12). */
 export function save(): void {
-  const { colors, style, blur, grain, seed } = useConfigStore.getState();
+  const { colors, active, style, blur, grain, seed } = useConfigStore.getState();
   const { history, _setHistory } = useHistoryStore.getState();
-  const item: HistoryItem = { colors: [...colors] as Colors4, style, blur, grain, seed };
+  const item: HistoryItem = {
+    colors: [...colors] as Colors4,
+    active: [...active] as ActiveMask,
+    style,
+    blur,
+    grain,
+    seed,
+  };
   _setHistory([item, ...history].slice(0, MAX_HISTORY));
 }
 
-/** Load a history item back into the current config. Does not touch UI. */
+/**
+ * Load a history item back into the current config. Does not touch UI.
+ * Items saved before the per-slot mask landed have no `active` field — those
+ * restore with every slot active so legacy thumbnails keep their look.
+ */
 export function loadHistoryItem(h: HistoryItem): void {
   useConfigStore.setState({
     colors: [...h.colors] as Colors4,
+    active: [...(h.active ?? ALL_ACTIVE)] as ActiveMask,
     style: h.style,
     blur: h.blur,
     grain: h.grain,
@@ -34,11 +46,13 @@ export function loadHistoryItem(h: HistoryItem): void {
 /**
  * Load a gallery seed into the current config. Blur is forced to 55 (the
  * gallery cards were rendered with that value — keep the "feel" consistent
- * when the user opens one).
+ * when the user opens one). The active mask resets so the palette is shown
+ * exactly as the author intended.
  */
 export function loadGallerySeed(g: GallerySeed): void {
   useConfigStore.setState({
     colors: [...g.colors] as Colors4,
+    active: [...ALL_ACTIVE] as ActiveMask,
     style: g.style,
     seed: g.seed,
     blur: 55,
@@ -47,11 +61,15 @@ export function loadGallerySeed(g: GallerySeed): void {
 
 /**
  * Apply a curated palette. No-op for locked palettes. On success, writes
- * colors to ConfigStore AND marks the palette as active in UIStore.
+ * colors to ConfigStore AND marks the palette as active in UIStore. The
+ * active mask resets to all-four so the palette renders as designed.
  */
 export function applyPalette(i: number): void {
   const p = PALETTES[i];
   if (!p || p.locked) return;
-  useConfigStore.setState({ colors: [...p.colors] as Colors4 });
+  useConfigStore.setState({
+    colors: [...p.colors] as Colors4,
+    active: [...ALL_ACTIVE] as ActiveMask,
+  });
   useUIStore.getState()._setActivePalette(i);
 }

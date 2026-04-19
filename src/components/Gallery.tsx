@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { m } from "motion/react";
 import { loadGallerySeed } from "@/store";
 import { GALLERY_SEEDS, type GallerySeed } from "@/lib/palettes";
-import { renderGradient } from "@/lib/gradient";
+import { useFittedGradientCanvas } from "@/lib/useGradientCanvas";
 import { EASE, EASE_CSS } from "@/lib/motion";
 import { Reveal } from "./ui/Reveal";
 
@@ -40,29 +40,19 @@ export function Gallery() {
 
 function GalleryCard({ seed, index }: { seed: GallerySeed; index: number }) {
   const wrapRef = useRef<HTMLButtonElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [painted, setPainted] = useState(false);
+  const [visible, setVisible] = useState(false);
 
-  // Defer canvas paint until the card scrolls into view. 8 gallery items × ~900KB
-  // of GPU-backed canvas each would be ~7MB eagerly. With this, each card paints
-  // once on first visibility and then stays painted.
+  // Defer canvas mount until the card scrolls into view. 8 gallery items would
+  // otherwise paint eagerly on load. IntersectionObserver flips `visible` once,
+  // and from then on the fitted hook handles sizing + DPR inside the child.
   useEffect(() => {
-    if (painted) return;
+    if (visible) return;
     const el = wrapRef.current;
-    const canvas = canvasRef.current;
-    if (!el || !canvas) return;
+    if (!el) return;
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry?.isIntersecting) {
-          renderGradient(canvas, {
-            w: 360,
-            h: 640,
-            colors: seed.colors,
-            style: seed.style,
-            blur: 55,
-            seed: seed.seed,
-          });
-          setPainted(true);
+          setVisible(true);
           io.disconnect();
         }
       },
@@ -70,7 +60,7 @@ function GalleryCard({ seed, index }: { seed: GallerySeed; index: number }) {
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [seed, painted]);
+  }, [visible]);
 
   return (
     <m.button
@@ -86,7 +76,7 @@ function GalleryCard({ seed, index }: { seed: GallerySeed; index: number }) {
       className="relative aspect-[9/16] rounded-[2px] overflow-hidden cursor-pointer transition-transform duration-300 hover:-translate-y-1 p-0 text-left"
       style={{ transitionTimingFunction: EASE_CSS }}
     >
-      <canvas ref={canvasRef} className="block w-full h-full" />
+      {visible && <GalleryPaint seed={seed} />}
       <div
         className="absolute bottom-0 inset-x-0 p-4 flex justify-between items-end font-sans text-[10px] tracking-[0.12em] uppercase text-white"
         style={{ background: "linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0))" }}
@@ -96,4 +86,19 @@ function GalleryCard({ seed, index }: { seed: GallerySeed; index: number }) {
       </div>
     </m.button>
   );
+}
+
+function GalleryPaint({ seed }: { seed: GallerySeed }) {
+  const canvasRef = useFittedGradientCanvas(
+    {
+      nativeW: 1440,
+      nativeH: 2560,
+      colors: seed.colors,
+      style: seed.style,
+      blur: 55,
+      seed: seed.seed,
+    },
+    [seed],
+  );
+  return <canvas ref={canvasRef} className="block w-full h-full" />;
 }

@@ -1,5 +1,6 @@
 import { useHistoryStore, loadHistoryItem, type HistoryItem } from "@/store";
-import { useGradientCanvas } from "@/lib/useGradientCanvas";
+import { useFittedGradientCanvas } from "@/lib/useGradientCanvas";
+import { activeColors } from "@/lib/palettes";
 
 export function History() {
   const history = useHistoryStore((s) => s.history);
@@ -24,8 +25,19 @@ export function History() {
 }
 
 function HistoryCard({ item, onClick }: { item: HistoryItem; onClick: () => void }) {
-  const ref = useGradientCanvas(
-    { w: 270, h: 480, colors: item.colors, style: item.style, blur: item.blur, seed: item.seed },
+  // History doesn't persist device — thumbnails use a 9:16 aspect.
+  // Canvas resolution is driven by the card's CSS box × DPR, capped at 2400 px.
+  // `item.active` may be undefined for items saved before the per-slot mask
+  // landed — `activeColors` treats that as all four active.
+  const ref = useFittedGradientCanvas(
+    {
+      nativeW: 1440,
+      nativeH: 2560,
+      colors: activeColors(item.colors, item.active),
+      style: item.style,
+      blur: item.blur,
+      seed: item.seed,
+    },
     [item],
   );
 

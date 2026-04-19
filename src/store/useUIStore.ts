@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export type SourceTab = "picker" | "palettes";
+export type SourceTab = "picker" | "palettes" | "image";
 
 /**
  * Ephemeral UI state for the studio controls (which tab is active, which

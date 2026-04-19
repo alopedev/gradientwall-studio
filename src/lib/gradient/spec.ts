@@ -1,6 +1,15 @@
 import type { Colors4, GradientConfig } from "../palettes";
 
 /**
+ * Variable-length color ramp fed into the renderer. The studio config keeps
+ * 4 slots (`Colors4`), but users can deactivate 1-2 of them so the ramp that
+ * actually reaches the gradient holds 2-4 entries. Each style inside
+ * `buildGradientSpec` iterates via `colors.length` (or `colors[i % length]`)
+ * so shorter ramps work without special cases.
+ */
+export type ColorRamp = readonly string[];
+
+/**
  * Seeded PRNG — mulberry32. Ported 1:1 from the original prototype.
  */
 export function mulberry32(a: number): () => number {
@@ -79,7 +88,7 @@ export interface GradientSpec {
   layers: Layer[]; // back-to-front, each paints a full w×h rect with `fill`
 }
 
-export type SpecOpts = Omit<GradientConfig, "grain"> & { w: number; h: number };
+export type SpecOpts = Omit<GradientConfig, "grain" | "colors"> & { w: number; h: number; colors: ColorRamp };
 
 /**
  * Compute a GradientSpec from options. Pure, deterministic (given `seed`), no DOM.

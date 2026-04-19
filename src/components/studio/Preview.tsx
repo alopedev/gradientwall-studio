@@ -1,20 +1,22 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { AnimatePresence } from "motion/react";
 import { m } from "motion/react";
 import { useConfigStore } from "@/store";
 import { renderGradient } from "@/lib/gradient";
-import { DEVICES, DEVICE_SIZES } from "@/lib/palettes";
+import { applyGrainOverlay } from "@/lib/download/compose";
+import { useFittedGradientCanvas } from "@/lib/useGradientCanvas";
+import { activeColors, DEVICES, DEVICE_SIZES } from "@/lib/palettes";
 import { downloadWallpaper } from "@/lib/download";
 import { EASE, EASE_CSS } from "@/lib/motion";
-import { GrainOverlay } from "../ui/GrainOverlay";
 import { IPhoneMockup } from "./IPhoneMockup";
 
 export function Preview() {
-  const { device, colors, style, blur, grain, seed, setDevice, randomize } = useConfigStore(
+  const { device, colors, active, style, blur, grain, seed, setDevice, randomize } = useConfigStore(
     useShallow((s) => ({
       device: s.device,
       colors: s.colors,
+      active: s.active,
       style: s.style,
       blur: s.blur,
       grain: s.grain,
@@ -23,8 +25,9 @@ export function Preview() {
       randomize: s.randomize,
     })),
   );
+  // Ramp fed to the renderer — strips the user-deactivated slots (2-4 colors).
+  const ramp = activeColors(colors, active);
 
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   // Download button has 3 visual states — idle / encoding / just-saved.
   // A union beats two overlapping booleans (4 combinations, 1 illegal).
   const [downloadStatus, setDownloadStatus] = useState<"idle" | "downloading" | "saved">("idle");
@@ -51,28 +54,32 @@ export function Preview() {
 
   // Render the shared mockup wallpaper once per config change. Both iPhone
   // frames then drawImage from this canvas — half the paint work vs each
-  // mockup rendering its own gradient.
+  // mockup rendering its own gradient. 720×1600 keeps the frame crisp on
+  // Retina (iPhone mockups render ~400-500px tall CSS → DPR≤2 → ≤1000 px).
+  // Grain is burned into the canvas so the mockup matches what the user
+  // will download — no separate SVG overlay.
   useEffect(() => {
     if (!showMockup) return;
     const canvas = document.createElement("canvas");
-    renderGradient(canvas, { w: 360, h: 800, colors, style, blur, seed });
+    renderGradient(canvas, { w: 720, h: 1600, colors: ramp, style, blur, seed });
+    if (grain > 0) applyGrainOverlay(canvas, grain);
     setSharedMockupCanvas(canvas);
-  }, [showMockup, colors, style, blur, seed]);
+    // `ramp` is derived from `colors` + `active`; track the stable inputs.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showMockup, colors, active, style, blur, grain, seed]);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const d = DEVICE_SIZES[device];
-    const scale = Math.min(1, 1200 / Math.max(d.w, d.h));
-    renderGradient(canvas, {
-      w: Math.round(d.w * scale),
-      h: Math.round(d.h * scale),
-      colors,
+  const canvasRef = useFittedGradientCanvas(
+    {
+      nativeW: d.w,
+      nativeH: d.h,
+      colors: ramp,
       style,
       blur,
+      grain,
       seed,
-    });
-  }, [device, colors, style, blur, seed]);
+    },
+    [device, colors, active, style, blur, grain, seed],
+  );
 
   return (
     <div className="relative rounded-[18px] liquid min-h-[560px] overflow-hidden">
@@ -176,7 +183,6 @@ export function Preview() {
               }}
             >
               <canvas ref={canvasRef} className="block w-full h-full" />
-              <GrainOverlay amount={grain} />
               {/* Flash on Random */}
               {flashKey > 0 && (
                 <m.div
@@ -211,7 +217,7 @@ export function Preview() {
             // Yield to browser so the button repaints before the heavy encode blocks.
             await new Promise((r) => requestAnimationFrame(() => r(null)));
             try {
-              await downloadWallpaper({ device, colors, style, blur, grain, seed });
+              await downloadWallpaper({ device, colors: ramp, style, blur, grain, seed });
               setDownloadStatus("saved");
               setTimeout(() => setDownloadStatus("idle"), 1600);
             } catch {
