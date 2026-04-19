@@ -1,5 +1,5 @@
 import { useId } from "react";
-import * as motion from "motion/react-client";
+import { m } from "motion/react";
 
 /**
  * Generic pill-tab group used inside the studio controls (Source, Style).
@@ -39,7 +39,7 @@ export function PillTabs<T extends string>({
               }`}
             >
               {active && (
-                <motion.span
+                <m.span
                   layoutId={layoutId}
                   className="absolute inset-0 bg-white rounded-full"
                   transition={{ type: "spring", stiffness: 500, damping: 40 }}

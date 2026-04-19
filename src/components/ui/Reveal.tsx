@@ -1,4 +1,4 @@
-import * as motion from "motion/react-client";
+import { m } from "motion/react";
 import type { ReactNode } from "react";
 import { fadeUpTransition } from "@/lib/motion";
 
@@ -22,7 +22,7 @@ export function Reveal({
   className?: string;
 }) {
   return (
-    <motion.div
+    <m.div
       className={className}
       initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -30,6 +30,6 @@ export function Reveal({
       transition={fadeUpTransition(delay)}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }

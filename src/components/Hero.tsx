@@ -1,4 +1,4 @@
-import * as motion from "motion/react-client";
+import { m } from "motion/react";
 import { FADE_UP_INITIAL, fadeUpTransition } from "@/lib/motion";
 
 // Entrance choreography — each element arrives with a ~120ms offset so the
@@ -39,7 +39,7 @@ export function Hero() {
       />
 
       <div className="relative z-[2] h-full flex flex-col justify-center mx-auto max-w-[1600px] px-[clamp(24px,7vw,120px)] pt-24 md:pt-0 pb-[clamp(120px,18vh,250px)]">
-        <motion.span
+        <m.span
           {...fadeUp(0.0)}
           className="inline-flex items-center gap-2.5 font-sans text-[11px] font-medium uppercase tracking-[0.22em] text-white/75 mb-7"
         >
@@ -49,26 +49,26 @@ export function Hero() {
             aria-hidden
           />
           Vol. 04 — Spring edition · Live
-        </motion.span>
+        </m.span>
 
         <h1 className="m-0 mb-7 leading-[0.96] tracking-[-0.035em] text-[clamp(42px,7vw,64px)]">
-          <motion.span {...fadeUp(0.12)} className="block font-sans font-light text-white">
+          <m.span {...fadeUp(0.12)} className="block font-sans font-light text-white">
             Cinematic wallpapers,
-          </motion.span>
-          <motion.span {...fadeUp(0.24)} className="block font-serif italic text-white">
+          </m.span>
+          <m.span {...fadeUp(0.24)} className="block font-serif italic text-white">
             mixed by hand.
-          </motion.span>
+          </m.span>
         </h1>
 
-        <motion.p
+        <m.p
           {...fadeUp(0.4)}
           className="m-0 mb-10 max-w-[52ch] text-[clamp(15px,1.15vw,17px)] leading-[1.55] text-white/75 font-sans font-light"
         >
           A small studio for color. Blend four hues into mesh gradients, drifting blobs and soft grain — then pour
           them onto your phone, tablet or desktop in a single click.
-        </motion.p>
+        </m.p>
 
-        <motion.div {...fadeUp(0.55)} className="flex items-center gap-3.5 flex-wrap">
+        <m.div {...fadeUp(0.55)} className="flex items-center gap-3.5 flex-wrap">
           <a
             href="#studio"
             className="inline-flex items-center gap-2 rounded-[2px] bg-[#f8f8f8] text-[#171717] px-5 py-3.5 text-sm font-sans font-medium tracking-[0.01em] transition-colors duration-150 hover:bg-white"
@@ -81,7 +81,7 @@ export function Hero() {
           >
             Browse the gallery
           </a>
-        </motion.div>
+        </m.div>
       </div>
 
       {/* Meta bottom row — bottom offset honors iOS home-indicator safe area so

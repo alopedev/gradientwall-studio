@@ -1,4 +1,4 @@
-import * as motion from "motion/react-client";
+import { m } from "motion/react";
 import { useMotionTemplate, useScroll, useTransform } from "motion/react";
 
 export function Nav() {
@@ -20,7 +20,7 @@ export function Nav() {
   const shadow = useMotionTemplate`0 8px 24px rgba(0, 0, 0, ${shadowOpacity})`;
 
   return (
-    <motion.nav
+    <m.nav
       style={{
         paddingTop: "max(20px, calc(env(safe-area-inset-top) + 12px))",
         backgroundColor: bg,
@@ -31,7 +31,7 @@ export function Nav() {
       }}
       className="fixed inset-x-0 top-0 z-50 flex items-center justify-between px-5 md:px-9 pb-5 border-b"
     >
-      <motion.div
+      <m.div
         aria-hidden
         style={{
           opacity: gradientOpacity,
@@ -94,6 +94,6 @@ export function Nav() {
         <span className="md:hidden">Studio →</span>
         <span className="hidden md:inline">Open studio →</span>
       </a>
-    </motion.nav>
+    </m.nav>
   );
 }

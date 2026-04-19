@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import * as motion from "motion/react-client";
+import { m } from "motion/react";
 import { loadGallerySeed } from "@/store";
 import { GALLERY_SEEDS, type GallerySeed } from "@/lib/palettes";
 import { renderGradient } from "@/lib/gradient";
@@ -73,7 +73,7 @@ function GalleryCard({ seed, index }: { seed: GallerySeed; index: number }) {
   }, [seed, painted]);
 
   return (
-    <motion.button
+    <m.button
       ref={wrapRef}
       onClick={() => {
         loadGallerySeed(seed);
@@ -94,6 +94,6 @@ function GalleryCard({ seed, index }: { seed: GallerySeed; index: number }) {
         <span>{seed.name}</span>
         <span className="text-white/75">@{seed.author}</span>
       </div>
-    </motion.button>
+    </m.button>
   );
 }

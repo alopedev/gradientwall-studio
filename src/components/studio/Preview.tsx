@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { AnimatePresence } from "motion/react";
-import * as motion from "motion/react-client";
+import { m } from "motion/react";
 import { useConfigStore } from "@/store";
 import { renderGradient } from "@/lib/gradient";
 import { DEVICES, DEVICE_SIZES } from "@/lib/palettes";
@@ -30,6 +30,9 @@ export function Preview() {
   const [downloadStatus, setDownloadStatus] = useState<"idle" | "downloading" | "saved">("idle");
   const [mockupMode, setMockupMode] = useState(false);
   const [flashKey, setFlashKey] = useState(0);
+  // Shared canvas rendered once and blitted into both iPhone mockups — avoids
+  // rendering the identical gradient twice in mockup mode.
+  const [sharedMockupCanvas, setSharedMockupCanvas] = useState<HTMLCanvasElement | null>(null);
   const d = DEVICE_SIZES[device];
   // Mockup only makes sense on the mobile aspect. Force it off if the user
   // switches devices while it's on.
@@ -45,6 +48,16 @@ export function Preview() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [mockupMode]);
+
+  // Render the shared mockup wallpaper once per config change. Both iPhone
+  // frames then drawImage from this canvas — half the paint work vs each
+  // mockup rendering its own gradient.
+  useEffect(() => {
+    if (!showMockup) return;
+    const canvas = document.createElement("canvas");
+    renderGradient(canvas, { w: 360, h: 800, colors, style, blur, seed });
+    setSharedMockupCanvas(canvas);
+  }, [showMockup, colors, style, blur, seed]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -116,7 +129,7 @@ export function Preview() {
       >
         <AnimatePresence mode="wait">
           {showMockup ? (
-            <motion.div
+            <m.div
               key="mockup"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -128,25 +141,25 @@ export function Preview() {
               // horizontally-centered iPhones.
               className="flex items-stretch justify-center gap-3 md:gap-6 h-full w-full max-w-full pt-20 md:pt-0"
             >
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: EASE, delay: 0.05 }}
                 className="flex-1 flex items-center justify-center min-w-0 min-h-0"
               >
-                <IPhoneMockup variant="lock" colors={colors} style={style} blur={blur} seed={seed} grain={grain} />
-              </motion.div>
-              <motion.div
+                <IPhoneMockup variant="lock" grain={grain} source={sharedMockupCanvas} />
+              </m.div>
+              <m.div
                 initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: EASE, delay: 0.18 }}
                 className="flex-1 flex items-center justify-center min-w-0 min-h-0"
               >
-                <IPhoneMockup variant="home" colors={colors} style={style} blur={blur} seed={seed} grain={grain} />
-              </motion.div>
-            </motion.div>
+                <IPhoneMockup variant="home" grain={grain} source={sharedMockupCanvas} />
+              </m.div>
+            </m.div>
           ) : (
-            <motion.div
+            <m.div
               key="fit"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -166,7 +179,7 @@ export function Preview() {
               <GrainOverlay amount={grain} />
               {/* Flash on Random */}
               {flashKey > 0 && (
-                <motion.div
+                <m.div
                   key={flashKey}
                   initial={{ opacity: 0.45 }}
                   animate={{ opacity: 0 }}
@@ -175,7 +188,7 @@ export function Preview() {
                   aria-hidden
                 />
               )}
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </div>

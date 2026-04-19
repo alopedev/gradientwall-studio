@@ -1,14 +1,25 @@
+import { useEffect, useRef } from "react";
 import { useGradientCanvas } from "@/lib/useGradientCanvas";
 import type { Colors4, Style } from "@/lib/palettes";
 import { GrainOverlay } from "../ui/GrainOverlay";
 
 interface Props {
   variant: "lock" | "home";
-  colors: Colors4;
-  style: Style;
-  blur: number;
-  seed: number;
   grain: number; // 0-100 — display overlay opacity
+  /**
+   * Optional shared source canvas already containing the wallpaper. When
+   * provided, this component skips its own gradient render and blits from
+   * the source via drawImage — lets sibling mockups share a single render
+   * pass instead of each painting the identical gradient independently.
+   *
+   * When omitted, `colors/style/blur/seed` must be provided and the
+   * component renders its own canvas (useful for standalone demos/tests).
+   */
+  source?: HTMLCanvasElement | null;
+  colors?: Colors4;
+  style?: Style;
+  blur?: number;
+  seed?: number;
 }
 
 /**
@@ -16,25 +27,12 @@ interface Props {
  *
  * Two variants:
  *  - "lock"  — large clock centered near the top with date above
- *  - "home"  — translucent 4×6 app-icon grid
+ *  - "home"  — translucent 4×5 app-icon grid
  *
  * Both share: rounded bezel, dynamic-island pill, top status bar.
  * Zero real app icons or Apple marks — only neutral placeholders.
- *
- * The internal canvas renders at ~360×800 (well above display size for any
- * reasonable preview), so the browser downsamples cleanly with AA.
  */
-export function IPhoneMockup({ variant, colors, style, blur, seed, grain }: Props) {
-  const canvasRef = useGradientCanvas({ w: 360, h: 800, colors, style, blur, seed }, [
-    colors,
-    style,
-    blur,
-    seed,
-  ]);
-
-  // Aspect-ratio + dual max-* constraints produce a box that scales to fit
-  // inside any container while preserving 9:19.5 (modern iPhone ratio). Works
-  // cleanly in both orientations of the parent slot.
+export function IPhoneMockup({ variant, grain, source, colors, style, blur, seed }: Props) {
   return (
     <div
       className="relative"
@@ -44,7 +42,11 @@ export function IPhoneMockup({ variant, colors, style, blur, seed, grain }: Prop
       <div className="absolute inset-0 rounded-[14%/7.5%] p-[3px] bg-gradient-to-b from-neutral-600 via-neutral-800 to-neutral-950 shadow-[0_20px_40px_rgba(0,0,0,0.6)]">
         {/* Screen */}
         <div className="relative w-full h-full rounded-[13%/7%] overflow-hidden bg-black">
-          <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+          {source !== undefined ? (
+            <SharedSourceCanvas source={source} />
+          ) : (
+            <OwnCanvas colors={colors!} style={style!} blur={blur!} seed={seed!} />
+          )}
           <GrainOverlay amount={grain} />
 
           {/* Dynamic island */}
@@ -67,6 +69,25 @@ export function IPhoneMockup({ variant, colors, style, blur, seed, grain }: Prop
       </div>
     </div>
   );
+}
+
+/** Blits the shared rendered wallpaper into a display canvas via drawImage. */
+function SharedSourceCanvas({ source }: { source: HTMLCanvasElement | null }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const dst = ref.current;
+    if (!dst || !source) return;
+    dst.width = source.width;
+    dst.height = source.height;
+    dst.getContext("2d")?.drawImage(source, 0, 0);
+  }, [source]);
+  return <canvas ref={ref} className="absolute inset-0 w-full h-full" />;
+}
+
+/** Fallback path: render gradient on our own canvas (standalone use). */
+function OwnCanvas({ colors, style, blur, seed }: { colors: Colors4; style: Style; blur: number; seed: number }) {
+  const ref = useGradientCanvas({ w: 360, h: 800, colors, style, blur, seed }, [colors, style, blur, seed]);
+  return <canvas ref={ref} className="absolute inset-0 w-full h-full" />;
 }
 
 function LockChrome() {

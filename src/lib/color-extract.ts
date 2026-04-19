@@ -130,11 +130,24 @@ export function kmeans(points: RGB[], k: number, iterations: number): RGB[] {
  */
 function kmeansPlusPlusSeed(points: RGB[], k: number): RGB[] {
   const chosen: RGB[] = [points[Math.floor(Math.random() * points.length)]];
+  const distances = new Float64Array(points.length);
   while (chosen.length < k) {
-    const distances = points.map((p) => Math.min(...chosen.map((c) => sqDist(p, c))));
-    const sum = distances.reduce((s, d) => s + d, 0);
+    // Tight inner loop — avoids allocating a `chosen.map` intermediate for
+    // every point. On a 96×96 downsample (~9k points) with k=4 this trims
+    // ~27k array allocations per upload.
+    let sum = 0;
+    for (let i = 0; i < points.length; i++) {
+      const p = points[i];
+      let min = Infinity;
+      for (let j = 0; j < chosen.length; j++) {
+        const d = sqDist(p, chosen[j]);
+        if (d < min) min = d;
+      }
+      distances[i] = min;
+      sum += min;
+    }
     if (sum === 0) {
-      // All remaining points coincide with chosen centroids — just duplicate
+      // All remaining points coincide with chosen centroids — duplicate last
       chosen.push([...chosen[chosen.length - 1]]);
       continue;
     }

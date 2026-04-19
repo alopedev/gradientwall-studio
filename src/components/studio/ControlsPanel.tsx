@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useShallow } from "zustand/react/shallow";
-import * as motion from "motion/react-client";
+import { m } from "motion/react";
 import { useConfigStore, useUIStore, save, type SourceTab } from "@/store";
 import { seedToHex } from "@/lib/gradient";
 import { STYLES, type Style } from "@/lib/palettes";
@@ -105,14 +105,14 @@ function ReshuffleButton({ onClick }: { onClick: () => void }) {
       }}
       className="flex-1 inline-flex items-center justify-center gap-2 rounded-[2px] border border-white/14 text-white px-3.5 py-3 text-xs font-sans tracking-[0.14em] uppercase transition-colors duration-150 hover:bg-white/5 hover:border-white/30"
     >
-      <motion.span
+      <m.span
         aria-hidden
         animate={{ rotate: spins * 360 }}
         transition={{ duration: 0.55, ease: EASE }}
         className="inline-block"
       >
         ↻
-      </motion.span>
+      </m.span>
       Reshuffle
     </button>
   );
