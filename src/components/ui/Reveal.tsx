@@ -1,7 +1,6 @@
 import * as motion from "motion/react-client";
 import type { ReactNode } from "react";
-
-const EASE = [0.2, 0.7, 0.2, 1] as const;
+import { fadeUpTransition } from "@/lib/motion";
 
 /**
  * Fade-up on scroll-into-view. Fires once per page load (once: true) so
@@ -28,7 +27,7 @@ export function Reveal({
       initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount }}
-      transition={{ duration: 0.7, ease: EASE, delay }}
+      transition={fadeUpTransition(delay)}
     >
       {children}
     </motion.div>

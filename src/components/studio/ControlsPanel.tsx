@@ -4,6 +4,7 @@ import * as motion from "motion/react-client";
 import { useConfigStore, useUIStore, save, type SourceTab } from "@/store";
 import { seedToHex } from "@/lib/gradient";
 import { STYLES, type Style } from "@/lib/palettes";
+import { EASE } from "@/lib/motion";
 import { Swatches } from "./Swatches";
 import { Palettes } from "./Palettes";
 import { PillTabs } from "./PillTabs";
@@ -107,7 +108,7 @@ function ReshuffleButton({ onClick }: { onClick: () => void }) {
       <motion.span
         aria-hidden
         animate={{ rotate: spins * 360 }}
-        transition={{ duration: 0.55, ease: [0.2, 0.7, 0.2, 1] }}
+        transition={{ duration: 0.55, ease: EASE }}
         className="inline-block"
       >
         ↻

@@ -1,5 +1,6 @@
 import { useGradientCanvas } from "@/lib/useGradientCanvas";
 import type { Colors4, Style } from "@/lib/palettes";
+import { GrainOverlay } from "../ui/GrainOverlay";
 
 interface Props {
   variant: "lock" | "home";
@@ -44,12 +45,7 @@ export function IPhoneMockup({ variant, colors, style, blur, seed, grain }: Prop
         {/* Screen */}
         <div className="relative w-full h-full rounded-[13%/7%] overflow-hidden bg-black">
           <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
-          {/* Grain overlay (matches the main preview) */}
-          <div
-            className="absolute inset-0 pointer-events-none wallpaper-grain mix-blend-overlay"
-            style={{ opacity: grain / 100 }}
-            aria-hidden
-          />
+          <GrainOverlay amount={grain} />
 
           {/* Dynamic island */}
           <div className="absolute top-[1.8%] left-1/2 -translate-x-1/2 w-[32%] h-[2.4%] bg-black rounded-full" />

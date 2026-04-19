@@ -6,9 +6,9 @@ import { useConfigStore } from "@/store";
 import { renderGradient } from "@/lib/gradient";
 import { DEVICES, DEVICE_SIZES } from "@/lib/palettes";
 import { downloadWallpaper } from "@/lib/download";
+import { EASE, EASE_CSS } from "@/lib/motion";
+import { GrainOverlay } from "../ui/GrainOverlay";
 import { IPhoneMockup } from "./IPhoneMockup";
-
-const EASE = [0.2, 0.7, 0.2, 1] as const;
 
 export function Preview() {
   const { device, colors, style, blur, grain, seed, setDevice, randomize } = useConfigStore(
@@ -25,8 +25,9 @@ export function Preview() {
   );
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [downloading, setDownloading] = useState(false);
-  const [justDownloaded, setJustDownloaded] = useState(false);
+  // Download button has 3 visual states — idle / encoding / just-saved.
+  // A union beats two overlapping booleans (4 combinations, 1 illegal).
+  const [downloadStatus, setDownloadStatus] = useState<"idle" | "downloading" | "saved">("idle");
   const [mockupMode, setMockupMode] = useState(false);
   const [flashKey, setFlashKey] = useState(0);
   const d = DEVICE_SIZES[device];
@@ -158,22 +159,18 @@ export function Preview() {
                 maxHeight: "100%",
                 background: "#111",
                 boxShadow: "0 30px 80px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.04)",
-                transitionTimingFunction: "cubic-bezier(.2,.7,.2,1)",
+                transitionTimingFunction: EASE_CSS,
               }}
             >
               <canvas ref={canvasRef} className="block w-full h-full" />
-              <div
-                className="absolute inset-0 pointer-events-none wallpaper-grain mix-blend-overlay"
-                style={{ opacity: grain / 100 }}
-                aria-hidden
-              />
-              {/* Random flash — fires on each Random click, fades away */}
+              <GrainOverlay amount={grain} />
+              {/* Flash on Random */}
               {flashKey > 0 && (
                 <motion.div
                   key={flashKey}
                   initial={{ opacity: 0.45 }}
                   animate={{ opacity: 0 }}
-                  transition={{ duration: 0.32, ease: [0.2, 0.7, 0.2, 1] }}
+                  transition={{ duration: 0.32, ease: EASE }}
                   className="absolute inset-0 pointer-events-none bg-white"
                   aria-hidden
                 />
@@ -195,29 +192,27 @@ export function Preview() {
           ↻ &nbsp;Random
         </button>
         <button
-          disabled={downloading}
+          disabled={downloadStatus === "downloading"}
           onClick={async () => {
-            setDownloading(true);
-            setJustDownloaded(false);
+            setDownloadStatus("downloading");
             // Yield to browser so the button repaints before the heavy encode blocks.
             await new Promise((r) => requestAnimationFrame(() => r(null)));
             try {
               await downloadWallpaper({ device, colors, style, blur, grain, seed });
-              setJustDownloaded(true);
-              // Clear the ✓ state after a beat so the button returns to ready
-              setTimeout(() => setJustDownloaded(false), 1600);
-            } finally {
-              setDownloading(false);
+              setDownloadStatus("saved");
+              setTimeout(() => setDownloadStatus("idle"), 1600);
+            } catch {
+              setDownloadStatus("idle");
             }
           }}
           className="inline-flex items-center gap-2 rounded-[2px] bg-[#f8f8f8] text-[#171717] px-3.5 py-2 text-[11px] tracking-[0.1em] uppercase font-sans font-medium transition-colors duration-150 hover:bg-white disabled:opacity-80 disabled:cursor-wait"
         >
-          {downloading ? (
+          {downloadStatus === "downloading" ? (
             <>
               <span className="inline-block h-3 w-3 rounded-full border-2 border-[#171717] border-t-transparent animate-spin" />
               &nbsp;Generating
             </>
-          ) : justDownloaded ? (
+          ) : downloadStatus === "saved" ? (
             <>✓ &nbsp;Saved</>
           ) : (
             <>↓ &nbsp;Download</>

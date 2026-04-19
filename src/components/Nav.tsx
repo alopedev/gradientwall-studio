@@ -31,20 +31,15 @@ export function Nav() {
       }}
       className="fixed inset-x-0 top-0 z-50 flex items-center justify-between px-5 md:px-9 pb-5 border-b"
     >
-      {/* Cinematic top-fade-to-transparent overlay — only visible at the very top */}
       <motion.div
         aria-hidden
-        style={{ opacity: gradientOpacity }}
+        style={{
+          opacity: gradientOpacity,
+          background:
+            "linear-gradient(to bottom, rgba(7,7,10,0.85) 0%, rgba(7,7,10,0.35) 60%, rgba(7,7,10,0) 100%)",
+        }}
         className="absolute inset-0 pointer-events-none"
-      >
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(to bottom, rgba(7,7,10,0.85) 0%, rgba(7,7,10,0.35) 60%, rgba(7,7,10,0) 100%)",
-          }}
-        />
-      </motion.div>
+      />
 
       <a
         href="#"

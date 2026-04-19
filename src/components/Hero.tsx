@@ -1,13 +1,12 @@
 import * as motion from "motion/react-client";
+import { FADE_UP_INITIAL, fadeUpTransition } from "@/lib/motion";
 
-// Entrance timing — editorial, slow, deliberate. Each element arrives with a
-// 120ms offset so the user's eye has time to catch each word before the next
-// element claims attention. Easing is the project's cinematic curve.
-const EASE = [0.2, 0.7, 0.2, 1] as const;
+// Entrance choreography — each element arrives with a ~120ms offset so the
+// eye catches each word before the next claims attention.
 const fadeUp = (delay: number) => ({
-  initial: { opacity: 0, y: 14 },
+  initial: FADE_UP_INITIAL,
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.7, ease: EASE, delay },
+  transition: fadeUpTransition(delay),
 });
 
 export function Hero() {

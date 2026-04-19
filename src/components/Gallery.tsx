@@ -3,6 +3,7 @@ import * as motion from "motion/react-client";
 import { loadGallerySeed } from "@/store";
 import { GALLERY_SEEDS, type GallerySeed } from "@/lib/palettes";
 import { renderGradient } from "@/lib/gradient";
+import { EASE, EASE_CSS } from "@/lib/motion";
 import { Reveal } from "./ui/Reveal";
 
 export function Gallery() {
@@ -81,9 +82,9 @@ function GalleryCard({ seed, index }: { seed: GallerySeed; index: number }) {
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.6, ease: [0.2, 0.7, 0.2, 1], delay: (index % 4) * 0.06 }}
+      transition={{ duration: 0.6, ease: EASE, delay: (index % 4) * 0.06 }}
       className="relative aspect-[9/16] rounded-[2px] overflow-hidden cursor-pointer transition-transform duration-300 hover:-translate-y-1 p-0 text-left"
-      style={{ transitionTimingFunction: "cubic-bezier(.2,.7,.2,1)" }}
+      style={{ transitionTimingFunction: EASE_CSS }}
     >
       <canvas ref={canvasRef} className="block w-full h-full" />
       <div
