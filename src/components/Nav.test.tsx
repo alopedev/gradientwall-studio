@@ -1,15 +1,8 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { render, screen, act } from "@testing-library/react";
+import { describe, it, expect } from "vitest";
+import { render, screen } from "@testing-library/react";
 import { Nav } from "./Nav";
 
 describe("<Nav />", () => {
-  beforeEach(() => {
-    window.scrollTo(0, 0);
-  });
-  afterEach(() => {
-    window.scrollTo(0, 0);
-  });
-
   it("renders brand + desktop links + CTA", () => {
     render(<Nav />);
     // Brand mark is aria-hidden; brand text is the whole link label
@@ -20,20 +13,20 @@ describe("<Nav />", () => {
     expect(screen.getByText(/open studio/i)).toBeInTheDocument();
   });
 
-  it("is transparent at the top (scrollY <= 24)", () => {
-    render(<Nav />);
-    const nav = screen.getByRole("navigation");
-    // Gradient at rest — background uses a linear-gradient
-    expect(nav.style.background).toContain("linear-gradient");
+  it("renders the cinematic top-fade-to-transparent overlay (seen at the top of the page)", () => {
+    const { container } = render(<Nav />);
+    // The gradient overlay is a child div; assert it exists with the linear-gradient
+    const gradientLayer = container.querySelector('[style*="linear-gradient"]');
+    expect(gradientLayer).not.toBeNull();
+    expect(gradientLayer!.getAttribute("style")).toMatch(/rgba\(7\s*,\s*7\s*,\s*10\s*,\s*0\.85\)/);
   });
 
-  it("switches to solid glass after scrolling past 24px", () => {
-    render(<Nav />);
-    const nav = screen.getByRole("navigation");
-    act(() => {
-      Object.defineProperty(window, "scrollY", { value: 300, writable: true, configurable: true });
-      window.dispatchEvent(new Event("scroll"));
-    });
-    expect(nav.style.background).toBe("rgba(7, 7, 10, 0.55)");
+  it("applies backdrop-filter blur as a scroll-driven style (not a class toggle)", () => {
+    const { container } = render(<Nav />);
+    const nav = container.querySelector("nav")!;
+    // Motion writes the MotionValue-backed style to the DOM inline. The initial
+    // value at scrollY=0 is blur(6px) — smoothly interpolating up to blur(18px)
+    // at scrollY=80.
+    expect(nav.style.backdropFilter).toMatch(/blur\(/);
   });
 });

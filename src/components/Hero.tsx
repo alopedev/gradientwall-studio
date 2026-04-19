@@ -85,9 +85,11 @@ export function Hero() {
         </motion.div>
       </div>
 
-      {/* Meta bottom row */}
+      {/* Meta bottom row — bottom offset honors iOS home-indicator safe area so
+          the text doesn't sit under the swipe-up gesture bar on modern iPhones. */}
       <div
-        className="absolute z-[2] bottom-6 md:bottom-9 flex justify-between items-end gap-4 left-[clamp(24px,7vw,120px)] right-[clamp(24px,7vw,120px)] font-sans text-[10px] md:text-[11px] tracking-[0.18em] uppercase text-white/55"
+        style={{ bottom: "max(24px, calc(env(safe-area-inset-bottom) + 12px))" }}
+        className="absolute z-[2] md:bottom-9 flex justify-between items-end gap-4 left-[clamp(24px,7vw,120px)] right-[clamp(24px,7vw,120px)] font-sans text-[10px] md:text-[11px] tracking-[0.18em] uppercase text-white/55"
       >
         <div>
           <span className="md:hidden">GW / 2026</span>
