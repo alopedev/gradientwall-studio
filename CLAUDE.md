@@ -9,9 +9,12 @@ npm run dev         # Vite dev server on http://localhost:5173 (also registered 
 npm run typecheck   # tsc -b --noEmit — run this before considering a change done
 npm run build       # tsc -b && vite build — full prod bundle into dist/
 npm run preview     # Serve dist/ locally to smoke-test a prod build
+npm test            # vitest run — one-shot test run
+npm run test:watch  # vitest in watch mode
 ```
 
-There are no tests yet. When adding test infra, prefer Vitest (already compatible with the Vite pipeline) over Jest.
+Test infra: **Vitest** in `environment: node`. Snapshot files live next to the test
+under `__snapshots__/` and are committed — regression guard on the core math.
 
 ## What this project is
 
@@ -24,9 +27,12 @@ The project was migrated from a single-file vanilla HTML/CSS/JS prototype. The r
 The app separates concerns along three axes: **pure render → store → React views**. Understanding this split is the fastest way to make correct changes.
 
 ### 1. Pure render layer (`src/lib/`)
-- `gradient.ts` — framework-agnostic. `renderGradient(canvas, opts)` takes a canvas ref and options; paints pixels. Also exports `mulberry32` (seeded PRNG), `hslToHex`, `seedToHex`, `randomColors`.
-- `palettes.ts` — all constant data: `DEVICE_SIZES`, `PALETTES` (2 free + 4 locked premium), `GALLERY_SEEDS`, plus the `Device | Style | Colors4 | Palette | GallerySeed` types that the rest of the app imports.
-- `download.ts` — composes `renderGradient` + a grain-noise tile to produce a full-resolution PNG download.
+- `gradient/` — split for testability:
+  - `spec.ts` — **pure, deterministic, no DOM**. `buildGradientSpec(opts)` returns a `GradientSpec` (data-only: layers, stops, blurPx, background). Also exports `mulberry32`, `hslToHex`, `seedToHex`, `randomColors`. **This is the core product math** — snapshot-tested.
+  - `canvas2d.ts` — `paintSpecToCanvas(canvas, spec)`. The only module under `lib/gradient/` that touches Canvas API.
+  - `index.ts` — re-exports + `renderGradient(canvas, opts) = paint(build(opts))` convenience facade.
+- `palettes.ts` — all constant data: `DEVICE_SIZES`, `PALETTES` (2 free + 4 locked premium), `GALLERY_SEEDS`, `GradientConfig` shape, plus the `Device | Style | Colors4 | DEVICES | STYLES` tuples/types.
+- `download.ts` — composes `renderGradient` + a grain-noise tile to produce a full-resolution WebP/JPEG download.
 
 These files import **nothing** from React, Zustand, or components. Keep them that way.
 
