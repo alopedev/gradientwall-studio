@@ -13,7 +13,7 @@ function Track() {
     <span className="inline-flex items-center gap-14">
       {ITEMS.map((t, i) => (
         <span key={i} className="inline-flex items-center gap-14">
-          <span>{t}</span>
+          {t}
           <span className="inline-block h-1.5 w-1.5 rounded-full bg-white/20" aria-hidden />
         </span>
       ))}

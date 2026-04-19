@@ -1,4 +1,4 @@
-import type { Colors4, Style } from "./palettes";
+import type { Colors4, GradientConfig } from "./palettes";
 
 /**
  * Seeded PRNG — mulberry32.
@@ -31,14 +31,8 @@ export function hslToHex(h: number, s: number, l: number): string {
   return "#" + f(0) + f(8) + f(4);
 }
 
-export interface RenderOpts {
-  w: number;
-  h: number;
-  colors: Colors4;
-  style: Style;
-  blur: number;
-  seed: number;
-}
+// RenderOpts = GradientConfig without grain (grain is a post-render overlay) + raster dims.
+export type RenderOpts = Omit<GradientConfig, "grain"> & { w: number; h: number };
 
 /**
  * Render a mesh / blobs / liquid gradient into a canvas.

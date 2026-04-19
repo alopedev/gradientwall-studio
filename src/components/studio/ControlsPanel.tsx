@@ -1,46 +1,37 @@
-import { useStudioStore } from "@/store/useStudioStore";
+import { useShallow } from "zustand/react/shallow";
+import { useStudioStore, type SourceTab } from "@/store/useStudioStore";
 import { seedToHex } from "@/lib/gradient";
+import { STYLES, type Style } from "@/lib/palettes";
 import { Swatches } from "./Swatches";
 import { Palettes } from "./Palettes";
+import { PillTabs } from "./PillTabs";
 
-const STYLES = ["mesh", "blobs", "liquid"] as const;
+const SOURCE_TABS = ["picker", "palettes"] as const satisfies readonly SourceTab[];
+const sourceLabel = (t: SourceTab) => (t === "picker" ? "Color picker" : "Palettes");
 
 export function ControlsPanel() {
-  const activeTab = useStudioStore((s) => s.activeTab);
-  const setActiveTab = useStudioStore((s) => s.setActiveTab);
-  const style = useStudioStore((s) => s.style);
-  const setStyle = useStudioStore((s) => s.setStyle);
-  const blur = useStudioStore((s) => s.blur);
-  const setBlur = useStudioStore((s) => s.setBlur);
-  const grain = useStudioStore((s) => s.grain);
-  const setGrain = useStudioStore((s) => s.setGrain);
-  const seed = useStudioStore((s) => s.seed);
-  const reshuffle = useStudioStore((s) => s.reshuffle);
-  const save = useStudioStore((s) => s.save);
+  const { activeTab, style, blur, grain, seed, setActiveTab, setStyle, setBlur, setGrain, reshuffle, save } =
+    useStudioStore(
+      useShallow((s) => ({
+        activeTab: s.activeTab,
+        style: s.style,
+        blur: s.blur,
+        grain: s.grain,
+        seed: s.seed,
+        setActiveTab: s.setActiveTab,
+        setStyle: s.setStyle,
+        setBlur: s.setBlur,
+        setGrain: s.setGrain,
+        reshuffle: s.reshuffle,
+        save: s.save,
+      })),
+    );
 
   return (
     <div className="liquid p-7 flex flex-col gap-7">
-      {/* Source */}
       <div className="flex flex-col gap-3.5">
         <h3 className="m-0 font-serif font-normal italic text-[22px] tracking-[-0.01em] text-white">Source</h3>
-        <div className="flex justify-center md:justify-start">
-          <div className="inline-flex p-1 gap-1 rounded-full liquid-subtle">
-            {(["picker", "palettes"] as const).map((t) => {
-              const active = activeTab === t;
-              return (
-                <button
-                  key={t}
-                  onClick={() => setActiveTab(t)}
-                  className={`rounded-full px-3.5 py-2 text-xs font-sans tracking-[0.08em] uppercase transition-colors duration-150 ${
-                    active ? "bg-white text-[#07070a]" : "text-white/75 hover:text-white"
-                  }`}
-                >
-                  {t === "picker" ? "Color picker" : "Palettes"}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        <PillTabs options={SOURCE_TABS} value={activeTab} onChange={setActiveTab} labelFor={sourceLabel} />
       </div>
 
       {activeTab === "picker" ? (
@@ -55,30 +46,11 @@ export function ControlsPanel() {
         </div>
       )}
 
-      {/* Style */}
       <div className="flex flex-col gap-3.5">
         <LabelRow left="Style" right={style} />
-        <div className="flex justify-center md:justify-start">
-          <div className="inline-flex p-1 gap-1 rounded-full liquid-subtle">
-            {STYLES.map((s) => {
-              const active = style === s;
-              return (
-                <button
-                  key={s}
-                  onClick={() => setStyle(s)}
-                  className={`rounded-full px-3.5 py-2 text-xs font-sans tracking-[0.08em] uppercase transition-colors duration-150 ${
-                    active ? "bg-white text-[#07070a]" : "text-white/75 hover:text-white"
-                  }`}
-                >
-                  {s}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        <PillTabs options={STYLES} value={style} onChange={(s: Style) => setStyle(s)} />
       </div>
 
-      {/* Blur */}
       <div className="flex flex-col gap-3.5">
         <LabelRow left="Softness" right={`${blur}px`} />
         <input
@@ -91,7 +63,6 @@ export function ControlsPanel() {
         />
       </div>
 
-      {/* Grain */}
       <div className="flex flex-col gap-3.5">
         <LabelRow left="Grain" right={`${grain}%`} />
         <input
@@ -104,7 +75,6 @@ export function ControlsPanel() {
         />
       </div>
 
-      {/* Seed actions */}
       <div className="flex flex-col gap-3.5">
         <LabelRow left="Composition" right={seedToHex(seed)} />
         <div className="flex gap-2">

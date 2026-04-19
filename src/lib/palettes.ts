@@ -1,5 +1,10 @@
-export type Device = "mobile" | "tablet" | "desktop";
-export type Style = "mesh" | "blobs" | "liquid";
+// Single source of truth for the Device / Style string unions and their runtime lists.
+export const DEVICES = ["mobile", "tablet", "desktop"] as const;
+export type Device = (typeof DEVICES)[number];
+
+export const STYLES = ["mesh", "blobs", "liquid"] as const;
+export type Style = (typeof STYLES)[number];
+
 export type Colors4 = [string, string, string, string];
 
 export interface DeviceSize {
@@ -17,6 +22,17 @@ export const DEVICE_SIZES: Record<Device, DeviceSize> = {
   tablet: { w: 2064, h: 2752, label: "2064 × 2752" },
   desktop: { w: 5120, h: 2880, label: "5120 × 2880" },
 };
+
+// Shared shape describing a wallpaper's rendering parameters.
+// `RenderOpts` (gradient.ts) adds raster dimensions; `HistoryItem` (store) persists it;
+// `DownloadOpts` (download.ts) adds the device target.
+export interface GradientConfig {
+  colors: Colors4;
+  style: Style;
+  blur: number;
+  grain: number;
+  seed: number;
+}
 
 export interface Palette {
   name: string;

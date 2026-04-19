@@ -1,14 +1,7 @@
 import { renderGradient, seedToHex } from "./gradient";
-import { DEVICE_SIZES, type Colors4, type Device, type Style } from "./palettes";
+import { DEVICE_SIZES, type Device, type GradientConfig } from "./palettes";
 
-interface DownloadOpts {
-  device: Device;
-  colors: Colors4;
-  style: Style;
-  blur: number;
-  grain: number; // 0-100
-  seed: number;
-}
+type DownloadOpts = GradientConfig & { device: Device };
 
 /**
  * Generate a full-resolution wallpaper with the current settings + grain overlay,
@@ -39,22 +32,11 @@ export async function downloadWallpaper(opts: DownloadOpts): Promise<void> {
   const ctx = tmp.getContext("2d");
   if (!ctx) return;
 
-  // Grain overlay via noise tile (repeats across the full image)
+  // Grain overlay — the noise tile is identical between downloads, so we build it
+  // once and reuse. Saves a 65k-iteration ImageData loop per click.
   ctx.globalAlpha = (opts.grain / 100) * 0.55;
   ctx.globalCompositeOperation = "overlay";
-  const tile = 256;
-  const noise = document.createElement("canvas");
-  noise.width = noise.height = tile;
-  const nctx = noise.getContext("2d");
-  if (!nctx) return;
-  const id = nctx.createImageData(tile, tile);
-  for (let i = 0; i < id.data.length; i += 4) {
-    const v = 128 + (Math.random() - 0.5) * 140;
-    id.data[i] = id.data[i + 1] = id.data[i + 2] = v;
-    id.data[i + 3] = 255;
-  }
-  nctx.putImageData(id, 0, 0);
-  const pattern = ctx.createPattern(noise, "repeat");
+  const pattern = ctx.createPattern(getNoiseTile(), "repeat");
   if (pattern) {
     ctx.fillStyle = pattern;
     ctx.fillRect(0, 0, d.w, d.h);
@@ -75,6 +57,25 @@ export async function downloadWallpaper(opts: DownloadOpts): Promise<void> {
   a.click();
   // Revoke after click dispatches — browser already started the download.
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+let cachedNoiseTile: HTMLCanvasElement | null = null;
+function getNoiseTile(): HTMLCanvasElement {
+  if (cachedNoiseTile) return cachedNoiseTile;
+  const tile = 256;
+  const noise = document.createElement("canvas");
+  noise.width = noise.height = tile;
+  const nctx = noise.getContext("2d");
+  if (!nctx) throw new Error("Cannot create noise tile");
+  const id = nctx.createImageData(tile, tile);
+  for (let i = 0; i < id.data.length; i += 4) {
+    const v = 128 + (Math.random() - 0.5) * 140;
+    id.data[i] = id.data[i + 1] = id.data[i + 2] = v;
+    id.data[i + 3] = 255;
+  }
+  nctx.putImageData(id, 0, 0);
+  cachedNoiseTile = noise;
+  return noise;
 }
 
 function encodeBlob(canvas: HTMLCanvasElement, type: string, quality: number): Promise<Blob> {

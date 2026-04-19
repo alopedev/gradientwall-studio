@@ -118,19 +118,6 @@ body::before {
     transform: translateX(-50%);
   }
 }
-@keyframes gw-shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-6px);
-  }
-  75% {
-    transform: translateX(6px);
-  }
-}
-
 /* =================== Slider =================== */
 .gw-slider {
   -webkit-appearance: none;

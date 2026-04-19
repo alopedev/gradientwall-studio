@@ -1,6 +1,5 @@
-import { useEffect, useRef } from "react";
 import { useStudioStore, type HistoryItem } from "@/store/useStudioStore";
-import { renderGradient } from "@/lib/gradient";
+import { useGradientCanvas } from "@/lib/useGradientCanvas";
 
 export function History() {
   const history = useStudioStore((s) => s.history);
@@ -26,19 +25,10 @@ export function History() {
 }
 
 function HistoryCard({ item, onClick }: { item: HistoryItem; onClick: () => void }) {
-  const ref = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    const canvas = ref.current;
-    if (!canvas) return;
-    renderGradient(canvas, {
-      w: 270,
-      h: 480,
-      colors: item.colors,
-      style: item.style,
-      blur: item.blur,
-      seed: item.seed,
-    });
-  }, [item]);
+  const ref = useGradientCanvas(
+    { w: 270, h: 480, colors: item.colors, style: item.style, blur: item.blur, seed: item.seed },
+    [item],
+  );
 
   return (
     <button

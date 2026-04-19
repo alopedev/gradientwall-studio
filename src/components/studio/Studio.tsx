@@ -25,11 +25,9 @@ export function Studio() {
         </p>
       </div>
 
-      {/* Studio grid — single column on mobile/tablet, asymmetric split on md+ */}
+      {/* Single column on mobile/tablet, asymmetric 1.45fr/1fr split on md+. */}
       <div className="grid gap-7 items-stretch grid-cols-1 md:[grid-template-columns:minmax(0,1.45fr)_minmax(0,1fr)]">
-        <div className="min-h-[560px]">
-          <Preview />
-        </div>
+        <Preview />
         <ControlsPanel />
       </div>
 

@@ -1,15 +1,17 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { PALETTES, type Colors4, type Device, type GallerySeed, type Style } from "@/lib/palettes";
+import {
+  PALETTES,
+  STYLES,
+  type Colors4,
+  type Device,
+  type GallerySeed,
+  type GradientConfig,
+  type Style,
+} from "@/lib/palettes";
 import { randomColors } from "@/lib/gradient";
 
-export interface HistoryItem {
-  colors: Colors4;
-  style: Style;
-  blur: number;
-  grain: number;
-  seed: number;
-}
+export type HistoryItem = GradientConfig;
 
 export type SourceTab = "picker" | "palettes";
 
@@ -75,14 +77,12 @@ export const useStudioStore = create<StudioState>()(
 
       reshuffle: () => set({ seed: randomSeed() }),
 
-      randomize: () => {
-        const styles: Style[] = ["mesh", "blobs", "liquid"];
+      randomize: () =>
         set({
           colors: randomColors(),
-          style: styles[Math.floor(Math.random() * styles.length)],
+          style: STYLES[Math.floor(Math.random() * STYLES.length)],
           seed: randomSeed(),
-        });
-      },
+        }),
 
       save: () => {
         const { colors, style, blur, grain, seed, history } = get();

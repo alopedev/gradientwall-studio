@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useStudioStore } from "@/store/useStudioStore";
 import { GALLERY_SEEDS, type GallerySeed } from "@/lib/palettes";
 import { renderGradient } from "@/lib/gradient";
@@ -36,23 +36,42 @@ export function Gallery() {
 
 function GalleryCard({ seed }: { seed: GallerySeed }) {
   const loadGallerySeed = useStudioStore((s) => s.loadGallerySeed);
-  const ref = useRef<HTMLCanvasElement>(null);
+  const wrapRef = useRef<HTMLButtonElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [painted, setPainted] = useState(false);
 
+  // Defer canvas paint until the card scrolls into view. 8 gallery items × ~900KB
+  // of GPU-backed canvas each would be ~7MB eagerly. With this, each card paints
+  // once on first visibility and then stays painted.
   useEffect(() => {
-    const canvas = ref.current;
-    if (!canvas) return;
-    renderGradient(canvas, {
-      w: 360,
-      h: 640,
-      colors: seed.colors,
-      style: seed.style,
-      blur: 55,
-      seed: seed.seed,
-    });
-  }, [seed]);
+    if (painted) return;
+    const el = wrapRef.current;
+    const canvas = canvasRef.current;
+    if (!el || !canvas) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          renderGradient(canvas, {
+            w: 360,
+            h: 640,
+            colors: seed.colors,
+            style: seed.style,
+            blur: 55,
+            seed: seed.seed,
+          });
+          setPainted(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [seed, painted]);
 
   return (
     <button
+      ref={wrapRef}
       onClick={() => {
         loadGallerySeed(seed);
         document.getElementById("studio")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -60,7 +79,7 @@ function GalleryCard({ seed }: { seed: GallerySeed }) {
       className="relative aspect-[9/16] rounded-[2px] overflow-hidden cursor-pointer transition-transform duration-300 hover:-translate-y-1 p-0 text-left"
       style={{ transitionTimingFunction: "cubic-bezier(.2,.7,.2,1)" }}
     >
-      <canvas ref={ref} className="block w-full h-full" />
+      <canvas ref={canvasRef} className="block w-full h-full" />
       <div
         className="absolute bottom-0 inset-x-0 p-4 flex justify-between items-end font-sans text-[10px] tracking-[0.12em] uppercase text-white"
         style={{ background: "linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0))" }}

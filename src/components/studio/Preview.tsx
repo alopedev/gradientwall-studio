@@ -1,25 +1,29 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useShallow } from "zustand/react/shallow";
 import { useStudioStore } from "@/store/useStudioStore";
 import { renderGradient } from "@/lib/gradient";
-import { DEVICE_SIZES, type Device } from "@/lib/palettes";
+import { DEVICES, DEVICE_SIZES } from "@/lib/palettes";
 import { downloadWallpaper } from "@/lib/download";
 
 export function Preview() {
-  const device = useStudioStore((s) => s.device);
-  const colors = useStudioStore((s) => s.colors);
-  const style = useStudioStore((s) => s.style);
-  const blur = useStudioStore((s) => s.blur);
-  const grain = useStudioStore((s) => s.grain);
-  const seed = useStudioStore((s) => s.seed);
-  const setDevice = useStudioStore((s) => s.setDevice);
-  const randomize = useStudioStore((s) => s.randomize);
+  const { device, colors, style, blur, grain, seed, setDevice, randomize } = useStudioStore(
+    useShallow((s) => ({
+      device: s.device,
+      colors: s.colors,
+      style: s.style,
+      blur: s.blur,
+      grain: s.grain,
+      seed: s.seed,
+      setDevice: s.setDevice,
+      randomize: s.randomize,
+    })),
+  );
 
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [size, setSize] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
   const [downloading, setDownloading] = useState(false);
 
-  // Layout wallpaper within stage (aspect-preserving, padding 56px on all sides)
   useLayoutEffect(() => {
     function layout() {
       const stage = stageRef.current;
@@ -41,7 +45,6 @@ export function Preview() {
     return () => window.removeEventListener("resize", layout);
   }, [device]);
 
-  // Render canvas whenever relevant state changes
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -57,16 +60,14 @@ export function Preview() {
     });
   }, [device, colors, style, blur, seed]);
 
-  const devices: Device[] = ["mobile", "tablet", "desktop"];
-
   return (
     <div className="relative rounded-[18px] liquid min-h-[560px] overflow-hidden">
-      {/* Device pills — centered on mobile, top-left on md+ */}
+      {/* Device pills: centered on mobile, top-left on md+. */}
       <div
         className="absolute top-3.5 z-[3] flex gap-1.5 left-1/2 -translate-x-1/2 md:left-3.5 md:translate-x-0"
         role="tablist"
       >
-        {devices.map((d) => {
+        {DEVICES.map((d) => {
           const active = device === d;
           return (
             <button
@@ -84,7 +85,7 @@ export function Preview() {
         })}
       </div>
 
-      {/* Info badge — top-right on md+, centered below device bar on mobile */}
+      {/* Info badge: top-right on md+, centered below device bar on mobile. */}
       <div className="absolute top-[52px] md:top-3.5 left-1/2 -translate-x-1/2 md:left-auto md:right-3.5 md:translate-x-0 z-[3] rounded-full bg-black/55 border border-white/14 px-2.5 md:px-3 py-1 md:py-1.5 font-sans text-[10px] md:text-[11px] tracking-[0.08em] text-white/75 backdrop-blur-md whitespace-nowrap">
         {DEVICE_SIZES[device].label}
       </div>
