@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Barlow", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
+  /* Single-voice brutalist — Space Grotesk across all display + chrome.
+     No serif companion; the italic "mixed by hand" typographic voice is
+     retired in favour of monolithic uppercase tracking-tight display. */
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
 
   --color-bg: #07070a;
   --color-bg-2: #0c0c11;
@@ -12,6 +14,10 @@
   --color-ink-faint: #55534f;
   --color-off: #f8f8f8;
   --color-off-ink: #171717;
+  /* Sutéra-style single-accent: bermellón. Reserved for live indicators,
+     focus rings and the blueprint annotation marker. Never used for
+     backgrounds or large surfaces. */
+  --color-accent: #ff3b30;
 
   --radius-sharp: 2px;
   --radius-glass: 14px;
@@ -96,6 +102,28 @@ body::before {
   -webkit-backdrop-filter: blur(14px) saturate(1.3);
   border: 1px solid rgba(255, 255, 255, 0.14);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Technical "stamp" chrome — hairline border + tinted backdrop blur.
+   Used by the hero's meta stamps (LOCAL TIME, RENDER, slogan). The
+   `stamp-text` variant is the typography pair that lives inside. */
+@utility stamp {
+  border: 1px solid rgb(255 255 255 / 0.18);
+  border-radius: 2px;
+  background: rgb(7 7 10 / 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Two-line brutalist display headline (Studio / Gallery / Footer).
+   Callers set their own size via a `text-[clamp(...)]` utility. */
+@utility display-head {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+  line-height: 0.92;
+  margin: 0;
 }
 
 /* =================== Animations =================== */

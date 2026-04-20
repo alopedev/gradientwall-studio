@@ -43,7 +43,7 @@ export function ControlsPanel() {
   return (
     <div className="liquid p-7 flex flex-col gap-7">
       <div className="flex flex-col gap-3.5">
-        <h3 className="m-0 font-serif font-normal italic text-[22px] tracking-[-0.01em] text-white">Source</h3>
+        <h3 className="m-0 font-sans font-semibold uppercase tracking-[0.02em] text-[18px] text-white">Source</h3>
         <PillTabs options={SOURCE_TABS} value={activeTab} onChange={setActiveTab} labelFor={sourceLabel} />
       </div>
 

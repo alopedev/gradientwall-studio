@@ -2,9 +2,9 @@ export function Footer() {
   return (
     <footer className="mx-auto max-w-[1600px] px-[clamp(24px,5vw,80px)] pt-20 pb-10 border-t border-white/8 grid grid-cols-2 md:grid-cols-4 gap-10">
       <div className="col-span-2 md:col-span-1">
-        <div className="max-w-[18ch] font-sans font-light leading-[1.02] tracking-[-0.02em] text-[clamp(28px,3.5vw,44px)]">
+        <div className="max-w-[18ch] font-sans font-bold uppercase leading-[0.98] tracking-[-0.03em] text-[clamp(28px,3.5vw,44px)]">
           <span className="block text-white">Small tools for</span>
-          <span className="block font-serif italic text-white/75">calmer screens.</span>
+          <span className="block text-white/75">calmer screens.</span>
         </div>
         <div className="mt-6 font-sans text-[11px] tracking-[0.12em] uppercase text-white/40">
           GRADIENTWALL · EST. 2026
