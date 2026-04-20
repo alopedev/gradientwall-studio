@@ -104,6 +104,28 @@ body::before {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
+/* Technical "stamp" chrome — hairline border + tinted backdrop blur.
+   Used by the hero's meta stamps (LOCAL TIME, RENDER, slogan). The
+   `stamp-text` variant is the typography pair that lives inside. */
+@utility stamp {
+  border: 1px solid rgb(255 255 255 / 0.18);
+  border-radius: 2px;
+  background: rgb(7 7 10 / 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Two-line brutalist display headline (Studio / Gallery / Footer).
+   Callers set their own size via a `text-[clamp(...)]` utility. */
+@utility display-head {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+  line-height: 0.92;
+  margin: 0;
+}
+
 /* =================== Animations =================== */
 @keyframes gw-scroll-pulse {
   0% {
