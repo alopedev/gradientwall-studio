@@ -87,68 +87,67 @@ export function Hero() {
 }
 
 /**
- * 4:5 portrait crop of the 16:9 gradient video. Soft inner vignette fades
- * the edges of the video into the surrounding dark bg so the frame reads
- * as an isolated specimen rather than a hard-matted window.
+ * Specimen — an iridescent 3D gem rendered against a near-black field with
+ * a few stray particles. The video's own bg matches the hero's dark token
+ * colour, so the gem floats without any frame or vignette — integrates
+ * seamlessly instead of reading as a "boxed video".
+ *
+ * The container holds both the video and the blueprint marker + line so
+ * the annotation is anchored to the specimen's optical centre regardless
+ * of viewport size.
  */
 function SpecimenFrame() {
   return (
     <div
-      className="absolute z-[2] left-1/2 -translate-x-1/2 bottom-[clamp(140px,16vh,220px)]"
+      className="absolute z-[2] left-1/2 -translate-x-1/2 bottom-[clamp(72px,10vh,140px)]"
       style={{
-        width: "min(32vw, 44vh)",
-        aspectRatio: "4 / 5",
+        width: "min(58vw, 84vh)",
+        aspectRatio: "16 / 9",
       }}
     >
-      {/* Video + vignette live in an inner overflow-hidden wrapper so the
-          rounded corners clip the video cleanly. The blueprint annotation
-          (marker + line) sits OUTSIDE this wrapper so the hairline can
-          extend past the specimen edge without being clipped. */}
-      <div className="relative w-full h-full overflow-hidden rounded-[2px]">
-        <video
-          className="absolute inset-0 w-full h-full object-cover"
-          src="/assets/backgroundVideos/gradientBackground2.mp4"
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          aria-hidden
-        />
-        {/* Inner vignette — fades the video edges to the surrounding dark. */}
-        <div
-          aria-hidden
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(80% 80% at 50% 50%, transparent 55%, rgba(7,7,10,0.6) 100%)",
-          }}
-        />
-      </div>
-      {/* Square marker — visually on the specimen (same 10%/10% offset as
-          it had when nested), but outside the overflow-hidden wrapper so
-          the hairline that starts at it can extend past the frame. */}
+      {/* Radial mask fades the video's edges to transparent so the dark
+          grey frame of the source (lighter than the hero bg) doesn't read
+          as a rectangle. The mask keeps the gem fully opaque and softly
+          dissolves the surrounding halo into the dark page. */}
+      <video
+        className="absolute inset-0 w-full h-full object-contain"
+        src="/assets/backgroundVideos/specimenGem.mp4"
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        aria-hidden
+        style={{
+          maskImage:
+            "radial-gradient(ellipse 55% 65% at 50% 55%, black 55%, transparent 95%)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse 55% 65% at 50% 55%, black 55%, transparent 95%)",
+        }}
+      />
+      {/* Square marker — anchored to the gem's upper-right halo. Position
+          is expressed in container %, so it scales with viewport. The gem
+          sits roughly at 62% x 55% of the frame; the halo around it
+          reaches 72% x 38%, which is where we tag it. */}
       <span
         aria-hidden
-        className="absolute top-[10%] right-[10%] h-[6px] w-[6px] z-[2]"
+        className="absolute h-[6px] w-[6px] z-[2]"
         style={{
+          top: "38%",
+          left: "72%",
           background: "var(--color-accent)",
           boxShadow: "0 0 0 2px rgba(7,7,10,0.85)",
         }}
       />
-      {/* Blueprint hairline — thin white line from the marker's right edge
-          extending rightward toward the RENDER stamp in the right gutter.
-          Hidden on narrow viewports where the stamp wraps above the
-          specimen. Fixed width in vw — any longer than the gutter distance
-          just runs under the stamp, which is fine (the stamp has its own
-          bg that masks the line end). */}
+      {/* Blueprint hairline — extends from the marker rightward to just
+          past the specimen bounding box, where the RENDER stamp sits. */}
       <span
         aria-hidden
         className="absolute hidden md:block h-px z-[1]"
         style={{
-          top: "calc(10% + 2px)",
-          left: "calc(90% + 10px)",
-          width: "26vw",
+          top: "calc(38% + 3px)",
+          left: "calc(72% + 10px)",
+          width: "32vw",
           background: "rgb(255 255 255 / 0.45)",
         }}
       />
