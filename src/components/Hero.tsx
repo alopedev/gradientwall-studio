@@ -52,19 +52,19 @@ export function Hero() {
         <span className="block">by design.</span>
       </h1>
 
-      {/* Specimen frame — 4:5 portrait crop of the 16:9 video, centered in
-          the lower-half. The video is cropped by object-cover keeping the
-          hot center of the gradient. */}
-      <SpecimenFrame />
+      {/* Specimen group — floating 3D gem + blueprint annotation + RENDER
+          stamp all in one flex wrapper so the three elements always align
+          visually, no matter the viewport size. */}
+      <SpecimenGroup seedHex={seedToHex(seed)} />
 
-      {/* Meta stamps */}
+      {/* Meta stamps — the RENDER stamp travels with the specimen group
+          above; these two stay anchored to hero corners. */}
       <Stamp
         variant="top-right"
         label="LOCAL TIME"
         value={formatHHMM(now)}
         pulseDot
       />
-      <Stamp variant="mid-right" label="RENDER" value={seedToHex(seed)} />
       <Stamp variant="bottom-left" label="∞ GRADIENTS · 0 PRESETS" />
 
       {/* Single CTA — bottom-left, no background, hover underline in accent. */}
@@ -87,70 +87,119 @@ export function Hero() {
 }
 
 /**
- * Specimen — an iridescent 3D gem rendered against a near-black field with
- * a few stray particles. The video's own bg matches the hero's dark token
- * colour, so the gem floats without any frame or vignette — integrates
- * seamlessly instead of reading as a "boxed video".
+ * Specimen group — iridescent 3D gem + blueprint annotation + RENDER stamp.
  *
- * The container holds both the video and the blueprint marker + line so
- * the annotation is anchored to the specimen's optical centre regardless
- * of viewport size.
+ * Layout: a flex row that holds three visual tokens on a single invisible
+ * baseline (items-center):
+ *
+ *   [ video (16:9, mask) ]  ── hairline ──  [ RENDER #SEED ]
+ *
+ * Because every child is aligned to flex-center, the marker inside the
+ * video, the hairline, and the stamp all share the same vertical line at
+ * every viewport width.
+ *
+ * The wrapper is absolutely centered in the hero (both axes with a small
+ * upward bias so there's room for the CTA below). The video is sized to
+ * the bigger of 68vw or 110vh (still under its 1920×1080 native, so no
+ * resolution loss). A combination of `filter` (contrast up, brightness
+ * down) and `mask-image` crushes the near-black source background into
+ * the true page bg — the boxed-video rectangle disappears.
  */
-function SpecimenFrame() {
+function SpecimenGroup({ seedHex }: { seedHex: string }) {
+  // Horizontal coordinates inside the specimen box (as %). The marker's x
+  // is where the blueprint line starts; the stamp sits just past the
+  // specimen's right edge. Hoisting them here keeps the three anchors in
+  // one declaration so tweaks stay coherent.
+  const MARKER_X = 72; // %: upper-right halo of the gem
+  const STAMP_OFFSET = 40; // px: gap between specimen right edge and stamp
+
   return (
     <div
-      className="absolute z-[2] left-1/2 -translate-x-1/2 bottom-[clamp(72px,10vh,140px)]"
+      className="absolute z-[2] left-1/2"
       style={{
-        width: "min(58vw, 84vh)",
-        aspectRatio: "16 / 9",
+        top: "calc(50% - 2vh)",
+        // Single `transform` wins over Tailwind's translate — keep as one
+        // declaration.
+        transform: "translate(-50%, -50%)",
       }}
     >
-      {/* Radial mask fades the video's edges to transparent so the dark
-          grey frame of the source (lighter than the hero bg) doesn't read
-          as a rectangle. The mask keeps the gem fully opaque and softly
-          dissolves the surrounding halo into the dark page. */}
-      <video
-        className="absolute inset-0 w-full h-full object-contain"
-        src="/assets/backgroundVideos/specimenGem.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        aria-hidden
+      {/* Specimen — fixed size, aspect 16:9 preserved. All companion
+          elements (marker, hairline, stamp) are absolutely positioned
+          INSIDE this box so they share its coordinate system and align
+          automatically without flex / grid gymnastics. */}
+      <div
+        className="relative"
         style={{
-          maskImage:
-            "radial-gradient(ellipse 55% 65% at 50% 55%, black 55%, transparent 95%)",
-          WebkitMaskImage:
-            "radial-gradient(ellipse 55% 65% at 50% 55%, black 55%, transparent 95%)",
+          width: "min(65vw, 108vh)",
+          aspectRatio: "16 / 9",
         }}
-      />
-      {/* Square marker — anchored to the gem's upper-right halo. Position
-          is expressed in container %, so it scales with viewport. The gem
-          sits roughly at 62% x 55% of the frame; the halo around it
-          reaches 72% x 38%, which is where we tag it. */}
-      <span
-        aria-hidden
-        className="absolute h-[6px] w-[6px] z-[2]"
-        style={{
-          top: "38%",
-          left: "72%",
-          background: "var(--color-accent)",
-          boxShadow: "0 0 0 2px rgba(7,7,10,0.85)",
-        }}
-      />
-      {/* Blueprint hairline — extends from the marker rightward to just
-          past the specimen bounding box, where the RENDER stamp sits. */}
-      <span
-        aria-hidden
-        className="absolute hidden md:block h-px z-[1]"
-        style={{
-          top: "calc(38% + 3px)",
-          left: "calc(72% + 10px)",
-          width: "32vw",
-          background: "rgb(255 255 255 / 0.45)",
-        }}
-      />
+      >
+        <video
+          className="absolute inset-0 w-full h-full object-contain"
+          src="/assets/backgroundVideos/specimenGem.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          aria-hidden
+          style={{
+            // Crush the source's near-black floor so it matches the page bg.
+            filter: "contrast(1.2) brightness(0.88)",
+            // Tight elliptical mask — preserve gem + halo, fade the rest.
+            maskImage:
+              "radial-gradient(ellipse 42% 54% at 50% 56%, black 52%, transparent 86%)",
+            WebkitMaskImage:
+              "radial-gradient(ellipse 42% 54% at 50% 56%, black 52%, transparent 86%)",
+          }}
+        />
+
+        {/* Marker — at (MARKER_X %, 50%) of the specimen. */}
+        <span
+          aria-hidden
+          className="absolute z-[2] h-[6px] w-[6px]"
+          style={{
+            top: "50%",
+            left: `${MARKER_X}%`,
+            transform: "translate(-50%, -50%)",
+            background: "var(--color-accent)",
+            boxShadow: "0 0 0 2px rgba(7,7,10,0.85)",
+          }}
+        />
+
+        {/* Blueprint hairline — starts AT the marker, travels right over
+            the masked-out portion of the video and past the specimen edge
+            to the stamp's left side. Because the specimen has no overflow
+            clipping, the line can extend beyond its bounds. */}
+        <span
+          aria-hidden
+          className="absolute hidden md:block z-[1] h-px"
+          style={{
+            top: "50%",
+            left: `${MARKER_X}%`,
+            width: `calc(${100 - MARKER_X}% + ${STAMP_OFFSET}px)`,
+            background: "rgb(255 255 255 / 0.45)",
+          }}
+        />
+
+        {/* RENDER stamp — glued to the right edge of the specimen, same
+            vertical center as the marker. */}
+        <div
+          className="absolute z-[2] inline-flex items-center gap-2 px-3 py-1.5 font-sans text-[10px] md:text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--color-ink-75)] whitespace-nowrap"
+          style={{
+            top: "50%",
+            left: `calc(100% + ${STAMP_OFFSET}px)`,
+            transform: "translateY(-50%)",
+            border: "1px solid rgb(255 255 255 / 0.18)",
+            borderRadius: "2px",
+            backgroundColor: "rgb(7 7 10 / 0.4)",
+            backdropFilter: "blur(8px)",
+          }}
+        >
+          <span>Render</span>
+          <span className="text-[color:var(--color-ink)]">{seedHex}</span>
+        </div>
+      </div>
     </div>
   );
 }
