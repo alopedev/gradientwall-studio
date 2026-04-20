@@ -136,7 +136,7 @@ function SpecimenGroup({ seedHex }: { seedHex: string }) {
       >
         <video
           className="absolute inset-0 w-full h-full object-contain"
-          src="/assets/backgroundVideos/specimenGem.mp4"
+          src="/assets/backgroundVideos/specimenGem_loop.mp4"
           autoPlay
           loop
           muted
