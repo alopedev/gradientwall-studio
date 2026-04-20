@@ -17,9 +17,9 @@ export function Gallery() {
           <span className="block mb-4 font-sans text-[11px] tracking-[0.22em] uppercase text-white/40">
             03 — Community
           </span>
-          <h2 className="m-0 text-[clamp(40px,5.5vw,76px)] leading-[0.96] tracking-[-0.03em]">
-            <span className="block font-sans font-light text-white">Made by others.</span>
-            <span className="block font-serif italic text-white">Remixed by you.</span>
+          <h2 className="m-0 font-sans font-bold uppercase text-[clamp(40px,5.5vw,76px)] leading-[0.92] tracking-[-0.04em]">
+            <span className="block text-white">Made by others.</span>
+            <span className="block text-white/75">Remixed by you.</span>
           </h2>
         </div>
         <p className="max-w-[42ch] text-[15px] text-white/75 font-sans font-light">

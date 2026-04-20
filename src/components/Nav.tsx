@@ -43,7 +43,7 @@ export function Nav() {
 
       <a
         href="#"
-        className="relative z-10 flex items-center gap-2.5 font-serif text-[20px] tracking-[-0.01em] text-white"
+        className="relative z-10 flex items-center gap-2.5 font-sans font-medium uppercase tracking-[0.12em] text-[13px] text-white"
       >
         <span
           className="h-[22px] w-[22px] rounded-full"
@@ -56,44 +56,44 @@ export function Nav() {
           aria-hidden
         />
         <span>
-          GradientWall<em className="italic font-light text-white/70 ml-0.5">*</em>
+          GradientWall<span className="font-light text-white/60 ml-0.5">*</span>
         </span>
       </a>
 
-      <div className="relative z-10 hidden md:flex gap-7 text-[13px] tracking-[0.02em] text-white/75">
-        <a
-          href="#studio"
-          className="rounded-[2px] px-2 py-1 transition-colors duration-150 hover:bg-white/10 hover:text-white"
-        >
-          Studio
-        </a>
-        <a
-          href="#gallery"
-          className="rounded-[2px] px-2 py-1 transition-colors duration-150 hover:bg-white/10 hover:text-white"
-        >
-          Gallery
-        </a>
-        <a
-          href="#"
-          className="rounded-[2px] px-2 py-1 transition-colors duration-150 hover:bg-white/10 hover:text-white"
-        >
-          Pricing
-        </a>
-        <a
-          href="#"
-          className="rounded-[2px] px-2 py-1 transition-colors duration-150 hover:bg-white/10 hover:text-white"
-        >
-          Journal
-        </a>
+      <div className="relative z-10 hidden md:flex gap-7 text-[11px] font-medium uppercase tracking-[0.14em] text-white/70">
+        <NavLink href="#studio">Studio</NavLink>
+        <NavLink href="#gallery">Gallery</NavLink>
+        <NavLink href="#">Pricing</NavLink>
+        <NavLink href="#">Journal</NavLink>
       </div>
 
       <a
         href="#studio"
-        className="relative z-10 rounded-[2px] bg-[#f8f8f8] text-[#171717] px-3 md:px-4 py-2 text-[12px] md:text-[13px] font-sans font-medium tracking-[0.02em] transition-colors duration-150 hover:bg-white whitespace-nowrap"
+        className="relative z-10 font-sans font-medium uppercase tracking-[0.14em] text-[11px] md:text-[12px] text-white/90 hover:text-white transition-colors duration-150 whitespace-nowrap"
       >
         <span className="md:hidden">Studio →</span>
         <span className="hidden md:inline">Open studio →</span>
       </a>
     </m.nav>
+  );
+}
+
+/**
+ * Nav link — underline slides in on hover with the accent colour. The
+ * static accent-on-white would clash with the hero video underneath at the
+ * top of the page; the hover-underline keeps the default state clean.
+ */
+function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <a
+      href={href}
+      className="group relative px-1 py-1 transition-colors duration-150 hover:text-white"
+    >
+      {children}
+      <span
+        aria-hidden
+        className="absolute left-1 right-1 bottom-0 h-px origin-left scale-x-0 bg-[color:var(--color-accent)] transition-transform duration-200 ease-out group-hover:scale-x-100"
+      />
+    </a>
   );
 }

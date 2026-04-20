@@ -8,7 +8,7 @@ export function History() {
   return (
     <div className="mt-14">
       <div className="flex justify-between items-baseline mb-4">
-        <h3 className="m-0 font-serif font-normal italic text-[22px] text-white">Your history</h3>
+        <h3 className="m-0 font-sans font-semibold uppercase tracking-[0.02em] text-[18px] text-white">Your history</h3>
         <span className="font-sans text-[11px] tracking-[0.18em] uppercase text-white/40">{history.length} saved</span>
       </div>
       <div className="grid grid-cols-3 md:grid-cols-6 gap-3">

@@ -29,7 +29,7 @@ export function Marquee() {
       aria-hidden
     >
       <div
-        className="inline-flex gap-14 font-serif italic text-[20px] text-white/70"
+        className="inline-flex gap-14 font-sans font-medium uppercase tracking-[0.18em] text-[14px] text-white/70"
         style={{ animation: "gw-scroll-left 40s linear infinite" }}
       >
         <Track />

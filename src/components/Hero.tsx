@@ -1,112 +1,208 @@
-import { m } from "motion/react";
-import { FADE_UP_INITIAL, fadeUpTransition } from "@/lib/motion";
+import { useEffect, useState } from "react";
+import { useConfigStore } from "@/store";
+import { seedToHex } from "@/lib/gradient";
 
-// Entrance choreography — each element arrives with a ~120ms offset so the
-// eye catches each word before the next claims attention.
-const fadeUp = (delay: number) => ({
-  initial: FADE_UP_INITIAL,
-  animate: { opacity: 1, y: 0 },
-  transition: fadeUpTransition(delay),
-});
+/**
+ * Brutalist hero, Sutéra-inspired, dark-palette.
+ *
+ * Structure (see plan `hero-brutalist`):
+ *   - Headline top-left: `COLOR, BY DESIGN.` in Space Grotesk 700 uppercase
+ *     with ultra-tight tracking. Fills roughly the upper half of the viewport.
+ *   - Specimen frame centered lower: 4:5 portrait crop of the gradient video
+ *     — the video keeps playing inside. Soft inner-vignette fades the edges
+ *     into the dark bg so the frame reads as "suspended sample", not "matted".
+ *   - Three meta stamps in the corners: LOCAL TIME (live clock with a
+ *     bermellón pulse dot), RENDER #SEED (tied to the current store seed via
+ *     a thin SVG annotation line from a marker on the specimen), and
+ *     ∞ GRADIENTS · 0 PRESETS (bottom-left slogan stamp).
+ *   - Single minimal CTA: OPEN THE STUDIO → (no button background).
+ *
+ * Removed from the previous design: the descriptive paragraph, the second
+ * "Browse the gallery" CTA, the "Vol. 04 — Spring edition · Live" indicator,
+ * all italic-serif typography, and the fade-up entrance staggers (the video
+ * inside the specimen provides the motion — the rest is a static poster).
+ */
+
+function useLocalTime() {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    // Update once per minute — the visible granularity is HH:MM.
+    const id = setInterval(() => setNow(new Date()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+  return now;
+}
+
+function formatHHMM(d: Date): string {
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
 
 export function Hero() {
-  return (
-    <section className="relative h-screen min-h-[720px] overflow-hidden isolate">
-      {/* Full-bleed video background — no color filters */}
-      <video
-        className="absolute inset-0 w-full h-full object-cover z-0"
-        src="/assets/backgroundVideos/gradientBackground2.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        aria-hidden
-      />
+  const seed = useConfigStore((s) => s.seed);
+  const now = useLocalTime();
 
-      {/* Neutral (non-color) legibility layers on top of video */}
-      <div
-        className="absolute inset-0 z-[1] pointer-events-none"
+  return (
+    <section className="relative h-screen min-h-[720px] overflow-hidden isolate bg-[color:var(--color-bg)]">
+      {/* Headline — top-left, dominates the upper half. Tracking ultra-tight;
+          Space Grotesk 700 is the heaviest weight available. */}
+      <h1
+        className="absolute top-[clamp(80px,12vh,160px)] left-[clamp(24px,7vw,120px)] right-[clamp(24px,7vw,120px)] z-[3] m-0 font-sans font-bold uppercase tracking-[-0.045em] leading-[0.9] text-[color:var(--color-ink)] text-[clamp(56px,10vw,140px)]"
+      >
+        <span className="block">Color,</span>
+        <span className="block">by design.</span>
+      </h1>
+
+      {/* Specimen frame — 4:5 portrait crop of the 16:9 video, centered in
+          the lower-half. The video is cropped by object-cover keeping the
+          hot center of the gradient. */}
+      <SpecimenFrame />
+
+      {/* Meta stamps */}
+      <Stamp
+        variant="top-right"
+        label="LOCAL TIME"
+        value={formatHHMM(now)}
+        pulseDot
+      />
+      <Stamp variant="mid-right" label="RENDER" value={seedToHex(seed)} />
+      <Stamp variant="bottom-left" label="∞ GRADIENTS · 0 PRESETS" />
+
+      {/* Single CTA — bottom-left, no background, hover underline in accent. */}
+      <a
+        href="#studio"
+        className="group absolute z-[3] bottom-[clamp(40px,8vh,96px)] right-[clamp(24px,7vw,120px)] inline-flex items-center gap-3 font-sans text-[12px] md:text-[13px] font-medium uppercase tracking-[0.14em] text-[color:var(--color-ink)] transition-colors duration-150"
+      >
+        <span className="border-b border-transparent group-hover:border-[color:var(--color-accent)] pb-1 transition-colors duration-150">
+          Open the studio
+        </span>
+        <span
+          aria-hidden
+          className="transition-transform duration-200 group-hover:translate-x-1"
+        >
+          →
+        </span>
+      </a>
+    </section>
+  );
+}
+
+/**
+ * 4:5 portrait crop of the 16:9 gradient video. Soft inner vignette fades
+ * the edges of the video into the surrounding dark bg so the frame reads
+ * as an isolated specimen rather than a hard-matted window.
+ */
+function SpecimenFrame() {
+  return (
+    <div
+      className="absolute z-[2] left-1/2 -translate-x-1/2 bottom-[clamp(140px,16vh,220px)]"
+      style={{
+        width: "min(32vw, 44vh)",
+        aspectRatio: "4 / 5",
+      }}
+    >
+      {/* Video + vignette live in an inner overflow-hidden wrapper so the
+          rounded corners clip the video cleanly. The blueprint annotation
+          (marker + line) sits OUTSIDE this wrapper so the hairline can
+          extend past the specimen edge without being clipped. */}
+      <div className="relative w-full h-full overflow-hidden rounded-[2px]">
+        <video
+          className="absolute inset-0 w-full h-full object-cover"
+          src="/assets/backgroundVideos/gradientBackground2.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          aria-hidden
+        />
+        {/* Inner vignette — fades the video edges to the surrounding dark. */}
+        <div
+          aria-hidden
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(80% 80% at 50% 50%, transparent 55%, rgba(7,7,10,0.6) 100%)",
+          }}
+        />
+      </div>
+      {/* Square marker — visually on the specimen (same 10%/10% offset as
+          it had when nested), but outside the overflow-hidden wrapper so
+          the hairline that starts at it can extend past the frame. */}
+      <span
         aria-hidden
+        className="absolute top-[10%] right-[10%] h-[6px] w-[6px] z-[2]"
         style={{
-          background:
-            "radial-gradient(70% 60% at 50% 50%, rgba(7,7,10,0) 35%, rgba(7,7,10,0.55) 85%, rgba(7,7,10,0.95) 100%), linear-gradient(to bottom, rgba(7,7,10,0.25), rgba(7,7,10,0) 30%, rgba(7,7,10,0) 70%, rgba(7,7,10,0.9))",
+          background: "var(--color-accent)",
+          boxShadow: "0 0 0 2px rgba(7,7,10,0.85)",
         }}
       />
-      <div
-        className="absolute inset-0 z-[1] pointer-events-none hero-grain opacity-[0.45] mix-blend-overlay"
+      {/* Blueprint hairline — thin white line from the marker's right edge
+          extending rightward toward the RENDER stamp in the right gutter.
+          Hidden on narrow viewports where the stamp wraps above the
+          specimen. Fixed width in vw — any longer than the gutter distance
+          just runs under the stamp, which is fine (the stamp has its own
+          bg that masks the line end). */}
+      <span
         aria-hidden
+        className="absolute hidden md:block h-px z-[1]"
+        style={{
+          top: "calc(10% + 2px)",
+          left: "calc(90% + 10px)",
+          width: "26vw",
+          background: "rgb(255 255 255 / 0.45)",
+        }}
       />
+    </div>
+  );
+}
 
-      <div className="relative z-[2] h-full flex flex-col justify-center mx-auto max-w-[1600px] px-[clamp(24px,7vw,120px)] pt-24 md:pt-0 pb-[clamp(120px,18vh,250px)]">
-        <m.span
-          {...fadeUp(0.0)}
-          className="inline-flex items-center gap-2.5 font-sans text-[11px] font-medium uppercase tracking-[0.22em] text-white/75 mb-7"
-        >
-          <span
-            className="h-1.5 w-1.5 rounded-full bg-[#4dffb1]"
-            style={{ boxShadow: "0 0 12px #4dffb1" }}
-            aria-hidden
-          />
-          Vol. 04 — Spring edition · Live
-        </m.span>
+/**
+ * Corner-bracketed technical stamp. Minimal border on two corners (top-left
+ * and bottom-right) suggesting a "stamped ticket" without a full box.
+ */
+function Stamp({
+  variant,
+  label,
+  value,
+  pulseDot = false,
+}: {
+  variant: "top-right" | "mid-right" | "bottom-left";
+  label: string;
+  value?: string;
+  pulseDot?: boolean;
+}) {
+  const positionClass =
+    variant === "top-right"
+      ? "top-[clamp(80px,10vh,120px)] right-[clamp(24px,7vw,120px)]"
+      : variant === "mid-right"
+      ? "top-[40%] right-[clamp(24px,7vw,120px)]"
+      : "bottom-[clamp(40px,8vh,96px)] left-[clamp(24px,7vw,120px)]";
 
-        <h1 className="m-0 mb-7 leading-[0.96] tracking-[-0.035em] text-[clamp(42px,7vw,64px)]">
-          <m.span {...fadeUp(0.12)} className="block font-sans font-light text-white">
-            Cinematic wallpapers,
-          </m.span>
-          <m.span {...fadeUp(0.24)} className="block font-serif italic text-white">
-            mixed by hand.
-          </m.span>
-        </h1>
-
-        <m.p
-          {...fadeUp(0.4)}
-          className="m-0 mb-10 max-w-[52ch] text-[clamp(15px,1.15vw,17px)] leading-[1.55] text-white/75 font-sans font-light"
-        >
-          A small studio for color. Blend four hues into mesh gradients, drifting blobs and soft grain — then pour
-          them onto your phone, tablet or desktop in a single click.
-        </m.p>
-
-        <m.div {...fadeUp(0.55)} className="flex items-center gap-3.5 flex-wrap">
-          <a
-            href="#studio"
-            className="inline-flex items-center gap-2 rounded-[2px] bg-[#f8f8f8] text-[#171717] px-5 py-3.5 text-sm font-sans font-medium tracking-[0.01em] transition-colors duration-150 hover:bg-white"
-          >
-            Open the studio <span className="transition-transform duration-150">→</span>
-          </a>
-          <a
-            href="#gallery"
-            className="inline-flex items-center gap-2 rounded-[2px] border border-white/35 text-white px-5 py-3.5 text-sm font-sans font-medium tracking-[0.01em] transition-colors duration-150 hover:bg-white/10 hover:border-white/55"
-          >
-            Browse the gallery
-          </a>
-        </m.div>
-      </div>
-
-      {/* Meta bottom row — bottom offset honors iOS home-indicator safe area so
-          the text doesn't sit under the swipe-up gesture bar on modern iPhones. */}
-      <div
-        style={{ bottom: "max(24px, calc(env(safe-area-inset-bottom) + 12px))" }}
-        className="absolute z-[2] md:bottom-9 flex justify-between items-end gap-4 left-[clamp(24px,7vw,120px)] right-[clamp(24px,7vw,120px)] font-sans text-[10px] md:text-[11px] tracking-[0.18em] uppercase text-white/55"
-      >
-        <div>
-          <span className="md:hidden">GW / 2026</span>
-          <span className="hidden md:inline">GW / 2026 — ∞ gradients, 0 presets required</span>
-        </div>
-        <div className="flex items-center gap-2.5 text-white/75 whitespace-nowrap">
-          <span>Scroll to mix</span>
-          <span className="relative h-px w-8 overflow-hidden bg-white/40">
-            <span
-              className="absolute inset-0 bg-white"
-              style={{
-                transform: "translateX(-100%)",
-                animation: "gw-scroll-pulse 2.2s ease-in-out infinite",
-              }}
-            />
-          </span>
-        </div>
-      </div>
-    </section>
+  return (
+    <div
+      className={`absolute z-[3] ${positionClass} inline-flex items-center gap-2 px-3 py-1.5 font-sans text-[10px] md:text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--color-ink-75)]`}
+      style={{
+        // Corner brackets — two L-shapes via a linear-gradient trick would
+        // be fragile. Use a simple 1px rounded-[2px] hairline border; it
+        // reads as "technical sticker" in brutalist contexts.
+        border: "1px solid rgb(255 255 255 / 0.18)",
+        borderRadius: "2px",
+        backgroundColor: "rgb(7 7 10 / 0.4)",
+        backdropFilter: "blur(8px)",
+      }}
+    >
+      {pulseDot && (
+        <span
+          aria-hidden
+          className="inline-block h-1.5 w-1.5 rounded-full motion-safe:animate-pulse"
+          style={{
+            background: "var(--color-accent)",
+            boxShadow: "0 0 8px var(--color-accent)",
+          }}
+        />
+      )}
+      <span>{label}</span>
+      {value && <span className="text-[color:var(--color-ink)]">{value}</span>}
+    </div>
   );
 }

@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Barlow", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
+  /* Single-voice brutalist — Space Grotesk across all display + chrome.
+     No serif companion; the italic "mixed by hand" typographic voice is
+     retired in favour of monolithic uppercase tracking-tight display. */
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
 
   --color-bg: #07070a;
   --color-bg-2: #0c0c11;
@@ -12,6 +14,10 @@
   --color-ink-faint: #55534f;
   --color-off: #f8f8f8;
   --color-off-ink: #171717;
+  /* Sutéra-style single-accent: bermellón. Reserved for live indicators,
+     focus rings and the blueprint annotation marker. Never used for
+     backgrounds or large surfaces. */
+  --color-accent: #ff3b30;
 
   --radius-sharp: 2px;
   --radius-glass: 14px;
