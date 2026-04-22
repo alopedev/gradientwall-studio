@@ -4,6 +4,7 @@ import { Hero } from "./components/Hero";
 import { Marquee } from "./components/Marquee";
 import { Studio } from "./components/studio/Studio";
 import { Gallery } from "./components/Gallery";
+import { Closer } from "./components/Closer";
 import { Footer } from "./components/Footer";
 
 // Async-load domMax features so the motion feature bundle (layout, drag,
@@ -23,6 +24,7 @@ export default function App() {
         <Marquee />
         <Studio />
         <Gallery />
+        <Closer />
         <Footer />
       </MotionConfig>
     </LazyMotion>

@@ -120,3 +120,21 @@ class ROStub {
 }
 Object.defineProperty(globalThis, "ResizeObserver", { value: ROStub, writable: true, configurable: true });
 Object.defineProperty(window, "ResizeObserver", { value: ROStub, writable: true, configurable: true });
+
+// jsdom doesn't implement matchMedia — stub returning "no match" so
+// prefers-reduced-motion checks in Closer / other motion-aware code don't
+// throw during tests.
+Object.defineProperty(window, "matchMedia", {
+  writable: true,
+  configurable: true,
+  value: vi.fn((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(() => true),
+  })),
+});
