@@ -84,6 +84,14 @@ export interface GallerySeed {
   name: string;
 }
 
+// Tagline lírico por featured — alineado con los 3 primeros GALLERY_SEEDS.
+// Se muestra en el sidecar del split editorial (Gallery featured).
+export const FEATURED_TAGLINES = [
+  "Last light on the ridge.",
+  "Harbor, post-rain dusk.",
+  "Orchid bloom at midnight.",
+] as const;
+
 export const GALLERY_SEEDS: GallerySeed[] = [
   { colors: ["#1a0b2e", "#5b2a86", "#f59e0b", "#fce5b7"], style: "mesh", seed: 12, author: "ani·k", name: "Amber dusk" },
   { colors: ["#02111b", "#2d5d7b", "#e0fbfc", "#ff9f1c"], style: "liquid", seed: 98, author: "juno", name: "Harbor 04:20" },
