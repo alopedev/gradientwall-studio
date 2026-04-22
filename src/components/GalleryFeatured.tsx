@@ -1,0 +1,76 @@
+import { useEffect, useRef, useState } from "react";
+import { m } from "motion/react";
+import { loadGallerySeed } from "@/store";
+import type { GallerySeed } from "@/lib/palettes";
+import { useFittedGradientCanvas } from "@/lib/useGradientCanvas";
+import { EASE, EASE_CSS } from "@/lib/motion";
+
+/**
+ * Editorial featured item: author/name offset a la izquierda en serif italic,
+ * canvas paisajista a sangre debajo. Rompe con la retícula 9:16 del grid
+ * residual y da jerarquía al primer tramo de Gallery.
+ */
+export function GalleryFeatured({ seed, index }: { seed: GallerySeed; index: number }) {
+  const wrapRef = useRef<HTMLButtonElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (visible) return;
+    const el = wrapRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setVisible(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "400px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [visible]);
+
+  return (
+    <m.button
+      ref={wrapRef}
+      onClick={() => {
+        loadGallerySeed(seed);
+        document.getElementById("studio")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }}
+      initial={{ opacity: 0, y: 32 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{ duration: 0.8, ease: EASE, delay: 0.05 }}
+      className="block w-full text-left cursor-pointer group p-0 bg-transparent border-0"
+      style={{ transitionTimingFunction: EASE_CSS }}
+    >
+      <div className="ml-[clamp(24px,6vw,112px)] max-w-[36ch] mb-5 md:mb-7">
+        <div className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/40 mb-3">
+          0{index + 1} · {seed.author}
+        </div>
+        <h3 className="font-serif italic font-normal leading-[0.98] text-[clamp(36px,6vw,76px)] text-white">
+          {seed.name}
+        </h3>
+      </div>
+      <div className="relative w-full aspect-[4/5] md:aspect-[16/9] overflow-hidden rounded-[2px] transition-transform duration-500 group-hover:-translate-y-1">
+        {visible && <FeaturedPaint seed={seed} />}
+      </div>
+    </m.button>
+  );
+}
+
+function FeaturedPaint({ seed }: { seed: GallerySeed }) {
+  const canvasRef = useFittedGradientCanvas(
+    {
+      nativeW: 2560,
+      nativeH: 1440,
+      colors: seed.colors,
+      style: seed.style,
+      blur: 55,
+      seed: seed.seed,
+    },
+    [seed],
+  );
+  return <canvas ref={canvasRef} className="block w-full h-full" />;
+}
