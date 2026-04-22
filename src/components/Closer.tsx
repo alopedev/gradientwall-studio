@@ -6,8 +6,10 @@ import { computeSpawn, pickPoolIndex, randomRotation } from "@/lib/mouseTrail";
 import { Reveal } from "./ui/Reveal";
 
 const MIN_SPAWN_INTERVAL = 80;
-const LIFETIME_MS = 1100;
-const SPRITE_SIZE = 160;
+const DWELL_MS = 350;
+const FADE_MS = 750;
+const LIFETIME_MS = DWELL_MS + FADE_MS;
+const SPRITE_SIZE = 180;
 
 export function Closer() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -49,19 +51,23 @@ export function Closer() {
         `width:${SPRITE_SIZE}px`,
         `height:${SPRITE_SIZE}px`,
         "border-radius:2px",
-        `transform:rotate(${rot}deg) scale(0.85)`,
+        `transform:rotate(${rot}deg) scale(0.9)`,
         "opacity:1",
-        `transition:opacity 1s ${EASE_CSS}, transform 1s ${EASE_CSS}`,
+        // Dwell en opacity:1 durante DWELL_MS y luego fade-out limpio —
+        // sin delay los sprites se ven como flashes tenues.
+        `transition:opacity ${FADE_MS}ms ${EASE_CSS} ${DWELL_MS}ms, transform ${FADE_MS}ms ${EASE_CSS} ${DWELL_MS}ms`,
         "will-change:opacity,transform",
         "pointer-events:none",
       ].join(";");
       layer.appendChild(sprite);
+      // Force reflow: sin esto el browser batchea la inicialización + el
+      // cambio del rAF y la transición nunca arranca desde opacity:1.
+      void sprite.offsetWidth;
 
-      // Fade-out en el siguiente frame para que el estado inicial quede aplicado.
       const rafId = requestAnimationFrame(() => {
         rafs.delete(rafId);
         sprite.style.opacity = "0";
-        sprite.style.transform = `rotate(${rot}deg) scale(0.5)`;
+        sprite.style.transform = `rotate(${rot}deg) scale(0.55)`;
       });
       rafs.add(rafId);
 
