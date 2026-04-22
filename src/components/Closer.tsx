@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { mulberry32 } from "@/lib/gradient";
 import { buildMiniaturePool, MINIATURE_POOL_SIZE } from "@/lib/miniaturePool";
+import { EASE_CSS } from "@/lib/motion";
 import { computeSpawn, pickPoolIndex, randomRotation } from "@/lib/mouseTrail";
 import { Reveal } from "./ui/Reveal";
 
@@ -8,12 +9,6 @@ const MIN_SPAWN_INTERVAL = 80;
 const LIFETIME_MS = 1100;
 const SPRITE_SIZE = 160;
 
-/**
- * Sección de cierre: heading editorial + CTA al Studio. Al mover el ratón
- * sobre el bloque spawnea miniaturas de gradients (pool pre-renderizado)
- * con rotación aleatoria y fade-out en 1s — "infinite combinations" hecho
- * sensación, sin texto. Respeta prefers-reduced-motion.
- */
 export function Closer() {
   const sectionRef = useRef<HTMLElement>(null);
   const spriteLayerRef = useRef<HTMLDivElement>(null);
@@ -23,15 +18,15 @@ export function Closer() {
     const layer = spriteLayerRef.current;
     if (!section || !layer) return;
 
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reducedMotion) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const pool = buildMiniaturePool();
     if (pool.length === 0) return;
 
-    // Seed estable por sesión — la variedad la da la cantidad de movimientos.
     const rng = mulberry32(Date.now() & 0xffffffff);
     let lastSpawnTs = 0;
+    const timers = new Set<number>();
+    const rafs = new Set<number>();
 
     const onMove = (e: MouseEvent) => {
       const now = performance.now();
@@ -41,7 +36,6 @@ export function Closer() {
       const rect = section.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-
       const src = pool[pickPoolIndex(rng, MINIATURE_POOL_SIZE)];
       const rot = randomRotation(rng);
 
@@ -57,22 +51,33 @@ export function Closer() {
         "border-radius:2px",
         `transform:rotate(${rot}deg) scale(0.85)`,
         "opacity:1",
-        "transition:opacity 1s cubic-bezier(.2,.7,.2,1), transform 1s cubic-bezier(.2,.7,.2,1)",
+        `transition:opacity 1s ${EASE_CSS}, transform 1s ${EASE_CSS}`,
         "will-change:opacity,transform",
         "pointer-events:none",
       ].join(";");
       layer.appendChild(sprite);
 
-      // Fade out en el siguiente frame para que la transición tenga estado inicial aplicado.
-      requestAnimationFrame(() => {
+      // Fade-out en el siguiente frame para que el estado inicial quede aplicado.
+      const rafId = requestAnimationFrame(() => {
+        rafs.delete(rafId);
         sprite.style.opacity = "0";
         sprite.style.transform = `rotate(${rot}deg) scale(0.5)`;
       });
-      setTimeout(() => sprite.remove(), LIFETIME_MS);
+      rafs.add(rafId);
+
+      const tId = window.setTimeout(() => {
+        timers.delete(tId);
+        sprite.remove();
+      }, LIFETIME_MS);
+      timers.add(tId);
     };
 
     section.addEventListener("mousemove", onMove);
-    return () => section.removeEventListener("mousemove", onMove);
+    return () => {
+      section.removeEventListener("mousemove", onMove);
+      rafs.forEach(cancelAnimationFrame);
+      timers.forEach(clearTimeout);
+    };
   }, []);
 
   return (

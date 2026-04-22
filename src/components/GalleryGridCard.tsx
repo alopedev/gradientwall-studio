@@ -1,35 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { m } from "motion/react";
 import { loadGallerySeed } from "@/store";
 import type { GallerySeed } from "@/lib/palettes";
 import { useFittedGradientCanvas } from "@/lib/useGradientCanvas";
+import { useDeferUntilVisible } from "@/lib/useDeferUntilVisible";
 import { EASE, EASE_CSS } from "@/lib/motion";
 
-/**
- * 9:16 poster card for the Gallery residual grid.
- * Defers canvas mount until the card scrolls into view — avoids painting the
- * whole residual grid eagerly on page load.
- */
+/** 9:16 poster card for the Gallery residual grid. */
 export function GalleryGridCard({ seed, index }: { seed: GallerySeed; index: number }) {
   const wrapRef = useRef<HTMLButtonElement>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    if (visible) return;
-    const el = wrapRef.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry?.isIntersecting) {
-          setVisible(true);
-          io.disconnect();
-        }
-      },
-      { rootMargin: "200px" },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [visible]);
+  const visible = useDeferUntilVisible(wrapRef);
 
   return (
     <m.button

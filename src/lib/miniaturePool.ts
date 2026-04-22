@@ -1,15 +1,6 @@
 import { buildGradientSpec, paintSpecToCanvas } from "./gradient";
 import type { Colors4, Style } from "./palettes";
 
-/**
- * Pre-renderiza N canvases 240×240 para el mouse-trail del Closer. Los sprites
- * se clonan en vez de re-pintar en cada spawn — evita hitches durante el
- * movimiento del ratón y blinda el 60fps.
- *
- * Set de colors/styles curado para que cada miniatura se vea distinta: tonos
- * frios, cálidos, neutros y un par de azul-eléctrico.
- */
-
 interface PoolSpec {
   colors: Colors4;
   style: Style;
@@ -32,11 +23,9 @@ const POOL_SPECS: PoolSpec[] = [
 
 const PX = 240;
 
-/**
- * Devuelve data URLs (no canvases). Así cada spawn instancia un `<img>` barato
- * con `src` ya decodificado — cloneNode sobre un canvas no copia el contenido
- * pintado, y un pool compartido de `<img>` ahorra re-decodificación.
- */
+// Devuelve data URLs, no canvases: cloneNode sobre un canvas no copia el
+// bitmap pintado, así que un pool de <img> con src ya decodificado hace el
+// spawn de sprites barato y fiable.
 export function buildMiniaturePool(): string[] {
   if (typeof document === "undefined") return [];
   return POOL_SPECS.map((spec) => {

@@ -1,35 +1,19 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { m } from "motion/react";
 import { loadGallerySeed } from "@/store";
 import type { GallerySeed } from "@/lib/palettes";
 import { useFittedGradientCanvas } from "@/lib/useGradientCanvas";
+import { useDeferUntilVisible } from "@/lib/useDeferUntilVisible";
 import { EASE, EASE_CSS } from "@/lib/motion";
 
 /**
- * Editorial featured item: author/name offset a la izquierda en serif italic,
+ * Editorial featured item: name/author offset a la izquierda en serif italic,
  * canvas paisajista a sangre debajo. Rompe con la retícula 9:16 del grid
- * residual y da jerarquía al primer tramo de Gallery.
+ * residual.
  */
 export function GalleryFeatured({ seed, index }: { seed: GallerySeed; index: number }) {
   const wrapRef = useRef<HTMLButtonElement>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    if (visible) return;
-    const el = wrapRef.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry?.isIntersecting) {
-          setVisible(true);
-          io.disconnect();
-        }
-      },
-      { rootMargin: "400px" },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [visible]);
+  const visible = useDeferUntilVisible(wrapRef, "400px");
 
   return (
     <m.button
