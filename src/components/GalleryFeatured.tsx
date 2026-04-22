@@ -26,14 +26,14 @@ export function GalleryFeatured({ seed, index }: { seed: GallerySeed; index: num
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.15 }}
       transition={{ duration: 0.8, ease: EASE, delay: 0.05 }}
-      className="block w-full text-left cursor-pointer group p-0 bg-transparent border-0"
+      className="block w-full max-w-[960px] text-left cursor-pointer group p-0 bg-transparent border-0"
       style={{ transitionTimingFunction: EASE_CSS }}
     >
-      <div className="ml-[clamp(24px,6vw,112px)] max-w-[36ch] mb-5 md:mb-7">
-        <div className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/40 mb-3">
+      <div className="ml-[clamp(16px,3vw,48px)] max-w-[36ch] mb-4 md:mb-5">
+        <div className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/40 mb-2">
           0{index + 1} · {seed.author}
         </div>
-        <h3 className="font-serif italic font-normal leading-[0.98] text-[clamp(36px,6vw,76px)] text-white">
+        <h3 className="font-serif italic font-normal leading-[0.98] text-[clamp(28px,3.5vw,56px)] text-white">
           {seed.name}
         </h3>
       </div>

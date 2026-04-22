@@ -30,7 +30,7 @@ export function Gallery() {
         </p>
       </Reveal>
 
-      <div className="flex flex-col gap-[clamp(80px,12vw,160px)]">
+      <div className="flex flex-col gap-[clamp(48px,6vw,80px)]">
         {featured.map((seed, i) => (
           <GalleryFeatured key={seed.name} seed={seed} index={i} />
         ))}
