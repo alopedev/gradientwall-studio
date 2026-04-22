@@ -41,9 +41,9 @@ export function ControlsPanel() {
   const activeCount = active.filter(Boolean).length as 2 | 3 | 4;
 
   return (
-    <div className="liquid p-7 flex flex-col gap-7">
+    <div className="liquid-subtle rounded-[2px] border border-white/8 p-8 flex flex-col gap-8">
       <div className="flex flex-col gap-3.5">
-        <h3 className="m-0 font-sans font-semibold uppercase tracking-[0.02em] text-[18px] text-white">Source</h3>
+        <SectionTitle eyebrow="01 · Source" title="Where the colors come from." />
         <PillTabs options={SOURCE_TABS} value={activeTab} onChange={setActiveTab} labelFor={sourceLabel} />
       </div>
 
@@ -138,7 +138,16 @@ function LabelRow({ left, right }: { left: string; right: string }) {
   return (
     <div className="flex justify-between items-baseline font-sans text-[11px] tracking-[0.18em] uppercase text-white/40">
       <span>{left}</span>
-      <span className="text-white/75 tracking-[0.08em]">{right}</span>
+      <span className="text-white/55 tracking-[0.08em] text-[10px]">{right}</span>
+    </div>
+  );
+}
+
+function SectionTitle({ eyebrow, title }: { eyebrow: string; title: string }) {
+  return (
+    <div>
+      <span className="block font-sans text-[10px] tracking-[0.22em] uppercase text-white/40">{eyebrow}</span>
+      <h3 className="m-0 mt-1.5 font-serif italic font-normal text-[22px] leading-[1.1] text-white">{title}</h3>
     </div>
   );
 }

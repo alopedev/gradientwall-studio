@@ -11,7 +11,7 @@ describe("<ControlsPanel />", () => {
 
   it("renders the Source heading + picker/palettes tabs + style tabs + both sliders + action buttons", () => {
     render(<ControlsPanel />);
-    expect(screen.getByText("Source")).toBeInTheDocument();
+    expect(screen.getByText(/01 · source/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /color picker/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^palettes$/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "mesh" })).toBeInTheDocument();
