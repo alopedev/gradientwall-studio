@@ -1,9 +1,9 @@
 import { useRef } from "react";
 import { m } from "motion/react";
-import { loadGallerySeed } from "@/store";
 import type { GallerySeed } from "@/lib/palettes";
 import { useFittedGradientCanvas } from "@/lib/useGradientCanvas";
 import { useDeferUntilVisible } from "@/lib/useDeferUntilVisible";
+import { openSeedInStudio } from "@/lib/openSeedInStudio";
 import { EASE, EASE_CSS } from "@/lib/motion";
 
 /** 9:16 poster card for the Gallery residual grid. */
@@ -14,10 +14,7 @@ export function GalleryGridCard({ seed, index }: { seed: GallerySeed; index: num
   return (
     <m.button
       ref={wrapRef}
-      onClick={() => {
-        loadGallerySeed(seed);
-        document.getElementById("studio")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }}
+      onClick={() => openSeedInStudio(seed)}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
