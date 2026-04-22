@@ -1,3 +1,5 @@
+import { Reveal } from "./ui/Reveal";
+
 const ITEMS = [
   "Mesh gradients",
   "Organic blobs",
@@ -23,18 +25,20 @@ function Track() {
 
 export function Marquee() {
   return (
-    <div
-      className="overflow-hidden whitespace-nowrap py-6 border-y border-white/8"
-      style={{ background: "var(--color-bg-2)" }}
-      aria-hidden
-    >
+    <Reveal>
       <div
-        className="inline-flex gap-14 font-sans font-medium uppercase tracking-[0.18em] text-[14px] text-white/70"
-        style={{ animation: "gw-scroll-left 40s linear infinite" }}
+        className="overflow-hidden whitespace-nowrap py-6 border-y border-white/8"
+        style={{ background: "var(--color-bg-2)" }}
+        aria-hidden
       >
-        <Track />
-        <Track />
+        <div
+          className="inline-flex gap-14 font-sans font-medium uppercase tracking-[0.18em] text-[14px] text-white/70"
+          style={{ animation: "gw-scroll-left 40s linear infinite" }}
+        >
+          <Track />
+          <Track />
+        </div>
       </div>
-    </div>
+    </Reveal>
   );
 }
