@@ -36,12 +36,12 @@ export function Gallery() {
         ))}
       </div>
 
-      <Reveal className="mt-[clamp(80px,12vw,160px)] mb-8">
+      <Reveal className="mt-[clamp(48px,6vw,80px)] mb-6">
         <span className="block font-sans text-[11px] tracking-[0.22em] uppercase text-white/40">
           More from the community
         </span>
       </Reveal>
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3.5">
+      <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
         {residual.map((seed, i) => (
           <GalleryGridCard key={seed.name} seed={seed} index={i} />
         ))}

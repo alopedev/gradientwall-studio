@@ -22,7 +22,7 @@ export function GalleryGridCard({ seed, index }: { seed: GallerySeed; index: num
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.6, ease: EASE, delay: (index % 4) * 0.06 }}
-      className="relative aspect-[9/16] rounded-[2px] overflow-hidden cursor-pointer transition-transform duration-300 hover:-translate-y-1 p-0 text-left"
+      className="relative aspect-square rounded-[2px] overflow-hidden cursor-pointer transition-transform duration-300 hover:-translate-y-1 p-0 text-left"
       style={{ transitionTimingFunction: EASE_CSS }}
     >
       {visible && <GridPaint seed={seed} />}
@@ -41,7 +41,7 @@ function GridPaint({ seed }: { seed: GallerySeed }) {
   const canvasRef = useFittedGradientCanvas(
     {
       nativeW: 1440,
-      nativeH: 2560,
+      nativeH: 1440,
       colors: seed.colors,
       style: seed.style,
       blur: 55,
