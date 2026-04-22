@@ -9,7 +9,7 @@ const MIN_SPAWN_INTERVAL = 80;
 const DWELL_MS = 350;
 const FADE_MS = 750;
 const LIFETIME_MS = DWELL_MS + FADE_MS;
-const SPRITE_SIZE = 180;
+const SPRITE_SIZE = 140;
 
 export function Closer() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -94,11 +94,11 @@ export function Closer() {
     >
       <div ref={spriteLayerRef} data-sprite-layer className="absolute inset-0 pointer-events-none z-0" aria-hidden />
 
-      <Reveal className="relative z-10 text-center max-w-[24ch] mx-auto">
+      <Reveal className="relative z-10 text-center max-w-[min(92vw,1100px)] mx-auto">
         <span className="block mb-6 font-sans text-[11px] tracking-[0.22em] uppercase text-white/40">
           04 — Ship it
         </span>
-        <h2 className="m-0 text-[clamp(44px,7vw,96px)] leading-[0.95]">
+        <h2 className="m-0 text-[clamp(44px,9vw,140px)] leading-[0.95]">
           <span className="block font-sans font-bold uppercase tracking-[-0.03em] text-white">
             Ship the wallpaper
           </span>
@@ -111,7 +111,7 @@ export function Closer() {
       <Reveal delay={0.2} className="relative z-10 mt-10 md:mt-14 flex justify-center">
         <a
           href="#studio"
-          className="inline-flex items-center gap-3 bg-white text-[#07070a] font-sans font-medium uppercase tracking-[0.18em] text-[13px] px-8 py-4 rounded-[2px] hover:bg-white/90 transition-colors duration-150"
+          className="inline-flex items-center gap-3 bg-white text-[#07070a] font-sans font-medium uppercase tracking-[0.18em] text-[clamp(13px,1vw,18px)] px-[clamp(32px,3vw,56px)] py-[clamp(16px,1.4vw,26px)] rounded-[2px] hover:bg-white/90 transition-colors duration-150"
         >
           Open the Studio
           <span aria-hidden>→</span>
