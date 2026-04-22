@@ -45,7 +45,7 @@ const randomSeed = () => Math.floor(Math.random() * 65535);
 const freshMask = (): ActiveMask => [...ALL_ACTIVE] as ActiveMask;
 
 export const useConfigStore = create<ConfigState>()((set) => ({
-  device: "mobile",
+  device: "desktop",
   colors: [...PALETTES[0].colors] as Colors4,
   active: freshMask(),
   style: "mesh",

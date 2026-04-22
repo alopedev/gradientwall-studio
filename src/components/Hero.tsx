@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useConfigStore } from "@/store";
 import { seedToHex } from "@/lib/gradient";
+import { Framed } from "./ui/Framed";
 
 // Horizontal anchors inside the specimen box. The marker's x is where the
 // blueprint line starts; the stamp sits just past the specimen's right edge.
@@ -94,10 +95,7 @@ function SpecimenGroup({ seedHex }: { seedHex: string }) {
         transform: "translate(-50%, -50%)",
       }}
     >
-      <div
-        className="relative"
-        style={{ width: "min(65vw, 108vh)", aspectRatio: "16 / 9" }}
-      >
+      <Framed offset={-4} style={{ width: "min(65vw, 108vh)", aspectRatio: "16 / 9" }}>
         <video
           className="absolute inset-0 w-full h-full object-contain"
           src="/assets/backgroundVideos/specimenGem_loop.mp4"
@@ -122,7 +120,7 @@ function SpecimenGroup({ seedHex }: { seedHex: string }) {
           <span>Render</span>
           <span className="text-[color:var(--color-ink)]">{seedHex}</span>
         </Stamp>
-      </div>
+      </Framed>
     </div>
   );
 }

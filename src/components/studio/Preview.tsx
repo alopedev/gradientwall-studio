@@ -10,6 +10,7 @@ import { activeColors, DEVICES, DEVICE_SIZES } from "@/lib/palettes";
 import { downloadWallpaper } from "@/lib/download";
 import { EASE, EASE_CSS } from "@/lib/motion";
 import { IPhoneMockup } from "./IPhoneMockup";
+import { Framed } from "../ui/Framed";
 
 export function Preview() {
   const { device, colors, active, style, blur, grain, seed, setDevice, randomize } = useConfigStore(
@@ -82,7 +83,7 @@ export function Preview() {
   );
 
   return (
-    <div className="relative rounded-[18px] liquid min-h-[560px] overflow-hidden">
+    <Framed offset={10} className="rounded-[2px] bg-[#0a0a0d] border border-white/8 min-h-[520px] overflow-hidden">
       {/* Device pills: centered on mobile, top-left on md+. */}
       <div
         className="absolute top-3.5 z-[3] flex gap-1.5 left-1/2 -translate-x-1/2 md:left-3.5 md:translate-x-0"
@@ -132,7 +133,7 @@ export function Preview() {
           flex-1 cell and constrained to max-w to scale down gracefully. */}
       <div
         className="absolute inset-0 flex items-center justify-center p-4 md:p-14"
-        style={{ background: "#000" }}
+        style={{ background: "radial-gradient(circle at 50% 50%, #0c0c10, #070709)" }}
       >
         <AnimatePresence mode="wait">
           {showMockup ? (
@@ -238,6 +239,6 @@ export function Preview() {
           )}
         </button>
       </div>
-    </div>
+    </Framed>
   );
 }

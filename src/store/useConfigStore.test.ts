@@ -11,7 +11,7 @@ describe("useConfigStore", () => {
 
   it("initializes with Dusk palette, mesh style, blur 48, grain 45", () => {
     const s = useConfigStore.getState();
-    expect(s.device).toBe("mobile");
+    expect(s.device).toBe("desktop");
     expect(s.colors).toEqual(PALETTES[0].colors);
     expect(s.style).toBe("mesh");
     expect(s.blur).toBe(48);
