@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getPackBySlug } from "@/lib/packs";
+import { isCheckoutConfigured, openCheckout } from "@/lib/checkout";
 import { Nav } from "../Nav";
 import { Footer } from "../Footer";
 import { Framed } from "../ui/Framed";
@@ -8,6 +10,8 @@ import { PackCover } from "./PackCover";
 export function PackPage() {
   const { slug = "" } = useParams<{ slug: string }>();
   const pack = getPackBySlug(slug);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const buyEnabled = !!pack?.lemonSqueezyVariantId && isCheckoutConfigured();
 
   if (!pack) {
     return (
@@ -85,15 +89,30 @@ export function PackPage() {
 
               <div className="mt-8 flex items-center gap-3">
                 <button
-                  disabled
-                  title="Checkout opens in the next phase"
-                  className="inline-flex items-center gap-2 rounded-[2px] bg-white/95 text-[#0a0a0d] px-5 py-3 text-[11px] tracking-[0.14em] uppercase font-sans font-medium opacity-60 cursor-not-allowed"
+                  disabled={!buyEnabled || checkoutLoading}
+                  title={buyEnabled ? "Open checkout" : "Checkout configuration pending"}
+                  onClick={async () => {
+                    if (!buyEnabled || !pack.lemonSqueezyVariantId) return;
+                    setCheckoutLoading(true);
+                    try {
+                      await openCheckout({ variantId: pack.lemonSqueezyVariantId, packSlug: pack.slug });
+                    } finally {
+                      setCheckoutLoading(false);
+                    }
+                  }}
+                  className={`inline-flex items-center gap-2 rounded-[2px] bg-white/95 text-[#0a0a0d] px-5 py-3 text-[11px] tracking-[0.14em] uppercase font-sans font-medium transition-colors ${
+                    buyEnabled
+                      ? "hover:bg-white cursor-pointer"
+                      : "opacity-60 cursor-not-allowed"
+                  } ${checkoutLoading ? "opacity-80 cursor-wait" : ""}`}
                 >
-                  ↓ &nbsp;Buy €{pack.priceEur.toFixed(2)}
+                  {checkoutLoading ? "Loading…" : `↓ Buy €${pack.priceEur.toFixed(2)}`}
                 </button>
-                <span className="font-sans text-[11px] tracking-[0.14em] uppercase text-white/40">
-                  Checkout coming soon
-                </span>
+                {!buyEnabled && (
+                  <span className="font-sans text-[11px] tracking-[0.14em] uppercase text-white/40">
+                    Checkout coming soon
+                  </span>
+                )}
               </div>
 
               <div className="mt-10 font-sans text-[11px] text-white/40 leading-relaxed max-w-[44ch]">

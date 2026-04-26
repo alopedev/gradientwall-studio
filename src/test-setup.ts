@@ -1,9 +1,20 @@
-import "@testing-library/jest-dom/vitest";
-import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 
-// RTL auto-cleanup between tests (required when `globals: false`).
-afterEach(() => cleanup());
+// Functions tests run in environment "node" — DOM-aware setup must early-out
+// or we crash importing @testing-library/jest-dom (which probes window).
+if (typeof window === "undefined") {
+  // Nothing to set up in pure-Node tests.
+} else {
+  await import("@testing-library/jest-dom/vitest");
+  const { cleanup } = await import("@testing-library/react");
+
+  // RTL auto-cleanup between tests (required when `globals: false`).
+  afterEach(() => cleanup());
+
+  installDomShims();
+}
+
+function installDomShims(): void {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // localStorage shim
@@ -138,3 +149,4 @@ Object.defineProperty(window, "matchMedia", {
     dispatchEvent: vi.fn(() => true),
   })),
 });
+}

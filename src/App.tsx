@@ -7,6 +7,8 @@ import { Marquee } from "./components/Marquee";
 import { Studio } from "./components/studio/Studio";
 import { PacksSection } from "./components/packs/PacksSection";
 import { PackPage } from "./components/packs/PackPage";
+import { PackPurchaseSuccess } from "./components/packs/PackPurchaseSuccess";
+import { RecoverForm } from "./components/RecoverForm";
 import { Closer } from "./components/Closer";
 import { Footer } from "./components/Footer";
 
@@ -26,6 +28,8 @@ export default function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/packs/:slug" element={<PackPage />} />
+            <Route path="/packs/:slug/success" element={<PackPurchaseSuccess />} />
+            <Route path="/recover" element={<RecoverForm />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>

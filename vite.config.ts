@@ -18,9 +18,12 @@ export default defineConfig({
     allowedHosts: [".trycloudflare.com"],
   },
   test: {
-    include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+    include: ["src/**/*.test.ts", "src/**/*.test.tsx", "netlify/**/*.test.ts"],
     globals: false,
     environment: "jsdom",
     setupFiles: ["./src/test-setup.ts"],
+    // Functions run in Node serverless — netlify/**/*.test.ts files declare
+    // `// @vitest-environment node` on line 1 so jose/crypto behave as at
+    // runtime (jsdom's TextEncoder yields a Uint8Array jose v5 rejects).
   },
 });
