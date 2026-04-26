@@ -1,0 +1,11 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# SPA fallback: every unknown path resolves to index.html so client-side
+# routing (react-router) can take over. The `public/_redirects` file is the
+# canonical source — this block is mirrored here for visibility.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

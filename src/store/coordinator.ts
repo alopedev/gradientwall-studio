@@ -1,4 +1,4 @@
-import { ALL_ACTIVE, PALETTES, type ActiveMask, type Colors4, type GallerySeed } from "@/lib/palettes";
+import { ALL_ACTIVE, PALETTES, type ActiveMask, type Colors4 } from "@/lib/palettes";
 import { useConfigStore } from "./useConfigStore";
 import { useHistoryStore, type HistoryItem } from "./useHistoryStore";
 import { useUIStore } from "./useUIStore";
@@ -40,22 +40,6 @@ export function loadHistoryItem(h: HistoryItem): void {
     blur: h.blur,
     grain: h.grain,
     seed: h.seed,
-  });
-}
-
-/**
- * Load a gallery seed into the current config. Blur is forced to 55 (the
- * gallery cards were rendered with that value — keep the "feel" consistent
- * when the user opens one). The active mask resets so the palette is shown
- * exactly as the author intended.
- */
-export function loadGallerySeed(g: GallerySeed): void {
-  useConfigStore.setState({
-    colors: [...g.colors] as Colors4,
-    active: [...ALL_ACTIVE] as ActiveMask,
-    style: g.style,
-    seed: g.seed,
-    blur: 55,
   });
 }
 

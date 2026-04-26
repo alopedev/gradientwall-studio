@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach } from "vitest";
-import { save, loadHistoryItem, loadGallerySeed, applyPalette } from "./coordinator";
+import { save, loadHistoryItem, applyPalette } from "./coordinator";
 import { useConfigStore } from "./useConfigStore";
 import { useHistoryStore, type HistoryItem } from "./useHistoryStore";
 import { useUIStore } from "./useUIStore";
-import { ALL_ACTIVE, PALETTES, type ActiveMask, type Colors4, type GallerySeed } from "@/lib/palettes";
+import { ALL_ACTIVE, PALETTES, type ActiveMask, type Colors4 } from "@/lib/palettes";
 
 const CONFIG_INITIAL = useConfigStore.getState();
 const HISTORY_INITIAL = useHistoryStore.getState();
@@ -70,38 +70,6 @@ describe("coordinator", () => {
     });
   });
 
-  describe("loadGallerySeed()", () => {
-    it("applies colors/style/seed and forces blur to 55", () => {
-      const g: GallerySeed = {
-        colors: ["#1a0b2e", "#5b2a86", "#f59e0b", "#fce5b7"] as Colors4,
-        style: "mesh",
-        seed: 12,
-        author: "ani·k",
-        name: "Amber dusk",
-      };
-      loadGallerySeed(g);
-      const c = useConfigStore.getState();
-      expect(c.colors).toEqual(g.colors);
-      expect(c.style).toBe("mesh");
-      expect(c.seed).toBe(12);
-      expect(c.blur).toBe(55);
-    });
-
-    it("does not write to history or UI stores", () => {
-      const beforeHistory = useHistoryStore.getState().history;
-      const beforeUI = useUIStore.getState();
-      loadGallerySeed({
-        colors: ["#000", "#111", "#222", "#333"] as Colors4,
-        style: "blobs",
-        seed: 1,
-        author: "x",
-        name: "y",
-      });
-      expect(useHistoryStore.getState().history).toBe(beforeHistory);
-      expect(useUIStore.getState()).toEqual(beforeUI);
-    });
-  });
-
   describe("applyPalette()", () => {
     it("applies an unlocked palette to config + marks it active in UI", () => {
       const unlockedIdx = PALETTES.findIndex((p) => !p.locked);
@@ -157,18 +125,6 @@ describe("coordinator", () => {
       };
       useConfigStore.setState({ active: [false, true, false, true] });
       loadHistoryItem(legacy);
-      expect(useConfigStore.getState().active).toEqual(ALL_ACTIVE);
-    });
-
-    it("loadGallerySeed() resets the active mask to ALL_ACTIVE", () => {
-      useConfigStore.setState({ active: [false, true, false, true] });
-      loadGallerySeed({
-        colors: ["#1a0b2e", "#5b2a86", "#f59e0b", "#fce5b7"] as Colors4,
-        style: "mesh",
-        seed: 12,
-        author: "ani·k",
-        name: "Amber dusk",
-      });
       expect(useConfigStore.getState().active).toEqual(ALL_ACTIVE);
     });
 

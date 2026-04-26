@@ -1,0 +1,107 @@
+[
+  {
+    "slug": "midnight-velvet",
+    "name": "Midnight Velvet",
+    "style": "gradient",
+    "tagline": "Deep purples meeting first light.",
+    "description": "Ten quiet midnight gradients — moments where violet bleeds into amber and the room hasn't decided whether it's still night. Made for screens you stare at long after the world has gone dark.",
+    "priceEur": 4.99,
+    "cover": { "kind": "gradient", "colors": ["#0e0b16", "#3b0764", "#a21caf", "#fde68a"], "style": "mesh", "blur": 60, "grain": 28, "seed": 17 },
+    "previews": [
+      { "kind": "gradient", "colors": ["#0e0b16", "#3b0764", "#a21caf", "#fde68a"], "style": "mesh", "blur": 60, "grain": 28, "seed": 17 },
+      { "kind": "gradient", "colors": ["#1a0b2e", "#5b2a86", "#f59e0b", "#fce5b7"], "style": "mesh", "blur": 55, "grain": 30, "seed": 41 },
+      { "kind": "gradient", "colors": ["#0e0b16", "#a239ca", "#e7dfdd", "#4717f6"], "style": "blobs", "blur": 50, "grain": 32, "seed": 23 },
+      { "kind": "gradient", "colors": ["#120021", "#450920", "#a53860", "#da627d"], "style": "liquid", "blur": 65, "grain": 25, "seed": 88 },
+      { "kind": "gradient", "colors": ["#1b1b3a", "#693668", "#a74482", "#f68e5f"], "style": "blobs", "blur": 58, "grain": 28, "seed": 132 },
+      { "kind": "gradient", "colors": ["#0a0a1a", "#1e1b4b", "#8b5cf6", "#f0abfc"], "style": "mesh", "blur": 52, "grain": 30, "seed": 67 },
+      { "kind": "gradient", "colors": ["#0d0218", "#3a015c", "#7b2cbf", "#ff6f91"], "style": "liquid", "blur": 60, "grain": 26, "seed": 191 },
+      { "kind": "gradient", "colors": ["#150c2c", "#480ca8", "#b5179e", "#ffd6e0"], "style": "blobs", "blur": 55, "grain": 30, "seed": 12 },
+      { "kind": "gradient", "colors": ["#1a0033", "#6a0572", "#ab1368", "#ffba49"], "style": "mesh", "blur": 62, "grain": 28, "seed": 256 },
+      { "kind": "gradient", "colors": ["#10002b", "#240046", "#5a189a", "#e0aaff"], "style": "liquid", "blur": 58, "grain": 30, "seed": 73 }
+    ]
+  },
+  {
+    "slug": "solar-drift",
+    "name": "Solar Drift",
+    "style": "gradient",
+    "tagline": "Late afternoon, slow and warm.",
+    "description": "Ten warm gradients tuned to that hour when sunlight stretches and the day softens. Coral, ember, sand — a palette that flatters every device and every mood.",
+    "priceEur": 4.99,
+    "cover": { "kind": "gradient", "colors": ["#3a0ca3", "#f72585", "#ff9f1c", "#fcefb4"], "style": "blobs", "blur": 50, "grain": 30, "seed": 9 },
+    "previews": [
+      { "kind": "gradient", "colors": ["#3a0ca3", "#f72585", "#ff9f1c", "#fcefb4"], "style": "blobs", "blur": 50, "grain": 30, "seed": 9 },
+      { "kind": "gradient", "colors": ["#7a1b2e", "#ff5a36", "#ffd166", "#fff4e0"], "style": "mesh", "blur": 55, "grain": 28, "seed": 21 },
+      { "kind": "gradient", "colors": ["#9a031e", "#fb8b24", "#e36414", "#fff3b0"], "style": "liquid", "blur": 60, "grain": 26, "seed": 144 },
+      { "kind": "gradient", "colors": ["#5f0f40", "#9a031e", "#fb8b24", "#ffba08"], "style": "mesh", "blur": 52, "grain": 30, "seed": 56 },
+      { "kind": "gradient", "colors": ["#370617", "#d00000", "#f48c06", "#ffd166"], "style": "blobs", "blur": 58, "grain": 28, "seed": 209 },
+      { "kind": "gradient", "colors": ["#590d22", "#a4133c", "#ff758f", "#fff0f3"], "style": "liquid", "blur": 55, "grain": 30, "seed": 88 },
+      { "kind": "gradient", "colors": ["#641220", "#85182a", "#a71e34", "#ffba49"], "style": "mesh", "blur": 60, "grain": 28, "seed": 33 },
+      { "kind": "gradient", "colors": ["#7d1538", "#bf3138", "#f08a4b", "#ffd9a0"], "style": "blobs", "blur": 52, "grain": 30, "seed": 178 },
+      { "kind": "gradient", "colors": ["#3c1518", "#69140e", "#a44200", "#ffba49"], "style": "liquid", "blur": 58, "grain": 26, "seed": 71 },
+      { "kind": "gradient", "colors": ["#451804", "#9d4e1c", "#ed8936", "#fff5da"], "style": "mesh", "blur": 55, "grain": 32, "seed": 304 }
+    ]
+  },
+  {
+    "slug": "nordic-quiet",
+    "name": "Nordic Quiet",
+    "style": "gradient",
+    "tagline": "Cold light, clean room.",
+    "description": "Ten low-saturation gradients in the language of Nordic interiors. Cool greys, glacier blues, the occasional warm accent — wallpapers for people who change their devices to grayscale on weekdays.",
+    "priceEur": 4.99,
+    "cover": { "kind": "gradient", "colors": ["#0b132b", "#1c2541", "#3a506b", "#5bc0be"], "style": "liquid", "blur": 60, "grain": 24, "seed": 55 },
+    "previews": [
+      { "kind": "gradient", "colors": ["#0b132b", "#1c2541", "#3a506b", "#5bc0be"], "style": "liquid", "blur": 60, "grain": 24, "seed": 55 },
+      { "kind": "gradient", "colors": ["#02111b", "#2d5d7b", "#e0fbfc", "#ff9f1c"], "style": "mesh", "blur": 55, "grain": 22, "seed": 98 },
+      { "kind": "gradient", "colors": ["#050a30", "#000c66", "#7ec8e3", "#ffffff"], "style": "blobs", "blur": 58, "grain": 25, "seed": 7 },
+      { "kind": "gradient", "colors": ["#012a4a", "#2a9df4", "#caf0f8", "#fefae0"], "style": "mesh", "blur": 52, "grain": 26, "seed": 134 },
+      { "kind": "gradient", "colors": ["#1d3557", "#457b9d", "#a8dadc", "#f1faee"], "style": "liquid", "blur": 60, "grain": 22, "seed": 84 },
+      { "kind": "gradient", "colors": ["#03045e", "#0077b6", "#90e0ef", "#caf0f8"], "style": "blobs", "blur": 55, "grain": 24, "seed": 167 },
+      { "kind": "gradient", "colors": ["#001219", "#005f73", "#94d2bd", "#e9d8a6"], "style": "mesh", "blur": 58, "grain": 26, "seed": 42 },
+      { "kind": "gradient", "colors": ["#0a2540", "#3d5a80", "#98c1d9", "#e0fbfc"], "style": "liquid", "blur": 60, "grain": 24, "seed": 220 },
+      { "kind": "gradient", "colors": ["#1b263b", "#415a77", "#778da9", "#e0e1dd"], "style": "blobs", "blur": 52, "grain": 22, "seed": 5 },
+      { "kind": "gradient", "colors": ["#22223b", "#4a4e69", "#9a8c98", "#f2e9e4"], "style": "mesh", "blur": 55, "grain": 26, "seed": 161 }
+    ]
+  },
+  {
+    "slug": "citrus-fog",
+    "name": "Citrus Fog",
+    "style": "gradient",
+    "tagline": "Lime, cream, soft static.",
+    "description": "Ten gentle gradients that don't shout. Lime green dissolving into cream, with enough grain to make every screen feel like printed paper. For people who like their wallpapers polite.",
+    "priceEur": 4.99,
+    "cover": { "kind": "gradient", "colors": ["#0b3d2e", "#1f8a70", "#bedb39", "#fff275"], "style": "mesh", "blur": 58, "grain": 35, "seed": 14 },
+    "previews": [
+      { "kind": "gradient", "colors": ["#0b3d2e", "#1f8a70", "#bedb39", "#fff275"], "style": "mesh", "blur": 58, "grain": 35, "seed": 14 },
+      { "kind": "gradient", "colors": ["#0a100d", "#34656d", "#ffd5c2", "#f56476"], "style": "liquid", "blur": 60, "grain": 32, "seed": 130 },
+      { "kind": "gradient", "colors": ["#264653", "#2a9d8f", "#e9c46a", "#f4a261"], "style": "blobs", "blur": 55, "grain": 34, "seed": 47 },
+      { "kind": "gradient", "colors": ["#283618", "#606c38", "#dda15e", "#fefae0"], "style": "mesh", "blur": 60, "grain": 36, "seed": 92 },
+      { "kind": "gradient", "colors": ["#1e3a3a", "#4a6e54", "#cdd5b3", "#f7e8a4"], "style": "liquid", "blur": 58, "grain": 34, "seed": 18 },
+      { "kind": "gradient", "colors": ["#344e41", "#588157", "#a3b18a", "#dad7cd"], "style": "blobs", "blur": 55, "grain": 32, "seed": 201 },
+      { "kind": "gradient", "colors": ["#283d3b", "#197278", "#edddd4", "#c44536"], "style": "mesh", "blur": 60, "grain": 34, "seed": 64 },
+      { "kind": "gradient", "colors": ["#386641", "#6a994e", "#a7c957", "#f2e8cf"], "style": "liquid", "blur": 58, "grain": 36, "seed": 113 },
+      { "kind": "gradient", "colors": ["#403d39", "#6c584c", "#a98467", "#f4f3ee"], "style": "blobs", "blur": 55, "grain": 32, "seed": 250 },
+      { "kind": "gradient", "colors": ["#22333b", "#5b7553", "#c9ada7", "#f2e9e4"], "style": "mesh", "blur": 60, "grain": 34, "seed": 39 }
+    ]
+  },
+  {
+    "slug": "pacific-pulse",
+    "name": "Pacific Pulse",
+    "style": "gradient",
+    "tagline": "Ocean depth meets reef glow.",
+    "description": "Ten gradients pulled from the Pacific at dusk. Deep teal, electric coral, the occasional flash of phosphorescence. Saturated, vivid wallpapers for people who don't want their phone to be background noise.",
+    "priceEur": 4.99,
+    "cover": { "kind": "gradient", "colors": ["#03045e", "#0096c7", "#48cae4", "#ffaaa5"], "style": "blobs", "blur": 50, "grain": 28, "seed": 31 },
+    "previews": [
+      { "kind": "gradient", "colors": ["#03045e", "#0096c7", "#48cae4", "#ffaaa5"], "style": "blobs", "blur": 50, "grain": 28, "seed": 31 },
+      { "kind": "gradient", "colors": ["#001845", "#006494", "#00b4d8", "#fcb045"], "style": "mesh", "blur": 55, "grain": 30, "seed": 76 },
+      { "kind": "gradient", "colors": ["#003566", "#118ab2", "#06d6a0", "#ef476f"], "style": "liquid", "blur": 60, "grain": 26, "seed": 153 },
+      { "kind": "gradient", "colors": ["#0d1b2a", "#1b263b", "#415a77", "#e63946"], "style": "blobs", "blur": 58, "grain": 28, "seed": 89 },
+      { "kind": "gradient", "colors": ["#073b4c", "#118ab2", "#06d6a0", "#ffd166"], "style": "mesh", "blur": 55, "grain": 30, "seed": 228 },
+      { "kind": "gradient", "colors": ["#001f54", "#034078", "#1282a2", "#fefcfb"], "style": "liquid", "blur": 60, "grain": 26, "seed": 11 },
+      { "kind": "gradient", "colors": ["#06283d", "#1363df", "#47b5ff", "#dff6ff"], "style": "blobs", "blur": 55, "grain": 28, "seed": 144 },
+      { "kind": "gradient", "colors": ["#0a1128", "#001f54", "#fefcfb", "#ee6c4d"], "style": "mesh", "blur": 58, "grain": 30, "seed": 60 },
+      { "kind": "gradient", "colors": ["#011627", "#fdfffc", "#2ec4b6", "#e71d36"], "style": "liquid", "blur": 60, "grain": 26, "seed": 183 },
+      { "kind": "gradient", "colors": ["#212d40", "#364156", "#7d4e57", "#d66853"], "style": "blobs", "blur": 55, "grain": 28, "seed": 95 }
+    ]
+  }
+]

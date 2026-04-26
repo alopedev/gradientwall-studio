@@ -76,29 +76,3 @@ export const PALETTES: Palette[] = [
   { name: "Coast", colors: ["#012a4a", "#2a9df4", "#caf0f8", "#fefae0"], locked: true },
 ];
 
-export interface GallerySeed {
-  colors: Colors4;
-  style: Style;
-  seed: number;
-  author: string;
-  name: string;
-}
-
-// Tagline lírico por featured — alineado con los 3 primeros GALLERY_SEEDS.
-// Se muestra en el sidecar del split editorial (Gallery featured).
-export const FEATURED_TAGLINES = [
-  "Last light on the ridge.",
-  "Harbor, post-rain dusk.",
-  "Orchid bloom at midnight.",
-] as const;
-
-export const GALLERY_SEEDS: GallerySeed[] = [
-  { colors: ["#1a0b2e", "#5b2a86", "#f59e0b", "#fce5b7"], style: "mesh", seed: 12, author: "ani·k", name: "Amber dusk" },
-  { colors: ["#02111b", "#2d5d7b", "#e0fbfc", "#ff9f1c"], style: "liquid", seed: 98, author: "juno", name: "Harbor 04:20" },
-  { colors: ["#120021", "#450920", "#a53860", "#da627d"], style: "blobs", seed: 44, author: "m. eiji", name: "Orchid" },
-  { colors: ["#050a30", "#000c66", "#7ec8e3", "#ffffff"], style: "mesh", seed: 7, author: "yuki", name: "Tideline" },
-  { colors: ["#0a100d", "#34656d", "#ffd5c2", "#f56476"], style: "liquid", seed: 130, author: "c. perez", name: "Soft rebellion" },
-  { colors: ["#1b1b3a", "#693668", "#a74482", "#f68e5f"], style: "blobs", seed: 77, author: "ines", name: "Nebula 12" },
-  { colors: ["#0e0b16", "#a239ca", "#e7dfdd", "#4717f6"], style: "mesh", seed: 23, author: "k. tamura", name: "Ultraviolet" },
-  { colors: ["#0b132b", "#1c2541", "#3a506b", "#5bc0be"], style: "liquid", seed: 55, author: "pablo", name: "Forenoon" },
-];

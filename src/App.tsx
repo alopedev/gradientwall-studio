@@ -1,9 +1,12 @@
+import { useEffect } from "react";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { LazyMotion, MotionConfig } from "motion/react";
 import { Nav } from "./components/Nav";
 import { Hero } from "./components/Hero";
 import { Marquee } from "./components/Marquee";
 import { Studio } from "./components/studio/Studio";
-import { Gallery } from "./components/Gallery";
+import { PacksSection } from "./components/packs/PacksSection";
+import { PackPage } from "./components/packs/PackPage";
 import { Closer } from "./components/Closer";
 import { Footer } from "./components/Footer";
 
@@ -19,14 +22,41 @@ export default function App() {
   return (
     <LazyMotion features={loadFeatures} strict>
       <MotionConfig reducedMotion="user">
-        <Nav />
-        <Hero />
-        <Marquee />
-        <Studio />
-        <Gallery />
-        <Closer />
-        <Footer />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/packs/:slug" element={<PackPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
       </MotionConfig>
     </LazyMotion>
+  );
+}
+
+function HomePage() {
+  // Scroll to the hash target on mount or when navigation lands here with a
+  // fragment (e.g. /#packs from the pack page back-link). Without this, hash
+  // anchors only work for in-page clicks, not cross-route navigations.
+  const { hash } = useLocation();
+  useEffect(() => {
+    if (!hash) return;
+    const id = hash.slice(1);
+    const el = document.getElementById(id);
+    if (!el) return;
+    // Defer one frame so layout has settled and the section is in the DOM.
+    requestAnimationFrame(() => el.scrollIntoView({ behavior: "instant", block: "start" }));
+  }, [hash]);
+
+  return (
+    <>
+      <Nav />
+      <Hero />
+      <Marquee />
+      <Studio />
+      <PacksSection />
+      <Closer />
+      <Footer />
+    </>
   );
 }

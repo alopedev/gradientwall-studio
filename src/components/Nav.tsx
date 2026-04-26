@@ -42,7 +42,7 @@ export function Nav() {
       />
 
       <a
-        href="#"
+        href="/"
         className="relative z-10 flex items-center gap-2.5 font-sans font-medium uppercase tracking-[0.12em] text-[13px] text-white"
       >
         <span
@@ -61,14 +61,12 @@ export function Nav() {
       </a>
 
       <div className="relative z-10 hidden md:flex gap-7 text-[11px] font-medium uppercase tracking-[0.14em] text-white/70">
-        <NavLink href="#studio">Studio</NavLink>
-        <NavLink href="#gallery">Gallery</NavLink>
-        <NavLink href="#">Pricing</NavLink>
-        <NavLink href="#">Journal</NavLink>
+        <NavLink href="/#studio">Studio</NavLink>
+        <NavLink href="/#packs">Packs</NavLink>
       </div>
 
       <a
-        href="#studio"
+        href="/#studio"
         className="relative z-10 font-sans font-medium uppercase tracking-[0.14em] text-[11px] md:text-[12px] text-white/90 hover:text-white transition-colors duration-150 whitespace-nowrap"
       >
         <span className="md:hidden">Studio →</span>

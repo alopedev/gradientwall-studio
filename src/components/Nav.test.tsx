@@ -8,7 +8,7 @@ describe("<Nav />", () => {
     // Brand mark is aria-hidden; brand text is the whole link label
     expect(screen.getByText(/gradientwall/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /^studio$/i })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /^gallery$/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /^packs$/i })).toBeInTheDocument();
     // CTA has both mobile ("Studio →") + desktop ("Open studio →") children; at least one renders
     expect(screen.getByText(/open studio/i)).toBeInTheDocument();
   });
