@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { applyGrainOverlay, composeWallpaper, getNoiseTile, __resetNoiseTileForTests } from "./compose";
+import {
+  applyGrainOverlay,
+  composeWallpaper,
+  getNoiseTile,
+  paintWallpaper,
+  __resetNoiseTileForTests,
+} from "./compose";
 import type { Colors4 } from "../palettes";
 
 /**
@@ -92,6 +98,51 @@ describe("applyGrainOverlay", () => {
     expect(idxFillRect).toBeGreaterThan(idxCompOverlay);
     expect(idxAlphaReset).toBeGreaterThan(idxFillRect);
     expect(idxCompReset).toBeGreaterThan(idxFillRect);
+  });
+});
+
+describe("paintWallpaper", () => {
+  beforeEach(() => __resetNoiseTileForTests());
+
+  const COLORS: Colors4 = ["#2b1055", "#7597de", "#ff6e7f", "#ffd86e"];
+
+  it("paints onto the caller's canvas without creating a new one", () => {
+    const canvas = makeCanvasMock();
+    const factory = vi.fn(canvasFactory);
+    paintWallpaper(canvas, { w: 200, h: 100, colors: COLORS, style: "mesh", blur: 48, seed: 1 }, factory);
+    // Only the noise tile (memoized, but we reset it so 0 if no grain) — without grain, factory must not be called
+    expect(factory).not.toHaveBeenCalled();
+    expect(canvas.width).toBe(200);
+    expect(canvas.height).toBe(100);
+  });
+
+  it("skips the grain overlay when grain is omitted", () => {
+    const canvas = makeCanvasMock();
+    paintWallpaper(canvas, { w: 200, h: 100, colors: COLORS, style: "mesh", blur: 48, seed: 1 }, canvasFactory);
+    expect(canvas._ops.some((o) => o === "globalCompositeOperation=overlay")).toBe(false);
+  });
+
+  it("skips the grain overlay when grain is 0", () => {
+    const canvas = makeCanvasMock();
+    paintWallpaper(
+      canvas,
+      { w: 200, h: 100, colors: COLORS, style: "mesh", blur: 48, grain: 0, seed: 1 },
+      canvasFactory,
+    );
+    expect(canvas._ops.some((o) => o === "globalCompositeOperation=overlay")).toBe(false);
+  });
+
+  it("applies the grain overlay after the gradient when grain > 0", () => {
+    const canvas = makeCanvasMock();
+    paintWallpaper(
+      canvas,
+      { w: 200, h: 100, colors: COLORS, style: "mesh", blur: 48, grain: 45, seed: 1 },
+      canvasFactory,
+    );
+    const lastBlur = canvas._ops.findIndex((o) => o.startsWith("filter=blur"));
+    const overlayOp = canvas._ops.findIndex((o) => o === "globalCompositeOperation=overlay");
+    expect(lastBlur).toBeGreaterThanOrEqual(0);
+    expect(overlayOp).toBeGreaterThan(lastBlur);
   });
 });
 

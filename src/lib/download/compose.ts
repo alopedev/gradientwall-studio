@@ -2,14 +2,49 @@ import { renderGradient } from "../gradient";
 import type { Style } from "../palettes";
 import type { ColorRamp } from "../gradient/spec";
 
-export interface ComposeOpts {
+export interface PaintOpts {
   w: number;
   h: number;
   colors: ColorRamp;
   style: Style;
   blur: number;
-  grain: number; // 0-100
+  /** 0-100. Omit or 0 → no grain pass. */
+  grain?: number;
   seed: number;
+}
+
+export interface ComposeOpts extends PaintOpts {
+  /** Required when composing — even 0 must be explicit so callers think about it. */
+  grain: number;
+}
+
+/**
+ * Paint a wallpaper (gradient + optional grain) onto an existing canvas.
+ *
+ * Single source of truth for "render a wallpaper": Preview, the gradient
+ * hooks, the download path and any future mockup surface go through here.
+ * If you ever need a watermark, blend mode, or color-space tweak, this is
+ * the only file to touch.
+ *
+ * Use `paintWallpaper` when you already hold a `<canvas>` ref.
+ * Use `composeWallpaper` when you need a fresh off-screen canvas.
+ */
+export function paintWallpaper(
+  canvas: HTMLCanvasElement,
+  opts: PaintOpts,
+  canvasFactory: () => HTMLCanvasElement = () => document.createElement("canvas"),
+): void {
+  renderGradient(canvas, {
+    w: opts.w,
+    h: opts.h,
+    colors: opts.colors,
+    style: opts.style,
+    blur: opts.blur,
+    seed: opts.seed,
+  });
+  if (opts.grain && opts.grain > 0) {
+    applyGrainOverlay(canvas, opts.grain, canvasFactory);
+  }
 }
 
 /**
@@ -24,15 +59,7 @@ export function composeWallpaper(
   canvasFactory: () => HTMLCanvasElement = () => document.createElement("canvas"),
 ): HTMLCanvasElement {
   const canvas = canvasFactory();
-  renderGradient(canvas, {
-    w: opts.w,
-    h: opts.h,
-    colors: opts.colors,
-    style: opts.style,
-    blur: opts.blur,
-    seed: opts.seed,
-  });
-  applyGrainOverlay(canvas, opts.grain, canvasFactory);
+  paintWallpaper(canvas, opts, canvasFactory);
   return canvas;
 }
 

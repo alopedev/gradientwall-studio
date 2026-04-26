@@ -1,6 +1,6 @@
 import { useEffect, useRef, type DependencyList, type RefObject } from "react";
-import { renderGradient, type RenderOpts } from "./gradient";
-import { applyGrainOverlay } from "./download/compose";
+import { type RenderOpts } from "./gradient";
+import { paintWallpaper } from "./download/compose";
 import type { Style } from "./palettes";
 import type { ColorRamp } from "./gradient/spec";
 
@@ -17,7 +17,7 @@ export function useGradientCanvas(opts: RenderOpts, deps: DependencyList): RefOb
   useEffect(() => {
     const canvas = ref.current;
     if (!canvas) return;
-    renderGradient(canvas, opts);
+    paintWallpaper(canvas, opts);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
   return ref;
@@ -98,17 +98,15 @@ export function useFittedGradientCanvas(
       if (w > cur.nativeW) w = cur.nativeW;
       const h = w / ratio;
 
-      renderGradient(c, {
+      paintWallpaper(c, {
         w: Math.round(w),
         h: Math.round(h),
         colors: cur.colors,
         style: cur.style,
         blur: cur.blur,
+        grain: cur.grain,
         seed: cur.seed,
       });
-      if (cur.grain && cur.grain > 0) {
-        applyGrainOverlay(c, cur.grain);
-      }
     };
 
     let rafId = 0;

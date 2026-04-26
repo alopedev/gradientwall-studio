@@ -3,8 +3,7 @@ import { useShallow } from "zustand/react/shallow";
 import { AnimatePresence } from "motion/react";
 import { m } from "motion/react";
 import { useConfigStore } from "@/store";
-import { renderGradient } from "@/lib/gradient";
-import { applyGrainOverlay } from "@/lib/download/compose";
+import { composeWallpaper } from "@/lib/download/compose";
 import { useFittedGradientCanvas } from "@/lib/useGradientCanvas";
 import { activeColors, DEVICES, DEVICE_SIZES } from "@/lib/palettes";
 import { downloadWallpaper } from "@/lib/download";
@@ -61,10 +60,9 @@ export function Preview() {
   // will download — no separate SVG overlay.
   useEffect(() => {
     if (!showMockup) return;
-    const canvas = document.createElement("canvas");
-    renderGradient(canvas, { w: 720, h: 1600, colors: ramp, style, blur, seed });
-    if (grain > 0) applyGrainOverlay(canvas, grain);
-    setSharedMockupCanvas(canvas);
+    setSharedMockupCanvas(
+      composeWallpaper({ w: 720, h: 1600, colors: ramp, style, blur, grain, seed }),
+    );
     // `ramp` is derived from `colors` + `active`; track the stable inputs.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showMockup, colors, active, style, blur, grain, seed]);
