@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { getPackBySlug } from "@/lib/packs";
 import { Nav } from "../Nav";
 import { Footer } from "../Footer";
+import { PageMeta } from "../PageMeta";
 
 /**
  * Landing after the LS overlay completes. The download link is sent by
@@ -14,6 +15,12 @@ export function PackPurchaseSuccess() {
 
   return (
     <>
+      <PageMeta
+        title="Order confirmed"
+        description="Thanks for your purchase. Check your email for the download link."
+        path={`/packs/${slug}/success`}
+        noindex
+      />
       <Nav />
       <main className="min-h-screen pt-[120px] pb-[clamp(60px,9vw,120px)]">
         <section className="mx-auto max-w-[680px] px-[clamp(24px,5vw,80px)] text-center">

@@ -1,23 +1,23 @@
 [
   {
-    "slug": "midnight-velvet",
-    "name": "Midnight Velvet",
-    "style": "gradient",
-    "tagline": "Deep purples meeting first light.",
-    "description": "Ten quiet midnight gradients — moments where violet bleeds into amber and the room hasn't decided whether it's still night. Made for screens you stare at long after the world has gone dark.",
+    "slug": "acrylic",
+    "name": "Acrylic",
+    "style": "acrylic",
+    "tagline": "Hand-mixed paint, frozen mid-stroke.",
+    "description": "Ten wallpapers cut from thick acrylic paint — pigment trails, soft pulls, the texture of a brush leaving a canvas. Saturated where it matters, calm where it should be. Each one shot at 6K so it holds up on any screen you own.",
     "priceEur": 4.99,
-    "cover": { "kind": "gradient", "colors": ["#0e0b16", "#3b0764", "#a21caf", "#fde68a"], "style": "mesh", "blur": 60, "grain": 28, "seed": 17 },
+    "cover": { "kind": "image", "url": "/assets/packs/acrylic/cover.jpg", "alt": "Acrylic Collection — pigment-pulled wallpaper preview" },
     "previews": [
-      { "kind": "gradient", "colors": ["#0e0b16", "#3b0764", "#a21caf", "#fde68a"], "style": "mesh", "blur": 60, "grain": 28, "seed": 17 },
-      { "kind": "gradient", "colors": ["#1a0b2e", "#5b2a86", "#f59e0b", "#fce5b7"], "style": "mesh", "blur": 55, "grain": 30, "seed": 41 },
-      { "kind": "gradient", "colors": ["#0e0b16", "#a239ca", "#e7dfdd", "#4717f6"], "style": "blobs", "blur": 50, "grain": 32, "seed": 23 },
-      { "kind": "gradient", "colors": ["#120021", "#450920", "#a53860", "#da627d"], "style": "liquid", "blur": 65, "grain": 25, "seed": 88 },
-      { "kind": "gradient", "colors": ["#1b1b3a", "#693668", "#a74482", "#f68e5f"], "style": "blobs", "blur": 58, "grain": 28, "seed": 132 },
-      { "kind": "gradient", "colors": ["#0a0a1a", "#1e1b4b", "#8b5cf6", "#f0abfc"], "style": "mesh", "blur": 52, "grain": 30, "seed": 67 },
-      { "kind": "gradient", "colors": ["#0d0218", "#3a015c", "#7b2cbf", "#ff6f91"], "style": "liquid", "blur": 60, "grain": 26, "seed": 191 },
-      { "kind": "gradient", "colors": ["#150c2c", "#480ca8", "#b5179e", "#ffd6e0"], "style": "blobs", "blur": 55, "grain": 30, "seed": 12 },
-      { "kind": "gradient", "colors": ["#1a0033", "#6a0572", "#ab1368", "#ffba49"], "style": "mesh", "blur": 62, "grain": 28, "seed": 256 },
-      { "kind": "gradient", "colors": ["#10002b", "#240046", "#5a189a", "#e0aaff"], "style": "liquid", "blur": 58, "grain": 30, "seed": 73 }
+      { "kind": "image", "url": "/assets/packs/acrylic/01.jpg", "alt": "Acrylic Collection wallpaper 01" },
+      { "kind": "image", "url": "/assets/packs/acrylic/02.jpg", "alt": "Acrylic Collection wallpaper 02" },
+      { "kind": "image", "url": "/assets/packs/acrylic/03.jpg", "alt": "Acrylic Collection wallpaper 03" },
+      { "kind": "image", "url": "/assets/packs/acrylic/04.jpg", "alt": "Acrylic Collection wallpaper 04" },
+      { "kind": "image", "url": "/assets/packs/acrylic/05.jpg", "alt": "Acrylic Collection wallpaper 05" },
+      { "kind": "image", "url": "/assets/packs/acrylic/06.jpg", "alt": "Acrylic Collection wallpaper 06" },
+      { "kind": "image", "url": "/assets/packs/acrylic/07.jpg", "alt": "Acrylic Collection wallpaper 07" },
+      { "kind": "image", "url": "/assets/packs/acrylic/08.jpg", "alt": "Acrylic Collection wallpaper 08" },
+      { "kind": "image", "url": "/assets/packs/acrylic/09.jpg", "alt": "Acrylic Collection wallpaper 09" },
+      { "kind": "image", "url": "/assets/packs/acrylic/10.jpg", "alt": "Acrylic Collection wallpaper 10" }
     ]
   },
   {

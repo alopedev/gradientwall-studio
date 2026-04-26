@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { Nav } from "./Nav";
 import { Footer } from "./Footer";
+import { PageMeta } from "./PageMeta";
 
 type State = { kind: "idle" } | { kind: "submitting" } | { kind: "done" } | { kind: "error"; message: string };
 
@@ -32,6 +33,12 @@ export function RecoverForm() {
 
   return (
     <>
+      <PageMeta
+        title="Recover your download link"
+        description="Lost your download email? Recover it with your order ID."
+        path="/recover"
+        noindex
+      />
       <Nav />
       <main className="min-h-screen pt-[120px] pb-[clamp(60px,9vw,120px)]">
         <section className="mx-auto max-w-[560px] px-[clamp(24px,5vw,80px)]">

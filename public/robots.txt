@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Don't index serverless function endpoints — they're not human-readable pages.
+Disallow: /.netlify/
+
+# /recover is a tool, not content — no value indexing it.
+Disallow: /recover
+
+Sitemap: https://gradientwall.com/sitemap.xml

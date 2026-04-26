@@ -3,7 +3,52 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>GradientWall — Cinematic wallpapers, made by you</title>
+
+    <!-- Default page metadata. Per-route components (PageMeta) override
+         title/description/canonical at runtime; what's declared here is the
+         baseline crawlers see before JS runs and the fallback for routes
+         that don't set their own. -->
+    <title>GradientWall — Cinematic gradient wallpapers</title>
+    <meta
+      name="description"
+      content="Make your own cinematic gradient wallpapers in the studio, or get a curated 10-pack for €4.99. No watermarks, no account."
+    />
+    <link rel="canonical" href="https://gradientwall.com/" />
+    <meta name="theme-color" content="#07070a" />
+    <meta name="color-scheme" content="dark" />
+
+    <!-- Icons + PWA manifest -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- Open Graph (Facebook, LinkedIn, iMessage) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="GradientWall" />
+    <meta property="og:title" content="GradientWall — Cinematic gradient wallpapers" />
+    <meta
+      property="og:description"
+      content="Make your own cinematic gradient wallpapers in the studio, or get a curated 10-pack for €4.99."
+    />
+    <meta property="og:url" content="https://gradientwall.com/" />
+    <meta property="og:image" content="https://gradientwall.com/og-default.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="GradientWall — purple-to-amber gradient wallpaper" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="GradientWall — Cinematic gradient wallpapers" />
+    <meta
+      name="twitter:description"
+      content="Make your own cinematic gradient wallpapers, or get a curated 10-pack for €4.99."
+    />
+    <meta name="twitter:image" content="https://gradientwall.com/og-default.jpg" />
+    <meta name="twitter:image:alt" content="GradientWall — purple-to-amber gradient wallpaper" />
+
+    <!-- Fonts: preconnect first (lets the browser open the connection in
+         parallel with HTML parsing), then the stylesheet. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

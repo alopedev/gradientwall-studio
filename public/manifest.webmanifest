@@ -1,0 +1,13 @@
+{
+  "name": "GradientWall",
+  "short_name": "GradientWall",
+  "description": "Cinematic gradient wallpapers — make your own in the studio, or get one of our curated packs.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#07070a",
+  "theme_color": "#07070a",
+  "icons": [
+    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any" }
+  ]
+}

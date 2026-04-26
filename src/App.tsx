@@ -11,6 +11,29 @@ import { PackPurchaseSuccess } from "./components/packs/PackPurchaseSuccess";
 import { RecoverForm } from "./components/RecoverForm";
 import { Closer } from "./components/Closer";
 import { Footer } from "./components/Footer";
+import { PageMeta } from "./components/PageMeta";
+
+// JSON-LD: tells Google we're a brand (Organization) AND a searchable site
+// (WebSite). The Organization block populates the right-hand "knowledge
+// panel" with logo + name when someone searches "GradientWall". The WebSite
+// block lets Google show sitelinks under the main result on direct searches.
+const HOME_JSON_LD = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "GradientWall",
+    url: "https://gradientwall.com",
+    logo: "https://gradientwall.com/favicon.svg",
+    description:
+      "GradientWall makes cinematic gradient wallpapers — a free interactive studio plus curated 10-packs.",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "GradientWall",
+    url: "https://gradientwall.com",
+  },
+];
 
 // Async-load domMax features so the motion feature bundle (layout, drag,
 // animation) code-splits out of the critical path. The `m` components render
@@ -54,6 +77,13 @@ function HomePage() {
 
   return (
     <>
+      <PageMeta
+        title="GradientWall — Cinematic gradient wallpapers"
+        description="Make your own cinematic gradient wallpapers in the studio, or get a curated 10-pack for €4.99. No watermarks, no account."
+        path="/"
+        ogImageAlt="GradientWall — purple-to-amber gradient wallpaper"
+        jsonLd={HOME_JSON_LD}
+      />
       <Nav />
       <Hero />
       <Marquee />

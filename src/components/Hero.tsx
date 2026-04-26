@@ -1,37 +1,4 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { useConfigStore } from "@/store";
-import { seedToHex } from "@/lib/gradient";
-import { Framed } from "./ui/Framed";
-
-// Horizontal anchors inside the specimen box. The marker's x is where the
-// blueprint line starts; the stamp sits just past the specimen's right edge.
-const MARKER_X = 72;
-const STAMP_OFFSET = 40;
-
-// Hoisted so the identical style object isn't re-allocated on every render
-// of the (frequently re-rendered) Hero tree.
-const VIDEO_STYLE: React.CSSProperties = {
-  // Crush the source's near-black floor so any surviving pixels outside the
-  // mask ellipse fall into the page bg instead of reading as a grey box.
-  filter: "contrast(1.2) brightness(0.88)",
-  maskImage: "radial-gradient(ellipse 42% 54% at 50% 56%, black 52%, transparent 86%)",
-  WebkitMaskImage: "radial-gradient(ellipse 42% 54% at 50% 56%, black 52%, transparent 86%)",
-};
-
-const MARKER_STYLE: React.CSSProperties = {
-  top: "50%",
-  left: `${MARKER_X}%`,
-  transform: "translate(-50%, -50%)",
-  background: "var(--color-accent)",
-  boxShadow: "0 0 0 2px rgba(7,7,10,0.85)",
-};
-
-const HAIRLINE_STYLE: React.CSSProperties = {
-  top: "50%",
-  left: `${MARKER_X}%`,
-  width: `calc(${100 - MARKER_X}% + ${STAMP_OFFSET}px)`,
-  background: "rgb(255 255 255 / 0.45)",
-};
 
 function useLocalTime() {
   const [now, setNow] = useState(() => new Date());
@@ -48,17 +15,39 @@ function formatHHMM(d: Date): string {
 }
 
 export function Hero() {
-  const seed = useConfigStore((s) => s.seed);
   const now = useLocalTime();
 
   return (
     <section className="relative h-screen min-h-[720px] overflow-hidden isolate bg-[color:var(--color-bg)]">
+      {/* Full-bleed gradient video — the visual anchor of the page. */}
+      <video
+        className="absolute inset-0 w-full h-full object-cover z-[1]"
+        src="/assets/backgroundVideos/gradientBackground_loop.mp4"
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        aria-hidden
+        style={{ filter: "brightness(0.82) saturate(1.05)" }}
+      />
+
+      {/* Vignette: darken the corners so the white headline + chrome stay legible
+          regardless of which frame of the looping gradient is on screen. The
+          centre keeps full color. */}
+      <div
+        aria-hidden
+        className="absolute inset-0 z-[2] pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(7,7,10,0) 0%, rgba(7,7,10,0.45) 70%, rgba(7,7,10,0.75) 100%)",
+        }}
+      />
+
       <h1 className="absolute top-[clamp(80px,12vh,160px)] left-[clamp(24px,7vw,120px)] right-[clamp(24px,7vw,120px)] z-[3] m-0 font-sans font-bold uppercase tracking-[-0.045em] leading-[0.9] text-[color:var(--color-ink)] text-[clamp(56px,10vw,140px)]">
         <span className="block">Color,</span>
         <span className="block">by design.</span>
       </h1>
-
-      <SpecimenGroup seedHex={seedToHex(seed)} />
 
       <Stamp className="top-[clamp(80px,10vh,120px)] right-[clamp(24px,7vw,120px)] z-[3]">
         <PulseDot />
@@ -81,47 +70,6 @@ export function Hero() {
         </span>
       </a>
     </section>
-  );
-}
-
-function SpecimenGroup({ seedHex }: { seedHex: string }) {
-  return (
-    <div
-      className="absolute z-[2] left-1/2"
-      style={{
-        top: "calc(50% - 2vh)",
-        // One `transform` declaration — absorbs the X centering that would
-        // otherwise come from `-translate-x-1/2`.
-        transform: "translate(-50%, -50%)",
-      }}
-    >
-      <Framed offset={-4} style={{ width: "min(65vw, 108vh)", aspectRatio: "16 / 9" }}>
-        <video
-          className="absolute inset-0 w-full h-full object-contain"
-          src="/assets/backgroundVideos/specimenGem_loop.mp4"
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          aria-hidden
-          style={VIDEO_STYLE}
-        />
-        <span aria-hidden className="absolute z-[2] h-[6px] w-[6px]" style={MARKER_STYLE} />
-        <span aria-hidden className="absolute hidden md:block z-[1] h-px" style={HAIRLINE_STYLE} />
-        <Stamp
-          className="z-[2]"
-          style={{
-            top: "50%",
-            left: `calc(100% + ${STAMP_OFFSET}px)`,
-            transform: "translateY(-50%)",
-          }}
-        >
-          <span>Render</span>
-          <span className="text-[color:var(--color-ink)]">{seedHex}</span>
-        </Stamp>
-      </Framed>
-    </div>
   );
 }
 
