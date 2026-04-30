@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import {
   ALL_ACTIVE,
+  DEFAULT_LIGHT_ANGLE,
   MIN_ACTIVE_COLORS,
   PALETTES,
   STYLES,
@@ -15,9 +16,14 @@ import { randomColors } from "@/lib/gradient";
 /**
  * Current wallpaper configuration — the "what the studio is showing right now".
  * Ephemeral (not persisted). Direct mutations from UI sliders / device pills.
+ *
+ * `lightAngle` is optional on `GradientConfig` for back-compat (saved history
+ * items predating lighting omit it), but the live store always carries a
+ * concrete value, so we narrow it to required here.
  */
-export interface ConfigState extends GradientConfig {
+export interface ConfigState extends Omit<GradientConfig, "lightAngle"> {
   device: Device;
+  lightAngle: number;
   /**
    * Per-slot on/off over the four colors. A `false` entry removes that slot
    * from the rendered ramp so the wallpaper uses 2 or 3 colors instead of 4.
@@ -42,6 +48,8 @@ export interface ConfigState extends GradientConfig {
    * user pastes / types a specific seed. `reshuffle` rerolls randomly.
    */
   setSeed: (n: number) => void;
+  /** Set the painterly highlight direction in compass degrees (0..360). */
+  setLightAngle: (deg: number) => void;
   reshuffle: () => void;
   randomize: () => void;
 }
@@ -57,6 +65,7 @@ export const useConfigStore = create<ConfigState>()((set) => ({
   blur: 48,
   grain: 45,
   seed: randomSeed(),
+  lightAngle: DEFAULT_LIGHT_ANGLE,
 
   setDevice: (d) => set({ device: d }),
   // A fresh palette invalidates any per-slot deactivation — reset the mask.
@@ -80,6 +89,7 @@ export const useConfigStore = create<ConfigState>()((set) => ({
   setBlur: (n) => set({ blur: n }),
   setGrain: (n) => set({ grain: n }),
   setSeed: (n) => set({ seed: n & 0xffff }),
+  setLightAngle: (deg) => set({ lightAngle: ((deg % 360) + 360) % 360 }),
   reshuffle: () => set({ seed: randomSeed() }),
   randomize: () =>
     set({
@@ -87,5 +97,6 @@ export const useConfigStore = create<ConfigState>()((set) => ({
       active: freshMask(),
       style: STYLES[Math.floor(Math.random() * STYLES.length)],
       seed: randomSeed(),
+      lightAngle: Math.floor(Math.random() * 360),
     }),
 }));

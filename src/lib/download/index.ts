@@ -39,6 +39,7 @@ export async function downloadWallpaper(opts: DownloadOpts, sink: Sink = browser
     blur: opts.blur,
     grain: opts.grain,
     seed: opts.seed,
+    lightAngle: opts.lightAngle,
   });
   const { blob, ext } = await encodeWithFallback(canvas, DEFAULT_FORMATS);
   await sink(blob, `gradientwall-${opts.device}-${seedToHex(opts.seed)}.${ext}`);

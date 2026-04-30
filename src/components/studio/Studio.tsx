@@ -31,9 +31,9 @@ export function Studio() {
         </p>
       </Reveal>
 
-      {/* Canvas-dominant split. ~70/30 on desktop (canvas + bottom bar on the
-          left, controls accordion on the right). Single column on mobile/tablet. */}
-      <div className="grid gap-7 items-start grid-cols-1 md:[grid-template-columns:minmax(0,2.3fr)_minmax(0,1fr)]">
+      {/* Canvas-dominant split. Rail gets ~38% on desktop so the swatch grid +
+          4-pill style bar breathe; mobile/tablet stack single-column. */}
+      <div className="grid gap-7 items-start grid-cols-1 md:[grid-template-columns:minmax(0,1.6fr)_minmax(0,1fr)]">
         <div className="flex flex-col">
           <Preview />
           <BottomBar />

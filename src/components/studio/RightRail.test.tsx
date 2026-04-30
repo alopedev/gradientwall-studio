@@ -10,9 +10,9 @@ describe("<RightRail />", () => {
 
   it("renders all three accordion sections (Source, Style, Effects)", () => {
     render(<RightRail />);
-    expect(screen.getByRole("button", { name: /01 · source/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /02 · style/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /03 · effects/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /01\s*source/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /02\s*style/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /03\s*effects/i })).toBeInTheDocument();
   });
 
   it("starts in picker tab inside Source — switches to palettes on tab click", () => {
@@ -53,12 +53,12 @@ describe("<RightRail />", () => {
   describe("FROM IMAGE tab", () => {
     it("exposes a third Source tab labelled 'From image'", () => {
       render(<RightRail />);
-      expect(screen.getByRole("button", { name: /from image/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /^image$/i })).toBeInTheDocument();
     });
 
     it("switching to 'from image' hides the swatches/palettes UI and shows the upload affordance", () => {
       render(<RightRail />);
-      fireEvent.click(screen.getByRole("button", { name: /from image/i }));
+      fireEvent.click(screen.getByRole("button", { name: /^image$/i }));
       expect(useUIStore.getState().activeTab).toBe("image");
       expect(screen.queryByText("Four colors")).not.toBeInTheDocument();
       expect(screen.queryByText("Curated")).not.toBeInTheDocument();

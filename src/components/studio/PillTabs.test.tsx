@@ -12,7 +12,7 @@ describe("<PillTabs />", () => {
     // Active button gets the dark ink color; inactive keeps the muted white.
     const bananaBtn = btns[1];
     expect(bananaBtn.className).toContain("text-[#07070a]");
-    expect(btns[0].className).toContain("text-white/75");
+    expect(btns[0]!.className).toContain("text-white/70");
     // Exactly one sliding-thumb element exists — under the active option
     const thumbs = container.querySelectorAll(".bg-white.rounded-full");
     expect(thumbs).toHaveLength(1);

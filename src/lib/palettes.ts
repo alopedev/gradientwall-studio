@@ -59,7 +59,23 @@ export interface GradientConfig {
   blur: number;
   grain: number;
   seed: number;
+  /**
+   * Direction of the painterly highlight layer, in compass degrees:
+   * `0` = top, `90` = right, `180` = bottom, `270` = left. Surfaced through
+   * the LightDial knob inside the Studio Effects section. The renderer
+   * appends a soft white radial offset toward this direction on top of the
+   * style's own layers, so two gradients with the same colors / seed look
+   * compositionally different at different light angles.
+   *
+   * Optional: pre-light history items + tests omit it; the renderer treats
+   * `undefined` as "skip the highlight pass" — back-compat with snapshots
+   * frozen before lighting existed.
+   */
+  lightAngle?: number;
 }
+
+/** Default light angle: top-right painterly convention. */
+export const DEFAULT_LIGHT_ANGLE = 135;
 
 export interface Palette {
   name: string;

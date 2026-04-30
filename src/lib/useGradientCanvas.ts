@@ -39,6 +39,8 @@ export interface FittedGradientOpts {
   /** 0–100. If > 0, a bitmap grain overlay (WYSIWYG with download) is applied. */
   grain?: number;
   seed: number;
+  /** Compass direction (deg) for the painterly highlight layer. */
+  lightAngle?: number;
   /** Longest canvas side in pixels. Default 2400. */
   maxDim?: number;
   /** Effective devicePixelRatio cap. Default 2. */
@@ -106,6 +108,7 @@ export function useFittedGradientCanvas(
         blur: cur.blur,
         grain: cur.grain,
         seed: cur.seed,
+        lightAngle: cur.lightAngle,
       });
     };
 

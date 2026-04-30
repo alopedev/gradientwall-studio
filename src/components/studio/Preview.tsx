@@ -11,7 +11,7 @@ import { IPhoneMockup } from "./IPhoneMockup";
 import { Framed } from "../ui/Framed";
 
 export function Preview() {
-  const { device, colors, active, style, blur, grain, seed, setDevice } = useConfigStore(
+  const { device, colors, active, style, blur, grain, seed, lightAngle, setDevice } = useConfigStore(
     useShallow((s) => ({
       device: s.device,
       colors: s.colors,
@@ -20,6 +20,7 @@ export function Preview() {
       blur: s.blur,
       grain: s.grain,
       seed: s.seed,
+      lightAngle: s.lightAngle,
       setDevice: s.setDevice,
     })),
   );
@@ -55,11 +56,11 @@ export function Preview() {
   useEffect(() => {
     if (!showMockup) return;
     setSharedMockupCanvas(
-      composeWallpaper({ w: 720, h: 1600, colors: ramp, style, blur, grain, seed }),
+      composeWallpaper({ w: 720, h: 1600, colors: ramp, style, blur, grain, seed, lightAngle }),
     );
     // `ramp` is derived from `colors` + `active`; track the stable inputs.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showMockup, colors, active, style, blur, grain, seed]);
+  }, [showMockup, colors, active, style, blur, grain, seed, lightAngle]);
 
   const canvasRef = useFittedGradientCanvas(
     {
@@ -70,8 +71,9 @@ export function Preview() {
       blur,
       grain,
       seed,
+      lightAngle,
     },
-    [device, colors, active, style, blur, grain, seed],
+    [device, colors, active, style, blur, grain, seed, lightAngle],
   );
 
   return (

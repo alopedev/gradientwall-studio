@@ -138,7 +138,17 @@ export interface GradientSpec {
   layers: Layer[]; // back-to-front, each paints a full w×h rect with `fill`
 }
 
-export type SpecOpts = Omit<GradientConfig, "grain" | "colors"> & { w: number; h: number; colors: ColorRamp };
+export type SpecOpts = Omit<GradientConfig, "grain" | "colors" | "lightAngle"> & {
+  w: number;
+  h: number;
+  colors: ColorRamp;
+  /**
+   * Compass direction in degrees (0 = top, 90 = right) for the painterly
+   * highlight layer. When omitted no highlight is appended — useful for unit
+   * tests that want to assert pure-style output.
+   */
+  lightAngle?: number;
+};
 
 /**
  * Compute a GradientSpec from options. Pure, deterministic (given `seed`), no DOM.
@@ -146,7 +156,7 @@ export type SpecOpts = Omit<GradientConfig, "grain" | "colors"> & { w: number; h
  * lives here, isolated from the Canvas renderer for snapshot-testability.
  */
 export function buildGradientSpec(opts: SpecOpts): GradientSpec {
-  const { w, h, colors, style, blur, seed } = opts;
+  const { w, h, colors, style, blur, seed, lightAngle } = opts;
   const rand = mulberry32(seed);
   const blurPx = (blur / 100) * Math.min(w, h) * 0.35;
   const background = colors[0];
@@ -249,6 +259,31 @@ export function buildGradientSpec(opts: SpecOpts): GradientSpec {
         r: Math.min(w, h) * 0.5,
         stops: [
           { offset: 0, color: "rgba(255,255,255,0.25)" },
+          { offset: 1, color: "rgba(255,255,255,0)" },
+        ],
+      },
+    });
+  }
+
+  // Painterly highlight layer — biases brightness toward the user's chosen
+  // light direction so two gradients with the same seed differ noticeably at
+  // different angles. Omitted entirely when `lightAngle` is undefined to
+  // preserve the legacy "spec for the seed" output for callers that don't
+  // care about lighting (snapshot tests, recovery flows, etc.).
+  if (lightAngle !== undefined) {
+    const rad = (lightAngle * Math.PI) / 180;
+    // Compass: 0° = top, 90° = right, in screen coords (y grows down).
+    const dx = Math.sin(rad);
+    const dy = -Math.cos(rad);
+    layers.push({
+      fill: {
+        kind: "radial",
+        cx: w * 0.5 + dx * w * 0.42,
+        cy: h * 0.5 + dy * h * 0.42,
+        r: Math.max(w, h) * 0.85,
+        stops: [
+          { offset: 0, color: "rgba(255,255,255,0.18)" },
+          { offset: 0.55, color: "rgba(255,255,255,0.05)" },
           { offset: 1, color: "rgba(255,255,255,0)" },
         ],
       },
