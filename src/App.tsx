@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { LazyMotion, MotionConfig } from "motion/react";
+import { LazyMotion, MotionConfig, AnimatePresence } from "motion/react";
 import { Nav } from "./components/Nav";
 import { Hero } from "./components/Hero";
 import { Marquee } from "./components/Marquee";
@@ -12,6 +12,7 @@ import { RecoverForm } from "./components/RecoverForm";
 import { Closer } from "./components/Closer";
 import { Footer } from "./components/Footer";
 import { PageMeta } from "./components/PageMeta";
+import { LenisProvider } from "./components/ui/LenisProvider";
 
 // JSON-LD: tells Google we're a brand (Organization) AND a searchable site
 // (WebSite). The Organization block populates the right-hand "knowledge
@@ -48,16 +49,31 @@ export default function App() {
     <LazyMotion features={loadFeatures} strict>
       <MotionConfig reducedMotion="user">
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/packs/:slug" element={<PackPage />} />
-            <Route path="/packs/:slug/success" element={<PackPurchaseSuccess />} />
-            <Route path="/recover" element={<RecoverForm />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          <LenisProvider>
+            <RoutesShell />
+          </LenisProvider>
         </BrowserRouter>
       </MotionConfig>
     </LazyMotion>
+  );
+}
+
+// Inside BrowserRouter so useLocation works. AnimatePresence keys on the
+// pathname so route changes trigger exit/enter animations; mode="wait" ensures
+// the outgoing route fully exits before the incoming one mounts (avoids
+// stacking two pages mid-transition).
+function RoutesShell() {
+  const location = useLocation();
+  return (
+    <AnimatePresence mode="wait" initial={false}>
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/packs/:slug" element={<PackPage />} />
+        <Route path="/packs/:slug/success" element={<PackPurchaseSuccess />} />
+        <Route path="/recover" element={<RecoverForm />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </AnimatePresence>
   );
 }
 
@@ -71,7 +87,6 @@ function HomePage() {
     const id = hash.slice(1);
     const el = document.getElementById(id);
     if (!el) return;
-    // Defer one frame so layout has settled and the section is in the DOM.
     requestAnimationFrame(() => el.scrollIntoView({ behavior: "instant", block: "start" }));
   }, [hash]);
 

@@ -16,30 +16,17 @@ describe("<Palettes />", () => {
     }
   });
 
-  it("marks locked palettes with a PREMIUM label (one per locked)", () => {
+  it("does not render any PREMIUM marker — all palettes are unlocked since the store is free", () => {
     render(<Palettes />);
-    const premiumLabels = screen.getAllByText(/PREMIUM/);
-    const lockedCount = PALETTES.filter((p) => p.locked).length;
-    expect(premiumLabels).toHaveLength(lockedCount);
+    expect(screen.queryByText(/PREMIUM/)).toBeNull();
   });
 
-  it("clicking an unlocked palette applies its colors + marks it active in UI store", () => {
-    const unlockedIdx = PALETTES.findIndex((p) => !p.locked && p.name !== "Dusk");
-    const palette = PALETTES[unlockedIdx];
+  it("clicking any palette applies its colors + marks it active in UI store", () => {
+    const idx = PALETTES.findIndex((p) => p.name === "Ember");
+    const palette = PALETTES[idx];
     render(<Palettes />);
-    fireEvent.click(screen.getByText(palette.name).closest("div.palette-card, div.liquid-subtle") ?? screen.getByText(palette.name));
+    fireEvent.click(screen.getByText(palette.name));
     expect(useConfigStore.getState().colors).toEqual(palette.colors);
-    expect(useUIStore.getState().activePalette).toBe(unlockedIdx);
-  });
-
-  it("clicking a locked palette is a no-op on the config", () => {
-    const lockedIdx = PALETTES.findIndex((p) => p.locked);
-    const palette = PALETTES[lockedIdx];
-    const beforeColors = useConfigStore.getState().colors;
-    const beforeActive = useUIStore.getState().activePalette;
-    render(<Palettes />);
-    fireEvent.click(screen.getByText(palette.name).closest("div.palette-card, div.liquid-subtle") ?? screen.getByText(palette.name));
-    expect(useConfigStore.getState().colors).toBe(beforeColors);
-    expect(useUIStore.getState().activePalette).toBe(beforeActive);
+    expect(useUIStore.getState().activePalette).toBe(idx);
   });
 });

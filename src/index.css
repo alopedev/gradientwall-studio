@@ -1,10 +1,12 @@
 @import "tailwindcss";
 
 @theme {
-  /* Single-voice brutalist — Space Grotesk across all display + chrome.
-     No serif companion; the italic "mixed by hand" typographic voice is
-     retired in favour of monolithic uppercase tracking-tight display. */
+  /* Two-voice typography. Space Grotesk does the heavy lifting (UI, body,
+     uppercase brutalist heads). Instrument Serif italic appears only at
+     editorial accent moments — second-line headlines, pack names, the
+     Closer's big phrase, italic intros of pack descriptions. Never body. */
   --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Instrument Serif", ui-serif, Georgia, "Times New Roman", serif;
 
   --color-bg: #07070a;
   --color-bg-2: #0c0c11;
@@ -18,6 +20,15 @@
      focus rings and the blueprint annotation marker. Never used for
      backgrounds or large surfaces. */
   --color-accent: #ff3b30;
+
+  /* Surface layer system for cards, dialogs, accordions. Goes from base
+     bg up four steps; enough granularity to express hierarchy in dense
+     panels (Studio right-rail, ColorHUD popover, history grid) without
+     feeling washed-out. */
+  --color-surface-1: #1a1a1f;
+  --color-surface-2: #222228;
+  --color-surface-3: #2c2c33;
+  --color-surface-4: #37373f;
 
   --radius-sharp: 2px;
   --radius-glass: 14px;

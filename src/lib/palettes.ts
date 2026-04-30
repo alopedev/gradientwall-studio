@@ -70,9 +70,9 @@ export interface Palette {
 export const PALETTES: Palette[] = [
   { name: "Dusk", colors: ["#2b1055", "#7597de", "#ff6e7f", "#ffd86e"], locked: false },
   { name: "Tokyo", colors: ["#f72585", "#7209b7", "#3a0ca3", "#4cc9f0"], locked: false },
-  { name: "Ember", colors: ["#0d0d0d", "#7a1b2e", "#ff5a36", "#ffd166"], locked: true },
-  { name: "Forest", colors: ["#0b3d2e", "#1f8a70", "#bedb39", "#fff275"], locked: true },
-  { name: "Nocturne", colors: ["#0a0a1a", "#1e1b4b", "#8b5cf6", "#f0abfc"], locked: true },
-  { name: "Coast", colors: ["#012a4a", "#2a9df4", "#caf0f8", "#fefae0"], locked: true },
+  { name: "Ember", colors: ["#0d0d0d", "#7a1b2e", "#ff5a36", "#ffd166"], locked: false },
+  { name: "Forest", colors: ["#0b3d2e", "#1f8a70", "#bedb39", "#fff275"], locked: false },
+  { name: "Nocturne", colors: ["#0a0a1a", "#1e1b4b", "#8b5cf6", "#f0abfc"], locked: false },
+  { name: "Coast", colors: ["#012a4a", "#2a9df4", "#caf0f8", "#fefae0"], locked: false },
 ];
 
