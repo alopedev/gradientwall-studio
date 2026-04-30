@@ -5,6 +5,7 @@ import { isCheckoutConfigured, openCheckout } from "@/lib/checkout";
 import { Nav } from "../Nav";
 import { Footer } from "../Footer";
 import { Framed } from "../ui/Framed";
+import { MagneticButton } from "../ui/MagneticButton";
 import { PageMeta } from "../PageMeta";
 import { PackCover } from "./PackCover";
 
@@ -140,26 +141,28 @@ export function PackPage() {
               </div>
 
               <div className="mt-8 flex items-center gap-3">
-                <button
-                  disabled={!buyEnabled || checkoutLoading}
-                  title={buyEnabled ? "Open checkout" : "Checkout configuration pending"}
-                  onClick={async () => {
-                    if (!buyEnabled || !pack.lemonSqueezyVariantId) return;
-                    setCheckoutLoading(true);
-                    try {
-                      await openCheckout({ variantId: pack.lemonSqueezyVariantId, packSlug: pack.slug });
-                    } finally {
-                      setCheckoutLoading(false);
-                    }
-                  }}
-                  className={`inline-flex items-center gap-2 rounded-[2px] bg-white/95 text-[#0a0a0d] px-5 py-3 text-[11px] tracking-[0.14em] uppercase font-sans font-medium transition-colors ${
-                    buyEnabled
-                      ? "hover:bg-white cursor-pointer"
-                      : "opacity-60 cursor-not-allowed"
-                  } ${checkoutLoading ? "opacity-80 cursor-wait" : ""}`}
-                >
-                  {checkoutLoading ? "Loading…" : `↓ Buy €${pack.priceEur.toFixed(2)}`}
-                </button>
+                <MagneticButton>
+                  <button
+                    disabled={!buyEnabled || checkoutLoading}
+                    title={buyEnabled ? "Open checkout" : "Checkout configuration pending"}
+                    onClick={async () => {
+                      if (!buyEnabled || !pack.lemonSqueezyVariantId) return;
+                      setCheckoutLoading(true);
+                      try {
+                        await openCheckout({ variantId: pack.lemonSqueezyVariantId, packSlug: pack.slug });
+                      } finally {
+                        setCheckoutLoading(false);
+                      }
+                    }}
+                    className={`inline-flex items-center gap-2 rounded-[2px] bg-white/95 text-[#0a0a0d] px-5 py-3 text-[11px] tracking-[0.14em] uppercase font-sans font-medium transition-colors focus-ring ${
+                      buyEnabled
+                        ? "hover:bg-white cursor-pointer"
+                        : "opacity-60 cursor-not-allowed"
+                    } ${checkoutLoading ? "opacity-80 cursor-wait" : ""}`}
+                  >
+                    {checkoutLoading ? "Loading…" : `↓ Buy €${pack.priceEur.toFixed(2)}`}
+                  </button>
+                </MagneticButton>
                 {!buyEnabled && (
                   <span className="font-sans text-[11px] tracking-[0.14em] uppercase text-white/40">
                     Checkout coming soon

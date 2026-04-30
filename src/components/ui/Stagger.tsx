@@ -1,5 +1,5 @@
 import { Children, isValidElement, type ReactNode } from "react";
-import { Reveal } from "./Reveal";
+import { Reveal, type RevealVariant } from "./Reveal";
 
 export function computeStaggerDelays(count: number, step = 0.08, baseDelay = 0): number[] {
   return Array.from({ length: count }, (_, i) => Math.round((baseDelay + i * step) * 1000) / 1000);
@@ -19,6 +19,7 @@ export function Stagger({
   baseDelay = 0,
   y,
   amount,
+  variant,
   className,
 }: {
   children: ReactNode;
@@ -26,6 +27,7 @@ export function Stagger({
   baseDelay?: number;
   y?: number;
   amount?: number;
+  variant?: RevealVariant;
   className?: string;
 }) {
   const items = Children.toArray(children).filter(isValidElement);
@@ -33,7 +35,7 @@ export function Stagger({
   return (
     <>
       {items.map((child, i) => (
-        <Reveal key={i} delay={delays[i]} y={y} amount={amount} className={className}>
+        <Reveal key={i} delay={delays[i]} y={y} amount={amount} variant={variant} className={className}>
           <span data-stagger-delay={delays[i]} style={{ display: "contents" }}>
             {child}
           </span>

@@ -6,6 +6,7 @@ import { activeColors } from "@/lib/palettes";
 import { downloadWallpaper } from "@/lib/download";
 import { EASE } from "@/lib/motion";
 import { SeedBadge } from "./SeedBadge";
+import { MagneticButton } from "../ui/MagneticButton";
 
 /**
  * Action bar that lives directly under the Preview canvas — owns the actions
@@ -69,33 +70,35 @@ export function BottomBar() {
         >
           Save
         </button>
-        <button
-          type="button"
-          disabled={downloadStatus === "downloading"}
-          onClick={async () => {
-            setDownloadStatus("downloading");
-            await new Promise((r) => requestAnimationFrame(() => r(null)));
-            try {
-              await downloadWallpaper({ device, colors: ramp, style, blur, grain, seed, lightAngle });
-              setDownloadStatus("saved");
-              setTimeout(() => setDownloadStatus("idle"), 1600);
-            } catch {
-              setDownloadStatus("idle");
-            }
-          }}
-          className="inline-flex items-center gap-2 rounded-[2px] bg-[#f8f8f8] text-[#171717] px-3.5 py-2 font-sans text-[11px] font-medium tracking-[0.14em] uppercase transition-colors duration-150 hover:bg-white disabled:opacity-80 disabled:cursor-wait"
-        >
-          {downloadStatus === "downloading" ? (
-            <>
-              <span className="inline-block h-3 w-3 rounded-full border-2 border-[#171717] border-t-transparent animate-spin" />
-              Generating
-            </>
-          ) : downloadStatus === "saved" ? (
-            <>✓ Saved</>
-          ) : (
-            <>↓ Download</>
-          )}
-        </button>
+        <MagneticButton>
+          <button
+            type="button"
+            disabled={downloadStatus === "downloading"}
+            onClick={async () => {
+              setDownloadStatus("downloading");
+              await new Promise((r) => requestAnimationFrame(() => r(null)));
+              try {
+                await downloadWallpaper({ device, colors: ramp, style, blur, grain, seed, lightAngle });
+                setDownloadStatus("saved");
+                setTimeout(() => setDownloadStatus("idle"), 1600);
+              } catch {
+                setDownloadStatus("idle");
+              }
+            }}
+            className="inline-flex items-center gap-2 rounded-[2px] bg-[#f8f8f8] text-[#171717] px-3.5 py-2 font-sans text-[11px] font-medium tracking-[0.14em] uppercase transition-colors duration-150 hover:bg-white disabled:opacity-80 disabled:cursor-wait focus-ring"
+          >
+            {downloadStatus === "downloading" ? (
+              <>
+                <span className="inline-block h-3 w-3 rounded-full border-2 border-[#171717] border-t-transparent animate-spin" />
+                Generating
+              </>
+            ) : downloadStatus === "saved" ? (
+              <>✓ Saved</>
+            ) : (
+              <>↓ Download</>
+            )}
+          </button>
+        </MagneticButton>
       </div>
     </div>
   );

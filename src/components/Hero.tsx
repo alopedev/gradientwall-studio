@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { MagneticButton } from "./ui/MagneticButton";
 
 function useLocalTime() {
   const [now, setNow] = useState(() => new Date());
@@ -58,17 +59,19 @@ export function Hero() {
         <span>∞ Gradients · 0 presets</span>
       </Stamp>
 
-      <a
-        href="#studio"
-        className="group absolute z-[3] bottom-[clamp(40px,8vh,96px)] right-[clamp(24px,7vw,120px)] inline-flex items-center gap-3 font-sans text-[12px] md:text-[13px] font-medium uppercase tracking-[0.14em] text-[color:var(--color-ink)] transition-colors duration-150"
-      >
-        <span className="border-b border-transparent group-hover:border-[color:var(--color-accent)] pb-1 transition-colors duration-150">
-          Open the studio
-        </span>
-        <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-1">
-          →
-        </span>
-      </a>
+      <MagneticButton className="absolute z-[3] bottom-[clamp(40px,8vh,96px)] right-[clamp(24px,7vw,120px)]">
+        <a
+          href="#studio"
+          className="group inline-flex items-center gap-3 font-sans text-[12px] md:text-[13px] font-medium uppercase tracking-[0.14em] text-[color:var(--color-ink)] transition-colors duration-150 focus-ring"
+        >
+          <span className="border-b border-transparent group-hover:border-[color:var(--color-accent)] pb-1 transition-colors duration-150">
+            Open the studio
+          </span>
+          <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-1">
+            →
+          </span>
+        </a>
+      </MagneticButton>
     </section>
   );
 }
