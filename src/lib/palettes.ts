@@ -59,7 +59,23 @@ export interface GradientConfig {
   blur: number;
   grain: number;
   seed: number;
+  /**
+   * Direction of the painterly highlight layer, in compass degrees:
+   * `0` = top, `90` = right, `180` = bottom, `270` = left. Surfaced through
+   * the LightDial knob inside the Studio Effects section. The renderer
+   * appends a soft white radial offset toward this direction on top of the
+   * style's own layers, so two gradients with the same colors / seed look
+   * compositionally different at different light angles.
+   *
+   * Optional: pre-light history items + tests omit it; the renderer treats
+   * `undefined` as "skip the highlight pass" — back-compat with snapshots
+   * frozen before lighting existed.
+   */
+  lightAngle?: number;
 }
+
+/** Default light angle: top-right painterly convention. */
+export const DEFAULT_LIGHT_ANGLE = 135;
 
 export interface Palette {
   name: string;
@@ -70,9 +86,9 @@ export interface Palette {
 export const PALETTES: Palette[] = [
   { name: "Dusk", colors: ["#2b1055", "#7597de", "#ff6e7f", "#ffd86e"], locked: false },
   { name: "Tokyo", colors: ["#f72585", "#7209b7", "#3a0ca3", "#4cc9f0"], locked: false },
-  { name: "Ember", colors: ["#0d0d0d", "#7a1b2e", "#ff5a36", "#ffd166"], locked: true },
-  { name: "Forest", colors: ["#0b3d2e", "#1f8a70", "#bedb39", "#fff275"], locked: true },
-  { name: "Nocturne", colors: ["#0a0a1a", "#1e1b4b", "#8b5cf6", "#f0abfc"], locked: true },
-  { name: "Coast", colors: ["#012a4a", "#2a9df4", "#caf0f8", "#fefae0"], locked: true },
+  { name: "Ember", colors: ["#0d0d0d", "#7a1b2e", "#ff5a36", "#ffd166"], locked: false },
+  { name: "Forest", colors: ["#0b3d2e", "#1f8a70", "#bedb39", "#fff275"], locked: false },
+  { name: "Nocturne", colors: ["#0a0a1a", "#1e1b4b", "#8b5cf6", "#f0abfc"], locked: false },
+  { name: "Coast", colors: ["#012a4a", "#2a9df4", "#caf0f8", "#fefae0"], locked: false },
 ];
 

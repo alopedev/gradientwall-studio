@@ -40,6 +40,56 @@ export function hslToHex(h: number, s: number, l: number): string {
 }
 
 /**
+ * Inverse of {@link hslToHex}. Accepts `#rrggbb` or `#rgb` (case-insensitive,
+ * leading `#` optional) and returns `[h 0..360, s 0..100, l 0..100]`. Used by
+ * the ColorHUD to keep the hex input and HSL sliders in two-way sync.
+ *
+ * Returns `[0, 0, 0]` for invalid input — callers should validate the hex
+ * upfront via the regex used by the input itself; this function never throws.
+ */
+export function hexToHsl(hex: string): [number, number, number] {
+  const m = hex.trim().replace(/^#/, "");
+  let r = 0;
+  let g = 0;
+  let b = 0;
+  if (/^[0-9a-f]{3}$/i.test(m)) {
+    r = parseInt(m[0] + m[0], 16);
+    g = parseInt(m[1] + m[1], 16);
+    b = parseInt(m[2] + m[2], 16);
+  } else if (/^[0-9a-f]{6}$/i.test(m)) {
+    r = parseInt(m.slice(0, 2), 16);
+    g = parseInt(m.slice(2, 4), 16);
+    b = parseInt(m.slice(4, 6), 16);
+  } else {
+    return [0, 0, 0];
+  }
+  const rn = r / 255;
+  const gn = g / 255;
+  const bn = b / 255;
+  const max = Math.max(rn, gn, bn);
+  const min = Math.min(rn, gn, bn);
+  const l = (max + min) / 2;
+  let h = 0;
+  let s = 0;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case rn:
+        h = (gn - bn) / d + (gn < bn ? 6 : 0);
+        break;
+      case gn:
+        h = (bn - rn) / d + 2;
+        break;
+      default:
+        h = (rn - gn) / d + 4;
+    }
+    h /= 6;
+  }
+  return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
+}
+
+/**
  * Generate an HSL-based 4-color set with dark/mid/mid/light distribution.
  * Used by the Random button.
  */
@@ -88,7 +138,17 @@ export interface GradientSpec {
   layers: Layer[]; // back-to-front, each paints a full w×h rect with `fill`
 }
 
-export type SpecOpts = Omit<GradientConfig, "grain" | "colors"> & { w: number; h: number; colors: ColorRamp };
+export type SpecOpts = Omit<GradientConfig, "grain" | "colors" | "lightAngle"> & {
+  w: number;
+  h: number;
+  colors: ColorRamp;
+  /**
+   * Compass direction in degrees (0 = top, 90 = right) for the painterly
+   * highlight layer. When omitted no highlight is appended — useful for unit
+   * tests that want to assert pure-style output.
+   */
+  lightAngle?: number;
+};
 
 /**
  * Compute a GradientSpec from options. Pure, deterministic (given `seed`), no DOM.
@@ -96,7 +156,7 @@ export type SpecOpts = Omit<GradientConfig, "grain" | "colors"> & { w: number; h
  * lives here, isolated from the Canvas renderer for snapshot-testability.
  */
 export function buildGradientSpec(opts: SpecOpts): GradientSpec {
-  const { w, h, colors, style, blur, seed } = opts;
+  const { w, h, colors, style, blur, seed, lightAngle } = opts;
   const rand = mulberry32(seed);
   const blurPx = (blur / 100) * Math.min(w, h) * 0.35;
   const background = colors[0];
@@ -199,6 +259,31 @@ export function buildGradientSpec(opts: SpecOpts): GradientSpec {
         r: Math.min(w, h) * 0.5,
         stops: [
           { offset: 0, color: "rgba(255,255,255,0.25)" },
+          { offset: 1, color: "rgba(255,255,255,0)" },
+        ],
+      },
+    });
+  }
+
+  // Painterly highlight layer — biases brightness toward the user's chosen
+  // light direction so two gradients with the same seed differ noticeably at
+  // different angles. Omitted entirely when `lightAngle` is undefined to
+  // preserve the legacy "spec for the seed" output for callers that don't
+  // care about lighting (snapshot tests, recovery flows, etc.).
+  if (lightAngle !== undefined) {
+    const rad = (lightAngle * Math.PI) / 180;
+    // Compass: 0° = top, 90° = right, in screen coords (y grows down).
+    const dx = Math.sin(rad);
+    const dy = -Math.cos(rad);
+    layers.push({
+      fill: {
+        kind: "radial",
+        cx: w * 0.5 + dx * w * 0.42,
+        cy: h * 0.5 + dy * h * 0.42,
+        r: Math.max(w, h) * 0.85,
+        stops: [
+          { offset: 0, color: "rgba(255,255,255,0.18)" },
+          { offset: 0.55, color: "rgba(255,255,255,0.05)" },
           { offset: 1, color: "rgba(255,255,255,0)" },
         ],
       },

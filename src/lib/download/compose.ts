@@ -11,6 +11,12 @@ export interface PaintOpts {
   /** 0-100. Omit or 0 → no grain pass. */
   grain?: number;
   seed: number;
+  /**
+   * Compass direction (deg) for the painterly highlight layer. 0 = top,
+   * 90 = right. Defaults to 135 (top-right) so callers that haven't been
+   * updated still get a sensible look.
+   */
+  lightAngle?: number;
 }
 
 export interface ComposeOpts extends PaintOpts {
@@ -41,6 +47,7 @@ export function paintWallpaper(
     style: opts.style,
     blur: opts.blur,
     seed: opts.seed,
+    lightAngle: opts.lightAngle,
   });
   if (opts.grain && opts.grain > 0) {
     applyGrainOverlay(canvas, opts.grain, canvasFactory);

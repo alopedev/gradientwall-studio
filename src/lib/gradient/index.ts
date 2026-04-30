@@ -7,6 +7,7 @@ export {
   mulberry32,
   seedToHex,
   hslToHex,
+  hexToHsl,
   randomColors,
   type GradientSpec,
   type SpecOpts,

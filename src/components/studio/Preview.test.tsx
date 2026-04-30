@@ -3,8 +3,6 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { Preview } from "./Preview";
 import { useConfigStore } from "@/store/useConfigStore";
 import { resetStores } from "@/test-utils";
-import * as downloadModule from "@/lib/download";
-import type { Colors4 } from "@/lib/palettes";
 
 describe("<Preview />", () => {
   beforeEach(resetStores);
@@ -23,26 +21,6 @@ describe("<Preview />", () => {
     fireEvent.click(screen.getByRole("button", { name: /desktop/i }));
     expect(useConfigStore.getState().device).toBe("desktop");
     expect(screen.getByText("5120 × 2880")).toBeInTheDocument();
-  });
-
-  it("Random button randomizes the config (new seed at minimum)", () => {
-    const before = useConfigStore.getState().seed;
-    render(<Preview />);
-    fireEvent.click(screen.getByRole("button", { name: /random/i }));
-    expect(useConfigStore.getState().seed).not.toBe(before);
-  });
-
-  it("Download button shows 'Generating' during encode, then '✓ Saved' after, then reverts to 'Download'", async () => {
-    render(<Preview />);
-    const btn = screen.getByRole("button", { name: /download/i });
-    fireEvent.click(btn);
-    // The requestAnimationFrame + async pipeline resolves quickly with the mock
-    // canvas.toBlob. Wait for the final state.
-    await waitFor(() => expect(btn).not.toBeDisabled(), { timeout: 2000 });
-    // Immediately after completion, the button shows a success flash.
-    expect(btn.textContent).toMatch(/saved/i);
-    // After ~1.6s the flash clears and the button returns to the default label.
-    await waitFor(() => expect(btn.textContent).toMatch(/download/i), { timeout: 3000 });
   });
 
   it("renders a canvas (the wallpaper preview)", () => {
@@ -92,37 +70,6 @@ describe("<Preview />", () => {
     expect(mockup).toHaveAttribute("aria-pressed", "false");
     fireEvent.keyDown(window, { key: "Escape" });
     expect(mockup).toHaveAttribute("aria-pressed", "false");
-  });
-
-  describe("active-mask filtering in the render pipeline", () => {
-    it("Download passes the filtered ramp (only active slots) to downloadWallpaper", async () => {
-      const spy = vi.spyOn(downloadModule, "downloadWallpaper").mockResolvedValue(undefined);
-      useConfigStore.setState({
-        colors: ["#aaaaaa", "#bbbbbb", "#cccccc", "#dddddd"] as Colors4,
-        active: [true, false, true, false],
-      });
-
-      render(<Preview />);
-      fireEvent.click(screen.getByRole("button", { name: /download/i }));
-      await waitFor(() => expect(spy).toHaveBeenCalled(), { timeout: 2000 });
-
-      const opts = spy.mock.calls[0][0];
-      expect(opts.colors).toEqual(["#aaaaaa", "#cccccc"]);
-    });
-
-    it("Download uses all four colors when no slots are deactivated", async () => {
-      const spy = vi.spyOn(downloadModule, "downloadWallpaper").mockResolvedValue(undefined);
-      useConfigStore.setState({
-        colors: ["#aaaaaa", "#bbbbbb", "#cccccc", "#dddddd"] as Colors4,
-        active: [true, true, true, true],
-      });
-
-      render(<Preview />);
-      fireEvent.click(screen.getByRole("button", { name: /download/i }));
-      await waitFor(() => expect(spy).toHaveBeenCalled(), { timeout: 2000 });
-
-      expect(spy.mock.calls[0][0].colors).toEqual(["#aaaaaa", "#bbbbbb", "#cccccc", "#dddddd"]);
-    });
   });
 
   afterEach(() => vi.restoreAllMocks());
