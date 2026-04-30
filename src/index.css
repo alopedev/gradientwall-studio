@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 @theme {
   /* Two-voice typography. Space Grotesk does the heavy lifting (UI, body,

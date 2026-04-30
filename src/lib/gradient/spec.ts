@@ -40,6 +40,56 @@ export function hslToHex(h: number, s: number, l: number): string {
 }
 
 /**
+ * Inverse of {@link hslToHex}. Accepts `#rrggbb` or `#rgb` (case-insensitive,
+ * leading `#` optional) and returns `[h 0..360, s 0..100, l 0..100]`. Used by
+ * the ColorHUD to keep the hex input and HSL sliders in two-way sync.
+ *
+ * Returns `[0, 0, 0]` for invalid input — callers should validate the hex
+ * upfront via the regex used by the input itself; this function never throws.
+ */
+export function hexToHsl(hex: string): [number, number, number] {
+  const m = hex.trim().replace(/^#/, "");
+  let r = 0;
+  let g = 0;
+  let b = 0;
+  if (/^[0-9a-f]{3}$/i.test(m)) {
+    r = parseInt(m[0] + m[0], 16);
+    g = parseInt(m[1] + m[1], 16);
+    b = parseInt(m[2] + m[2], 16);
+  } else if (/^[0-9a-f]{6}$/i.test(m)) {
+    r = parseInt(m.slice(0, 2), 16);
+    g = parseInt(m.slice(2, 4), 16);
+    b = parseInt(m.slice(4, 6), 16);
+  } else {
+    return [0, 0, 0];
+  }
+  const rn = r / 255;
+  const gn = g / 255;
+  const bn = b / 255;
+  const max = Math.max(rn, gn, bn);
+  const min = Math.min(rn, gn, bn);
+  const l = (max + min) / 2;
+  let h = 0;
+  let s = 0;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case rn:
+        h = (gn - bn) / d + (gn < bn ? 6 : 0);
+        break;
+      case gn:
+        h = (bn - rn) / d + 2;
+        break;
+      default:
+        h = (rn - gn) / d + 4;
+    }
+    h /= 6;
+  }
+  return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
+}
+
+/**
  * Generate an HSL-based 4-color set with dark/mid/mid/light distribution.
  * Used by the Random button.
  */

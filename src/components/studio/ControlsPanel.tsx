@@ -3,12 +3,15 @@ import { useShallow } from "zustand/react/shallow";
 import { m } from "motion/react";
 import { useConfigStore, useUIStore, save, type SourceTab } from "@/store";
 import { seedToHex } from "@/lib/gradient";
-import { STYLES, type Style } from "@/lib/palettes";
+import { STYLES, type Style, PALETTES } from "@/lib/palettes";
+
+const PALETTES_FREE_COUNT = PALETTES.length;
 import { EASE } from "@/lib/motion";
 import { Swatches } from "./Swatches";
 import { Palettes } from "./Palettes";
 import { ImageSource } from "./ImageSource";
 import { PillTabs } from "./PillTabs";
+import { Slider } from "@/components/ui/shadcn/slider";
 
 const SOURCE_TABS = ["picker", "palettes", "image"] as const satisfies readonly SourceTab[];
 const sourceLabel = (t: SourceTab) =>
@@ -54,7 +57,7 @@ export function ControlsPanel() {
         </div>
       ) : activeTab === "palettes" ? (
         <div className="flex flex-col gap-3.5">
-          <LabelRow left="Curated" right="2 free · more on Premium" />
+          <LabelRow left="Curated" right={`${PALETTES_FREE_COUNT} curated`} />
           <Palettes />
         </div>
       ) : (
@@ -71,26 +74,12 @@ export function ControlsPanel() {
 
       <div className="flex flex-col gap-3.5">
         <LabelRow left="Softness" right={`${blur}px`} />
-        <input
-          type="range"
-          min={10}
-          max={120}
-          value={blur}
-          onChange={(e) => setBlur(+e.target.value)}
-          className="gw-slider"
-        />
+        <Slider value={[blur]} min={10} max={120} step={1} onValueChange={(v) => setBlur(v[0]!)} />
       </div>
 
       <div className="flex flex-col gap-3.5">
         <LabelRow left="Grain" right={`${grain}%`} />
-        <input
-          type="range"
-          min={0}
-          max={100}
-          value={grain}
-          onChange={(e) => setGrain(+e.target.value)}
-          className="gw-slider"
-        />
+        <Slider value={[grain]} min={0} max={100} step={1} onValueChange={(v) => setGrain(v[0]!)} />
       </div>
 
       <div className="flex flex-col gap-3.5">

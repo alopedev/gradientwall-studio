@@ -40,20 +40,24 @@ describe("<ControlsPanel />", () => {
     expect(useConfigStore.getState().style).toBe("liquid");
   });
 
-  it("dragging the softness slider updates blur", () => {
+  it("nudging the softness slider with ArrowRight updates blur", () => {
+    const before = useConfigStore.getState().blur;
     render(<ControlsPanel />);
-    const sliders = screen.getAllByRole("slider") as HTMLInputElement[];
-    const softness = sliders[0]; // first slider in the panel
-    fireEvent.input(softness, { target: { value: "72" } });
-    expect(useConfigStore.getState().blur).toBe(72);
+    const sliders = screen.getAllByRole("slider");
+    const softness = sliders[0]!;
+    softness.focus();
+    fireEvent.keyDown(softness, { key: "ArrowRight" });
+    expect(useConfigStore.getState().blur).toBe(before + 1);
   });
 
-  it("dragging the grain slider updates grain", () => {
+  it("nudging the grain slider with ArrowRight updates grain", () => {
+    const before = useConfigStore.getState().grain;
     render(<ControlsPanel />);
-    const sliders = screen.getAllByRole("slider") as HTMLInputElement[];
-    const grain = sliders[1];
-    fireEvent.input(grain, { target: { value: "12" } });
-    expect(useConfigStore.getState().grain).toBe(12);
+    const sliders = screen.getAllByRole("slider");
+    const grain = sliders[1]!;
+    grain.focus();
+    fireEvent.keyDown(grain, { key: "ArrowRight" });
+    expect(useConfigStore.getState().grain).toBe(before + 1);
   });
 
   it("Reshuffle produces a different seed", () => {
