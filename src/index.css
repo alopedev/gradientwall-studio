@@ -158,6 +158,18 @@ body::before {
     transform: translateX(-50%);
   }
 }
+/* Rotating conic-gradient beam that traces the perimeter of a Bento hero
+   pack card on hover. The beam itself is a 2×-scaled square spinning behind
+   a 1px-inset mask — the only thing the user sees is the moving slice of
+   gradient riding the border. */
+@keyframes gw-beam-spin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
 /* =================== Slider =================== */
 .gw-slider {
   -webkit-appearance: none;

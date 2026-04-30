@@ -50,4 +50,11 @@ export interface Pack {
    * Semana 2 lands the value is required for any pack to be listed.
    */
   lemonSqueezyVariantId?: string;
+  /**
+   * Editorial flagship flag. When true and no filter is active, the Packs
+   * section renders this pack as a 2×2 Bento hero card; the rest fill the
+   * remaining cells. Exactly one featured pack at a time is the supported
+   * shape — additional flags are ignored after the first match.
+   */
+  featured?: boolean;
 }

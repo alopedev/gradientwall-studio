@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { availableStyles, filterPacks, type PackStyle } from "@/lib/packs";
+import { availableStyles, featuredPack, filterPacks, type PackStyle } from "@/lib/packs";
 import { Reveal } from "../ui/Reveal";
 import { PackCard } from "./PackCard";
 import { PackFilters } from "./PackFilters";
@@ -8,6 +8,15 @@ export function PacksSection() {
   const [active, setActive] = useState<PackStyle | null>(null);
   const styles = useMemo(() => availableStyles(), []);
   const packs = useMemo(() => filterPacks(active), [active]);
+  const hero = useMemo(() => featuredPack(), []);
+  const isFiltered = active !== null;
+
+  // Bento layout only when (a) no filter is active AND (b) we have a hero
+  // pack flagged. The moment the user scopes by style the layout collapses
+  // back to a uniform grid — keeping the asymmetric flagship slot only for
+  // the editorial "all packs" view.
+  const useBento = !isFiltered && hero !== undefined;
+  const satellites = useBento ? packs.filter((p) => p.slug !== hero!.slug) : packs;
 
   return (
     <section
@@ -34,11 +43,11 @@ export function PacksSection() {
         <PackFilters styles={styles} active={active} onChange={setActive} />
       </Reveal>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {packs.map((p) => (
-          <PackCard key={p.slug} pack={p} />
-        ))}
-      </div>
+      {useBento ? (
+        <BentoGrid hero={hero!} satellites={satellites} />
+      ) : (
+        <UniformGrid packs={packs} />
+      )}
 
       {packs.length === 0 && (
         <div className="font-sans text-[14px] text-white/50 mt-10 text-center">
@@ -46,5 +55,35 @@ export function PacksSection() {
         </div>
       )}
     </section>
+  );
+}
+
+function BentoGrid({ hero, satellites }: { hero: Parameters<typeof PackCard>[0]["pack"]; satellites: Parameters<typeof PackCard>[0]["pack"][] }) {
+  // 4-column grid on desktop. Hero spans 2×2, four satellites fill the
+  // remaining 4 cells (two on the right of the hero, two below). Mobile
+  // stacks single-column with the hero first.
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 lg:auto-rows-[clamp(220px,22vw,300px)]">
+      <div className="md:col-span-2 lg:row-span-2 lg:col-span-2 h-full min-h-[420px] lg:min-h-0">
+        <PackCard pack={hero} variant="hero" />
+      </div>
+      {satellites.slice(0, 4).map((p) => (
+        <div key={p.slug} className="h-full min-h-[260px] lg:min-h-0">
+          <PackCard pack={p} variant="small" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function UniformGrid({ packs }: { packs: Parameters<typeof PackCard>[0]["pack"][] }) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 auto-rows-[clamp(280px,30vw,400px)]">
+      {packs.map((p) => (
+        <div key={p.slug} className="h-full">
+          <PackCard pack={p} variant="small" />
+        </div>
+      ))}
+    </div>
   );
 }
