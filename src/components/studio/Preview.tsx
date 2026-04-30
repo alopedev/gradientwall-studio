@@ -6,13 +6,12 @@ import { useConfigStore } from "@/store";
 import { composeWallpaper } from "@/lib/download/compose";
 import { useFittedGradientCanvas } from "@/lib/useGradientCanvas";
 import { activeColors, DEVICES, DEVICE_SIZES } from "@/lib/palettes";
-import { downloadWallpaper } from "@/lib/download";
 import { EASE, EASE_CSS } from "@/lib/motion";
 import { IPhoneMockup } from "./IPhoneMockup";
 import { Framed } from "../ui/Framed";
 
 export function Preview() {
-  const { device, colors, active, style, blur, grain, seed, setDevice, randomize } = useConfigStore(
+  const { device, colors, active, style, blur, grain, seed, setDevice } = useConfigStore(
     useShallow((s) => ({
       device: s.device,
       colors: s.colors,
@@ -22,17 +21,12 @@ export function Preview() {
       grain: s.grain,
       seed: s.seed,
       setDevice: s.setDevice,
-      randomize: s.randomize,
     })),
   );
   // Ramp fed to the renderer — strips the user-deactivated slots (2-4 colors).
   const ramp = activeColors(colors, active);
 
-  // Download button has 3 visual states — idle / encoding / just-saved.
-  // A union beats two overlapping booleans (4 combinations, 1 illegal).
-  const [downloadStatus, setDownloadStatus] = useState<"idle" | "downloading" | "saved">("idle");
   const [mockupMode, setMockupMode] = useState(false);
-  const [flashKey, setFlashKey] = useState(0);
   // Shared canvas rendered once and blitted into both iPhone mockups — avoids
   // rendering the identical gradient twice in mockup mode.
   const [sharedMockupCanvas, setSharedMockupCanvas] = useState<HTMLCanvasElement | null>(null);
@@ -182,61 +176,11 @@ export function Preview() {
               }}
             >
               <canvas ref={canvasRef} className="block w-full h-full" />
-              {/* Flash on Random */}
-              {flashKey > 0 && (
-                <m.div
-                  key={flashKey}
-                  initial={{ opacity: 0.45 }}
-                  animate={{ opacity: 0 }}
-                  transition={{ duration: 0.32, ease: EASE }}
-                  className="absolute inset-0 pointer-events-none bg-white"
-                  aria-hidden
-                />
-              )}
             </m.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Action buttons */}
-      <div className="absolute bottom-3.5 left-3.5 right-3.5 z-[3] flex justify-between gap-2.5">
-        <button
-          onClick={() => {
-            randomize();
-            setFlashKey((k) => k + 1);
-          }}
-          className="inline-flex items-center gap-2 rounded-full bg-black/55 border border-white/14 px-3.5 py-2 text-[11px] tracking-[0.1em] uppercase font-sans text-white/75 backdrop-blur-md transition-colors duration-150 hover:text-white hover:border-white/30"
-        >
-          ↻ &nbsp;Random
-        </button>
-        <button
-          disabled={downloadStatus === "downloading"}
-          onClick={async () => {
-            setDownloadStatus("downloading");
-            // Yield to browser so the button repaints before the heavy encode blocks.
-            await new Promise((r) => requestAnimationFrame(() => r(null)));
-            try {
-              await downloadWallpaper({ device, colors: ramp, style, blur, grain, seed });
-              setDownloadStatus("saved");
-              setTimeout(() => setDownloadStatus("idle"), 1600);
-            } catch {
-              setDownloadStatus("idle");
-            }
-          }}
-          className="inline-flex items-center gap-2 rounded-[2px] bg-[#f8f8f8] text-[#171717] px-3.5 py-2 text-[11px] tracking-[0.1em] uppercase font-sans font-medium transition-colors duration-150 hover:bg-white disabled:opacity-80 disabled:cursor-wait"
-        >
-          {downloadStatus === "downloading" ? (
-            <>
-              <span className="inline-block h-3 w-3 rounded-full border-2 border-[#171717] border-t-transparent animate-spin" />
-              &nbsp;Generating
-            </>
-          ) : downloadStatus === "saved" ? (
-            <>✓ &nbsp;Saved</>
-          ) : (
-            <>↓ &nbsp;Download</>
-          )}
-        </button>
-      </div>
     </Framed>
   );
 }

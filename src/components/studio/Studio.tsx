@@ -1,5 +1,6 @@
 import { Preview } from "./Preview";
-import { ControlsPanel } from "./ControlsPanel";
+import { RightRail } from "./RightRail";
+import { BottomBar } from "./BottomBar";
 import { History } from "./History";
 import { Reveal } from "../ui/Reveal";
 
@@ -30,10 +31,14 @@ export function Studio() {
         </p>
       </Reveal>
 
-      {/* Single column on mobile/tablet, asymmetric 1.45fr/1fr split on md+. */}
-      <div className="grid gap-7 items-stretch grid-cols-1 md:[grid-template-columns:minmax(0,1.45fr)_minmax(0,1fr)]">
-        <Preview />
-        <ControlsPanel />
+      {/* Canvas-dominant split. ~70/30 on desktop (canvas + bottom bar on the
+          left, controls accordion on the right). Single column on mobile/tablet. */}
+      <div className="grid gap-7 items-start grid-cols-1 md:[grid-template-columns:minmax(0,2.3fr)_minmax(0,1fr)]">
+        <div className="flex flex-col">
+          <Preview />
+          <BottomBar />
+        </div>
+        <RightRail />
       </div>
 
       <History />

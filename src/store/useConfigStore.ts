@@ -37,6 +37,11 @@ export interface ConfigState extends GradientConfig {
   setStyle: (s: Style) => void;
   setBlur: (n: number) => void;
   setGrain: (n: number) => void;
+  /**
+   * Apply an explicit seed (0..65535). Used by the SeedBadge editor when the
+   * user pastes / types a specific seed. `reshuffle` rerolls randomly.
+   */
+  setSeed: (n: number) => void;
   reshuffle: () => void;
   randomize: () => void;
 }
@@ -74,6 +79,7 @@ export const useConfigStore = create<ConfigState>()((set) => ({
   setStyle: (s) => set({ style: s }),
   setBlur: (n) => set({ blur: n }),
   setGrain: (n) => set({ grain: n }),
+  setSeed: (n) => set({ seed: n & 0xffff }),
   reshuffle: () => set({ seed: randomSeed() }),
   randomize: () =>
     set({
