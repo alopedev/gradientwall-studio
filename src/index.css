@@ -127,6 +127,18 @@ body::before {
   -webkit-backdrop-filter: blur(8px);
 }
 
+/* Accent focus ring used on every keyboard-reachable primary action
+   (CTAs, swatches, history cards, nav links). Keeping it in CSS means
+   we can apply it via a single class and avoid drift — every focusable
+   surface should look the same when the user tabs to it. */
+@utility focus-ring {
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
 /* Two-line brutalist display headline (Studio / Gallery / Footer).
    Callers set their own size via a `text-[clamp(...)]` utility. */
 @utility display-head {
@@ -156,6 +168,18 @@ body::before {
   }
   to {
     transform: translateX(-50%);
+  }
+}
+/* Rotating conic-gradient beam that traces the perimeter of a Bento hero
+   pack card on hover. The beam itself is a 2×-scaled square spinning behind
+   a 1px-inset mask — the only thing the user sees is the moving slice of
+   gradient riding the border. */
+@keyframes gw-beam-spin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
   }
 }
 /* =================== Slider =================== */

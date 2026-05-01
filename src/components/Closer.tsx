@@ -5,6 +5,7 @@ import { EASE_CSS } from "@/lib/motion";
 import { computeSpawn, pickPoolIndex, randomRotation } from "@/lib/mouseTrail";
 import { Framed } from "./ui/Framed";
 import { Reveal } from "./ui/Reveal";
+import { MagneticButton } from "./ui/MagneticButton";
 
 const MIN_SPAWN_INTERVAL = 80;
 const DWELL_MS = 350;
@@ -100,7 +101,7 @@ export function Closer() {
           <span className="block mb-6 font-sans text-[11px] tracking-[0.22em] uppercase text-white/40">
             04 — Ship it
           </span>
-          <h2 className="m-0 text-[clamp(44px,9vw,140px)] leading-[0.95]">
+          <h2 className="m-0 text-[clamp(48px,10vw,160px)] leading-[0.95]">
             <span className="block font-sans font-bold uppercase tracking-[-0.03em] text-white">
               Ship the wallpaper
             </span>
@@ -111,13 +112,15 @@ export function Closer() {
         </Reveal>
 
         <Reveal delay={0.2} className="mt-10 md:mt-14 flex justify-center">
-          <a
-            href="#studio"
-            className="inline-flex items-center gap-3 bg-white text-[#07070a] font-sans font-medium uppercase tracking-[0.18em] text-[clamp(13px,1vw,18px)] px-[clamp(32px,3vw,56px)] py-[clamp(16px,1.4vw,26px)] rounded-[2px] hover:bg-white/90 transition-colors duration-150"
-          >
-            Open the Studio
-            <span aria-hidden>→</span>
-          </a>
+          <MagneticButton>
+            <a
+              href="#studio"
+              className="inline-flex items-center gap-3 bg-white text-[#07070a] font-sans font-medium uppercase tracking-[0.18em] text-[clamp(13px,1vw,18px)] px-[clamp(32px,3vw,56px)] py-[clamp(16px,1.4vw,26px)] rounded-[2px] hover:bg-white/90 transition-colors duration-150 focus-ring"
+            >
+              Open the Studio
+              <span aria-hidden>→</span>
+            </a>
+          </MagneticButton>
         </Reveal>
       </Framed>
     </section>

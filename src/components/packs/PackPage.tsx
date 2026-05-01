@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { m } from "motion/react";
 import { getPackBySlug, type Pack } from "@/lib/packs";
 import { isCheckoutConfigured, openCheckout } from "@/lib/checkout";
 import { Nav } from "../Nav";
 import { Footer } from "../Footer";
 import { Framed } from "../ui/Framed";
+import { MagneticButton } from "../ui/MagneticButton";
 import { PageMeta } from "../PageMeta";
 import { PackCover } from "./PackCover";
 
@@ -101,17 +103,22 @@ export function PackPage() {
           </Link>
 
           <div className="grid lg:grid-cols-[1.1fr_1fr] gap-[clamp(40px,5vw,80px)] items-center">
-            <Framed offset={10} className="rounded-[2px] bg-[#0a0a0d] border border-white/8 aspect-[3/4] overflow-hidden">
-              <PackCover cover={pack.cover} w={1080} h={1440} className="block w-full h-full object-cover" />
-            </Framed>
+            <m.div layoutId={`pack-${pack.slug}-cover`}>
+              <Framed offset={10} className="rounded-[2px] bg-[#0a0a0d] border border-white/8 aspect-[3/4] overflow-hidden">
+                <PackCover cover={pack.cover} w={1080} h={1440} className="block w-full h-full object-cover" />
+              </Framed>
+            </m.div>
 
             <div>
               <span className="block mb-4 font-sans text-[11px] tracking-[0.22em] uppercase text-white/40">
                 Pack · {pack.style}
               </span>
-              <h1 className="display-head text-[clamp(44px,6vw,84px)] text-white leading-[0.95]">
-                {pack.name}
-              </h1>
+              <m.h1
+                layoutId={`pack-${pack.slug}-title`}
+                className="m-0 font-serif italic font-normal text-[clamp(56px,8vw,120px)] text-white leading-[0.92] tracking-tight"
+              >
+                {pack.name}.
+              </m.h1>
               <div className="mt-4 font-serif italic text-[clamp(20px,2.4vw,28px)] text-white/65 leading-snug">
                 {pack.tagline}
               </div>
@@ -140,26 +147,28 @@ export function PackPage() {
               </div>
 
               <div className="mt-8 flex items-center gap-3">
-                <button
-                  disabled={!buyEnabled || checkoutLoading}
-                  title={buyEnabled ? "Open checkout" : "Checkout configuration pending"}
-                  onClick={async () => {
-                    if (!buyEnabled || !pack.lemonSqueezyVariantId) return;
-                    setCheckoutLoading(true);
-                    try {
-                      await openCheckout({ variantId: pack.lemonSqueezyVariantId, packSlug: pack.slug });
-                    } finally {
-                      setCheckoutLoading(false);
-                    }
-                  }}
-                  className={`inline-flex items-center gap-2 rounded-[2px] bg-white/95 text-[#0a0a0d] px-5 py-3 text-[11px] tracking-[0.14em] uppercase font-sans font-medium transition-colors ${
-                    buyEnabled
-                      ? "hover:bg-white cursor-pointer"
-                      : "opacity-60 cursor-not-allowed"
-                  } ${checkoutLoading ? "opacity-80 cursor-wait" : ""}`}
-                >
-                  {checkoutLoading ? "Loading…" : `↓ Buy €${pack.priceEur.toFixed(2)}`}
-                </button>
+                <MagneticButton>
+                  <button
+                    disabled={!buyEnabled || checkoutLoading}
+                    title={buyEnabled ? "Open checkout" : "Checkout configuration pending"}
+                    onClick={async () => {
+                      if (!buyEnabled || !pack.lemonSqueezyVariantId) return;
+                      setCheckoutLoading(true);
+                      try {
+                        await openCheckout({ variantId: pack.lemonSqueezyVariantId, packSlug: pack.slug });
+                      } finally {
+                        setCheckoutLoading(false);
+                      }
+                    }}
+                    className={`inline-flex items-center gap-2 rounded-[2px] bg-white/95 text-[#0a0a0d] px-5 py-3 text-[11px] tracking-[0.14em] uppercase font-sans font-medium transition-colors focus-ring ${
+                      buyEnabled
+                        ? "hover:bg-white cursor-pointer"
+                        : "opacity-60 cursor-not-allowed"
+                    } ${checkoutLoading ? "opacity-80 cursor-wait" : ""}`}
+                  >
+                    {checkoutLoading ? "Loading…" : `↓ Buy €${pack.priceEur.toFixed(2)}`}
+                  </button>
+                </MagneticButton>
                 {!buyEnabled && (
                   <span className="font-sans text-[11px] tracking-[0.14em] uppercase text-white/40">
                     Checkout coming soon

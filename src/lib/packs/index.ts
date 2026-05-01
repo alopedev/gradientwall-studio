@@ -13,6 +13,17 @@ export function getPacks(): Pack[] {
   return PACKS;
 }
 
+/**
+ * The single editorial flagship pack, if any. Returns the FIRST `featured`
+ * pack — additional flags are intentionally ignored. Callers use this to
+ * promote a pack to the 2×2 hero slot in the Bento layout. When no pack
+ * carries the flag, returns `undefined` and callers fall back to the
+ * uniform grid.
+ */
+export function featuredPack(): Pack | undefined {
+  return PACKS.find((p) => p.featured);
+}
+
 /** Lookup by slug. Returns undefined for unknown slugs. */
 export function getPackBySlug(slug: string): Pack | undefined {
   return PACKS.find((p) => p.slug === slug);
