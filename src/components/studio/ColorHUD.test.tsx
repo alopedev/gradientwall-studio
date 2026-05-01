@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { ColorHUD } from "./ColorHUD";
-import { useUIStore } from "@/store/useUIStore";
+import { useRecentColorsStore } from "@/store/useRecentColorsStore";
 import { resetStores } from "@/test-utils";
 
 describe("<ColorHUD />", () => {
@@ -13,7 +13,10 @@ describe("<ColorHUD />", () => {
     const hex = screen.getByDisplayValue("#FF0000");
     fireEvent.change(hex, { target: { value: "#00ff88" } });
     expect(onChange).toHaveBeenCalledWith("#00FF88");
-    expect(useUIStore.getState().recentColors[0]).toBe("#00FF88");
+    // Binding test: the component delegates to the store's `push`. The
+    // ring-buffer semantics (cap, dedup, normalization) are covered in
+    // `src/lib/recent-colors.test.ts` — we don't re-assert them here.
+    expect(useRecentColorsStore.getState().items[0]).toBe("#00FF88");
   });
 
   it("typing an invalid hex draft does NOT call onChange (commit waits for valid pattern)", () => {
@@ -37,7 +40,7 @@ describe("<ColorHUD />", () => {
   });
 
   it("renders Recents chips when the store has any", () => {
-    useUIStore.setState({ recentColors: ["#AABBCC", "#112233"] });
+    useRecentColorsStore.setState({ items: ["#AABBCC", "#112233"] });
     render(<ColorHUD value="#ff0000" onChange={() => {}} />);
     expect(screen.getByLabelText("Apply #AABBCC")).toBeInTheDocument();
     expect(screen.getByLabelText("Apply #112233")).toBeInTheDocument();
@@ -45,7 +48,7 @@ describe("<ColorHUD />", () => {
 
   it("clicking a Recents chip applies that color via onChange", () => {
     const onChange = vi.fn();
-    useUIStore.setState({ recentColors: ["#AABBCC"] });
+    useRecentColorsStore.setState({ items: ["#AABBCC"] });
     render(<ColorHUD value="#ff0000" onChange={onChange} />);
     fireEvent.click(screen.getByLabelText("Apply #AABBCC"));
     expect(onChange).toHaveBeenCalledWith("#AABBCC");

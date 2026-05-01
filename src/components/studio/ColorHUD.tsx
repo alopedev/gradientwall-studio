@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { hexToHsl, hslToHex } from "@/lib/gradient";
-import { useUIStore } from "@/store";
+import { useRecentColors, usePushRecentColor } from "@/store";
 import { Slider } from "@/components/ui/shadcn/slider";
 
 const HEX_RE = /^#?[0-9a-fA-F]{6}$/;
@@ -35,8 +35,8 @@ interface ColorHUDProps {
  * inside a `<Popover>` is the caller's responsibility.
  */
 export function ColorHUD({ value, onChange }: ColorHUDProps) {
-  const recents = useUIStore((s) => s.recentColors);
-  const pushRecent = useUIStore((s) => s.pushRecentColor);
+  const recents = useRecentColors();
+  const pushRecent = usePushRecentColor();
 
   const [hexDraft, setHexDraft] = useState(value.toUpperCase());
   // HSL is derived from the *committed* color; the draft only forwards once
