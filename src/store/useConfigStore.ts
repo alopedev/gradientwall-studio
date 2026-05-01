@@ -1,5 +1,7 @@
+import { useMemo } from "react";
 import { create } from "zustand";
 import {
+  activeColors,
   ALL_ACTIVE,
   DEFAULT_LIGHT_ANGLE,
   MIN_ACTIVE_COLORS,
@@ -9,6 +11,7 @@ import {
   type Colors4,
   type Device,
   type GradientConfig,
+  type RenderParams,
   type Style,
 } from "@/lib/palettes";
 import { randomColors } from "@/lib/gradient";
@@ -100,3 +103,45 @@ export const useConfigStore = create<ConfigState>()((set) => ({
       lightAngle: Math.floor(Math.random() * 360),
     }),
 }));
+
+/**
+ * Pure resolver — builds a renderer-ready `RenderParams` from the config
+ * snapshot. Used by `useRenderParams` (live) and by tests/coordinator code
+ * that needs a one-shot extraction without subscribing.
+ */
+export const selectRenderParams = (s: ConfigState): RenderParams => ({
+  colors: activeColors(s.colors, s.active),
+  style: s.style,
+  blur: s.blur,
+  grain: s.grain,
+  seed: s.seed,
+  lightAngle: s.lightAngle,
+});
+
+/**
+ * Subscribe to the renderer-ready params. Replaces 7 individual selectors
+ * + `activeColors(colors, active)` reconstruction at every render call site.
+ *
+ * Implementation note: scalar selectors only — `useShallow` over the full
+ * `RenderParams` doesn't work here because `activeColors` allocates a new
+ * array each call (zustand sees a different reference and returns a new
+ * object every render → infinite useEffect loop in consumers). The
+ * `useMemo` collapses primitive deps into a stable object reference until
+ * one of them actually changes.
+ *
+ * Stateless callers (snapshot tests, server-side render) construct a literal
+ * `RenderParams` directly — the type lives in `palettes.ts`, not here.
+ */
+export function useRenderParams(): RenderParams {
+  const colors = useConfigStore((s) => s.colors);
+  const active = useConfigStore((s) => s.active);
+  const style = useConfigStore((s) => s.style);
+  const blur = useConfigStore((s) => s.blur);
+  const grain = useConfigStore((s) => s.grain);
+  const seed = useConfigStore((s) => s.seed);
+  const lightAngle = useConfigStore((s) => s.lightAngle);
+  return useMemo(
+    () => ({ colors: activeColors(colors, active), style, blur, grain, seed, lightAngle }),
+    [colors, active, style, blur, grain, seed, lightAngle],
+  );
+}

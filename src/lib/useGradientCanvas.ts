@@ -1,8 +1,7 @@
 import { useEffect, useRef, type DependencyList, type RefObject } from "react";
 import { type RenderOpts } from "./gradient";
 import { paintWallpaper } from "./download/compose";
-import type { Style } from "./palettes";
-import type { ColorRamp } from "./gradient/spec";
+import type { RenderParams } from "./palettes";
 
 /**
  * Paint a gradient onto a `<canvas>` whenever its opts change.
@@ -23,7 +22,7 @@ export function useGradientCanvas(opts: RenderOpts, deps: DependencyList): RefOb
   return ref;
 }
 
-export interface FittedGradientOpts {
+export type FittedGradientOpts = RenderParams & {
   /**
    * Element whose clientWidth × clientHeight drives the canvas resolution.
    * Omit to default to the canvas's own parentElement — works for the common
@@ -33,19 +32,11 @@ export interface FittedGradientOpts {
   /** Native aspect ratio source. Also used to cap the max resolution. */
   nativeW: number;
   nativeH: number;
-  colors: ColorRamp;
-  style: Style;
-  blur: number;
-  /** 0–100. If > 0, a bitmap grain overlay (WYSIWYG with download) is applied. */
-  grain?: number;
-  seed: number;
-  /** Compass direction (deg) for the painterly highlight layer. */
-  lightAngle?: number;
   /** Longest canvas side in pixels. Default 2400. */
   maxDim?: number;
   /** Effective devicePixelRatio cap. Default 2. */
   maxDpr?: number;
-}
+};
 
 /**
  * Render a gradient into a `<canvas>` sized from its container's CSS box × DPR.

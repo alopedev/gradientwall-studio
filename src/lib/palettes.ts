@@ -77,6 +77,34 @@ export interface GradientConfig {
 /** Default light angle: top-right painterly convention. */
 export const DEFAULT_LIGHT_ANGLE = 135;
 
+/**
+ * Variable-length color ramp — `Colors4` after the user's per-slot active
+ * mask is applied. The studio config keeps 4 slots; the renderer sees the
+ * filtered subset (2..4 entries). `ColorRamp` re-exported from here so all
+ * render-input types are owned by `palettes.ts` (canonical source of truth).
+ */
+export type ColorRamp = readonly string[];
+
+/**
+ * Single canonical shape for "what gets rendered". One field per render
+ * parameter. Adding a new knob (e.g. `density`, `saturation`, `vignette`)
+ * is one edit here, one edit in `spec.ts` to consume it, one edit in the
+ * store to default + expose it. Three files instead of nine.
+ *
+ * `lightAngle` and `grain` are optional so legacy fixtures (snapshot tests,
+ * pre-lighting history items) still type-check; the live store always sets
+ * a concrete value via `selectRenderParams`.
+ */
+export interface RenderParams {
+  /** Post-mask color ramp (2..4 entries). */
+  colors: ColorRamp;
+  style: Style;
+  blur: number;
+  grain?: number;
+  seed: number;
+  lightAngle?: number;
+}
+
 export interface Palette {
   name: string;
   colors: Colors4;

@@ -1,28 +1,15 @@
 import { renderGradient } from "../gradient";
-import type { Style } from "../palettes";
-import type { ColorRamp } from "../gradient/spec";
+import type { RenderParams } from "../palettes";
 
-export interface PaintOpts {
-  w: number;
-  h: number;
-  colors: ColorRamp;
-  style: Style;
-  blur: number;
-  /** 0-100. Omit or 0 → no grain pass. */
-  grain?: number;
-  seed: number;
-  /**
-   * Compass direction (deg) for the painterly highlight layer. 0 = top,
-   * 90 = right. Defaults to 135 (top-right) so callers that haven't been
-   * updated still get a sensible look.
-   */
-  lightAngle?: number;
-}
+/**
+ * Paint input — the canonical `RenderParams` plus raster dimensions.
+ * `composeWallpaper` accepts the same shape; the historical `ComposeOpts`
+ * alias is kept (as `PaintOpts`) for ergonomic sameness.
+ */
+export type PaintOpts = RenderParams & { w: number; h: number };
 
-export interface ComposeOpts extends PaintOpts {
-  /** Required when composing — even 0 must be explicit so callers think about it. */
-  grain: number;
-}
+/** Back-compat alias — kept identical to PaintOpts. */
+export type ComposeOpts = PaintOpts;
 
 /**
  * Paint a wallpaper (gradient + optional grain) onto an existing canvas.
