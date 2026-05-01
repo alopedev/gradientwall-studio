@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { m } from "motion/react";
 import type { Pack } from "@/lib/packs";
 import { PackCover } from "./PackCover";
 
@@ -22,12 +23,14 @@ export function PackCard({ pack, variant = "small" }: PackCardProps) {
       data-variant={variant}
     >
       <div className="relative h-full overflow-hidden bg-black">
-        <PackCover
-          cover={pack.cover}
-          w={isHero ? 1200 : 720}
-          h={isHero ? 1200 : 960}
-          className="block w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-        />
+        <m.div layoutId={`pack-${pack.slug}-cover`} className="absolute inset-0">
+          <PackCover
+            cover={pack.cover}
+            w={isHero ? 1200 : 720}
+            h={isHero ? 1200 : 960}
+            className="block w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+          />
+        </m.div>
 
         {/* Legibility scrim — gradient from black at bottom up to transparent
             so the headline + tagline stay readable on any cover. */}
@@ -55,13 +58,16 @@ export function PackCard({ pack, variant = "small" }: PackCardProps) {
             isHero ? "p-7 md:p-9" : "p-4"
           }`}
         >
-          <h3
-            className={`display-head text-white leading-[0.95] m-0 ${
-              isHero ? "text-[clamp(28px,3.6vw,52px)]" : "text-[20px]"
+          <m.h3
+            layoutId={`pack-${pack.slug}-title`}
+            className={`text-white leading-[0.95] m-0 ${
+              isHero
+                ? "font-serif italic font-normal text-[clamp(28px,3.6vw,52px)] tracking-tight"
+                : "display-head text-[20px]"
             }`}
           >
-            {pack.name}
-          </h3>
+            {isHero ? `${pack.name}.` : pack.name}
+          </m.h3>
           <p
             className={`m-0 font-serif italic text-white/80 leading-snug ${
               isHero ? "mt-3 text-[clamp(15px,1.4vw,20px)]" : "mt-1.5 text-[14px]"
