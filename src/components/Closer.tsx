@@ -101,7 +101,7 @@ export function Closer() {
           <span className="block mb-6 font-sans text-[11px] tracking-[0.22em] uppercase text-white/40">
             04 — Ship it
           </span>
-          <h2 className="m-0 text-[clamp(44px,9vw,140px)] leading-[0.95]">
+          <h2 className="m-0 text-[clamp(48px,10vw,160px)] leading-[0.95]">
             <span className="block font-sans font-bold uppercase tracking-[-0.03em] text-white">
               Ship the wallpaper
             </span>
