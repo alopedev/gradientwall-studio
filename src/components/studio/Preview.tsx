@@ -1,31 +1,21 @@
 import { useEffect, useState } from "react";
-import { useShallow } from "zustand/react/shallow";
 import { AnimatePresence } from "motion/react";
 import { m } from "motion/react";
-import { useConfigStore } from "@/store";
+import { useConfigStore, useRenderParams } from "@/store";
 import { composeWallpaper } from "@/lib/download/compose";
 import { useFittedGradientCanvas } from "@/lib/useGradientCanvas";
-import { activeColors, DEVICES, DEVICE_SIZES } from "@/lib/palettes";
+import { DEVICES, DEVICE_SIZES } from "@/lib/palettes";
 import { EASE, EASE_CSS } from "@/lib/motion";
 import { IPhoneMockup } from "./IPhoneMockup";
 import { Framed } from "../ui/Framed";
 
 export function Preview() {
-  const { device, colors, active, style, blur, grain, seed, lightAngle, setDevice } = useConfigStore(
-    useShallow((s) => ({
-      device: s.device,
-      colors: s.colors,
-      active: s.active,
-      style: s.style,
-      blur: s.blur,
-      grain: s.grain,
-      seed: s.seed,
-      lightAngle: s.lightAngle,
-      setDevice: s.setDevice,
-    })),
-  );
-  // Ramp fed to the renderer — strips the user-deactivated slots (2-4 colors).
-  const ramp = activeColors(colors, active);
+  const device = useConfigStore((s) => s.device);
+  const setDevice = useConfigStore((s) => s.setDevice);
+  const params = useRenderParams();
+  // `grain` reaches the mockup as a CSS overlay below — the renderer's
+  // bitmap grain is already burned in via composeWallpaper.
+  const grain = params.grain ?? 0;
 
   const [mockupMode, setMockupMode] = useState(false);
   // Shared canvas rendered once and blitted into both iPhone mockups — avoids
@@ -55,25 +45,12 @@ export function Preview() {
   // will download — no separate SVG overlay.
   useEffect(() => {
     if (!showMockup) return;
-    setSharedMockupCanvas(
-      composeWallpaper({ w: 720, h: 1600, colors: ramp, style, blur, grain, seed, lightAngle }),
-    );
-    // `ramp` is derived from `colors` + `active`; track the stable inputs.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showMockup, colors, active, style, blur, grain, seed, lightAngle]);
+    setSharedMockupCanvas(composeWallpaper({ w: 720, h: 1600, ...params }));
+  }, [showMockup, params]);
 
   const canvasRef = useFittedGradientCanvas(
-    {
-      nativeW: d.w,
-      nativeH: d.h,
-      colors: ramp,
-      style,
-      blur,
-      grain,
-      seed,
-      lightAngle,
-    },
-    [device, colors, active, style, blur, grain, seed, lightAngle],
+    { nativeW: d.w, nativeH: d.h, ...params },
+    [device, params],
   );
 
   return (

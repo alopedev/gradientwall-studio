@@ -1,13 +1,9 @@
-import type { Colors4, GradientConfig } from "../palettes";
+import type { Colors4, RenderParams } from "../palettes";
 
-/**
- * Variable-length color ramp fed into the renderer. The studio config keeps
- * 4 slots (`Colors4`), but users can deactivate 1-2 of them so the ramp that
- * actually reaches the gradient holds 2-4 entries. Each style inside
- * `buildGradientSpec` iterates via `colors.length` (or `colors[i % length]`)
- * so shorter ramps work without special cases.
- */
-export type ColorRamp = readonly string[];
+// `ColorRamp` is owned by `palettes.ts` (alongside `RenderParams`) and
+// re-exported here for back-compat with consumers that imported it from
+// the gradient barrel.
+export type { ColorRamp } from "../palettes";
 
 /**
  * Seeded PRNG — mulberry32. Ported 1:1 from the original prototype.
@@ -138,16 +134,15 @@ export interface GradientSpec {
   layers: Layer[]; // back-to-front, each paints a full w×h rect with `fill`
 }
 
-export type SpecOpts = Omit<GradientConfig, "grain" | "colors" | "lightAngle"> & {
+/**
+ * Renderer input. Drops `grain` from the canonical `RenderParams` (grain is
+ * a Canvas overlay applied by `compose.ts`, not by spec.ts) and adds raster
+ * dimensions. `lightAngle` stays optional so snapshot tests that omit it
+ * produce the same byte-output as before lighting existed.
+ */
+export type SpecOpts = Omit<RenderParams, "grain"> & {
   w: number;
   h: number;
-  colors: ColorRamp;
-  /**
-   * Compass direction in degrees (0 = top, 90 = right) for the painterly
-   * highlight layer. When omitted no highlight is appended — useful for unit
-   * tests that want to assert pure-style output.
-   */
-  lightAngle?: number;
 };
 
 /**

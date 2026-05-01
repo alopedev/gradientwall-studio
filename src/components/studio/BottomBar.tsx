@@ -1,8 +1,6 @@
 import { useState } from "react";
-import { useShallow } from "zustand/react/shallow";
 import { m } from "motion/react";
-import { useConfigStore, save } from "@/store";
-import { activeColors } from "@/lib/palettes";
+import { useConfigStore, useRenderParams, save } from "@/store";
 import { downloadWallpaper } from "@/lib/download";
 import { EASE } from "@/lib/motion";
 import { SeedBadge } from "./SeedBadge";
@@ -16,20 +14,9 @@ import { MagneticButton } from "../ui/MagneticButton";
  * apply instantly.
  */
 export function BottomBar() {
-  const { device, colors, active, style, blur, grain, seed, lightAngle, reshuffle } = useConfigStore(
-    useShallow((s) => ({
-      device: s.device,
-      colors: s.colors,
-      active: s.active,
-      style: s.style,
-      blur: s.blur,
-      grain: s.grain,
-      seed: s.seed,
-      lightAngle: s.lightAngle,
-      reshuffle: s.reshuffle,
-    })),
-  );
-  const ramp = activeColors(colors, active);
+  const device = useConfigStore((s) => s.device);
+  const reshuffle = useConfigStore((s) => s.reshuffle);
+  const params = useRenderParams();
 
   const [downloadStatus, setDownloadStatus] = useState<"idle" | "downloading" | "saved">("idle");
   const [spins, setSpins] = useState(0);
@@ -78,7 +65,7 @@ export function BottomBar() {
               setDownloadStatus("downloading");
               await new Promise((r) => requestAnimationFrame(() => r(null)));
               try {
-                await downloadWallpaper({ device, colors: ramp, style, blur, grain, seed, lightAngle });
+                await downloadWallpaper({ device, ...params });
                 setDownloadStatus("saved");
                 setTimeout(() => setDownloadStatus("idle"), 1600);
               } catch {
