@@ -2,6 +2,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { useConfigStore } from "./useConfigStore";
 import { ALL_ACTIVE, PALETTES, STYLES } from "@/lib/palettes";
+import { flushRaf } from "@/test-utils";
 
 // Snapshot the pristine state so each test starts fresh.
 const INITIAL = useConfigStore.getState();
@@ -27,7 +28,7 @@ describe("useConfigStore", () => {
     // into one render per frame); flush before reading.
     useConfigStore.getState().setBlur(72);
     useConfigStore.getState().setGrain(12);
-    await new Promise<void>((r) => requestAnimationFrame(() => r()));
+    await flushRaf();
     expect(useConfigStore.getState().blur).toBe(72);
     expect(useConfigStore.getState().grain).toBe(12);
   });

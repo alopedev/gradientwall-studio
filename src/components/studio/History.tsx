@@ -1,6 +1,7 @@
 import { useHistoryStore, loadHistoryItem, removeHistoryItem, type HistoryItem } from "@/store";
 import { useFittedGradientCanvas } from "@/lib/useGradientCanvas";
 import { activeColors } from "@/lib/palettes";
+import { CornerPipButton } from "../ui/CornerPipButton";
 
 export function History() {
   const history = useHistoryStore((s) => s.history);
@@ -35,10 +36,6 @@ function HistoryCard({
   onClick: () => void;
   onDelete: () => void;
 }) {
-  // Square thumbnails — history doesn't persist device, the wallpaper itself
-  // is composed at a portrait native ratio but the preview can sample any
-  // square crop without distorting the gradient (the renderer only cares
-  // about aspect for layer placement). Canvas resolution = box × DPR.
   // `item.active` may be undefined for items saved before the per-slot mask
   // landed — `activeColors` treats that as all four active.
   const ref = useFittedGradientCanvas(
@@ -61,18 +58,17 @@ function HistoryCard({
       >
         <canvas ref={ref} className="block w-full h-full" />
       </button>
-      <button
-        type="button"
-        aria-label="Delete saved gradient"
+      <CornerPipButton
+        ariaLabel="Delete saved gradient"
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
           onDelete();
         }}
-        className="absolute top-1 right-1 z-10 h-5 w-5 inline-flex items-center justify-center rounded-full backdrop-blur-sm bg-black/55 text-white/90 text-[12px] leading-none transition-[opacity,background-color] duration-150 opacity-0 group-hover/card:opacity-100 hover:bg-black/75 focus-visible:opacity-100"
+        revealOnGroupHover
       >
         ×
-      </button>
+      </CornerPipButton>
     </div>
   );
 }

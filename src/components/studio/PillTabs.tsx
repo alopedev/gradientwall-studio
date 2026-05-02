@@ -40,7 +40,7 @@ export function PillTabs<T extends string>({ options, value, onChange, labelFor 
               <m.span
                 layoutId={layoutId}
                 aria-hidden
-                className="absolute inset-0 rounded-full bg-gradient-to-b from-white to-[#d9d9d9] shadow-[inset_0_1px_0_rgba(255,255,255,0.95),inset_0_-1px_0_rgba(0,0,0,0.18),0_1px_0_rgba(255,255,255,0.05),0_3px_8px_rgba(0,0,0,0.5),0_0_0_1px_rgba(0,0,0,0.35)]"
+                className="tactile-knob absolute inset-0 rounded-full"
                 transition={{ type: "spring", stiffness: 500, damping: 40 }}
               />
             )}

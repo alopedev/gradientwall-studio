@@ -1,6 +1,7 @@
 import { useConfigStore } from "@/store";
 import { MIN_ACTIVE_COLORS } from "@/lib/palettes";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/shadcn/popover";
+import { CornerPipButton } from "@/components/ui/CornerPipButton";
 import { ColorHUD } from "./ColorHUD";
 
 /**
@@ -74,9 +75,8 @@ export function Swatches() {
             )}
             {/* Toggle sits OUTSIDE the popover trigger so its click doesn't
                 open the HUD — it only flips the active mask. */}
-            <button
-              type="button"
-              aria-label={toggleLabel}
+            <CornerPipButton
+              ariaLabel={toggleLabel}
               title={toggleDisabled ? `Minimum ${MIN_ACTIVE_COLORS} colors required` : toggleLabel}
               onClick={(e) => {
                 e.preventDefault();
@@ -84,14 +84,10 @@ export function Swatches() {
                 toggleColor(i);
               }}
               disabled={toggleDisabled}
-              className={`absolute top-1 right-1 z-10 h-5 w-5 inline-flex items-center justify-center rounded-full backdrop-blur-sm font-sans text-[12px] leading-none transition-colors duration-150 ${
-                isActive
-                  ? "bg-black/55 text-white/90 hover:bg-black/75 disabled:opacity-40 disabled:cursor-not-allowed"
-                  : "bg-white/90 text-[#07070a] hover:bg-white"
-              }`}
+              variant={isActive ? "dim" : "solid"}
             >
               {isActive ? "×" : "+"}
-            </button>
+            </CornerPipButton>
           </div>
         );
       })}

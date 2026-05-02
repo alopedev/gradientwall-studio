@@ -88,27 +88,7 @@ export function Preview() {
         <div className="rounded-full bg-black/55 border border-white/14 px-2.5 md:px-3 py-1 md:py-1.5 font-sans text-[10px] md:text-[11px] tracking-[0.08em] text-white/75 backdrop-blur-md whitespace-nowrap">
           {DEVICE_SIZES[device].label}
         </div>
-        {device === "mobile" && (
-          <button
-            onClick={() => setMockupMode((v) => !v)}
-            aria-pressed={mockupMode}
-            aria-label="Preview inside iPhone frame"
-            title="Preview inside an iPhone frame (lock + home)"
-            className={`inline-flex items-center gap-1.5 rounded-full backdrop-blur-md px-2.5 md:px-3 py-1 md:py-1.5 transition-[color,background-color,border-color] duration-150 font-sans text-[10px] md:text-[11px] tracking-[0.1em] uppercase border ${
-              mockupMode
-                ? "bg-white/12 text-white border-white/35"
-                : "bg-black/55 text-white/65 border-white/14 hover:text-white hover:border-white/25"
-            }`}
-          >
-            <span
-              aria-hidden
-              className={`h-1.5 w-1.5 rounded-full transition-colors duration-150 ${
-                mockupMode ? "bg-white shadow-[0_0_4px_rgba(255,255,255,0.55)]" : "bg-white/30"
-              }`}
-            />
-            iPhone view
-          </button>
-        )}
+        {device === "mobile" && <IPhoneViewToggle on={mockupMode} onToggle={() => setMockupMode((v) => !v)} />}
       </div>
 
       {/* Stage — either the fit-to-aspect wallpaper or the dual-iPhone mockup.
@@ -175,5 +155,30 @@ export function Preview() {
       </div>
 
     </Framed>
+  );
+}
+
+/**
+ * Pill toggle for switching the Preview into the iPhone-mockup mode. Sits in
+ * the top-right cluster next to the resolution badge — visually distinct
+ * from the device pills (dot-prefixed, translucent) so it doesn't read as
+ * another aspect-ratio option.
+ */
+function IPhoneViewToggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
+  const pillCls = on
+    ? "bg-white/12 text-white border-white/35"
+    : "bg-black/55 text-white/65 border-white/14 hover:text-white hover:border-white/25";
+  const dotCls = on ? "bg-white shadow-[0_0_4px_rgba(255,255,255,0.55)]" : "bg-white/30";
+  return (
+    <button
+      onClick={onToggle}
+      aria-pressed={on}
+      aria-label="Preview inside iPhone frame"
+      title="Preview inside an iPhone frame (lock + home)"
+      className={`inline-flex items-center gap-1.5 rounded-full backdrop-blur-md px-2.5 md:px-3 py-1 md:py-1.5 transition-[color,background-color,border-color] duration-150 font-sans text-[10px] md:text-[11px] tracking-[0.1em] uppercase border ${pillCls}`}
+    >
+      <span aria-hidden className={`h-1.5 w-1.5 rounded-full transition-colors duration-150 ${dotCls}`} />
+      iPhone view
+    </button>
   );
 }

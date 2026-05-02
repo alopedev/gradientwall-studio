@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { RightRail } from "./RightRail";
 import { useConfigStore } from "@/store/useConfigStore";
 import { useUIStore } from "@/store/useUIStore";
-import { resetStores } from "@/test-utils";
+import { resetStores, flushRaf } from "@/test-utils";
 
 describe("<RightRail />", () => {
   beforeEach(resetStores);
@@ -39,7 +39,7 @@ describe("<RightRail />", () => {
     sliders[0]!.focus();
     fireEvent.keyDown(sliders[0]!, { key: "ArrowRight" });
     // setBlur is rAF-batched (slider-drag perf); wait one frame for the flush.
-    await new Promise<void>((r) => requestAnimationFrame(() => r()));
+    await flushRaf();
     expect(useConfigStore.getState().blur).toBe(before + 1);
   });
 
@@ -49,7 +49,7 @@ describe("<RightRail />", () => {
     const sliders = screen.getAllByRole("slider");
     sliders[1]!.focus();
     fireEvent.keyDown(sliders[1]!, { key: "ArrowRight" });
-    await new Promise<void>((r) => requestAnimationFrame(() => r()));
+    await flushRaf();
     expect(useConfigStore.getState().grain).toBe(before + 1);
   });
 

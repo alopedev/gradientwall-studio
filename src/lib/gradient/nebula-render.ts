@@ -133,17 +133,12 @@ export function computeNebulaImageData(params: NebulaParams): Uint8ClampedArray 
   // Warp strength tracks density: thinner density → flatter clouds, thicker
   // density → more dramatic swirls. Capped so wallpaper readability stays.
   const warp = 0.6 + density * 0.9;
-  // Vignette anchor — subtle radial darkening towards the corners. When
-  // `lightAngle` is set we bias the anchor towards the light source so the
-  // brightest area of the composition follows the painterly direction; when
-  // undefined the anchor stays centred (preserves legacy byte-identical
-  // output for snapshots / pre-lightAngle history items).
   const cx = w * 0.5;
   const cy = h * 0.5;
   const maxR = Math.sqrt(cx * cx + cy * cy);
+  // Compass: 0 = North (up). In screen coords up is -y, right is +x.
   const biasMag = params.lightAngle === undefined ? 0 : 0.32;
   const angleRad = ((params.lightAngle ?? 0) * Math.PI) / 180;
-  // Compass: 0 = North (up). In screen coords up is -y, right is +x.
   const lcx = cx + Math.sin(angleRad) * biasMag * cx;
   const lcy = cy + -Math.cos(angleRad) * biasMag * cy;
   for (let y = 0; y < h; y++) {
@@ -198,6 +193,13 @@ function clamp8(v: number): number {
  */
 const INTERNAL_SCALE = 0.5;
 
+// Single shared offscreen canvas across all nebula paints. Slider drags fire
+// dozens of paints per second; without memoization each one would allocate a
+// new HTMLCanvasElement and let the previous one go to GC. JS is
+// single-threaded so multiple destinations sharing one buffer is safe — each
+// paint resizes to its own (sw, sh) before writing.
+let cachedSmallCanvas: HTMLCanvasElement | null = null;
+
 export function renderNebulaToCanvas(
   canvas: HTMLCanvasElement,
   params: NebulaParams,
@@ -211,7 +213,7 @@ export function renderNebulaToCanvas(
   // targets still produce a valid offscreen buffer.
   const sw = Math.max(2, Math.round(params.w * INTERNAL_SCALE));
   const sh = Math.max(2, Math.round(params.h * INTERNAL_SCALE));
-  const small = canvasFactory();
+  const small = cachedSmallCanvas ?? (cachedSmallCanvas = canvasFactory());
   small.width = sw;
   small.height = sh;
   const sctx = small.getContext("2d");
@@ -237,4 +239,12 @@ export function renderNebulaToCanvas(
   } else {
     ctx.drawImage(small, 0, 0, sw, sh, 0, 0, params.w, params.h);
   }
+}
+
+/**
+ * Reset the memoized offscreen canvas. Test-only — production code never
+ * needs this.
+ */
+export function __resetNebulaCacheForTests(): void {
+  cachedSmallCanvas = null;
 }

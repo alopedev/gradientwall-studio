@@ -18,3 +18,11 @@ export function resetStores(): void {
   useUIStore.setState(UI_INITIAL);
   useRecentColorsStore.setState(RECENT_COLORS_INITIAL);
 }
+
+/**
+ * Yield until the next animation frame fires. Used to flush rAF-batched
+ * setters (setBlur, setGrain, setLightAngle, setDensity) before reading
+ * state in tests.
+ */
+export const flushRaf = (): Promise<void> =>
+  new Promise<void>((r) => requestAnimationFrame(() => r()));

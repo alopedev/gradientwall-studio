@@ -66,6 +66,9 @@ const freshMask = (): ActiveMask => [...ALL_ACTIVE] as ActiveMask;
 
 const clamp01 = (n: number) => (n < 0 ? 0 : n > 1 ? 1 : n);
 
+/** Numeric fields that are mutated repeatedly by slider/dial drags. */
+type RafPatch = Partial<Pick<ConfigState, "blur" | "grain" | "lightAngle" | "density">>;
+
 /**
  * rAF-coalesced setter helper. Slider/dial drags emit dozens of `onChange`
  * events per second; without batching, every event triggers a zustand update,
@@ -78,8 +81,8 @@ const clamp01 = (n: number) => (n < 0 ? 0 : n > 1 ? 1 : n);
  * Falls back to immediate `set()` when `requestAnimationFrame` is unavailable
  * (jsdom node-env tests, SSR) so no test setup is required.
  */
-function makeRafBatcher(set: (patch: Partial<ConfigState>) => void) {
-  let pending: Partial<ConfigState> | null = null;
+function makeRafBatcher(set: (patch: RafPatch) => void) {
+  let pending: RafPatch | null = null;
   let scheduled = false;
   const hasRAF = typeof requestAnimationFrame === "function";
   const flush = () => {
@@ -90,7 +93,7 @@ function makeRafBatcher(set: (patch: Partial<ConfigState>) => void) {
       set(p);
     }
   };
-  return (patch: Partial<ConfigState>) => {
+  return (patch: RafPatch) => {
     if (!hasRAF) {
       set(patch);
       return;
@@ -104,7 +107,7 @@ function makeRafBatcher(set: (patch: Partial<ConfigState>) => void) {
 }
 
 export const useConfigStore = create<ConfigState>()((set) => {
-  const rafSet = makeRafBatcher((patch) => set(patch));
+  const rafSet = makeRafBatcher(set);
   return {
   device: "desktop",
   colors: [...PALETTES[0].colors] as Colors4,
