@@ -9,10 +9,10 @@ const COLORS: Colors4 = ["#111111", "#222222", "#333333", "#444444"];
 const common = { colors: COLORS, style: "mesh", blur: 48, seed: 42, grain: 45 } as const;
 
 describe("<IPhoneMockup />", () => {
-  it("renders the lock-screen chrome (clock + Monday date)", () => {
+  it("renders no lock-screen chrome (clock/date were dropped — they couldn't match the photographic tilt cleanly)", () => {
     render(<IPhoneMockup {...common} />);
-    expect(screen.getByText("9:41")).toBeInTheDocument();
-    expect(screen.getByText(/Monday/i)).toBeInTheDocument();
+    expect(screen.queryByText("9:41")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Monday/i)).not.toBeInTheDocument();
   });
 
   it("mounts a canvas (the wallpaper inside the device screen)", () => {

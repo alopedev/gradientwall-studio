@@ -36,16 +36,6 @@ const SCREEN = detectScreenRect(PNG_CORNERS, PNG_AABB, PNG_SIZE.w, PNG_SIZE.h);
  *  fully covered even with sub-pixel detection error. The PNG mask trims
  *  any overflow. */
 const SCREEN_OVERSCAN_PCT = 3;
-/** LockChrome anchors at this % from the top of the *screen* (not the
- *  oversized wrapper). 8% gives a comfortable lock-screen layout. */
-const LOCK_CHROME_TOP_OF_SCREEN_PCT = 8;
-/** LockChrome's actual `top` value as a % of the oversized wrapper.
- *  Compensates for the overscan so the clock keeps the same visual
- *  position relative to the screen edge. */
-const LOCK_CHROME_TOP_PCT =
-  ((SCREEN_OVERSCAN_PCT + (LOCK_CHROME_TOP_OF_SCREEN_PCT / 100) * SCREEN.heightPct) /
-    (SCREEN.heightPct + SCREEN_OVERSCAN_PCT * 2)) *
-  100;
 
 interface Props {
   grain: number;
@@ -64,8 +54,8 @@ interface Props {
 
 /**
  * Photographic iPhone mockup — a real hand-held device shot with the
- * generated wallpaper composited into the screen area. Includes a lock-screen
- * overlay (clock + date) so the wallpaper reads in real-world context.
+ * generated wallpaper composited into the screen area through the asset
+ * PNG's alpha mask.
  */
 export function IPhoneMockup({ grain, source, colors, style, blur, seed }: Props) {
   return (
@@ -73,10 +63,10 @@ export function IPhoneMockup({ grain, source, colors, style, blur, seed }: Props
       className="relative shrink-0"
       style={{ aspectRatio: "1 / 1", maxHeight: "100%", maxWidth: "100%", height: "100%" }}
     >
-      {/* Wallpaper screen + lock chrome — BACK layer. Sized + rotated to
-          match the phone's tilt so the gradient looks "displayed on the
-          device", expanded by SCREEN_OVERSCAN_PCT on each side so the
-          alpha hole is fully covered even with sub-pixel detection error. */}
+      {/* Wallpaper — BACK layer. Sized + rotated to match the phone's tilt
+          so the gradient looks "displayed on the device", expanded by
+          SCREEN_OVERSCAN_PCT on each side so the alpha hole is fully
+          covered even with sub-pixel detection error. */}
       <div
         className="absolute"
         style={{
@@ -96,7 +86,6 @@ export function IPhoneMockup({ grain, source, colors, style, blur, seed }: Props
             <GrainOverlay amount={grain} />
           </>
         )}
-        <LockChrome />
       </div>
       {/* Photographic frame — FRONT layer. The screen pixels are alpha=0
           (see /tmp/cutout_screen.py), acting as a cookie-cutter mask over
@@ -129,23 +118,4 @@ function SharedSourceCanvas({ source }: { source: HTMLCanvasElement | null }) {
 function OwnCanvas({ colors, style, blur, seed }: { colors: Colors4; style: Style; blur: number; seed: number }) {
   const ref = useGradientCanvas({ w: 360, h: 800, colors, style, blur, seed }, [colors, style, blur, seed]);
   return <canvas ref={ref} className="absolute inset-0 w-full h-full" />;
-}
-
-function LockChrome() {
-  return (
-    <div
-      className="absolute left-0 right-0 flex flex-col items-center text-white pointer-events-none"
-      style={{ top: `${LOCK_CHROME_TOP_PCT}%`, textShadow: "0 1px 6px rgba(0,0,0,0.35)" }}
-    >
-      <div className="font-sans text-[clamp(6px,1.6cqw,10px)] tracking-wider opacity-80 uppercase">
-        Monday, April 20
-      </div>
-      <div
-        className="font-sans font-light leading-none tracking-tight mt-[2%]"
-        style={{ fontSize: "clamp(20px, 7cqw, 44px)", fontFeatureSettings: '"tnum"' }}
-      >
-        9:41
-      </div>
-    </div>
-  );
 }
