@@ -25,11 +25,27 @@ const PNG_CORNERS = {
 } as const;
 const PNG_AABB = { minX: 359, minY: 184, maxX: 698, maxY: 830 } as const;
 
-// `detectScreenRect` enforces the CSS-CW-positive rotation convention and
-// estimates the corner radius from the corner-to-AABB inset, so the
-// transform + corner curvature both match the photographic tilt.
-// See `src/lib/screenRect.test.ts` for the convention-pinning tests.
+// `detectScreenRect` drives the wallpaper's rotation + position so the
+// gradient inherits the device's tilt. The asset PNG carries an alpha mask
+// over the screen pixels (see `/tmp/cutout_screen.py`); the wallpaper
+// renders BEHIND the PNG and shows through the transparent screen area
+// exactly. The rect is expanded slightly past the detected screen so the
+// alpha hole is always covered — no need for pixel-perfect dimensions.
 const SCREEN = detectScreenRect(PNG_CORNERS, PNG_AABB, PNG_SIZE.w, PNG_SIZE.h);
+/** % padding added on each side of the wallpaper rect so the alpha hole is
+ *  fully covered even with sub-pixel detection error. The PNG mask trims
+ *  any overflow. */
+const SCREEN_OVERSCAN_PCT = 3;
+/** LockChrome anchors at this % from the top of the *screen* (not the
+ *  oversized wrapper). 8% gives a comfortable lock-screen layout. */
+const LOCK_CHROME_TOP_OF_SCREEN_PCT = 8;
+/** LockChrome's actual `top` value as a % of the oversized wrapper.
+ *  Compensates for the overscan so the clock keeps the same visual
+ *  position relative to the screen edge. */
+const LOCK_CHROME_TOP_PCT =
+  ((SCREEN_OVERSCAN_PCT + (LOCK_CHROME_TOP_OF_SCREEN_PCT / 100) * SCREEN.heightPct) /
+    (SCREEN.heightPct + SCREEN_OVERSCAN_PCT * 2)) *
+  100;
 
 interface Props {
   grain: number;
@@ -57,27 +73,17 @@ export function IPhoneMockup({ grain, source, colors, style, blur, seed }: Props
       className="relative shrink-0"
       style={{ aspectRatio: "1 / 1", maxHeight: "100%", maxWidth: "100%", height: "100%" }}
     >
-      {/* Photographic frame — back layer. The iPhone's screen area is solid
-          black; the wallpaper canvas above covers exactly that rectangle. */}
-      <img
-        src={MOCKUP_SRC}
-        alt=""
-        aria-hidden
-        className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
-      />
-      {/* Wallpaper screen + lock chrome — front layer, masked to the screen
-          rect (and rotated to match the phone's tilt in the photograph) so
-          the bezel/hand/desk stay untouched. */}
+      {/* Wallpaper screen + lock chrome — BACK layer. Sized + rotated to
+          match the phone's tilt so the gradient looks "displayed on the
+          device", expanded by SCREEN_OVERSCAN_PCT on each side so the
+          alpha hole is fully covered even with sub-pixel detection error. */}
       <div
-        className="absolute overflow-hidden"
+        className="absolute"
         style={{
-          left: `${SCREEN.leftPct}%`,
-          top: `${SCREEN.topPct}%`,
-          width: `${SCREEN.widthPct}%`,
-          height: `${SCREEN.heightPct}%`,
-          // Dual-axis percentage (X / Y) keeps corners visually circular on a
-          // non-square element — single-value % would stretch them vertically.
-          borderRadius: `${SCREEN.borderRadiusXPct}% / ${SCREEN.borderRadiusYPct}%`,
+          left: `${SCREEN.leftPct - SCREEN_OVERSCAN_PCT}%`,
+          top: `${SCREEN.topPct - SCREEN_OVERSCAN_PCT}%`,
+          width: `${SCREEN.widthPct + SCREEN_OVERSCAN_PCT * 2}%`,
+          height: `${SCREEN.heightPct + SCREEN_OVERSCAN_PCT * 2}%`,
           transform: `rotate(${SCREEN.rotateDeg}deg)`,
           transformOrigin: "center",
         }}
@@ -92,6 +98,16 @@ export function IPhoneMockup({ grain, source, colors, style, blur, seed }: Props
         )}
         <LockChrome />
       </div>
+      {/* Photographic frame — FRONT layer. The screen pixels are alpha=0
+          (see /tmp/cutout_screen.py), acting as a cookie-cutter mask over
+          the wallpaper. Pixel-perfect alignment by construction: whatever
+          the photo shows as screen, that's what the wallpaper fills. */}
+      <img
+        src={MOCKUP_SRC}
+        alt=""
+        aria-hidden
+        className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
+      />
     </div>
   );
 }
@@ -118,8 +134,8 @@ function OwnCanvas({ colors, style, blur, seed }: { colors: Colors4; style: Styl
 function LockChrome() {
   return (
     <div
-      className="absolute top-[8%] left-0 right-0 flex flex-col items-center text-white pointer-events-none"
-      style={{ textShadow: "0 1px 6px rgba(0,0,0,0.35)" }}
+      className="absolute left-0 right-0 flex flex-col items-center text-white pointer-events-none"
+      style={{ top: `${LOCK_CHROME_TOP_PCT}%`, textShadow: "0 1px 6px rgba(0,0,0,0.35)" }}
     >
       <div className="font-sans text-[clamp(6px,1.6cqw,10px)] tracking-wider opacity-80 uppercase">
         Monday, April 20
