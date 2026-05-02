@@ -103,30 +103,61 @@ export function computeNebulaImageData(params: NebulaParams): Uint8ClampedArray 
   const density = params.density ?? DEFAULT_DENSITY;
   const palette = colors.map(hexToRgb);
   const out = new Uint8ClampedArray(w * h * 4);
-  // FBM frequency: ~3 cells across the long axis at 1× — gives broad, soft
-  // bands instead of high-frequency speckle. The two FBM samples are taken
-  // at different offsets and seeds so color choice and intensity vary
-  // independently.
+  // FBM at ~2.4 cells across the long axis — broad bands. Domain warping
+  // (sampling FBM at coordinates that are themselves displaced by another
+  // FBM) is what turns flat noise into the swirly whisp character of a real
+  // nebula; without it the result looks like granite instead of clouds.
   const longAxis = Math.max(w, h);
-  const scale = 3 / longAxis;
-  // Density acts as cloud thickness: 0 collapses to flat mid-intensity,
-  // 1 swings into deep shadows + bright highlights. The seed-perturbed jitter
-  // (mulberry32) keeps the per-pixel offset deterministic but unique per seed.
+  const scale = 2.4 / longAxis;
+  // Per-seed offset so two seeds don't share the same starting region of
+  // the noise field. Two extra offsets feed the warping samples so they
+  // decorrelate from the base color/cloud lookups.
   const jitter = mulberry32(seed);
   const ox = jitter() * 1000;
   const oy = jitter() * 1000;
+  const wx = jitter() * 100;
+  const wy = jitter() * 100;
+  // Warp strength tracks density: thinner density → flatter clouds, thicker
+  // density → more dramatic swirls. Capped so wallpaper readability stays.
+  const warp = 0.6 + density * 0.9;
+  // Vignette anchor — a subtle radial darkening towards the corners makes the
+  // composition feel cinematic without the flat "billboard" look. Keeps the
+  // edges from overpowering the center palette read.
+  const cx = w * 0.5;
+  const cy = h * 0.5;
+  const maxR = Math.sqrt(cx * cx + cy * cy);
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       const nx = x * scale + ox;
       const ny = y * scale + oy;
-      const tColor = fbm(nx, ny, seed);
-      const cloud = fbm(nx + 5.7, ny - 3.2, seed + 100);
-      const intensity = 0.5 + (cloud - 0.5) * density * 1.4;
+      // Domain warping: displace sample coordinates by another FBM
+      const wxF = fbm(nx + wx, ny + wy, seed + 33);
+      const wyF = fbm(nx - wx, ny - wy, seed + 47);
+      const px = nx + (wxF - 0.5) * warp;
+      const py = ny + (wyF - 0.5) * warp;
+      // Two independent FBMs: one drives palette position, the other drives
+      // cloud thickness / intensity. Density modulates how much the cloud
+      // value swings around the mid-tone.
+      const tColor = fbm(px, py, seed);
+      const cloud = fbm(px + 5.7, py - 3.2, seed + 100);
+      // Highlight ridge: the top ~25% of the cloud value gets a brightness
+      // boost so the densest regions read as luminous nebular cores rather
+      // than just "lighter areas". Smoothed via smoothstep so the boundary
+      // doesn't clip.
+      const ridge = smoothstep(Math.max(0, (cloud - 0.62) / 0.38));
+      const baseIntensity = 0.45 + (cloud - 0.5) * density * 1.6;
+      const intensity = baseIntensity + ridge * 0.45 * density;
+      // Vignette — drops 0..0.18 at the corners depending on density so
+      // dense compositions get a more cinematic falloff.
+      const dx = x - cx;
+      const dy = y - cy;
+      const vignette = 1 - (Math.sqrt(dx * dx + dy * dy) / maxR) * 0.18 * density;
       const [r, g, b] = paletteLerp(palette, tColor);
+      const k = intensity * vignette;
       const idx = (y * w + x) * 4;
-      out[idx] = clamp8(r * intensity);
-      out[idx + 1] = clamp8(g * intensity);
-      out[idx + 2] = clamp8(b * intensity);
+      out[idx] = clamp8(r * k);
+      out[idx + 1] = clamp8(g * k);
+      out[idx + 2] = clamp8(b * k);
       out[idx + 3] = 255;
     }
   }

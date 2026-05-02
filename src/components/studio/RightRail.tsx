@@ -50,7 +50,7 @@ export function RightRail() {
   return (
     <aside
       aria-label="Studio controls"
-      className="relative flex flex-col gap-2.5 p-2.5 rounded-[2px] bg-[color:var(--color-surface-0)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_28px_60px_rgba(0,0,0,0.5)] overflow-hidden"
+      className="relative flex flex-col gap-3 p-3 rounded-[18px] bg-white/[0.015] shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_28px_60px_rgba(0,0,0,0.45)] overflow-hidden"
     >
       {/* Atmosphere bloom — single low-opacity radial behind the tiles, in
           accent hue, very faint. Reads as a distant light source warming
@@ -116,7 +116,7 @@ export function RightRail() {
                 <span className="font-sans text-[10px] tracking-[0.18em] uppercase text-white/40">
                   Light direction
                 </span>
-                <span className="font-serif italic text-white/65 text-[15px] leading-tight">
+                <span className="font-sans text-white/85 text-[14px] font-medium leading-tight tracking-tight">
                   {compassLabel(lightAngle)}
                 </span>
                 <span className="font-sans text-[10px] text-white/40 mt-1 tracking-wider">{lightAngle}°</span>
@@ -155,7 +155,7 @@ function Section({
             {title}
           </span>
           {hint ? (
-            <span className="ml-auto mr-2 font-serif italic text-white/55 text-[13px] leading-none truncate max-w-[42%] capitalize">
+            <span className="ml-auto mr-2 font-sans text-white/65 text-[10px] font-medium leading-none tracking-[0.18em] uppercase truncate max-w-[42%]">
               {hint}
             </span>
           ) : null}
