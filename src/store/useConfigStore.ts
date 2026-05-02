@@ -3,6 +3,7 @@ import { create } from "zustand";
 import {
   activeColors,
   ALL_ACTIVE,
+  DEFAULT_DENSITY,
   DEFAULT_LIGHT_ANGLE,
   MIN_ACTIVE_COLORS,
   PALETTES,
@@ -24,9 +25,10 @@ import { randomColors } from "@/lib/gradient";
  * items predating lighting omit it), but the live store always carries a
  * concrete value, so we narrow it to required here.
  */
-export interface ConfigState extends Omit<GradientConfig, "lightAngle"> {
+export interface ConfigState extends Omit<GradientConfig, "lightAngle" | "density"> {
   device: Device;
   lightAngle: number;
+  density: number;
   /**
    * Per-slot on/off over the four colors. A `false` entry removes that slot
    * from the rendered ramp so the wallpaper uses 2 or 3 colors instead of 4.
@@ -53,12 +55,16 @@ export interface ConfigState extends Omit<GradientConfig, "lightAngle"> {
   setSeed: (n: number) => void;
   /** Set the painterly highlight direction in compass degrees (0..360). */
   setLightAngle: (deg: number) => void;
+  /** Set visual density 0..1 (clamped). 0.5 reproduces the legacy counts. */
+  setDensity: (n: number) => void;
   reshuffle: () => void;
   randomize: () => void;
 }
 
 const randomSeed = () => Math.floor(Math.random() * 65535);
 const freshMask = (): ActiveMask => [...ALL_ACTIVE] as ActiveMask;
+
+const clamp01 = (n: number) => (n < 0 ? 0 : n > 1 ? 1 : n);
 
 export const useConfigStore = create<ConfigState>()((set) => ({
   device: "desktop",
@@ -69,6 +75,7 @@ export const useConfigStore = create<ConfigState>()((set) => ({
   grain: 45,
   seed: randomSeed(),
   lightAngle: DEFAULT_LIGHT_ANGLE,
+  density: DEFAULT_DENSITY,
 
   setDevice: (d) => set({ device: d }),
   // A fresh palette invalidates any per-slot deactivation — reset the mask.
@@ -93,6 +100,7 @@ export const useConfigStore = create<ConfigState>()((set) => ({
   setGrain: (n) => set({ grain: n }),
   setSeed: (n) => set({ seed: n & 0xffff }),
   setLightAngle: (deg) => set({ lightAngle: ((deg % 360) + 360) % 360 }),
+  setDensity: (n) => set({ density: clamp01(n) }),
   reshuffle: () => set({ seed: randomSeed() }),
   randomize: () =>
     set({
@@ -101,6 +109,7 @@ export const useConfigStore = create<ConfigState>()((set) => ({
       style: STYLES[Math.floor(Math.random() * STYLES.length)],
       seed: randomSeed(),
       lightAngle: Math.floor(Math.random() * 360),
+      density: Math.random(),
     }),
 }));
 
@@ -116,6 +125,7 @@ export const selectRenderParams = (s: ConfigState): RenderParams => ({
   grain: s.grain,
   seed: s.seed,
   lightAngle: s.lightAngle,
+  density: s.density,
 });
 
 /**
@@ -140,8 +150,9 @@ export function useRenderParams(): RenderParams {
   const grain = useConfigStore((s) => s.grain);
   const seed = useConfigStore((s) => s.seed);
   const lightAngle = useConfigStore((s) => s.lightAngle);
+  const density = useConfigStore((s) => s.density);
   return useMemo(
-    () => ({ colors: activeColors(colors, active), style, blur, grain, seed, lightAngle }),
-    [colors, active, style, blur, grain, seed, lightAngle],
+    () => ({ colors: activeColors(colors, active), style, blur, grain, seed, lightAngle, density }),
+    [colors, active, style, blur, grain, seed, lightAngle, density],
   );
 }

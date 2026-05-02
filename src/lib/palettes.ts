@@ -2,7 +2,7 @@
 export const DEVICES = ["mobile", "tablet", "desktop"] as const;
 export type Device = (typeof DEVICES)[number];
 
-export const STYLES = ["mesh", "blobs", "liquid", "aurora"] as const;
+export const STYLES = ["mesh", "blobs", "liquid", "aurora", "nebula"] as const;
 export type Style = (typeof STYLES)[number];
 
 export type Colors4 = [string, string, string, string];
@@ -72,6 +72,17 @@ export interface GradientConfig {
    * frozen before lighting existed.
    */
   lightAngle?: number;
+  /**
+   * Visual density of the style, normalized 0..1. Default 0.5 reproduces the
+   * historical hard-coded layer counts (mesh 4 / blobs 14 / liquid 6 / aurora
+   * 2 bands per color), so old snapshots and pre-density history items keep
+   * rendering byte-identical. The renderer maps it conservatively per style;
+   * see `buildGradientSpec`.
+   *
+   * For the WebGL Nebula style this drives shader uniforms (cloud thickness)
+   * rather than a layer count.
+   */
+  density?: number;
 }
 
 /** Default light angle: top-right painterly convention. */
@@ -103,7 +114,16 @@ export interface RenderParams {
   grain?: number;
   seed: number;
   lightAngle?: number;
+  /**
+   * Visual density 0..1. `undefined` is treated as 0.5 by the renderer,
+   * which reproduces the historical layer counts (so legacy fixtures and
+   * pre-density history items render unchanged).
+   */
+  density?: number;
 }
+
+/** Default density: midpoint reproduces the pre-density layer counts. */
+export const DEFAULT_DENSITY = 0.5;
 
 export interface Palette {
   name: string;

@@ -13,8 +13,9 @@ describe("<PillTabs />", () => {
     const bananaBtn = btns[1];
     expect(bananaBtn.className).toContain("text-[#07070a]");
     expect(btns[0]!.className).toContain("text-white/70");
-    // Exactly one sliding-thumb element exists — under the active option
-    const thumbs = container.querySelectorAll(".bg-white.rounded-full");
+    // Exactly one sliding-thumb element exists — under the active option.
+    // The thumb is the aria-hidden absolute span injected only when active.
+    const thumbs = container.querySelectorAll('button > span[aria-hidden="true"].absolute.inset-0');
     expect(thumbs).toHaveLength(1);
   });
 

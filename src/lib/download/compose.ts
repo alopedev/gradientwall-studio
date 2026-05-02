@@ -1,4 +1,5 @@
 import { renderGradient } from "../gradient";
+import { renderNebulaToCanvas } from "../gradient/nebula-render";
 import type { RenderParams } from "../palettes";
 
 /**
@@ -27,15 +28,26 @@ export function paintWallpaper(
   opts: PaintOpts,
   canvasFactory: () => HTMLCanvasElement = () => document.createElement("canvas"),
 ): void {
-  renderGradient(canvas, {
-    w: opts.w,
-    h: opts.h,
-    colors: opts.colors,
-    style: opts.style,
-    blur: opts.blur,
-    seed: opts.seed,
-    lightAngle: opts.lightAngle,
-  });
+  if (opts.style === "nebula") {
+    renderNebulaToCanvas(canvas, {
+      w: opts.w,
+      h: opts.h,
+      colors: opts.colors,
+      seed: opts.seed,
+      density: opts.density,
+      lightAngle: opts.lightAngle,
+    });
+  } else {
+    renderGradient(canvas, {
+      w: opts.w,
+      h: opts.h,
+      colors: opts.colors,
+      style: opts.style,
+      blur: opts.blur,
+      seed: opts.seed,
+      lightAngle: opts.lightAngle,
+    });
+  }
   if (opts.grain && opts.grain > 0) {
     applyGrainOverlay(canvas, opts.grain, canvasFactory);
   }

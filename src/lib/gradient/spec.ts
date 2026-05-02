@@ -149,15 +149,33 @@ export type SpecOpts = Omit<RenderParams, "grain"> & {
  * Compute a GradientSpec from options. Pure, deterministic (given `seed`), no DOM.
  * This is the core product math — everything that makes a wallpaper "look right"
  * lives here, isolated from the Canvas renderer for snapshot-testability.
+ *
+ * Throws when `style === "nebula"` — Nebula is a WebGL one-shot rendered from
+ * `lib/gradient/nebula-render.ts`, not a Canvas2D layer stack. Callers that
+ * need to handle every style go through `paintWallpaper` (in `download/
+ * compose.ts`), which branches on style before reaching here.
  */
 export function buildGradientSpec(opts: SpecOpts): GradientSpec {
   const { w, h, colors, style, blur, seed, lightAngle } = opts;
+  if (style === "nebula") {
+    throw new Error(
+      "buildGradientSpec does not handle the Nebula style — render via paintWallpaper or renderNebulaToCanvas instead.",
+    );
+  }
+  // density=0.5 is the legacy operating point: it reproduces the historical
+  // hard-coded layer counts (mesh = colors.length, blobs = 14, liquid = 6,
+  // aurora = 2 bands per color). Existing snapshots and pre-density history
+  // items omit density → undefined → 0.5 → byte-identical output.
+  const density = opts.density ?? 0.5;
   const rand = mulberry32(seed);
   const blurPx = (blur / 100) * Math.min(w, h) * 0.35;
   const background = colors[0];
   const layers: Layer[] = [];
 
   if (style === "mesh") {
+    // Mesh is fixed at one radial per color — density does not change layer
+    // count; it would compete with the mask-driven 2..4 ramp. (Future: scale
+    // r or cluster offsets by density.)
     for (let i = 0; i < colors.length; i++) {
       const c = colors[i];
       const cx = (0.25 + rand() * 0.5) * w * (i % 2 === 0 ? 0.7 : 1.3) * 0.8 + (i % 2) * w * 0.3;
@@ -168,7 +186,8 @@ export function buildGradientSpec(opts: SpecOpts): GradientSpec {
       });
     }
   } else if (style === "blobs") {
-    const count = 14;
+    // density 0..1 maps to 7..21 blobs (density 0.5 → 14, the legacy count).
+    const count = Math.round(7 + density * 14);
     for (let i = 0; i < count; i++) {
       const c = colors[i % colors.length];
       const cx = rand() * w;

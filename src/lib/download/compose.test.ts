@@ -144,6 +144,38 @@ describe("paintWallpaper", () => {
     expect(lastBlur).toBeGreaterThanOrEqual(0);
     expect(overlayOp).toBeGreaterThan(lastBlur);
   });
+
+  it("does not throw and routes through the nebula path when style=nebula", () => {
+    const canvas = makeCanvasMock();
+    expect(() =>
+      paintWallpaper(
+        canvas,
+        { w: 200, h: 100, colors: COLORS, style: "nebula", blur: 48, seed: 1 },
+        canvasFactory,
+      ),
+    ).not.toThrow();
+    // Nebula path uses putImageData, never the radial gradient layer pipeline
+    expect(canvas._ctx.putImageData).toHaveBeenCalled();
+    expect(canvas._ctx.createRadialGradient).not.toHaveBeenCalled();
+    expect(canvas.width).toBe(200);
+    expect(canvas.height).toBe(100);
+  });
+
+  it("applies grain overlay after the nebula putImageData when grain > 0", () => {
+    const canvas = makeCanvasMock();
+    const ctx = canvas._ctx;
+    const overlayBefore = ctx.putImageData.mock.calls.length;
+    paintWallpaper(
+      canvas,
+      { w: 200, h: 100, colors: COLORS, style: "nebula", blur: 48, grain: 45, seed: 1 },
+      canvasFactory,
+    );
+    expect(ctx.putImageData).toHaveBeenCalled();
+    const overlayOpIdx = canvas._ops.findIndex((o) => o === "globalCompositeOperation=overlay");
+    expect(overlayOpIdx).toBeGreaterThanOrEqual(0);
+    // Verifies that putImageData (nebula paint) and grain overlay both ran
+    expect(ctx.putImageData.mock.calls.length).toBeGreaterThan(overlayBefore);
+  });
 });
 
 describe("composeWallpaper", () => {
