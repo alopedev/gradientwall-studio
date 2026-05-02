@@ -24,7 +24,7 @@ export function PillTabs<T extends string>({ options, value, onChange, labelFor 
   // tab groups on the same page don't animate into each other.
   const layoutId = useId();
   return (
-    <div className="tactile-recessed flex p-1 gap-1 rounded-full w-full">
+    <div className="tactile-recessed flex p-1 gap-1 rounded-full w-full overflow-hidden">
       {options.map((opt) => {
         const active = value === opt;
         return (

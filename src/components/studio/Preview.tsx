@@ -55,7 +55,8 @@ export function Preview() {
 
   return (
     <Framed offset={10} className="rounded-[2px] bg-[#0a0a0d] border border-white/8 min-h-[520px] overflow-hidden">
-      {/* Device pills: centered on mobile, top-left on md+. */}
+      {/* Device pills: centered on mobile, top-left on md+. Strictly aspect
+          ratio choice — Mockup lives separately as a viewing-mode toggle. */}
       <div
         className="absolute top-3.5 z-[3] flex gap-1.5 left-1/2 -translate-x-1/2 md:left-3.5 md:translate-x-0"
         role="tablist"
@@ -76,25 +77,38 @@ export function Preview() {
             </button>
           );
         })}
+      </div>
+
+      {/* Top-right cluster: resolution badge + iPhone-view toggle (mobile
+          aspect only). Centered on small screens, right-aligned on md+. The
+          toggle is intentionally a different shape from the device pills — a
+          dot-prefixed pill — so it doesn't read as another aspect-ratio
+          option, only as a viewing mode for the current mobile aspect. */}
+      <div className="absolute top-[52px] md:top-3.5 left-1/2 -translate-x-1/2 md:left-auto md:right-3.5 md:translate-x-0 z-[3] flex items-center gap-1.5">
+        <div className="rounded-full bg-black/55 border border-white/14 px-2.5 md:px-3 py-1 md:py-1.5 font-sans text-[10px] md:text-[11px] tracking-[0.08em] text-white/75 backdrop-blur-md whitespace-nowrap">
+          {DEVICE_SIZES[device].label}
+        </div>
         {device === "mobile" && (
           <button
             onClick={() => setMockupMode((v) => !v)}
             aria-pressed={mockupMode}
+            aria-label="Preview inside iPhone frame"
             title="Preview inside an iPhone frame (lock + home)"
-            className={`ml-1 rounded-full px-2.5 md:px-3 py-1.5 text-[10px] md:text-[11px] tracking-[0.1em] uppercase font-sans transition-colors duration-150 backdrop-blur-md ${
+            className={`inline-flex items-center gap-1.5 rounded-full backdrop-blur-md px-2.5 md:px-3 py-1 md:py-1.5 transition-[color,background-color,border-color] duration-150 font-sans text-[10px] md:text-[11px] tracking-[0.1em] uppercase border ${
               mockupMode
-                ? "bg-white text-[#07070a] border border-white"
-                : "bg-black/55 text-white/75 border border-white/14 hover:text-white"
+                ? "bg-white/12 text-white border-white/35"
+                : "bg-black/55 text-white/65 border-white/14 hover:text-white hover:border-white/25"
             }`}
           >
-            Mockup
+            <span
+              aria-hidden
+              className={`h-1.5 w-1.5 rounded-full transition-colors duration-150 ${
+                mockupMode ? "bg-white shadow-[0_0_4px_rgba(255,255,255,0.55)]" : "bg-white/30"
+              }`}
+            />
+            iPhone view
           </button>
         )}
-      </div>
-
-      {/* Info badge: top-right on md+, centered below device bar on mobile. */}
-      <div className="absolute top-[52px] md:top-3.5 left-1/2 -translate-x-1/2 md:left-auto md:right-3.5 md:translate-x-0 z-[3] rounded-full bg-black/55 border border-white/14 px-2.5 md:px-3 py-1 md:py-1.5 font-sans text-[10px] md:text-[11px] tracking-[0.08em] text-white/75 backdrop-blur-md whitespace-nowrap">
-        {DEVICE_SIZES[device].label}
       </div>
 
       {/* Stage — either the fit-to-aspect wallpaper or the dual-iPhone mockup.

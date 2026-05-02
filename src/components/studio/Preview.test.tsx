@@ -32,19 +32,19 @@ describe("<Preview />", () => {
   it("Mockup toggle is only visible when device=mobile", () => {
     render(<Preview />);
     // Default is desktop — mockup button hidden
-    expect(screen.queryByRole("button", { name: /mockup/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /preview inside iphone frame/i })).not.toBeInTheDocument();
     // Switch to mobile to reveal it
     fireEvent.click(screen.getByRole("button", { name: /mobile/i }));
-    expect(screen.getByRole("button", { name: /mockup/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /preview inside iphone frame/i })).toBeInTheDocument();
     // Switching back to desktop hides the mockup button
     fireEvent.click(screen.getByRole("button", { name: /desktop/i }));
-    expect(screen.queryByRole("button", { name: /mockup/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /preview inside iphone frame/i })).not.toBeInTheDocument();
   });
 
   it("Mockup toggle flips on click and renders dual iPhone chrome (big clock + Monday date)", async () => {
     render(<Preview />);
     fireEvent.click(screen.getByRole("button", { name: /mobile/i }));
-    const mockup = screen.getByRole("button", { name: /mockup/i });
+    const mockup = screen.getByRole("button", { name: /preview inside iphone frame/i });
     fireEvent.click(mockup);
     expect(mockup).toHaveAttribute("aria-pressed", "true");
     // The stage cross-fades in under AnimatePresence mode="wait" — wait for
@@ -56,7 +56,7 @@ describe("<Preview />", () => {
   it("pressing Escape while Mockup is active closes it (a11y)", () => {
     render(<Preview />);
     fireEvent.click(screen.getByRole("button", { name: /mobile/i }));
-    const mockup = screen.getByRole("button", { name: /mockup/i });
+    const mockup = screen.getByRole("button", { name: /preview inside iphone frame/i });
     fireEvent.click(mockup);
     expect(mockup).toHaveAttribute("aria-pressed", "true");
     fireEvent.keyDown(window, { key: "Escape" });
@@ -66,7 +66,7 @@ describe("<Preview />", () => {
   it("Escape when Mockup is already closed does nothing (no crash)", () => {
     render(<Preview />);
     fireEvent.click(screen.getByRole("button", { name: /mobile/i }));
-    const mockup = screen.getByRole("button", { name: /mockup/i });
+    const mockup = screen.getByRole("button", { name: /preview inside iphone frame/i });
     expect(mockup).toHaveAttribute("aria-pressed", "false");
     fireEvent.keyDown(window, { key: "Escape" });
     expect(mockup).toHaveAttribute("aria-pressed", "false");
