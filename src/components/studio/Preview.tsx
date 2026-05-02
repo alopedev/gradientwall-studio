@@ -108,28 +108,12 @@ export function Preview() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.35, ease: EASE }}
-              // pt-20 on mobile clears the device pills + info badge
-              // (pills row ~40px + badge 24px + 16px breathing room). Desktop
-              // keeps pt-0 because pills are top-left and don't overlap the
-              // horizontally-centered iPhones.
-              className="flex items-stretch justify-center gap-3 md:gap-6 h-full w-full max-w-full pt-20 md:pt-0"
+              // pt-20 on mobile clears the device pills + info badge.
+              // Desktop keeps pt-0 because pills are top-left and don't
+              // overlap the centered photo.
+              className="flex items-center justify-center h-full w-full max-w-full pt-20 md:pt-0"
             >
-              <m.div
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: EASE, delay: 0.05 }}
-                className="flex-1 flex items-center justify-center min-w-0 min-h-0"
-              >
-                <IPhoneMockup variant="lock" grain={grain} source={sharedMockupCanvas} />
-              </m.div>
-              <m.div
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: EASE, delay: 0.18 }}
-                className="flex-1 flex items-center justify-center min-w-0 min-h-0"
-              >
-                <IPhoneMockup variant="home" grain={grain} source={sharedMockupCanvas} />
-              </m.div>
+              <IPhoneMockup grain={grain} source={sharedMockupCanvas} />
             </m.div>
           ) : (
             <m.div

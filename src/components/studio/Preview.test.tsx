@@ -41,15 +41,15 @@ describe("<Preview />", () => {
     expect(screen.queryByRole("button", { name: /preview inside iphone frame/i })).not.toBeInTheDocument();
   });
 
-  it("Mockup toggle flips on click and renders dual iPhone chrome (big clock + Monday date)", async () => {
+  it("Mockup toggle flips on click and renders the iPhone mockup chrome (clock + Monday date)", async () => {
     render(<Preview />);
     fireEvent.click(screen.getByRole("button", { name: /mobile/i }));
     const mockup = screen.getByRole("button", { name: /preview inside iphone frame/i });
     fireEvent.click(mockup);
     expect(mockup).toHaveAttribute("aria-pressed", "true");
     // The stage cross-fades in under AnimatePresence mode="wait" — wait for
-    // the chrome (lock clock "9:41" × ≥ 2 and Monday date) to reveal.
-    await waitFor(() => expect(screen.getAllByText("9:41").length).toBeGreaterThanOrEqual(2), { timeout: 2000 });
+    // the chrome (clock "9:41" + Monday date) to reveal.
+    await waitFor(() => expect(screen.getByText("9:41")).toBeInTheDocument(), { timeout: 2000 });
     expect(screen.getByText(/Monday/i)).toBeInTheDocument();
   });
 
