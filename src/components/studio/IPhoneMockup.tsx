@@ -6,17 +6,23 @@ import { GrainOverlay } from "../ui/GrainOverlay";
 const MOCKUP_SRC = "/assets/deviceMockups/iPhoneMockup.png";
 
 /**
- * Screen rectangle inside the 1024×1024 PNG. Detected by flood-filling the
- * near-black region and finding its 4 extreme corners; the rotation comes
- * from the long side edges (less noisy than the short ones since the screen
- * has rounded corners). The phone in the photo tilts ~4.7° clockwise from
- * vertical. Re-measure if the asset is replaced.
+ * Screen rectangle inside the 1024×1024 PNG. Derived by `find_screen_corners.py`:
+ * 1. Flood-fill the near-black region of the PNG.
+ * 2. Rotation θ from the long side edges (more reliable than top/bottom
+ *    because the side edges are 600+ px and the rounded-corner inset is
+ *    proportionally smaller).
+ * 3. W and H back-solved from the dark region's axis-aligned bounding box
+ *    via the closed-form solution to `AABB_w = W·cosθ + H·sinθ` and
+ *    `AABB_h = W·sinθ + H·cosθ`. AABB extremes lie on the rect's straight
+ *    edges (tangent points), not on the rounded corners, so they're robust
+ *    to corner radius — unlike picking corner-pixel extremes.
+ * Re-run the script if the asset is replaced.
  */
 const SCREEN_RECT = {
-  left: "38.84%",
-  top: "19.20%",
-  width: "25.59%",
-  height: "60.47%",
+  left: "37.50%",
+  top: "19.02%",
+  width: "28.23%",
+  height: "60.99%",
   borderRadius: "7%",
   rotate: "4.68deg",
 } as const;
