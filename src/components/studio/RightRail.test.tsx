@@ -32,21 +32,24 @@ describe("<RightRail />", () => {
     expect(useConfigStore.getState().style).toBe("liquid");
   });
 
-  it("nudging the softness slider with ArrowRight updates blur", () => {
+  it("nudging the softness slider with ArrowRight updates blur", async () => {
     const before = useConfigStore.getState().blur;
     render(<RightRail />);
     const sliders = screen.getAllByRole("slider");
     sliders[0]!.focus();
     fireEvent.keyDown(sliders[0]!, { key: "ArrowRight" });
+    // setBlur is rAF-batched (slider-drag perf); wait one frame for the flush.
+    await new Promise<void>((r) => requestAnimationFrame(() => r()));
     expect(useConfigStore.getState().blur).toBe(before + 1);
   });
 
-  it("nudging the grain slider with ArrowRight updates grain", () => {
+  it("nudging the grain slider with ArrowRight updates grain", async () => {
     const before = useConfigStore.getState().grain;
     render(<RightRail />);
     const sliders = screen.getAllByRole("slider");
     sliders[1]!.focus();
     fireEvent.keyDown(sliders[1]!, { key: "ArrowRight" });
+    await new Promise<void>((r) => requestAnimationFrame(() => r()));
     expect(useConfigStore.getState().grain).toBe(before + 1);
   });
 

@@ -39,6 +39,9 @@ function makeCanvasMock() {
     createPattern: vi.fn(() => ({ _kind: "pattern" })),
     createImageData: vi.fn((w: number, h: number) => ({ data: new Uint8ClampedArray(w * h * 4), width: w, height: h })),
     putImageData: vi.fn(),
+    drawImage: vi.fn(() => ops.push("drawImage")),
+    set imageSmoothingEnabled(_v: boolean) {},
+    set imageSmoothingQuality(_v: string) {},
   };
   const canvas = {
     width: 0,
@@ -154,27 +157,28 @@ describe("paintWallpaper", () => {
         canvasFactory,
       ),
     ).not.toThrow();
-    // Nebula path uses putImageData, never the radial gradient layer pipeline
-    expect(canvas._ctx.putImageData).toHaveBeenCalled();
+    // Nebula path renders to a downsampled offscreen canvas (via factory) and
+    // upscales to the main canvas via drawImage. The radial gradient layer
+    // pipeline used by mesh/blobs/liquid/aurora must never fire.
+    expect(canvas._ctx.drawImage).toHaveBeenCalled();
     expect(canvas._ctx.createRadialGradient).not.toHaveBeenCalled();
     expect(canvas.width).toBe(200);
     expect(canvas.height).toBe(100);
   });
 
-  it("applies grain overlay after the nebula putImageData when grain > 0", () => {
+  it("applies grain overlay after the nebula upscale when grain > 0", () => {
     const canvas = makeCanvasMock();
-    const ctx = canvas._ctx;
-    const overlayBefore = ctx.putImageData.mock.calls.length;
     paintWallpaper(
       canvas,
       { w: 200, h: 100, colors: COLORS, style: "nebula", blur: 48, grain: 45, seed: 1 },
       canvasFactory,
     );
-    expect(ctx.putImageData).toHaveBeenCalled();
-    const overlayOpIdx = canvas._ops.findIndex((o) => o === "globalCompositeOperation=overlay");
-    expect(overlayOpIdx).toBeGreaterThanOrEqual(0);
-    // Verifies that putImageData (nebula paint) and grain overlay both ran
-    expect(ctx.putImageData.mock.calls.length).toBeGreaterThan(overlayBefore);
+    // drawImage paints the nebula upscale; grain overlay then sets composite
+    // to "overlay" and fills with the noise pattern. Order matters.
+    const drawImageIdx = canvas._ops.indexOf("drawImage");
+    const overlayIdx = canvas._ops.indexOf("globalCompositeOperation=overlay");
+    expect(drawImageIdx).toBeGreaterThanOrEqual(0);
+    expect(overlayIdx).toBeGreaterThan(drawImageIdx);
   });
 });
 

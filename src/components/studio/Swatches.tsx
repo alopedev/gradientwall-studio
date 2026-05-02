@@ -46,7 +46,7 @@ export function Swatches() {
             key={i}
             data-slot-index={i}
             data-active={isActive ? "true" : "false"}
-            className="relative aspect-square"
+            className="relative aspect-[4/3]"
           >
             {isActive ? (
               <Popover>

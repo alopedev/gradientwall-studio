@@ -97,7 +97,7 @@ export function LightDial({ value, onChange, size = 72 }: Props) {
         }}
       >
         <span
-          className="absolute inset-x-0 top-0 mx-auto h-2 w-2 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.55)]"
+          className="absolute inset-x-0 top-0 mx-auto h-2 w-2 rounded-full bg-white shadow-[0_0_4px_rgba(255,255,255,0.4)]"
           style={{ marginLeft: "auto", marginRight: "auto", transform: "translate(-2px, -3px)" }}
         />
         <span className="absolute left-1/2 top-1.5 h-full w-px -translate-x-1/2 bg-white/65" />

@@ -32,7 +32,7 @@ export const Slider = React.forwardRef<
       className={cn(
         "block h-4 w-4 rounded-full outline-none",
         "bg-gradient-to-b from-white to-[#d9d9d9]",
-        "shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-1px_0_rgba(0,0,0,0.25),0_1px_0_rgba(255,255,255,0.06),0_3px_8px_rgba(0,0,0,0.55),0_0_0_1px_rgba(0,0,0,0.4)]",
+        "shadow-[inset_0_1px_0_rgba(255,255,255,0.85),inset_0_-1px_0_rgba(0,0,0,0.22),0_1px_0_rgba(255,255,255,0.04),0_2px_4px_rgba(0,0,0,0.5),0_0_0_1px_rgba(0,0,0,0.4)]",
         "transition-transform duration-150 ease-out hover:scale-[1.08] active:scale-[0.96]",
         "focus-visible:ring-2 focus-visible:ring-[color:var(--color-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--color-surface-1)]",
         "disabled:pointer-events-none disabled:opacity-50",

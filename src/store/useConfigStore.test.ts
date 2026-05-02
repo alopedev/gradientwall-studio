@@ -18,14 +18,17 @@ describe("useConfigStore", () => {
     expect(s.grain).toBe(45);
   });
 
-  it("setDevice / setStyle / setBlur / setGrain are single-key mutations", () => {
+  it("setDevice / setStyle / setBlur / setGrain are single-key mutations", async () => {
     useConfigStore.getState().setDevice("desktop");
     expect(useConfigStore.getState().device).toBe("desktop");
     useConfigStore.getState().setStyle("blobs");
     expect(useConfigStore.getState().style).toBe("blobs");
+    // setBlur / setGrain go through an rAF batcher (slider drags coalesce
+    // into one render per frame); flush before reading.
     useConfigStore.getState().setBlur(72);
-    expect(useConfigStore.getState().blur).toBe(72);
     useConfigStore.getState().setGrain(12);
+    await new Promise<void>((r) => requestAnimationFrame(() => r()));
+    expect(useConfigStore.getState().blur).toBe(72);
     expect(useConfigStore.getState().grain).toBe(12);
   });
 

@@ -49,6 +49,18 @@ describe("computeNebulaImageData", () => {
     expect(omitted).toEqual(half);
   });
 
+  it("different lightAngle values produce different output (vignette shifts)", () => {
+    const north = computeNebulaImageData(baseParams({ lightAngle: 0 }));
+    const south = computeNebulaImageData(baseParams({ lightAngle: 180 }));
+    expect(north).not.toEqual(south);
+  });
+
+  it("lightAngle undefined matches lightAngle absent (no regression)", () => {
+    const omitted = computeNebulaImageData(baseParams({ lightAngle: undefined }));
+    const absent = computeNebulaImageData(baseParams());
+    expect(omitted).toEqual(absent);
+  });
+
   it("warm-toned palette produces redder average than blue-toned palette (same seed)", () => {
     const cool = computeNebulaImageData(baseParams({ colors: ["#000080", "#0044aa", "#0088ff", "#88ddff"] }));
     const warm = computeNebulaImageData(baseParams({ colors: ["#330000", "#aa3300", "#ff5500", "#ffaa55"] }));

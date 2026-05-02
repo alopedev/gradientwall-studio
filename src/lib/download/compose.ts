@@ -29,14 +29,19 @@ export function paintWallpaper(
   canvasFactory: () => HTMLCanvasElement = () => document.createElement("canvas"),
 ): void {
   if (opts.style === "nebula") {
-    renderNebulaToCanvas(canvas, {
-      w: opts.w,
-      h: opts.h,
-      colors: opts.colors,
-      seed: opts.seed,
-      density: opts.density,
-      lightAngle: opts.lightAngle,
-    });
+    renderNebulaToCanvas(
+      canvas,
+      {
+        w: opts.w,
+        h: opts.h,
+        colors: opts.colors,
+        seed: opts.seed,
+        density: opts.density,
+        lightAngle: opts.lightAngle,
+        blur: opts.blur,
+      },
+      canvasFactory,
+    );
   } else {
     renderGradient(canvas, {
       w: opts.w,

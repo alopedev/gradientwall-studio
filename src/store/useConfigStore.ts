@@ -66,7 +66,46 @@ const freshMask = (): ActiveMask => [...ALL_ACTIVE] as ActiveMask;
 
 const clamp01 = (n: number) => (n < 0 ? 0 : n > 1 ? 1 : n);
 
-export const useConfigStore = create<ConfigState>()((set) => ({
+/**
+ * rAF-coalesced setter helper. Slider/dial drags emit dozens of `onChange`
+ * events per second; without batching, every event triggers a zustand update,
+ * a `useRenderParams` recompute and a canvas repaint. Coalescing collapses all
+ * patches that arrive within a frame into a single `set()` call so we paint
+ * at most once per rAF tick. Synchronous reads via `useConfigStore.getState()`
+ * remain consistent because the patch is flushed within the same animation
+ * frame the browser is about to render.
+ *
+ * Falls back to immediate `set()` when `requestAnimationFrame` is unavailable
+ * (jsdom node-env tests, SSR) so no test setup is required.
+ */
+function makeRafBatcher(set: (patch: Partial<ConfigState>) => void) {
+  let pending: Partial<ConfigState> | null = null;
+  let scheduled = false;
+  const hasRAF = typeof requestAnimationFrame === "function";
+  const flush = () => {
+    scheduled = false;
+    if (pending) {
+      const p = pending;
+      pending = null;
+      set(p);
+    }
+  };
+  return (patch: Partial<ConfigState>) => {
+    if (!hasRAF) {
+      set(patch);
+      return;
+    }
+    pending = pending ? { ...pending, ...patch } : { ...patch };
+    if (!scheduled) {
+      scheduled = true;
+      requestAnimationFrame(flush);
+    }
+  };
+}
+
+export const useConfigStore = create<ConfigState>()((set) => {
+  const rafSet = makeRafBatcher((patch) => set(patch));
+  return {
   device: "desktop",
   colors: [...PALETTES[0].colors] as Colors4,
   active: freshMask(),
@@ -96,11 +135,13 @@ export const useConfigStore = create<ConfigState>()((set) => ({
       return { active: next };
     }),
   setStyle: (s) => set({ style: s }),
-  setBlur: (n) => set({ blur: n }),
-  setGrain: (n) => set({ grain: n }),
+  // Slider/dial setters route through the rAF batcher so a fast drag fires at
+  // most one render per frame instead of one per pointermove event.
+  setBlur: (n) => rafSet({ blur: n }),
+  setGrain: (n) => rafSet({ grain: n }),
   setSeed: (n) => set({ seed: n & 0xffff }),
-  setLightAngle: (deg) => set({ lightAngle: ((deg % 360) + 360) % 360 }),
-  setDensity: (n) => set({ density: clamp01(n) }),
+  setLightAngle: (deg) => rafSet({ lightAngle: ((deg % 360) + 360) % 360 }),
+  setDensity: (n) => rafSet({ density: clamp01(n) }),
   reshuffle: () => set({ seed: randomSeed() }),
   randomize: () =>
     set({
@@ -111,7 +152,8 @@ export const useConfigStore = create<ConfigState>()((set) => ({
       lightAngle: Math.floor(Math.random() * 360),
       density: Math.random(),
     }),
-}));
+  };
+});
 
 /**
  * Pure resolver — builds a renderer-ready `RenderParams` from the config
