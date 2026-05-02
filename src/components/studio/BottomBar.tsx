@@ -35,7 +35,7 @@ export function BottomBar() {
             reshuffle();
             setSpins((s) => s + 1);
           }}
-          className="inline-flex items-center gap-2 rounded-[2px] border border-white/14 px-3 py-1.5 font-sans text-[11px] tracking-[0.14em] uppercase text-white/75 transition-colors duration-150 hover:border-white/30 hover:text-white"
+          className="tactile inline-flex items-center gap-2 rounded-[2px] px-3 py-1.5 font-sans text-[11px] tracking-[0.14em] uppercase text-white/85 hover:text-white"
         >
           <m.span
             aria-hidden
@@ -53,7 +53,7 @@ export function BottomBar() {
         <button
           type="button"
           onClick={save}
-          className="inline-flex items-center rounded-[2px] border border-white/14 px-3 py-1.5 font-sans text-[11px] tracking-[0.14em] uppercase text-white/75 transition-colors duration-150 hover:border-white/30 hover:text-white"
+          className="tactile inline-flex items-center rounded-[2px] px-3 py-1.5 font-sans text-[11px] tracking-[0.14em] uppercase text-white/85 hover:text-white"
         >
           Save
         </button>
@@ -72,7 +72,7 @@ export function BottomBar() {
                 setDownloadStatus("idle");
               }
             }}
-            className="inline-flex items-center gap-2 rounded-[2px] bg-[#f8f8f8] text-[#171717] px-3.5 py-2 font-sans text-[11px] font-medium tracking-[0.14em] uppercase transition-colors duration-150 hover:bg-white disabled:opacity-80 disabled:cursor-wait focus-ring"
+            className="inline-flex items-center gap-2 rounded-[2px] bg-gradient-to-b from-white to-[#e6e6e6] text-[#171717] px-3.5 py-2 font-sans text-[11px] font-medium tracking-[0.14em] uppercase shadow-[inset_0_1px_0_rgba(255,255,255,0.95),inset_0_-1px_0_rgba(0,0,0,0.18),0_1px_0_rgba(255,255,255,0.05),0_4px_10px_rgba(0,0,0,0.55),0_0_0_1px_rgba(0,0,0,0.4)] transition-all duration-150 hover:from-white hover:to-white active:translate-y-[0.5px] disabled:opacity-80 disabled:cursor-wait focus-ring"
           >
             {downloadStatus === "downloading" ? (
               <>

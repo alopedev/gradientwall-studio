@@ -50,10 +50,30 @@ export function RightRail() {
   return (
     <aside
       aria-label="Studio controls"
-      className="rounded-[2px] border border-white/10 bg-[color:var(--color-surface-1)] shadow-[0_24px_60px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.06)] flex flex-col overflow-hidden"
+      className="relative flex flex-col gap-2.5 p-2.5 rounded-[2px] bg-[color:var(--color-surface-0)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_28px_60px_rgba(0,0,0,0.5)] overflow-hidden"
     >
-      <Accordion type="multiple" defaultValue={["source", "style", "effects"]} className="w-full">
-        <Section index="01" value="source" title="Source">
+      {/* Atmosphere bloom — single low-opacity radial behind the tiles, in
+          accent hue, very faint. Reads as a distant light source warming
+          the rail without competing with the canvas preview. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-[20%] left-1/2 -translate-x-1/2 h-[70%] w-[140%] opacity-70"
+        style={{
+          background:
+            "radial-gradient(60% 50% at 50% 0%, rgba(255, 59, 48, 0.05), transparent 70%)",
+        }}
+      />
+      <Accordion
+        type="multiple"
+        defaultValue={["source", "style", "effects"]}
+        className="relative z-[1] flex flex-col gap-2.5"
+      >
+        <Section
+          index="01"
+          value="source"
+          title="Source"
+          hint={sourceLabel(activeTab)}
+        >
           <div className="flex flex-col gap-3.5">
             <PillTabs options={SOURCE_TABS} value={activeTab} onChange={setActiveTab} labelFor={sourceLabel} />
             {activeTab === "picker" ? (
@@ -75,9 +95,8 @@ export function RightRail() {
           </div>
         </Section>
 
-        <Section index="02" value="style" title="Style">
+        <Section index="02" value="style" title="Style" hint={style}>
           <div className="flex flex-col gap-3.5">
-            <LabelRow left="Composition" right={style} />
             <PillTabs options={STYLES} value={style} onChange={(s: Style) => setStyle(s)} />
           </div>
         </Section>
@@ -115,29 +134,34 @@ function Section({
   index,
   value,
   title,
+  hint,
   children,
 }: {
   index: string;
   value: string;
   title: string;
+  hint?: string;
   children: React.ReactNode;
 }) {
   return (
     <AccordionItem
       value={value}
-      className="border-b border-white/8 last:border-b-0 px-4 data-[state=open]:bg-[color:var(--color-surface-2)]/40"
+      className="instrument-tile px-4 border-b-0 group/tile data-[state=closed]:pb-0 data-[state=open]:pb-4"
     >
-      <AccordionTrigger className="py-4 px-0">
-        <span className="flex items-center gap-3">
-          <span className="inline-flex items-center justify-center h-5 w-5 rounded-[2px] border border-white/12 bg-[color:var(--color-surface-3)] font-sans text-[9px] tracking-[0.06em] text-white/55">
-            {index}
-          </span>
-          <span className="font-sans text-[10px] tracking-[0.22em] uppercase text-white/55 group-data-[state=open]:text-white">
+      <AccordionTrigger className="py-3.5 px-0 hover:no-underline">
+        <span className="flex flex-1 items-center gap-3 min-w-0">
+          <span className="instrument-chip flex-shrink-0">{index}</span>
+          <span className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/55 group-data-[state=open]/tile:text-white/95 transition-colors">
             {title}
           </span>
+          {hint ? (
+            <span className="ml-auto mr-2 font-serif italic text-white/55 text-[13px] leading-none truncate max-w-[42%] capitalize">
+              {hint}
+            </span>
+          ) : null}
         </span>
       </AccordionTrigger>
-      <AccordionContent className="pb-5 pt-1 px-0">{children}</AccordionContent>
+      <AccordionContent className="pt-1 pb-0 px-0">{children}</AccordionContent>
     </AccordionItem>
   );
 }

@@ -26,6 +26,7 @@
      bg up four steps; enough granularity to express hierarchy in dense
      panels (Studio right-rail, ColorHUD popover, history grid) without
      feeling washed-out. */
+  --color-surface-0: #131317;
   --color-surface-1: #1a1a1f;
   --color-surface-2: #222228;
   --color-surface-3: #2c2c33;
@@ -33,6 +34,37 @@
 
   --radius-sharp: 2px;
   --radius-glass: 14px;
+
+  /* Tactile elevation stack — adapted from the keyboard-key shadow pattern.
+     The pair (inset top white highlight + inset bottom black + outer drop +
+     hairline ring) makes a small button feel physically pressable on dark
+     surfaces. Used by Studio control buttons, active pill tabs, slider thumb. */
+  --shadow-tactile:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.45),
+    0 1px 0 rgba(255, 255, 255, 0.04),
+    0 2px 6px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
+  --shadow-tactile-active:
+    inset 0 1px 2px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+  /* Recessed surface — for slider tracks and any area meant to read as
+     "carved into" the panel. Pure inverse of tactile: deep inset shadow,
+     no outer drop. */
+  --shadow-recessed:
+    inset 0 2px 4px rgba(0, 0, 0, 0.55),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.4);
+  /* Instrument tile — elevation for a single panel section. Subtler than
+     tactile: meant to read as a stratified surface, not a pressable
+     element. Outer drop is shallow; the 1px white inset top is what
+     separates it from the rail beneath. */
+  --shadow-instrument:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+    0 1px 0 rgba(0, 0, 0, 0.4),
+    0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 /* =================== Base (wrapped so utilities win) =================== */
@@ -125,6 +157,70 @@ body::before {
   background: rgb(7 7 10 / 0.4);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+}
+
+/* =================== Studio tactility =================== */
+
+/* Pressable element on a dark panel: small button, active pill tab, slider
+   thumb. Combines the inset highlight/shadow pair with a subtle outer drop
+   so the element reads as a physical key sitting on the surface, not a
+   flat rectangle painted on it. Hover lifts the highlight; :active sinks
+   the element via --shadow-tactile-active. */
+@utility tactile {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  box-shadow: var(--shadow-tactile);
+  transition:
+    box-shadow 200ms ease,
+    background 200ms ease,
+    transform 120ms ease;
+  &:hover {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  }
+  &:active {
+    box-shadow: var(--shadow-tactile-active);
+    transform: translateY(0.5px);
+  }
+}
+
+/* Recessed surface — slider tracks, "carved" inputs. Reads as if the
+   element is sunken into the panel. Inverse of tactile. */
+@utility tactile-recessed {
+  background: rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-recessed);
+}
+
+/* Instrument tile — one section in a console-style panel. Stratifies the
+   accordion: each open Section becomes its own "module" with its own
+   elevation, instead of being just a region inside a flat container. */
+@utility instrument-tile {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0)) ,
+    var(--color-surface-1);
+  box-shadow: var(--shadow-instrument);
+  border-radius: var(--radius-sharp);
+}
+
+/* Numeric chip used as the leading indicator of an instrument tile
+   (01 / 02 / 03). Renders as an etched, slightly recessed plate — gives
+   the section a console/synth label character instead of a UI badge. */
+@utility instrument-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 22px;
+  padding: 0 6px;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: rgba(255, 255, 255, 0.85);
+  background: var(--color-surface-0);
+  border-radius: var(--radius-sharp);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 /* Accent focus ring used on every keyboard-reachable primary action

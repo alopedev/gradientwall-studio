@@ -24,7 +24,7 @@ export function PillTabs<T extends string>({ options, value, onChange, labelFor 
   // tab groups on the same page don't animate into each other.
   const layoutId = useId();
   return (
-    <div className="flex p-1 gap-1 rounded-full liquid-subtle w-full">
+    <div className="tactile-recessed flex p-1 gap-1 rounded-full w-full">
       {options.map((opt) => {
         const active = value === opt;
         return (
@@ -39,7 +39,8 @@ export function PillTabs<T extends string>({ options, value, onChange, labelFor 
             {active && (
               <m.span
                 layoutId={layoutId}
-                className="absolute inset-0 bg-white rounded-full"
+                aria-hidden
+                className="absolute inset-0 rounded-full bg-gradient-to-b from-white to-[#d9d9d9] shadow-[inset_0_1px_0_rgba(255,255,255,0.95),inset_0_-1px_0_rgba(0,0,0,0.18),0_1px_0_rgba(255,255,255,0.05),0_3px_8px_rgba(0,0,0,0.5),0_0_0_1px_rgba(0,0,0,0.35)]"
                 transition={{ type: "spring", stiffness: 500, damping: 40 }}
               />
             )}
