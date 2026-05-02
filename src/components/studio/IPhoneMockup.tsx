@@ -6,19 +6,19 @@ import { GrainOverlay } from "../ui/GrainOverlay";
 const MOCKUP_SRC = "/assets/deviceMockups/iPhoneMockup.png";
 
 /**
- * Screen rectangle inside the 1024×1024 PNG, expressed as percentages of
- * the image box. The PNG is a photograph of a hand holding an iPhone with
- * a black screen — these values position the live wallpaper canvas exactly
- * over that black region. Tuned visually; if the asset is replaced, these
- * need re-measuring.
+ * Screen rectangle inside the 1024×1024 PNG. Detected by flood-filling the
+ * near-black region and finding its 4 extreme corners; the rotation comes
+ * from the long side edges (less noisy than the short ones since the screen
+ * has rounded corners). The phone in the photo tilts ~4.7° clockwise from
+ * vertical. Re-measure if the asset is replaced.
  */
 const SCREEN_RECT = {
-  left: "31.5%",
-  top: "13.5%",
-  width: "30.5%",
-  height: "63%",
-  // iPhone screen rounded corners — small radius to match the device.
-  borderRadius: "8%",
+  left: "38.84%",
+  top: "19.20%",
+  width: "25.59%",
+  height: "60.47%",
+  borderRadius: "7%",
+  rotate: "4.68deg",
 } as const;
 
 interface Props {
@@ -56,7 +56,8 @@ export function IPhoneMockup({ grain, source, colors, style, blur, seed }: Props
         className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
       />
       {/* Wallpaper screen + lock chrome — front layer, masked to the screen
-          rect so the bezel/hand/desk in the photograph stay untouched. */}
+          rect (and rotated to match the phone's tilt in the photograph) so
+          the bezel/hand/desk stay untouched. */}
       <div
         className="absolute overflow-hidden"
         style={{
@@ -65,6 +66,8 @@ export function IPhoneMockup({ grain, source, colors, style, blur, seed }: Props
           width: SCREEN_RECT.width,
           height: SCREEN_RECT.height,
           borderRadius: SCREEN_RECT.borderRadius,
+          transform: `rotate(${SCREEN_RECT.rotate})`,
+          transformOrigin: "center",
         }}
       >
         {source !== undefined ? (
