@@ -25,11 +25,11 @@ const PNG_CORNERS = {
 } as const;
 const PNG_AABB = { minX: 359, minY: 184, maxX: 698, maxY: 830 } as const;
 
-// `detectScreenRect` enforces the CSS-CW-positive rotation convention so the
-// transform produced here always matches the photographic tilt — see the
-// regression tests in `src/lib/screenRect.test.ts`.
+// `detectScreenRect` enforces the CSS-CW-positive rotation convention and
+// estimates the corner radius from the corner-to-AABB inset, so the
+// transform + corner curvature both match the photographic tilt.
+// See `src/lib/screenRect.test.ts` for the convention-pinning tests.
 const SCREEN = detectScreenRect(PNG_CORNERS, PNG_AABB, PNG_SIZE.w, PNG_SIZE.h);
-const SCREEN_BORDER_RADIUS = "7%";
 
 interface Props {
   grain: number;
@@ -75,7 +75,9 @@ export function IPhoneMockup({ grain, source, colors, style, blur, seed }: Props
           top: `${SCREEN.topPct}%`,
           width: `${SCREEN.widthPct}%`,
           height: `${SCREEN.heightPct}%`,
-          borderRadius: SCREEN_BORDER_RADIUS,
+          // Dual-axis percentage (X / Y) keeps corners visually circular on a
+          // non-square element — single-value % would stretch them vertically.
+          borderRadius: `${SCREEN.borderRadiusXPct}% / ${SCREEN.borderRadiusYPct}%`,
           transform: `rotate(${SCREEN.rotateDeg}deg)`,
           transformOrigin: "center",
         }}

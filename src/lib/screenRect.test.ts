@@ -60,6 +60,29 @@ describe("detectScreenRect — CSS-CW sign convention", () => {
     expect(r.heightPct).toBeCloseTo(60.99, 1);
   });
 
+  it("detects a non-zero corner radius for the iPhone PNG (the screen has rounded corners)", () => {
+    const corners = {
+      tl: { x: 373, y: 203 },
+      tr: { x: 635, y: 205 },
+      bl: { x: 425, y: 820 },
+      br: { x: 682, y: 797 },
+    };
+    const aabb = { minX: 359, minY: 184, maxX: 698, maxY: 830 };
+    const r = detectScreenRect(corners, aabb, 1024, 1024);
+    // Phones have noticeably rounded corners (radius ≈ 5–7% of width).
+    // The two-axis split is necessary for circular pixel corners on a
+    // non-square element.
+    expect(r.borderRadiusXPct).toBeGreaterThan(8);
+    expect(r.borderRadiusXPct).toBeLessThan(20);
+    expect(r.borderRadiusYPct).toBeGreaterThan(3);
+    expect(r.borderRadiusYPct).toBeLessThan(10);
+    // The pixel radius (X·width = Y·height) should be self-consistent:
+    // both axes should agree on the same pixel radius (modulo floating noise).
+    const pxR_X = (r.borderRadiusXPct / 100) * (r.widthPct / 100) * 1024;
+    const pxR_Y = (r.borderRadiusYPct / 100) * (r.heightPct / 100) * 1024;
+    expect(pxR_X).toBeCloseTo(pxR_Y, 1);
+  });
+
   it("round-trip: applying CSS rotate to the produced rect reconstructs the input AABB", () => {
     // Synthetic SHARP-CORNER tilted rect — for sharp rects the AABB of the
     // 4 corners IS the rect's true AABB, so we can use aabbOfCorners().

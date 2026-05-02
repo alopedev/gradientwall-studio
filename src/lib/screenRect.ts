@@ -29,6 +29,15 @@ export interface ScreenRectCSS {
    * `transform: rotate(${rotateDeg}deg)` with `transform-origin: center`.
    */
   rotateDeg: number;
+  /**
+   * Horizontal corner radius as percentage of element WIDTH. Combined with
+   * `borderRadiusYPct` produces visually-circular corners regardless of the
+   * element's aspect ratio (CSS interprets `border-radius: X% / Y%` where
+   * X is % of width and Y is % of height).
+   */
+  borderRadiusXPct: number;
+  /** Vertical corner radius as percentage of element HEIGHT. */
+  borderRadiusYPct: number;
 }
 
 export interface AABB {
@@ -58,6 +67,11 @@ export interface AABB {
  *     AABB_w = W·|cosθ| + H·|sinθ|
  *     AABB_h = W·|sinθ| + H·|cosθ|
  *   Closed-form inversion uses cos(2θ) which stays positive for |θ| < 45°.
+ * - Corner radius is estimated from the average Euclidean distance between
+ *   each detected corner-extreme pixel and the rect's geometric corner. For
+ *   a rounded rect with radius r, the diagonal inset from the geometric
+ *   corner to the curve's tangent point at 45° is `r·(√2 − 1)` ≈ 0.414·r,
+ *   so `r = inset / (√2 − 1)`. Averaged across 4 corners to dampen noise.
  */
 export function detectScreenRect(
   corners: { tl: Corner; tr: Corner; bl: Corner; br: Corner },
@@ -89,12 +103,36 @@ export function detectScreenRect(
   const W = (aabbW * absC - aabbH * absS) / det;
   const H = (aabbH * absC - aabbW * absS) / det;
 
+  const leftPct = ((cx - W / 2) / imgW) * 100;
+  const topPct = ((cy - H / 2) / imgH) * 100;
+  const widthPct = (W / imgW) * 100;
+  const heightPct = (H / imgH) * 100;
+
+  // Compute the rect's geometric corners after applying the same CSS rotate
+  // we'll emit. The detected corner-extreme pixels sit on the rounded
+  // curves, INSIDE these geometric corners; the average diagonal inset
+  // tells us the corner radius.
+  const geom = rectCornersAfterCSSRotate(
+    { leftPct, topPct, widthPct, heightPct, rotateDeg: angleDeg },
+    imgW,
+    imgH,
+  );
+  const insetMean =
+    (Math.hypot(tl.x - geom.tl.x, tl.y - geom.tl.y) +
+      Math.hypot(tr.x - geom.tr.x, tr.y - geom.tr.y) +
+      Math.hypot(bl.x - geom.bl.x, bl.y - geom.bl.y) +
+      Math.hypot(br.x - geom.br.x, br.y - geom.br.y)) /
+    4;
+  const r = insetMean / (Math.SQRT2 - 1);
+
   return {
-    leftPct: ((cx - W / 2) / imgW) * 100,
-    topPct: ((cy - H / 2) / imgH) * 100,
-    widthPct: (W / imgW) * 100,
-    heightPct: (H / imgH) * 100,
+    leftPct,
+    topPct,
+    widthPct,
+    heightPct,
     rotateDeg: angleDeg,
+    borderRadiusXPct: (r / W) * 100,
+    borderRadiusYPct: (r / H) * 100,
   };
 }
 
