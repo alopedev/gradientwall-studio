@@ -1,31 +1,35 @@
 import { useEffect, useRef } from "react";
 import { useGradientCanvas } from "@/lib/useGradientCanvas";
 import type { Colors4, Style } from "@/lib/palettes";
+import { detectScreenRect } from "@/lib/screenRect";
 import { GrainOverlay } from "../ui/GrainOverlay";
 
 const MOCKUP_SRC = "/assets/deviceMockups/iPhoneMockup.png";
 
 /**
- * Screen rectangle inside the 1024×1024 PNG. Derived by `find_screen_corners.py`:
- * 1. Flood-fill the near-black region of the PNG.
- * 2. Rotation θ from the long side edges (more reliable than top/bottom
- *    because the side edges are 600+ px and the rounded-corner inset is
- *    proportionally smaller).
- * 3. W and H back-solved from the dark region's axis-aligned bounding box
- *    via the closed-form solution to `AABB_w = W·cosθ + H·sinθ` and
- *    `AABB_h = W·sinθ + H·cosθ`. AABB extremes lie on the rect's straight
- *    edges (tangent points), not on the rounded corners, so they're robust
- *    to corner radius — unlike picking corner-pixel extremes.
+ * Screen geometry measured against the 1024×1024 PNG by
+ * `/tmp/find_screen_corners.py`:
+ *  - `PNG_CORNERS` are tangent points on the rounded screen curves (used
+ *    only for the rotation angle — long-side edges).
+ *  - `PNG_AABB` is the axis-aligned bounding box of the flood-filled
+ *    near-black region (used for width/height; tangent to the rect's
+ *    straight edges, so robust to corner radius).
  * Re-run the script if the asset is replaced.
  */
-const SCREEN_RECT = {
-  left: "37.50%",
-  top: "19.02%",
-  width: "28.23%",
-  height: "60.99%",
-  borderRadius: "7%",
-  rotate: "4.68deg",
+const PNG_SIZE = { w: 1024, h: 1024 } as const;
+const PNG_CORNERS = {
+  tl: { x: 373, y: 203 },
+  tr: { x: 635, y: 205 },
+  bl: { x: 425, y: 820 },
+  br: { x: 682, y: 797 },
 } as const;
+const PNG_AABB = { minX: 359, minY: 184, maxX: 698, maxY: 830 } as const;
+
+// `detectScreenRect` enforces the CSS-CW-positive rotation convention so the
+// transform produced here always matches the photographic tilt — see the
+// regression tests in `src/lib/screenRect.test.ts`.
+const SCREEN = detectScreenRect(PNG_CORNERS, PNG_AABB, PNG_SIZE.w, PNG_SIZE.h);
+const SCREEN_BORDER_RADIUS = "7%";
 
 interface Props {
   grain: number;
@@ -67,12 +71,12 @@ export function IPhoneMockup({ grain, source, colors, style, blur, seed }: Props
       <div
         className="absolute overflow-hidden"
         style={{
-          left: SCREEN_RECT.left,
-          top: SCREEN_RECT.top,
-          width: SCREEN_RECT.width,
-          height: SCREEN_RECT.height,
-          borderRadius: SCREEN_RECT.borderRadius,
-          transform: `rotate(${SCREEN_RECT.rotate})`,
+          left: `${SCREEN.leftPct}%`,
+          top: `${SCREEN.topPct}%`,
+          width: `${SCREEN.widthPct}%`,
+          height: `${SCREEN.heightPct}%`,
+          borderRadius: SCREEN_BORDER_RADIUS,
+          transform: `rotate(${SCREEN.rotateDeg}deg)`,
           transformOrigin: "center",
         }}
       >
