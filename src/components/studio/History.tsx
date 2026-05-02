@@ -1,4 +1,4 @@
-import { useHistoryStore, loadHistoryItem, type HistoryItem } from "@/store";
+import { useHistoryStore, loadHistoryItem, removeHistoryItem, type HistoryItem } from "@/store";
 import { useFittedGradientCanvas } from "@/lib/useGradientCanvas";
 import { activeColors } from "@/lib/palettes";
 
@@ -17,16 +17,28 @@ export function History() {
             Nothing here yet — save your first gradient ↑
           </div>
         ) : (
-          history.map((h, i) => <HistoryCard key={i} item={h} onClick={() => loadHistoryItem(h)} />)
+          history.map((h, i) => (
+            <HistoryCard key={i} item={h} onClick={() => loadHistoryItem(h)} onDelete={() => removeHistoryItem(i)} />
+          ))
         )}
       </div>
     </div>
   );
 }
 
-function HistoryCard({ item, onClick }: { item: HistoryItem; onClick: () => void }) {
-  // History doesn't persist device — thumbnails use a 9:16 aspect.
-  // Canvas resolution is driven by the card's CSS box × DPR, capped at 2400 px.
+function HistoryCard({
+  item,
+  onClick,
+  onDelete,
+}: {
+  item: HistoryItem;
+  onClick: () => void;
+  onDelete: () => void;
+}) {
+  // Square thumbnails — history doesn't persist device, the wallpaper itself
+  // is composed at a portrait native ratio but the preview can sample any
+  // square crop without distorting the gradient (the renderer only cares
+  // about aspect for layer placement). Canvas resolution = box × DPR.
   // `item.active` may be undefined for items saved before the per-slot mask
   // landed — `activeColors` treats that as all four active.
   const ref = useFittedGradientCanvas(
@@ -42,11 +54,25 @@ function HistoryCard({ item, onClick }: { item: HistoryItem; onClick: () => void
   );
 
   return (
-    <button
-      onClick={onClick}
-      className="aspect-[9/16] rounded-[2px] liquid-subtle overflow-hidden cursor-pointer transition-[transform,border-color] duration-150 hover:-translate-y-0.5 hover:border-white/30 p-0"
-    >
-      <canvas ref={ref} className="block w-full h-full" />
-    </button>
+    <div className="relative aspect-square group/card">
+      <button
+        onClick={onClick}
+        className="absolute inset-0 rounded-[2px] liquid-subtle overflow-hidden cursor-pointer transition-[transform,border-color] duration-150 hover:-translate-y-0.5 hover:border-white/30 p-0"
+      >
+        <canvas ref={ref} className="block w-full h-full" />
+      </button>
+      <button
+        type="button"
+        aria-label="Delete saved gradient"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onDelete();
+        }}
+        className="absolute top-1 right-1 z-10 h-5 w-5 inline-flex items-center justify-center rounded-full backdrop-blur-sm bg-black/55 text-white/90 text-[12px] leading-none transition-[opacity,background-color] duration-150 opacity-0 group-hover/card:opacity-100 hover:bg-black/75 focus-visible:opacity-100"
+      >
+        ×
+      </button>
+    </div>
   );
 }

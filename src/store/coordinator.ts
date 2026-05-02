@@ -44,6 +44,17 @@ export function loadHistoryItem(h: HistoryItem): void {
 }
 
 /**
+ * Drop the history item at `index`. Out-of-range indices are silently
+ * ignored. Does not touch the live config — the user can keep working on
+ * whatever they're editing while pruning the archive.
+ */
+export function removeHistoryItem(index: number): void {
+  const { history, _setHistory } = useHistoryStore.getState();
+  if (index < 0 || index >= history.length) return;
+  _setHistory(history.filter((_, i) => i !== index));
+}
+
+/**
  * Apply a curated palette. No-op for locked palettes. On success, writes
  * colors to ConfigStore AND marks the palette as active in UIStore. The
  * active mask resets to all-four so the palette renders as designed.

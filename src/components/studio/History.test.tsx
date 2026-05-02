@@ -32,6 +32,22 @@ describe("<History />", () => {
     expect(canvases.length).toBeGreaterThanOrEqual(3);
   });
 
+  it("clicking a card's delete button removes that item without loading it", () => {
+    useHistoryStore.setState({
+      history: [item(1), item(2), item(3)],
+    });
+    render(<History />);
+    const deleteBtns = screen.getAllByRole("button", { name: /delete saved gradient/i });
+    expect(deleteBtns).toHaveLength(3);
+    // Capture config before clicking — load must NOT happen
+    const seedBefore = useConfigStore.getState().seed;
+    fireEvent.click(deleteBtns[1]!);
+    // Item 2 (seed 2) is gone; remaining seeds 1 and 3 in order
+    const remaining = useHistoryStore.getState().history;
+    expect(remaining.map((h) => h.seed)).toEqual([1, 3]);
+    expect(useConfigStore.getState().seed).toBe(seedBefore);
+  });
+
   it("clicking a card calls loadHistoryItem → config store picks up item's values", () => {
     useHistoryStore.setState({
       history: [
