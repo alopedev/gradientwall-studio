@@ -47,7 +47,10 @@ export function Hero() {
 
       <h1 className="absolute top-[clamp(80px,12vh,160px)] left-[clamp(24px,7vw,120px)] right-[clamp(24px,7vw,120px)] z-[3] m-0 font-sans font-bold uppercase tracking-[-0.045em] leading-[0.9] text-[color:var(--color-ink)] text-[clamp(56px,10vw,140px)]">
         <span className="block">Color,</span>
-        <span className="block">by design.</span>
+        <span className="block">
+          by{" "}
+          <span className="font-serif italic font-normal normal-case tracking-tight">design.</span>
+        </span>
       </h1>
 
       <Stamp className="top-[clamp(80px,10vh,120px)] right-[clamp(24px,7vw,120px)] z-[3]">

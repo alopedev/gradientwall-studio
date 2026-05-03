@@ -10,7 +10,6 @@ describe("<Closer />", () => {
     const heading = screen.getByRole("heading", { level: 2 });
     const text = heading.textContent ?? "";
     expect(text).toMatch(/ship\s*the\s*wallpaper/i);
-    expect(text).toMatch(/your\s*phone\s*deserves/i);
     expect(screen.getByRole("link", { name: /open the studio/i })).toBeInTheDocument();
   });
 

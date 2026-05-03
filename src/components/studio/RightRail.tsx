@@ -18,7 +18,7 @@ import { LightDial } from "./LightDial";
  * Output (device, download) lives in the BottomBar under the canvas — not
  * duplicated here. The seed and reshuffle also live in BottomBar.
  */
-const SOURCE_TABS = ["picker", "palettes", "image"] as const satisfies readonly SourceTab[];
+const SOURCE_TABS = ["palettes", "picker", "image"] as const satisfies readonly SourceTab[];
 const sourceLabel = (t: SourceTab) =>
   t === "picker" ? "Picker" : t === "palettes" ? "Palettes" : "Image";
 
@@ -29,17 +29,39 @@ const COLOR_COUNT_LABEL: Record<2 | 3 | 4, string> = {
 };
 
 export function RightRail() {
-  const { active, style, blur, grain, lightAngle, setStyle, setBlur, setGrain, setLightAngle } = useConfigStore(
+  const {
+    active,
+    style,
+    blur,
+    grain,
+    lightAngle,
+    brightness,
+    contrast,
+    vibrance,
+    setStyle,
+    setBlur,
+    setGrain,
+    setLightAngle,
+    setBrightness,
+    setContrast,
+    setVibrance,
+  } = useConfigStore(
     useShallow((s) => ({
       active: s.active,
       style: s.style,
       blur: s.blur,
       grain: s.grain,
       lightAngle: s.lightAngle,
+      brightness: s.brightness,
+      contrast: s.contrast,
+      vibrance: s.vibrance,
       setStyle: s.setStyle,
       setBlur: s.setBlur,
       setGrain: s.setGrain,
       setLightAngle: s.setLightAngle,
+      setBrightness: s.setBrightness,
+      setContrast: s.setContrast,
+      setVibrance: s.setVibrance,
     })),
   );
   const { activeTab, setActiveTab } = useUIStore(
@@ -83,7 +105,7 @@ export function RightRail() {
               </div>
             ) : activeTab === "palettes" ? (
               <div className="flex flex-col gap-3.5">
-                <LabelRow left="Curated" right="6 in the deck" />
+                <LabelRow left="Curated" right="10 in the deck" />
                 <Palettes />
               </div>
             ) : (
@@ -110,6 +132,36 @@ export function RightRail() {
             <div className="flex flex-col gap-3">
               <LabelRow left="Grain" right={`${grain}%`} />
               <Slider value={[grain]} min={0} max={100} step={1} onValueChange={(v) => setGrain(v[0]!)} />
+            </div>
+            <div className="flex flex-col gap-3">
+              <LabelRow left="Brightness" right={`${Math.round(brightness * 100)}%`} />
+              <Slider
+                value={[brightness]}
+                min={0.5}
+                max={1.5}
+                step={0.01}
+                onValueChange={(v) => setBrightness(v[0]!)}
+              />
+            </div>
+            <div className="flex flex-col gap-3">
+              <LabelRow left="Contrast" right={`${Math.round(contrast * 100)}%`} />
+              <Slider
+                value={[contrast]}
+                min={0.5}
+                max={1.5}
+                step={0.01}
+                onValueChange={(v) => setContrast(v[0]!)}
+              />
+            </div>
+            <div className="flex flex-col gap-3">
+              <LabelRow left="Vibrance" right={`${Math.round(vibrance * 100)}%`} />
+              <Slider
+                value={[vibrance]}
+                min={0.5}
+                max={1.5}
+                step={0.01}
+                onValueChange={(v) => setVibrance(v[0]!)}
+              />
             </div>
             <div className="flex items-start justify-between gap-4 pt-1">
               <div className="flex flex-col gap-1.5 flex-1 min-w-0">
