@@ -8,9 +8,11 @@ import { resetStores, flushRaf } from "@/test-utils";
 describe("<RightRail />", () => {
   beforeEach(resetStores);
 
-  it("renders all three accordion sections (Source, Style, Effects)", () => {
+  it("renders all three accordion sections (Source, Style, Effects) — Source open by default", () => {
     render(<RightRail />);
-    expect(screen.getByRole("button", { name: /01\s*source/i })).toBeInTheDocument();
+    const sourceTrigger = screen.getByRole("button", { name: /01\s*source/i });
+    expect(sourceTrigger).toBeInTheDocument();
+    expect(sourceTrigger).toHaveAttribute("aria-expanded", "true");
     expect(screen.getByRole("button", { name: /02\s*style/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /03\s*effects/i })).toBeInTheDocument();
   });
@@ -26,6 +28,8 @@ describe("<RightRail />", () => {
 
   it("clicking a style tab updates the config store", () => {
     render(<RightRail />);
+    // Single-open accordion now starts with Source expanded; open Style first.
+    fireEvent.click(screen.getByRole("button", { name: /02\s*style/i }));
     fireEvent.click(screen.getByRole("button", { name: "blobs" }));
     expect(useConfigStore.getState().style).toBe("blobs");
     fireEvent.click(screen.getByRole("button", { name: "liquid" }));
@@ -35,6 +39,7 @@ describe("<RightRail />", () => {
   it("nudging the softness slider with ArrowRight updates blur", async () => {
     const before = useConfigStore.getState().blur;
     render(<RightRail />);
+    fireEvent.click(screen.getByRole("button", { name: /03\s*effects/i }));
     const sliders = screen.getAllByRole("slider");
     sliders[0]!.focus();
     fireEvent.keyDown(sliders[0]!, { key: "ArrowRight" });
@@ -46,6 +51,7 @@ describe("<RightRail />", () => {
   it("nudging the grain slider with ArrowRight updates grain", async () => {
     const before = useConfigStore.getState().grain;
     render(<RightRail />);
+    fireEvent.click(screen.getByRole("button", { name: /03\s*effects/i }));
     const sliders = screen.getAllByRole("slider");
     sliders[1]!.focus();
     fireEvent.keyDown(sliders[1]!, { key: "ArrowRight" });
@@ -53,19 +59,18 @@ describe("<RightRail />", () => {
     expect(useConfigStore.getState().grain).toBe(before + 1);
   });
 
-  describe("FROM IMAGE tab", () => {
-    it("exposes a third Source tab labelled 'From image'", () => {
+  describe("Source tab — Use my photo button", () => {
+    it("exposes only two Source tabs (Palettes + Picker)", () => {
       render(<RightRail />);
-      expect(screen.getByRole("button", { name: /^image$/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /^palettes$/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /^picker$/i })).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /^image$/i })).not.toBeInTheDocument();
     });
 
-    it("switching to 'from image' hides the swatches/palettes UI and shows the upload affordance", () => {
+    it("inside the Picker tab, exposes a 'Use my photo' button", () => {
+      useUIStore.setState({ activeTab: "picker" });
       render(<RightRail />);
-      fireEvent.click(screen.getByRole("button", { name: /^image$/i }));
-      expect(useUIStore.getState().activeTab).toBe("image");
-      expect(screen.queryByText("Four colors")).not.toBeInTheDocument();
-      expect(screen.queryByText("Curated")).not.toBeInTheDocument();
-      expect(screen.getByLabelText(/upload an image to extract/i)).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /use my photo/i })).toBeInTheDocument();
     });
   });
 

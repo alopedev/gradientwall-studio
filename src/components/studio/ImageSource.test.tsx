@@ -12,8 +12,9 @@ const EXTRACTED: Colors4 = ["#001122", "#334455", "#667788", "#99aabb"];
 describe("<ImageSource />", () => {
   beforeEach(() => {
     resetStores();
-    // Ensure we start away from the picker tab so we can observe the auto-switch.
-    useUIStore.setState({ activeTab: "image" });
+    // Default ImageSource flow auto-switches to picker after success — start
+    // on palettes so we can observe the switch.
+    useUIStore.setState({ activeTab: "palettes" });
   });
 
   afterEach(() => vi.restoreAllMocks());
@@ -38,7 +39,7 @@ describe("<ImageSource />", () => {
     expect(useUIStore.getState().activeTab).toBe("picker");
   });
 
-  it("on extract error: surfaces the message and keeps the user in the image tab", async () => {
+  it("on extract error: surfaces the message and leaves tab/colors untouched", async () => {
     vi.spyOn(extractModule, "extractColorsFromFile").mockRejectedValue(new Error("bad pixels"));
     const initialColors = useConfigStore.getState().colors;
 
@@ -49,8 +50,21 @@ describe("<ImageSource />", () => {
     fireEvent.change(input, { target: { files: [file] } });
 
     await waitFor(() => expect(screen.getByText(/bad pixels/i)).toBeInTheDocument());
-    // Colors are untouched and we stayed on the image tab so the user can retry.
     expect(useConfigStore.getState().colors).toBe(initialColors);
-    expect(useUIStore.getState().activeTab).toBe("image");
+    expect(useUIStore.getState().activeTab).toBe("palettes");
+  });
+
+  it("when onComplete is provided: does not auto-switch tab, calls onComplete instead", async () => {
+    vi.spyOn(extractModule, "extractColorsFromFile").mockResolvedValue(EXTRACTED);
+    const onComplete = vi.fn();
+
+    render(<ImageSource onComplete={onComplete} />);
+    const input = screen.getByLabelText(/upload an image to extract/i) as HTMLInputElement;
+    const file = new File(["fake"], "test.png", { type: "image/png" });
+
+    fireEvent.change(input, { target: { files: [file] } });
+
+    await waitFor(() => expect(onComplete).toHaveBeenCalledTimes(1));
+    expect(useUIStore.getState().activeTab).toBe("palettes");
   });
 });

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export type SourceTab = "picker" | "palettes" | "image";
+export type SourceTab = "picker" | "palettes";
 
 /**
  * Ephemeral selection state for the studio shell — which source tab is
