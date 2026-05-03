@@ -16,13 +16,8 @@ export function Studio() {
           <span className="block mb-4 font-sans text-[11px] tracking-[0.22em] uppercase text-white/40">
             02 — The studio
           </span>
-          <h2 className="m-0 text-[clamp(40px,5.5vw,76px)] leading-[0.95]">
-            <span className="block font-sans font-bold uppercase tracking-[-0.03em] text-white">
-              Pick four colors.
-            </span>
-            <span className="block font-serif italic font-normal tracking-tight text-white/75 mt-1">
-              Let them breathe.
-            </span>
+          <h2 className="m-0 text-[clamp(40px,5.5vw,76px)] leading-[0.95] font-sans font-bold uppercase tracking-[-0.03em] text-white">
+            Pick four colors.
           </h2>
         </div>
         <p className="max-w-[42ch] text-[15px] text-white/75 font-sans font-light">

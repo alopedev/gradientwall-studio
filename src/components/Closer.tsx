@@ -101,13 +101,8 @@ export function Closer() {
           <span className="block mb-6 font-sans text-[11px] tracking-[0.22em] uppercase text-white/40">
             04 — Ship it
           </span>
-          <h2 className="m-0 text-[clamp(48px,10vw,160px)] leading-[0.95]">
-            <span className="block font-sans font-bold uppercase tracking-[-0.03em] text-white">
-              Ship the wallpaper
-            </span>
-            <span className="block font-serif italic font-normal tracking-tight text-white/85 mt-1">
-              your phone deserves.
-            </span>
+          <h2 className="m-0 text-[clamp(48px,10vw,160px)] leading-[0.95] font-sans font-bold uppercase tracking-[-0.03em] text-white">
+            Ship the wallpaper.
           </h2>
         </Reveal>
 

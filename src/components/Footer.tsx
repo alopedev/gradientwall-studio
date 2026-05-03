@@ -7,7 +7,7 @@ export function Footer() {
       <Reveal className="col-span-2 md:col-span-1">
         <div className="max-w-[18ch] leading-[0.98] tracking-[-0.03em] text-[clamp(28px,3.5vw,44px)]">
           <span className="block font-sans font-bold uppercase text-white">Small tools for</span>
-          <span className="block font-serif italic font-normal text-white/80 mt-1">calmer screens.</span>
+          <span className="block font-sans font-bold uppercase text-white/80 mt-1">calmer screens.</span>
         </div>
         <div className="mt-6 font-sans text-[11px] tracking-[0.12em] uppercase text-white/40">
           GRADIENTWALL · EST. 2026
