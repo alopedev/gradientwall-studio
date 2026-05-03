@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { LazyMotion, MotionConfig, AnimatePresence } from "motion/react";
 import { Nav } from "./components/Nav";
@@ -66,16 +66,32 @@ export default function App() {
 function RoutesShell() {
   const location = useLocation();
   return (
-    <AnimatePresence mode="wait" initial={false}>
-      <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/packs/:slug" element={<PackPage />} />
-        <Route path="/packs/:slug/success" element={<PackPurchaseSuccess />} />
-        <Route path="/recover" element={<RecoverForm />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </AnimatePresence>
+    <>
+      <ScrollToTop />
+      <AnimatePresence mode="wait" initial={false}>
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/packs/:slug" element={<PackPage />} />
+          <Route path="/packs/:slug/success" element={<PackPurchaseSuccess />} />
+          <Route path="/recover" element={<RecoverForm />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </AnimatePresence>
+    </>
   );
+}
+
+// Snap scroll to the top on every route change. Skipped when a hash is
+// present so HomePage's scroll-to-anchor effect (e.g. /#packs from PackPage's
+// back-link) wins. useLayoutEffect to reset before the new route paints —
+// avoids a flash of the new page mid-scroll.
+function ScrollToTop() {
+  const { pathname, hash } = useLocation();
+  useLayoutEffect(() => {
+    if (hash) return;
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [pathname, hash]);
+  return null;
 }
 
 function HomePage() {
