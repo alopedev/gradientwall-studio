@@ -83,10 +83,28 @@ export interface GradientConfig {
    * rather than a layer count.
    */
   density?: number;
+  /**
+   * Color-grading multipliers applied as a post-processing pass after the
+   * gradient (and before grain). Each defaults to `1` (identity). Range is
+   * UI-clamped to 0.5..1.5. Optional so legacy fixtures and pre-grading
+   * history items render byte-identical.
+   */
+  brightness?: number;
+  contrast?: number;
+  /**
+   * Vibrance — saturation with a softened curve so already-saturated colors
+   * don't blow out. Resolved at render time as `saturate(1 + (v - 1) * 0.6)`.
+   */
+  vibrance?: number;
 }
 
 /** Default light angle: top-right painterly convention. */
 export const DEFAULT_LIGHT_ANGLE = 135;
+
+/** Default color-grading values — identity (no visible effect). */
+export const DEFAULT_BRIGHTNESS = 1;
+export const DEFAULT_CONTRAST = 1;
+export const DEFAULT_VIBRANCE = 1;
 
 /**
  * Variable-length color ramp — `Colors4` after the user's per-slot active
@@ -120,6 +138,10 @@ export interface RenderParams {
    * pre-density history items render unchanged).
    */
   density?: number;
+  /** Color-grading multipliers, identity = 1. See `GradientConfig`. */
+  brightness?: number;
+  contrast?: number;
+  vibrance?: number;
 }
 
 /** Default density: midpoint reproduces the pre-density layer counts. */
@@ -138,5 +160,9 @@ export const PALETTES: Palette[] = [
   { name: "Forest", colors: ["#0b3d2e", "#1f8a70", "#bedb39", "#fff275"], locked: false },
   { name: "Nocturne", colors: ["#0a0a1a", "#1e1b4b", "#8b5cf6", "#f0abfc"], locked: false },
   { name: "Coast", colors: ["#012a4a", "#2a9df4", "#caf0f8", "#fefae0"], locked: false },
+  { name: "Mocha", colors: ["#3a2618", "#7c5a3f", "#c9a982", "#f4e8d8"], locked: false },
+  { name: "Velvet", colors: ["#1a0b2e", "#5b21b6", "#c026d3", "#fb7185"], locked: false },
+  { name: "Mercury", colors: ["#0f172a", "#475569", "#cbd5e1", "#f8fafc"], locked: false },
+  { name: "Cherry", colors: ["#2b0a0a", "#9f1239", "#f43f5e", "#fecdd3"], locked: false },
 ];
 

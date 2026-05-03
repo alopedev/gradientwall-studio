@@ -7,9 +7,9 @@ const INITIAL = useUIStore.getState();
 describe("useUIStore", () => {
   beforeEach(() => useUIStore.setState(INITIAL, true));
 
-  it("starts with activeTab=picker, activePalette=0", () => {
+  it("starts with activeTab=palettes, activePalette=0", () => {
     const s = useUIStore.getState();
-    expect(s.activeTab).toBe("picker");
+    expect(s.activeTab).toBe("palettes");
     expect(s.activePalette).toBe(0);
   });
 

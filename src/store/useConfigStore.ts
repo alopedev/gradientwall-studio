@@ -3,8 +3,11 @@ import { create } from "zustand";
 import {
   activeColors,
   ALL_ACTIVE,
+  DEFAULT_BRIGHTNESS,
+  DEFAULT_CONTRAST,
   DEFAULT_DENSITY,
   DEFAULT_LIGHT_ANGLE,
+  DEFAULT_VIBRANCE,
   MIN_ACTIVE_COLORS,
   PALETTES,
   STYLES,
@@ -25,10 +28,14 @@ import { randomColors } from "@/lib/gradient";
  * items predating lighting omit it), but the live store always carries a
  * concrete value, so we narrow it to required here.
  */
-export interface ConfigState extends Omit<GradientConfig, "lightAngle" | "density"> {
+export interface ConfigState
+  extends Omit<GradientConfig, "lightAngle" | "density" | "brightness" | "contrast" | "vibrance"> {
   device: Device;
   lightAngle: number;
   density: number;
+  brightness: number;
+  contrast: number;
+  vibrance: number;
   /**
    * Per-slot on/off over the four colors. A `false` entry removes that slot
    * from the rendered ramp so the wallpaper uses 2 or 3 colors instead of 4.
@@ -57,6 +64,10 @@ export interface ConfigState extends Omit<GradientConfig, "lightAngle" | "densit
   setLightAngle: (deg: number) => void;
   /** Set visual density 0..1 (clamped). 0.5 reproduces the legacy counts. */
   setDensity: (n: number) => void;
+  /** Color-grading multipliers, clamped to 0.5..1.5. Identity = 1. */
+  setBrightness: (n: number) => void;
+  setContrast: (n: number) => void;
+  setVibrance: (n: number) => void;
   reshuffle: () => void;
   randomize: () => void;
 }
@@ -65,9 +76,12 @@ const randomSeed = () => Math.floor(Math.random() * 65535);
 const freshMask = (): ActiveMask => [...ALL_ACTIVE] as ActiveMask;
 
 const clamp01 = (n: number) => (n < 0 ? 0 : n > 1 ? 1 : n);
+const clampGrade = (n: number) => (n < 0.5 ? 0.5 : n > 1.5 ? 1.5 : n);
 
 /** Numeric fields that are mutated repeatedly by slider/dial drags. */
-type RafPatch = Partial<Pick<ConfigState, "blur" | "grain" | "lightAngle" | "density">>;
+type RafPatch = Partial<
+  Pick<ConfigState, "blur" | "grain" | "lightAngle" | "density" | "brightness" | "contrast" | "vibrance">
+>;
 
 /**
  * rAF-coalesced setter helper. Slider/dial drags emit dozens of `onChange`
@@ -118,6 +132,9 @@ export const useConfigStore = create<ConfigState>()((set) => {
   seed: randomSeed(),
   lightAngle: DEFAULT_LIGHT_ANGLE,
   density: DEFAULT_DENSITY,
+  brightness: DEFAULT_BRIGHTNESS,
+  contrast: DEFAULT_CONTRAST,
+  vibrance: DEFAULT_VIBRANCE,
 
   setDevice: (d) => set({ device: d }),
   // A fresh palette invalidates any per-slot deactivation — reset the mask.
@@ -145,6 +162,9 @@ export const useConfigStore = create<ConfigState>()((set) => {
   setSeed: (n) => set({ seed: n & 0xffff }),
   setLightAngle: (deg) => rafSet({ lightAngle: ((deg % 360) + 360) % 360 }),
   setDensity: (n) => rafSet({ density: clamp01(n) }),
+  setBrightness: (n) => rafSet({ brightness: clampGrade(n) }),
+  setContrast: (n) => rafSet({ contrast: clampGrade(n) }),
+  setVibrance: (n) => rafSet({ vibrance: clampGrade(n) }),
   reshuffle: () => set({ seed: randomSeed() }),
   randomize: () =>
     set({
@@ -171,6 +191,9 @@ export const selectRenderParams = (s: ConfigState): RenderParams => ({
   seed: s.seed,
   lightAngle: s.lightAngle,
   density: s.density,
+  brightness: s.brightness,
+  contrast: s.contrast,
+  vibrance: s.vibrance,
 });
 
 /**
@@ -196,8 +219,22 @@ export function useRenderParams(): RenderParams {
   const seed = useConfigStore((s) => s.seed);
   const lightAngle = useConfigStore((s) => s.lightAngle);
   const density = useConfigStore((s) => s.density);
+  const brightness = useConfigStore((s) => s.brightness);
+  const contrast = useConfigStore((s) => s.contrast);
+  const vibrance = useConfigStore((s) => s.vibrance);
   return useMemo(
-    () => ({ colors: activeColors(colors, active), style, blur, grain, seed, lightAngle, density }),
-    [colors, active, style, blur, grain, seed, lightAngle, density],
+    () => ({
+      colors: activeColors(colors, active),
+      style,
+      blur,
+      grain,
+      seed,
+      lightAngle,
+      density,
+      brightness,
+      contrast,
+      vibrance,
+    }),
+    [colors, active, style, blur, grain, seed, lightAngle, density, brightness, contrast, vibrance],
   );
 }

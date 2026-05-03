@@ -53,9 +53,50 @@ export function paintWallpaper(
       lightAngle: opts.lightAngle,
     });
   }
+  applyColorGrading(canvas, opts.brightness, opts.contrast, opts.vibrance, canvasFactory);
   if (opts.grain && opts.grain > 0) {
     applyGrainOverlay(canvas, opts.grain, canvasFactory);
   }
+}
+
+/**
+ * Vibrance — softened saturation curve so already-saturated colors don't
+ * blow out. v=1 → saturate(1) (no-op); v=1.5 → saturate(1.3).
+ */
+const vibranceToSaturate = (v: number) => 1 + (v - 1) * 0.6;
+
+/**
+ * Apply brightness/contrast/vibrance as a post-processing pass that works
+ * for both the canvas2d and WebGL (nebula) outputs. Skips when all three
+ * are at identity (1) so the common case is free.
+ *
+ * Implementation: copy the painted canvas into an off-screen tile, clear
+ * the original, and re-draw via `ctx.filter` — Canvas2D doesn't expose a
+ * "filter the existing pixels" API, so the round-trip is necessary.
+ */
+export function applyColorGrading(
+  canvas: HTMLCanvasElement,
+  brightness: number | undefined,
+  contrast: number | undefined,
+  vibrance: number | undefined,
+  canvasFactory: () => HTMLCanvasElement = () => document.createElement("canvas"),
+): void {
+  const b = brightness ?? 1;
+  const c = contrast ?? 1;
+  const v = vibrance ?? 1;
+  if (b === 1 && c === 1 && v === 1) return;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  const tmp = canvasFactory();
+  tmp.width = canvas.width;
+  tmp.height = canvas.height;
+  const tctx = tmp.getContext("2d");
+  if (!tctx) return;
+  tctx.drawImage(canvas, 0, 0);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.filter = `brightness(${b}) contrast(${c}) saturate(${vibranceToSaturate(v)})`;
+  ctx.drawImage(tmp, 0, 0);
+  ctx.filter = "none";
 }
 
 /**
@@ -85,7 +126,7 @@ export function applyGrainOverlay(
 ): void {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
-  ctx.globalAlpha = (grain / 100) * 0.55;
+  ctx.globalAlpha = (grain / 100) * 0.85;
   ctx.globalCompositeOperation = "overlay";
   const pattern = ctx.createPattern(getNoiseTile(canvasFactory), "repeat");
   if (pattern) {
