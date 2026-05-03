@@ -1,5 +1,14 @@
-import { useEffect, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, type ReactNode } from "react";
 import Lenis from "lenis";
+
+// Module-scoped ref so non-React code (or sibling effects mounted before
+// the provider's effect runs) can still reach the live Lenis instance.
+const LenisRefContext = createContext<{ current: Lenis | null }>({ current: null });
+
+/** Returns the live Lenis instance, or null if reduced-motion or pre-mount. */
+export function useLenis(): Lenis | null {
+  return useContext(LenisRefContext).current;
+}
 
 // Smooth-scroll inertia provider. Mounts a single Lenis instance, drives
 // rAF loop, tears down on unmount. Honors prefers-reduced-motion (skips
@@ -11,6 +20,8 @@ import Lenis from "lenis";
 // `App.tsx` via `useLocation`; that path bypasses Lenis since we want a
 // snap on route change, not a slide.
 export function LenisProvider({ children }: { children: ReactNode }) {
+  const ref = useRef<Lenis | null>(null);
+
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
@@ -19,6 +30,7 @@ export function LenisProvider({ children }: { children: ReactNode }) {
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
     });
+    ref.current = lenis;
 
     let rafId: number;
     function raf(time: number) {
@@ -46,8 +58,9 @@ export function LenisProvider({ children }: { children: ReactNode }) {
       cancelAnimationFrame(rafId);
       document.removeEventListener("click", onHashClick);
       lenis.destroy();
+      ref.current = null;
     };
   }, []);
 
-  return <>{children}</>;
+  return <LenisRefContext.Provider value={ref}>{children}</LenisRefContext.Provider>;
 }

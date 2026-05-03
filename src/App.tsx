@@ -11,7 +11,7 @@ import { PackPurchaseSuccess } from "./components/packs/PackPurchaseSuccess";
 import { RecoverForm } from "./components/RecoverForm";
 import { Footer } from "./components/Footer";
 import { PageMeta } from "./components/PageMeta";
-import { LenisProvider } from "./components/ui/LenisProvider";
+import { LenisProvider, useLenis } from "./components/ui/LenisProvider";
 import { ScrollProgress } from "./components/ui/ScrollProgress";
 
 // JSON-LD: tells Google we're a brand (Organization) AND a searchable site
@@ -84,13 +84,20 @@ function RoutesShell() {
 // Snap scroll to the top on every route change. Skipped when a hash is
 // present so HomePage's scroll-to-anchor effect (e.g. /#packs from PackPage's
 // back-link) wins. useLayoutEffect to reset before the new route paints —
-// avoids a flash of the new page mid-scroll.
+// avoids a flash of the new page mid-scroll. When Lenis is active we must
+// reset its internal scroll too — a plain window.scrollTo gets overwritten
+// by Lenis's next rAF tick, leaving the new route landing mid-page.
 function ScrollToTop() {
   const { pathname, hash } = useLocation();
+  const lenis = useLenis();
   useLayoutEffect(() => {
     if (hash) return;
-    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-  }, [pathname, hash]);
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: true, force: true });
+    } else {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }
+  }, [pathname, hash, lenis]);
   return null;
 }
 
