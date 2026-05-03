@@ -21,12 +21,24 @@ import type { Colors4 } from "./palettes";
 export async function extractColorsFromFile(file: File): Promise<Colors4> {
   const bitmap = await createImageBitmap(file);
   try {
-    return extractColorsFromBitmap(bitmap);
+    const size = 96;
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Canvas 2D unavailable");
+    ctx.drawImage(bitmap as CanvasImageSource, 0, 0, size, size);
+    const { data } = ctx.getImageData(0, 0, size, size);
+    return await extractFromPixelsAsync(data);
   } finally {
     bitmap.close?.();
   }
 }
 
+/**
+ * Sync convenience wrapper around `extractFromPixels` — kept for tests and
+ * any caller that already holds the bitmap and doesn't want a worker hop.
+ */
 export function extractColorsFromBitmap(bitmap: ImageBitmap | HTMLImageElement): Colors4 {
   const size = 96;
   const canvas = document.createElement("canvas");
@@ -37,6 +49,53 @@ export function extractColorsFromBitmap(bitmap: ImageBitmap | HTMLImageElement):
   ctx.drawImage(bitmap as CanvasImageSource, 0, 0, size, size);
   const { data } = ctx.getImageData(0, 0, size, size);
   return extractFromPixels(data);
+}
+
+/**
+ * Run k-means in a Web Worker so the ~50–150 ms clustering pass doesn't
+ * block the main thread on slower devices. Falls back to the synchronous
+ * path when `Worker` is unavailable (jsdom tests, SSR) — same output, same
+ * Colors4 shape. The worker module is loaded lazily on first call so we
+ * don't pay the cost on first paint.
+ */
+let workerSingleton: Worker | null = null;
+let nextRequestId = 1;
+
+function getWorker(): Worker | null {
+  if (workerSingleton) return workerSingleton;
+  if (typeof Worker === "undefined") return null;
+  try {
+    workerSingleton = new Worker(new URL("../workers/color-extract.worker.ts", import.meta.url), {
+      type: "module",
+    });
+    return workerSingleton;
+  } catch {
+    return null;
+  }
+}
+
+export function extractFromPixelsAsync(data: Uint8ClampedArray): Promise<Colors4> {
+  const worker = getWorker();
+  if (!worker) {
+    return Promise.resolve(extractFromPixels(data));
+  }
+  return new Promise<Colors4>((resolve, reject) => {
+    const id = nextRequestId++;
+    const onMessage = (e: MessageEvent) => {
+      const msg = e.data as
+        | { id: number; ok: true; colors: Colors4 }
+        | { id: number; ok: false; error: string };
+      if (msg.id !== id) return;
+      worker.removeEventListener("message", onMessage);
+      if (msg.ok) resolve(msg.colors);
+      else reject(new Error(msg.error));
+    };
+    worker.addEventListener("message", onMessage);
+    // Worker takes ownership of the buffer — copy to avoid invalidating the
+    // caller's ImageData (which the canvas may still rely on).
+    const copy = new Uint8ClampedArray(data);
+    worker.postMessage({ id, data: copy }, [copy.buffer]);
+  });
 }
 
 /**

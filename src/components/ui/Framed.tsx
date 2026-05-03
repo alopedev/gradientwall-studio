@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
-interface FramedProps {
+type FramedProps = Omit<ComponentPropsWithoutRef<"div">, "children" | "className" | "style"> & {
   children: ReactNode;
   /** Distancia al borde del parent. Default 12px. */
   offset?: number;
@@ -11,14 +11,25 @@ interface FramedProps {
   className?: string;
   /** Estilo extra para el wrapper. `position: relative` se fuerza internamente. */
   style?: React.CSSProperties;
-}
+};
 
 /**
  * Encuadra el contenido con 4 cuadritos blancos en las esquinas — marca
  * brutalist editorial. El parent recibe `position: relative` automáticamente;
  * los accents son `absolute` sin afectar el flujo.
+ *
+ * Pasa cualquier prop nativo de `<div>` (drag handlers, role, aria-*) al
+ * wrapper raíz — útil para drag-and-drop sobre el área enmarcada.
  */
-export function Framed({ children, offset = 12, size = 7, color = "#ffffff", className, style }: FramedProps) {
+export function Framed({
+  children,
+  offset = 12,
+  size = 7,
+  color = "#ffffff",
+  className,
+  style,
+  ...rest
+}: FramedProps) {
   const base: React.CSSProperties = {
     position: "absolute",
     width: size,
@@ -27,7 +38,7 @@ export function Framed({ children, offset = 12, size = 7, color = "#ffffff", cla
     pointerEvents: "none",
   };
   return (
-    <div className={className} style={{ ...style, position: "relative" }}>
+    <div {...rest} className={className} style={{ ...style, position: "relative" }}>
       <span aria-hidden data-corner="tl" style={{ ...base, top: offset, left: offset }} />
       <span aria-hidden data-corner="tr" style={{ ...base, top: offset, right: offset }} />
       <span aria-hidden data-corner="bl" style={{ ...base, bottom: offset, left: offset }} />

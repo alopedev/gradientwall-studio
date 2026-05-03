@@ -1,6 +1,7 @@
 import { Preview } from "./Preview";
 import { RightRail } from "./RightRail";
 import { BottomBar } from "./BottomBar";
+import { StudioHints } from "./StudioHints";
 import { Reveal } from "../ui/Reveal";
 import { SplitWords } from "../ui/SplitWords";
 
@@ -32,6 +33,7 @@ export function Studio() {
         <div className="flex flex-col">
           <Preview />
           <BottomBar />
+          <StudioHints />
         </div>
         <RightRail />
       </div>

@@ -39,10 +39,10 @@ export const Slider = React.forwardRef<
       // the grab target is comfortably bigger than the visual without making
       // the knob look chunky.
       className={cn(
-        "tactile-knob relative block h-[18px] w-[18px] rounded-full outline-none",
+        "tactile-knob relative block h-[18px] w-[18px] rounded-full outline-none will-change-transform",
         "cursor-grab active:cursor-grabbing",
         "before:absolute before:inset-[-7px] before:content-['']",
-        "transition-transform duration-150 ease-out hover:scale-[1.08] active:scale-[0.96]",
+        "transition-transform duration-100 ease-out hover:scale-[1.08] active:scale-[0.96]",
         "focus-visible:ring-2 focus-visible:ring-[color:var(--color-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--color-surface-1)]",
         "disabled:pointer-events-none disabled:opacity-50",
       )}

@@ -1,21 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import { hexToHsl, hslToHex } from "@/lib/gradient";
-import { useRecentColors, usePushRecentColor } from "@/store";
+import { useEffect, useRef } from "react";
 import { Slider } from "@/components/ui/shadcn/slider";
-
-const HEX_RE = /^#?[0-9a-fA-F]{6}$/;
-
-interface EyeDropperResult {
-  sRGBHex: string;
-}
-interface EyeDropperLike {
-  open: () => Promise<EyeDropperResult>;
-}
-declare global {
-  interface Window {
-    EyeDropper?: { new (): EyeDropperLike };
-  }
-}
+import { useColorEditing } from "./useColorEditing";
 
 interface ColorHUDProps {
   /** Current color in `#rrggbb` form. */
@@ -35,56 +20,27 @@ interface ColorHUDProps {
  * inside a `<Popover>` is the caller's responsibility.
  */
 export function ColorHUD({ value, onChange }: ColorHUDProps) {
-  const recents = useRecentColors();
-  const pushRecent = usePushRecentColor();
+  const {
+    hexDraft,
+    hsl: [h, s, l],
+    canEyedrop,
+    recents,
+    setHex,
+    setHslChannel,
+    pickRecent,
+    openEyedropper,
+  } = useColorEditing(value, onChange);
 
-  const [hexDraft, setHexDraft] = useState(value.toUpperCase());
-  // HSL is derived from the *committed* color; the draft only forwards once
-  // it parses cleanly. Sliders manipulate HSL directly and write back the
-  // hex through `commit()`.
-  const [h, s, l] = useMemo(() => hexToHsl(value), [value]);
-
-  // Keep draft synced if value changes externally (e.g. user picked a recent).
+  // Focus + select the hex input on open so the user can paste/type a new
+  // value with zero extra clicks. Reduces the cost of editing a swatch from
+  // "click → click in field → select-all → type" to "click → type".
+  const hexInputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    setHexDraft(value.toUpperCase());
-  }, [value]);
-
-  const commit = (next: string) => {
-    const norm = "#" + next.trim().replace(/^#/, "").toUpperCase();
-    if (norm === value.toUpperCase()) return;
-    onChange(norm);
-    pushRecent(norm);
-  };
-
-  const onHexChange = (raw: string) => {
-    setHexDraft(raw);
-    if (HEX_RE.test(raw)) {
-      commit(raw);
-    }
-  };
-
-  const setHsl = (channel: "h" | "s" | "l", n: number) => {
-    const next = {
-      h: channel === "h" ? n : h,
-      s: channel === "s" ? n : s,
-      l: channel === "l" ? n : l,
-    };
-    const hex = hslToHex(next.h, next.s, next.l);
-    setHexDraft(hex.toUpperCase());
-    commit(hex);
-  };
-
-  const canEyedrop = typeof window !== "undefined" && "EyeDropper" in window;
-  const onEyedrop = async () => {
-    if (!window.EyeDropper) return;
-    try {
-      const picker = new window.EyeDropper();
-      const result = await picker.open();
-      onHexChange(result.sRGBHex);
-    } catch {
-      // user dismissed — silent
-    }
-  };
+    const el = hexInputRef.current;
+    if (!el) return;
+    el.focus();
+    el.select();
+  }, []);
 
   return (
     <div className="w-[280px] flex flex-col gap-4">
@@ -98,9 +54,10 @@ export function ColorHUD({ value, onChange }: ColorHUDProps) {
         <label className="flex-1 flex flex-col gap-1">
           <span className="font-sans text-[10px] tracking-[0.18em] uppercase text-white/40">Hex</span>
           <input
+            ref={hexInputRef}
             type="text"
             value={hexDraft}
-            onChange={(e) => onHexChange(e.target.value)}
+            onChange={(e) => setHex(e.target.value)}
             spellCheck={false}
             autoCorrect="off"
             autoCapitalize="off"
@@ -111,9 +68,9 @@ export function ColorHUD({ value, onChange }: ColorHUDProps) {
 
       {/* HSL sliders */}
       <div className="flex flex-col gap-3">
-        <HslRow label="Hue" value={h} max={360} unit="°" onChange={(n) => setHsl("h", n)} />
-        <HslRow label="Saturation" value={s} max={100} unit="%" onChange={(n) => setHsl("s", n)} />
-        <HslRow label="Lightness" value={l} max={100} unit="%" onChange={(n) => setHsl("l", n)} />
+        <HslRow label="Hue" value={h} max={360} unit="°" onChange={(n) => setHslChannel("h", n)} />
+        <HslRow label="Saturation" value={s} max={100} unit="%" onChange={(n) => setHslChannel("s", n)} />
+        <HslRow label="Lightness" value={l} max={100} unit="%" onChange={(n) => setHslChannel("l", n)} />
       </div>
 
       {/* Eyedropper + Recents */}
@@ -121,33 +78,39 @@ export function ColorHUD({ value, onChange }: ColorHUDProps) {
         {canEyedrop && (
           <button
             type="button"
-            onClick={onEyedrop}
+            onClick={openEyedropper}
             className="self-start inline-flex items-center gap-2 rounded-[2px] border border-white/14 px-2.5 py-1.5 font-sans text-[10px] tracking-[0.18em] uppercase text-white/75 transition-colors duration-150 hover:border-white/30 hover:text-white"
           >
             ⌖ Eyedropper
           </button>
         )}
-        <div className="flex flex-col gap-1.5">
-          <span className="font-sans text-[10px] tracking-[0.18em] uppercase text-white/40">Recents</span>
-          {recents.length === 0 ? (
-            <span className="font-sans text-[11px] text-white/30 italic">— pick a color to start —</span>
-          ) : (
-            <div className="grid grid-cols-12 gap-1.5">
-              {recents.map((r) => (
-                <button
-                  key={r}
-                  type="button"
-                  onClick={() => onHexChange(r)}
-                  title={r}
-                  aria-label={`Apply ${r}`}
-                  className="aspect-square rounded-[2px] border border-white/10 transition-transform duration-150 hover:scale-110 hover:border-white/40"
-                  style={{ background: r }}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+        <RecentsGrid recents={recents} onPick={pickRecent} />
       </div>
+    </div>
+  );
+}
+
+function RecentsGrid({ recents, onPick }: { recents: readonly string[]; onPick: (hex: string) => void }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="font-sans text-[10px] tracking-[0.18em] uppercase text-white/40">Recents</span>
+      {recents.length === 0 ? (
+        <span className="font-sans text-[11px] text-white/30 italic">— pick a color to start —</span>
+      ) : (
+        <div className="grid grid-cols-12 gap-1.5">
+          {recents.map((r) => (
+            <button
+              key={r}
+              type="button"
+              onClick={() => onPick(r)}
+              title={r}
+              aria-label={`Apply ${r}`}
+              className="aspect-square rounded-[2px] border border-white/10 transition-transform duration-150 hover:scale-110 hover:border-white/40"
+              style={{ background: r }}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

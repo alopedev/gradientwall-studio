@@ -1,18 +1,27 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type DragEvent as ReactDragEvent, type PointerEvent as ReactPointerEvent, type WheelEvent as ReactWheelEvent } from "react";
 import { AnimatePresence } from "motion/react";
 import { m } from "motion/react";
 import { useConfigStore, useRenderParams } from "@/store";
 import { composeWallpaper } from "@/lib/download/compose";
 import { useFittedGradientCanvas } from "@/lib/useGradientCanvas";
+import { extractColorsFromFile } from "@/lib/color-extract";
 import { DEVICES, DEVICE_SIZES } from "@/lib/palettes";
-import { EASE, EASE_CSS } from "@/lib/motion";
+import { EASE } from "@/lib/motion";
 import { IPhoneMockup } from "./IPhoneMockup";
 import { Framed } from "../ui/Framed";
+
+const clamp = (n: number, min: number, max: number) => (n < min ? min : n > max ? max : n);
 
 export function Preview() {
   const device = useConfigStore((s) => s.device);
   const setDevice = useConfigStore((s) => s.setDevice);
+  const reshuffle = useConfigStore((s) => s.reshuffle);
+  const setBlur = useConfigStore((s) => s.setBlur);
+  const setLightAngle = useConfigStore((s) => s.setLightAngle);
+  const setDensity = useConfigStore((s) => s.setDensity);
+  const setColors = useConfigStore((s) => s.setColors);
   const params = useRenderParams();
+  const [dragActive, setDragActive] = useState(false);
   // `grain` reaches the mockup as a CSS overlay below — the renderer's
   // bitmap grain is already burned in via composeWallpaper.
   const grain = params.grain ?? 0;
@@ -53,8 +62,83 @@ export function Preview() {
     [device, params],
   );
 
+  // Direct manipulation on the preview canvas. Holding Alt enables three
+  // gestures so power users can sculpt without leaving the canvas:
+  //   Alt + wheel     → blur (smaller wheel = -1, bigger = +1)
+  //   Alt + drag X    → light angle
+  //   Alt + drag Y    → density
+  // Double-click reshuffles the seed regardless of modifier — it's a clearly
+  // discoverable "give me a different one of the same thing" gesture.
+  const dragRef = useRef<{ startX: number; startY: number; baseLight: number; baseDensity: number } | null>(null);
+  const onCanvasWheel = (e: ReactWheelEvent<HTMLDivElement>) => {
+    if (!e.altKey) return;
+    e.preventDefault();
+    const cur = useConfigStore.getState().blur;
+    const step = e.deltaY > 0 ? -2 : 2;
+    setBlur(clamp(cur + step, 0, 200));
+  };
+  const onCanvasPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!e.altKey) return;
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const s = useConfigStore.getState();
+    dragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      baseLight: s.lightAngle,
+      baseDensity: s.density,
+    };
+  };
+  const onCanvasPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const d = dragRef.current;
+    if (!d) return;
+    const dx = e.clientX - d.startX;
+    const dy = e.clientY - d.startY;
+    setLightAngle(d.baseLight + dx * 0.5);
+    setDensity(clamp(d.baseDensity - dy * 0.0035, 0, 1));
+  };
+  const onCanvasPointerUp = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (dragRef.current && e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+    dragRef.current = null;
+  };
+  const onCanvasDoubleClick = () => reshuffle();
+
+  // Drop an image anywhere on the preview frame and the dominant colors land
+  // in the palette — the same path as the "Use my photo" button, but no
+  // popover, no clicks. Counts as discoverable: the dashed-overlay state
+  // makes the affordance obvious during drag.
+  const onPreviewDragOver = (e: ReactDragEvent<HTMLDivElement>) => {
+    if (!Array.from(e.dataTransfer.types).includes("Files")) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+    if (!dragActive) setDragActive(true);
+  };
+  const onPreviewDragLeave = (e: ReactDragEvent<HTMLDivElement>) => {
+    if (e.currentTarget === e.target) setDragActive(false);
+  };
+  const onPreviewDrop = async (e: ReactDragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setDragActive(false);
+    const file = e.dataTransfer.files?.[0];
+    if (!file || !file.type.startsWith("image/")) return;
+    try {
+      const colors = await extractColorsFromFile(file);
+      setColors(colors);
+    } catch {
+      // silent — same posture as the popover path
+    }
+  };
+
   return (
-    <Framed offset={10} className="rounded-[2px] bg-[#0a0a0d] border border-white/8 min-h-[520px] overflow-hidden">
+    <Framed
+      offset={10}
+      className="rounded-[2px] bg-[#0a0a0d] border border-white/8 min-h-[520px] overflow-hidden"
+      onDragOver={onPreviewDragOver}
+      onDragLeave={onPreviewDragLeave}
+      onDrop={onPreviewDrop}
+    >
       {/* Device pills: centered on mobile, top-left on md+. Strictly aspect
           ratio choice — Mockup lives separately as a viewing-mode toggle. */}
       <div
@@ -122,15 +206,21 @@ export function Preview() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.35, ease: EASE }}
-              className="relative overflow-hidden rounded-lg transition-[aspect-ratio] duration-[400ms]"
+              className="relative overflow-hidden rounded-lg [&[data-alt=true]]:cursor-grab [&[data-alt=true]:active]:cursor-grabbing"
               style={{
                 aspectRatio: `${d.w} / ${d.h}`,
                 maxWidth: "100%",
                 maxHeight: "100%",
                 background: "#111",
                 boxShadow: "0 30px 80px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.04)",
-                transitionTimingFunction: EASE_CSS,
               }}
+              onWheel={onCanvasWheel}
+              onPointerDown={onCanvasPointerDown}
+              onPointerMove={onCanvasPointerMove}
+              onPointerUp={onCanvasPointerUp}
+              onPointerCancel={onCanvasPointerUp}
+              onDoubleClick={onCanvasDoubleClick}
+              title="Alt + scroll: blur · Alt + drag: light/density · double-click: reshuffle"
             >
               <canvas
                 ref={canvasRef}
@@ -141,6 +231,21 @@ export function Preview() {
         </AnimatePresence>
       </div>
 
+      {/* Drag-and-drop affordance: dashed inset overlay surfaces while the
+          user is dragging an image file over the frame. Drop extracts the
+          dominant colors via k-means and seeds the swatches — same path as
+          "Use my photo", zero clicks. pointer-events:none so it doesn't
+          intercept the drop event itself. */}
+      {dragActive && (
+        <div
+          aria-hidden
+          className="absolute inset-2 z-[6] pointer-events-none rounded-[2px] border-2 border-dashed border-white/55 bg-black/35 backdrop-blur-[2px] flex items-center justify-center"
+        >
+          <span className="font-sans text-[12px] tracking-[0.2em] uppercase text-white/85">
+            Drop to extract palette
+          </span>
+        </div>
+      )}
     </Framed>
   );
 }

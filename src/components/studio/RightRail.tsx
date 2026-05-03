@@ -107,9 +107,15 @@ export function RightRail() {
             "radial-gradient(60% 50% at 50% 0%, rgba(255, 59, 48, 0.05), transparent 70%)",
         }}
       />
+      {/* All three sections start open so changing the source, the style and
+          an effect each costs a single click — no "close one to open another"
+          accordion shuffle. Users can still collapse a section manually if
+          they want vertical breathing room. Apoya la heurística de
+          exploration-first: las galerías visibles ganan a los menús cuando
+          cada opción se evalúa visualmente. */}
       <Accordion
         type="multiple"
-        defaultValue={["source"]}
+        defaultValue={["source", "style", "effects"]}
         className="relative z-[1] flex flex-col gap-2.5"
       >
         <Section
