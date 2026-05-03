@@ -28,10 +28,16 @@ function Track() {
         const accentDot = i % 3 === 2;
         return (
           <span key={i} className="inline-flex items-center gap-14">
-            {t}
             <span
-              className={`inline-block h-1.5 w-1.5 rounded-full ${
-                accentDot ? "bg-[color:var(--color-accent)]" : "bg-white/20"
+              className="inline-block transition-[transform,color,text-shadow] duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.04] hover:text-white hover:[text-shadow:0_0_18px_rgba(255,59,48,0.35)]"
+            >
+              {t}
+            </span>
+            <span
+              className={`inline-block h-1.5 w-1.5 rounded-full transition-transform duration-300 ${
+                accentDot
+                  ? "bg-[color:var(--color-accent)] hover:scale-[1.6] hover:shadow-[0_0_10px_rgba(255,59,48,0.7)]"
+                  : "bg-white/20 hover:bg-white/55 hover:scale-[1.4]"
               }`}
               aria-hidden
             />

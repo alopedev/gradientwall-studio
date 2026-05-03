@@ -63,9 +63,13 @@ function FooterCol({ title, links }: { title: string; links: { label: string; hr
           <li key={l.label}>
             <a
               href={l.href}
-              className="focus-ring text-[14px] text-white/75 hover:text-white transition-colors duration-150"
+              className="group relative inline-block focus-ring text-[14px] text-white/75 hover:text-white transition-colors duration-150"
             >
               {l.label}
+              <span
+                aria-hidden
+                className="absolute left-0 right-0 -bottom-0.5 h-px origin-left scale-x-0 bg-[color:var(--color-accent)] transition-transform duration-200 ease-out group-hover:scale-x-100"
+              />
             </a>
           </li>
         ))}

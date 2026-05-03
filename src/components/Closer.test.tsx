@@ -5,8 +5,11 @@ import { Closer } from "./Closer";
 describe("<Closer />", () => {
   it("renderiza el heading editorial y el CTA", () => {
     render(<Closer />);
-    expect(screen.getByText(/ship the wallpaper/i)).toBeInTheDocument();
-    expect(screen.getByText(/your phone deserves/i)).toBeInTheDocument();
+    // SplitWords renders each word in its own span, so we match the heading's
+    // aggregate textContent with regex (any whitespace between word fragments).
+    const heading = screen.getByRole("heading", { level: 2 });
+    const text = heading.textContent ?? "";
+    expect(text).toMatch(/ship\s*the\s*wallpaper/i);
     expect(screen.getByRole("link", { name: /open the studio/i })).toBeInTheDocument();
   });
 

@@ -5,13 +5,14 @@ import { EASE_CSS } from "@/lib/motion";
 import { computeSpawn, pickPoolIndex, randomRotation } from "@/lib/mouseTrail";
 import { Framed } from "./ui/Framed";
 import { Reveal } from "./ui/Reveal";
+import { SplitWords } from "./ui/SplitWords";
 import { MagneticButton } from "./ui/MagneticButton";
 
-const MIN_SPAWN_INTERVAL = 80;
+const MIN_SPAWN_INTERVAL = 60;
 const DWELL_MS = 350;
 const FADE_MS = 750;
 const LIFETIME_MS = DWELL_MS + FADE_MS;
-const SPRITE_SIZE = 140;
+const SPRITE_SIZE = 50;
 
 export function Closer() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -94,6 +95,19 @@ export function Closer() {
       id="closer"
       className="relative mx-auto max-w-[1600px] px-[clamp(24px,5vw,80px)] py-[clamp(120px,18vw,220px)] border-t border-white/8 overflow-hidden"
     >
+      {/* Idle ambient backdrop — a soft accent-tinted radial drifting in a
+          slow ellipse behind the headline. Gives the section a heartbeat
+          even when the user isn't moving the cursor. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-[-20%] z-0 motion-safe:animate-[gw-orbit-drift_24s_ease-in-out_infinite] opacity-[0.18]"
+        style={{
+          background:
+            "radial-gradient(40% 40% at 30% 40%, rgba(255, 59, 48, 0.65), transparent 70%), radial-gradient(35% 35% at 70% 60%, rgba(120, 90, 255, 0.45), transparent 75%)",
+          filter: "blur(40px)",
+        }}
+      />
+
       <div ref={spriteLayerRef} data-sprite-layer className="absolute inset-0 pointer-events-none z-0" aria-hidden />
 
       <Framed offset={-4} size={7} className="relative z-10 max-w-[min(92vw,1100px)] mx-auto py-8">
@@ -102,7 +116,7 @@ export function Closer() {
             04 — Ship it
           </span>
           <h2 className="m-0 text-[clamp(48px,10vw,160px)] leading-[0.95] font-sans font-bold uppercase tracking-[-0.03em] text-white">
-            Ship the wallpaper.
+            <SplitWords text="Ship the wallpaper." stagger={0.09} />
           </h2>
         </Reveal>
 

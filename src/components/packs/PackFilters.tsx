@@ -1,4 +1,6 @@
+import { m } from "motion/react";
 import type { PackStyle } from "@/lib/packs";
+import { EASE } from "@/lib/motion";
 
 interface Props {
   styles: PackStyle[];
@@ -38,13 +40,21 @@ function FilterPill({
       role="tab"
       aria-selected={selected}
       onClick={onClick}
-      className={`rounded-full px-3 py-1.5 text-[11px] tracking-[0.14em] uppercase font-sans transition-colors duration-150 ${
+      className={`relative rounded-full px-3 py-1.5 text-[11px] tracking-[0.14em] uppercase font-sans transition-colors duration-200 border ${
         selected
-          ? "bg-white text-[#07070a] border border-white"
-          : "bg-black/30 text-white/65 border border-white/14 hover:text-white hover:border-white/30"
+          ? "text-[#07070a] border-white"
+          : "text-white/65 border-white/14 hover:text-white hover:border-white/30"
       }`}
     >
-      {label}
+      {selected && (
+        <m.span
+          layoutId="active-filter-pill"
+          aria-hidden
+          className="absolute inset-0 -z-10 rounded-full bg-white"
+          transition={{ duration: 0.45, ease: EASE }}
+        />
+      )}
+      <span className="relative">{label}</span>
     </button>
   );
 }

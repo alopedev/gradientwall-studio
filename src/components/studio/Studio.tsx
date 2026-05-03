@@ -3,6 +3,7 @@ import { RightRail } from "./RightRail";
 import { BottomBar } from "./BottomBar";
 import { History } from "./History";
 import { Reveal } from "../ui/Reveal";
+import { SplitWords } from "../ui/SplitWords";
 
 export function Studio() {
   return (
@@ -17,7 +18,7 @@ export function Studio() {
             02 — The studio
           </span>
           <h2 className="m-0 text-[clamp(40px,5.5vw,76px)] leading-[0.95] font-sans font-bold uppercase tracking-[-0.03em] text-white">
-            Pick four colors.
+            <SplitWords text="Pick four colors." />
           </h2>
         </div>
         <p className="max-w-[42ch] text-[15px] text-white/75 font-sans font-light">

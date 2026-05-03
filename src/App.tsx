@@ -13,6 +13,7 @@ import { Closer } from "./components/Closer";
 import { Footer } from "./components/Footer";
 import { PageMeta } from "./components/PageMeta";
 import { LenisProvider } from "./components/ui/LenisProvider";
+import { ScrollProgress } from "./components/ui/ScrollProgress";
 
 // JSON-LD: tells Google we're a brand (Organization) AND a searchable site
 // (WebSite). The Organization block populates the right-hand "knowledge
@@ -50,6 +51,7 @@ export default function App() {
       <MotionConfig reducedMotion="user">
         <BrowserRouter>
           <LenisProvider>
+            <ScrollProgress />
             <RoutesShell />
           </LenisProvider>
         </BrowserRouter>
