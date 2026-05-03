@@ -133,8 +133,7 @@ Object.defineProperty(globalThis, "ResizeObserver", { value: ROStub, writable: t
 Object.defineProperty(window, "ResizeObserver", { value: ROStub, writable: true, configurable: true });
 
 // jsdom doesn't implement matchMedia — stub returning "no match" so
-// prefers-reduced-motion checks in Closer / other motion-aware code don't
-// throw during tests.
+// prefers-reduced-motion checks in motion-aware code don't throw during tests.
 Object.defineProperty(window, "matchMedia", {
   writable: true,
   configurable: true,

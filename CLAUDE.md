@@ -19,7 +19,7 @@ Test infra: **Vitest**. Default environment is `jsdom` (for React component test
 
 GradientWall — an interactive wallpaper studio plus a digital store for curated wallpaper packs. Free Studio + paid packs (4.99€ each, single payment, no account, email-delivered).
 
-Architecture of information: **Nav → Hero → Marquee → Studio → Packs → Closer → Footer** on the home, with separate routes for `/packs/:slug`, `/packs/:slug/success`, `/recover`. The old "Gallery" of community-made wallpapers was removed in the Semana 1 refactor — its slot is now the Packs catalog.
+Architecture of information: **Nav → Hero → Marquee → Studio → Packs → Footer** on the home, with separate routes for `/packs/:slug`, `/packs/:slug/success`, `/recover`. The old "Gallery" of community-made wallpapers was removed in the Semana 1 refactor — its slot is now the Packs catalog.
 
 The rendering math (mesh / blobs / liquid gradients, seeded PRNG, grain tile) was ported 1:1 from a vanilla prototype into `src/lib/gradient/` (pure) and `src/lib/download/` (composes the painted canvas + grain into a downloadable WebP/JPEG). Don't "clean up" that math unless you have a specific visual regression to fix — it's calibrated to output the designer already signed off on.
 
@@ -62,7 +62,7 @@ useEffect(() => { paintWallpaper(canvasRef.current!, { colors, ... }); }, [color
 ```
 
 Component layout:
-- `Nav.tsx`, `Hero.tsx`, `Marquee.tsx`, `Closer.tsx`, `Footer.tsx` — the editorial chrome.
+- `Nav.tsx`, `Hero.tsx`, `Marquee.tsx`, `Footer.tsx` — the editorial chrome.
 - `studio/` — Studio section components: `Preview` (the live canvas + Download button + Mockup mode), `ControlsPanel`, `Swatches`, `Palettes`, `History`, `IPhoneMockup`, `ImageSource`, `PillTabs`.
 - `packs/` — store components: `PacksSection` (home), `PackCard`, `PackFilters`, `PackPage` (route `/packs/:slug`), `PackPurchaseSuccess` (route `/packs/:slug/success`), `PackCover` (renders gradient-kind via `paintWallpaper`, image-kind via `<img>`).
 - `RecoverForm.tsx` — route `/recover`; POSTs `{email, orderId}` to the recover-link Function.
