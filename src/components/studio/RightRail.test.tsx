@@ -15,13 +15,13 @@ describe("<RightRail />", () => {
     expect(screen.getByRole("button", { name: /03\s*effects/i })).toBeInTheDocument();
   });
 
-  it("starts in picker tab inside Source — switches to palettes on tab click", () => {
+  it("starts in palettes tab inside Source — switches to picker on tab click", () => {
     render(<RightRail />);
-    expect(screen.getByText("Four colors")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /^palettes$/i }));
-    expect(useUIStore.getState().activeTab).toBe("palettes");
     expect(screen.getByText("Curated")).toBeInTheDocument();
-    expect(screen.queryByText("Four colors")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /^picker$/i }));
+    expect(useUIStore.getState().activeTab).toBe("picker");
+    expect(screen.getByText("Four colors")).toBeInTheDocument();
+    expect(screen.queryByText("Curated")).not.toBeInTheDocument();
   });
 
   it("clicking a style tab updates the config store", () => {
@@ -70,13 +70,18 @@ describe("<RightRail />", () => {
   });
 
   describe("dynamic N-colors label", () => {
+    // The N-colors label only renders inside the Picker source tab. Tests
+    // pre-set activeTab so they don't depend on which tab the studio opens
+    // with by default (palettes since the May 2026 reorder).
     it("shows 'Four colors' / 'mix · 4/4' when every slot is active", () => {
+      useUIStore.setState({ activeTab: "picker" });
       render(<RightRail />);
       expect(screen.getByText("Four colors")).toBeInTheDocument();
       expect(screen.getByText(/mix · 4\/4/i)).toBeInTheDocument();
     });
 
     it("switches to 'Three colors' / 'mix · 3/4' when one slot is deactivated", () => {
+      useUIStore.setState({ activeTab: "picker" });
       useConfigStore.setState({ active: [true, false, true, true] });
       render(<RightRail />);
       expect(screen.getByText("Three colors")).toBeInTheDocument();
@@ -84,6 +89,7 @@ describe("<RightRail />", () => {
     });
 
     it("switches to 'Two colors' / 'mix · 2/4' when two slots are deactivated", () => {
+      useUIStore.setState({ activeTab: "picker" });
       useConfigStore.setState({ active: [true, false, true, false] });
       render(<RightRail />);
       expect(screen.getByText("Two colors")).toBeInTheDocument();

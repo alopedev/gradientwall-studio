@@ -22,7 +22,7 @@ export interface UIState {
 }
 
 export const useUIStore = create<UIState>()((set) => ({
-  activeTab: "picker",
+  activeTab: "palettes",
   activePalette: 0,
   setActiveTab: (activeTab) => set({ activeTab }),
   _setActivePalette: (activePalette) => set({ activePalette }),

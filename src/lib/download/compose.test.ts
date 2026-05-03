@@ -90,7 +90,7 @@ describe("applyGrainOverlay", () => {
 
     const ops = canvas._ops;
     // Must include overlay setup before fill, and reset after
-    const idxAlpha = ops.findIndex((o) => o === "globalAlpha=0.275");
+    const idxAlpha = ops.findIndex((o) => o === "globalAlpha=0.425");
     const idxCompOverlay = ops.findIndex((o) => o === "globalCompositeOperation=overlay");
     const idxFillRect = ops.findIndex((o) => o === "fillRect(0,0,100,50)");
     const idxAlphaReset = ops.lastIndexOf("globalAlpha=1");
