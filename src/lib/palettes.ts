@@ -2,7 +2,7 @@
 export const DEVICES = ["mobile", "tablet", "desktop"] as const;
 export type Device = (typeof DEVICES)[number];
 
-export const STYLES = ["mesh", "blobs", "liquid", "aurora", "nebula"] as const;
+export const STYLES = ["mesh", "liquid", "aurora", "nebula"] as const;
 export type Style = (typeof STYLES)[number];
 
 export type Colors4 = [string, string, string, string];
@@ -74,8 +74,8 @@ export interface GradientConfig {
   lightAngle?: number;
   /**
    * Visual density of the style, normalized 0..1. Default 0.5 reproduces the
-   * historical hard-coded layer counts (mesh 4 / blobs 14 / liquid 6 / aurora
-   * 2 bands per color), so old snapshots and pre-density history items keep
+   * historical hard-coded layer counts (mesh 4 / liquid 6 / aurora 2 bands
+   * per color), so old snapshots and pre-density history items keep
    * rendering byte-identical. The renderer maps it conservatively per style;
    * see `buildGradientSpec`.
    *
@@ -89,7 +89,6 @@ export interface GradientConfig {
    * UI-clamped to 0.5..1.5. Optional so legacy fixtures and pre-grading
    * history items render byte-identical.
    */
-  brightness?: number;
   contrast?: number;
   /**
    * Vibrance — saturation with a softened curve so already-saturated colors
@@ -102,7 +101,6 @@ export interface GradientConfig {
 export const DEFAULT_LIGHT_ANGLE = 135;
 
 /** Default color-grading values — identity (no visible effect). */
-export const DEFAULT_BRIGHTNESS = 1;
 export const DEFAULT_CONTRAST = 1;
 export const DEFAULT_VIBRANCE = 1;
 
@@ -139,7 +137,6 @@ export interface RenderParams {
    */
   density?: number;
   /** Color-grading multipliers, identity = 1. See `GradientConfig`. */
-  brightness?: number;
   contrast?: number;
   vibrance?: number;
 }

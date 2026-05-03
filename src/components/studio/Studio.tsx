@@ -22,7 +22,7 @@ export function Studio() {
           </h2>
         </div>
         <p className="max-w-[42ch] text-[15px] text-white/75 font-sans font-light">
-          Choose hues from our curated palettes or bring your own. Adjust the mix, the blobs, the grain —
+          Choose hues from our curated palettes or bring your own. Adjust the mix, the depth, the grain —
           everything re-renders instantly. When it feels right, export for your device.
         </p>
       </Reveal>

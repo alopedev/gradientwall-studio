@@ -22,7 +22,7 @@ export type ComposeOpts = PaintOpts;
  *
  * For the live Studio preview prefer `paintWallpaperPreview` — same gradient
  * + grain output but grading is applied via `canvas.style.filter` so moving
- * the brightness/contrast/vibrance sliders is free (no bitmap repaint).
+ * the contrast/vibrance sliders is free (no bitmap repaint).
  */
 export function paintWallpaper(
   canvas: HTMLCanvasElement,
@@ -54,7 +54,7 @@ export function paintWallpaper(
       lightAngle: opts.lightAngle,
     });
   }
-  applyColorGrading(canvas, opts.brightness, opts.contrast, opts.vibrance, canvasFactory);
+  applyColorGrading(canvas, opts.contrast, opts.vibrance, canvasFactory);
   if (opts.grain && opts.grain > 0) {
     applyGrainOverlay(canvas, opts.grain, canvasFactory);
   }
@@ -67,43 +67,40 @@ export function paintWallpaper(
 const vibranceToSaturate = (v: number) => 1 + (v - 1) * 0.6;
 
 /**
- * Build the CSS `filter` string for the grading triple. Used by the preview
+ * Build the CSS `filter` string for the grading pair. Used by the preview
  * path to push grading off the bitmap and onto the compositor — moving the
- * brightness/contrast/vibrance sliders becomes a style mutation instead of
- * a full canvas repaint.
+ * contrast/vibrance sliders becomes a style mutation instead of a full
+ * canvas repaint.
  *
- * Returns `""` (no filter) when all three are at identity so the common case
+ * Returns `""` (no filter) when both are at identity so the common case
  * is free.
  */
 export function gradingCssFilter(
-  brightness: number | undefined,
   contrast: number | undefined,
   vibrance: number | undefined,
 ): string {
-  const b = brightness ?? 1;
   const c = contrast ?? 1;
   const v = vibrance ?? 1;
-  if (b === 1 && c === 1 && v === 1) return "";
-  return `brightness(${b}) contrast(${c}) saturate(${vibranceToSaturate(v)})`;
+  if (c === 1 && v === 1) return "";
+  return `contrast(${c}) saturate(${vibranceToSaturate(v)})`;
 }
 
 /**
- * Apply brightness/contrast/vibrance as a post-processing pass that works
- * for both the canvas2d and WebGL (nebula) outputs. Skips when all three
- * are at identity (1) so the common case is free.
+ * Apply contrast/vibrance as a post-processing pass that works for both the
+ * canvas2d and WebGL (nebula) outputs. Skips when both are at identity (1)
+ * so the common case is free.
  *
- * Implementation: copy the painted canvas into an off-screen tile, clear
- * the original, and re-draw via `ctx.filter` — Canvas2D doesn't expose a
- * "filter the existing pixels" API, so the round-trip is necessary.
+ * Implementation: copy the painted canvas into an off-screen tile, clear the
+ * original, and re-draw via `ctx.filter` — Canvas2D doesn't expose a "filter
+ * the existing pixels" API, so the round-trip is necessary.
  */
 export function applyColorGrading(
   canvas: HTMLCanvasElement,
-  brightness: number | undefined,
   contrast: number | undefined,
   vibrance: number | undefined,
   canvasFactory: () => HTMLCanvasElement = () => document.createElement("canvas"),
 ): void {
-  const filter = gradingCssFilter(brightness, contrast, vibrance);
+  const filter = gradingCssFilter(contrast, vibrance);
   if (!filter) return;
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
@@ -209,7 +206,7 @@ let cachedBase: { key: BaseKey; canvas: HTMLCanvasElement } | null = null;
  * gradient — no grain, no grading. Cache key is the tuple that determines
  * the bitmap exactly: `(style, colors, blur, seed, lightAngle, density, w, h)`.
  *
- * Slider-induced changes to grain/brightness/contrast/vibrance keep the same
+ * Slider-induced changes to grain/contrast/vibrance keep the same
  * key, so the gradient pass (the genuinely expensive part) is skipped.
  */
 function getBaseCanvas(
@@ -283,5 +280,5 @@ export function paintWallpaperPreview(
   if (opts.grain && opts.grain > 0) {
     applyGrainOverlay(canvas, opts.grain, canvasFactory);
   }
-  canvas.style.filter = gradingCssFilter(opts.brightness, opts.contrast, opts.vibrance);
+  canvas.style.filter = gradingCssFilter(opts.contrast, opts.vibrance);
 }

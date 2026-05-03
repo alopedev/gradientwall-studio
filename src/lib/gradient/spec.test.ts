@@ -95,12 +95,6 @@ describe("buildGradientSpec — structural invariants", () => {
     spec.layers.forEach((l) => expect(l.fill.kind).toBe("radial"));
   });
 
-  it("blobs style produces 14 radial layers", () => {
-    const spec = buildGradientSpec(baseOpts({ style: "blobs" }));
-    expect(spec.layers).toHaveLength(14);
-    spec.layers.forEach((l) => expect(l.fill.kind).toBe("radial"));
-  });
-
   it("liquid style produces 6 bands + 1 central highlight (7 layers)", () => {
     const spec = buildGradientSpec(baseOpts({ style: "liquid" }));
     expect(spec.layers).toHaveLength(7);
@@ -110,7 +104,7 @@ describe("buildGradientSpec — structural invariants", () => {
       // Highlight is centered at (w/2, h*0.3)
       expect(highlight.cx).toBe(1440 / 2);
       expect(highlight.cy).toBe(3200 * 0.3);
-      expect(highlight.stops[0].color).toBe("rgba(255,255,255,0.25)");
+      expect(highlight.stops[0].color).toBe("rgba(255,255,255,0.4)");
       expect(highlight.stops[1].color).toBe("rgba(255,255,255,0)");
     }
   });
@@ -135,7 +129,7 @@ describe("buildGradientSpec — structural invariants", () => {
     });
   });
 
-  it("aurora uses semi-transparent #RRGGBBaa starts (soft blending) vs mesh/blobs opaque", () => {
+  it("aurora uses semi-transparent #RRGGBBaa starts (soft blending) vs mesh opaque", () => {
     const spec = buildGradientSpec(baseOpts({ style: "aurora" }));
     // First 8 layers: bands. Check they start with the aa alpha suffix.
     for (let i = 0; i < 8; i++) {
@@ -146,15 +140,13 @@ describe("buildGradientSpec — structural invariants", () => {
     }
   });
 
-  it("mesh/blobs stops end in fully transparent (#RRGGBB00) variant of the base color", () => {
-    for (const style of ["mesh", "blobs"] as const) {
-      const spec = buildGradientSpec(baseOpts({ style }));
-      spec.layers.forEach((l) => {
-        if (l.fill.kind !== "radial") return;
-        const [start, end] = l.fill.stops;
-        expect(end.color).toBe(start.color + "00");
-      });
-    }
+  it("mesh stops end in fully transparent (#RRGGBB00) variant of the base color", () => {
+    const spec = buildGradientSpec(baseOpts({ style: "mesh" }));
+    spec.layers.forEach((l) => {
+      if (l.fill.kind !== "radial") return;
+      const [start, end] = l.fill.stops;
+      expect(end.color).toBe(start.color + "00");
+    });
   });
 
   it("liquid band stops use #RRGGBBcc start → #RRGGBB00 end", () => {
@@ -197,12 +189,6 @@ describe("buildGradientSpec — variable-length color ramps", () => {
     expect(buildGradientSpec(baseOpts({ colors: ["#a", "#b", "#c"], style: "aurora" })).layers).toHaveLength(7);
   });
 
-  it("blobs keeps its fixed 14-layer count regardless of ramp length", () => {
-    // blobs iterates `colors[i % colors.length]` — the number of layers is the
-    // visual density knob, independent of how many colors feed the cycle.
-    expect(buildGradientSpec(baseOpts({ colors: ["#a", "#b"], style: "blobs" })).layers).toHaveLength(14);
-  });
-
   it("liquid keeps its 6 bands + 1 highlight regardless of ramp length", () => {
     expect(buildGradientSpec(baseOpts({ colors: ["#a", "#b"], style: "liquid" })).layers).toHaveLength(7);
   });
@@ -217,7 +203,7 @@ describe("buildGradientSpec — regression snapshots", () => {
   // Capture a matrix of (style × seed) to guard the core math.
   // Any change to PRNG, positioning, or color encoding will surface here.
   const seeds = [12, 77, 42];
-  const styles = ["mesh", "blobs", "liquid", "aurora"] as const;
+  const styles = ["mesh", "liquid", "aurora"] as const;
 
   for (const style of styles) {
     for (const seed of seeds) {

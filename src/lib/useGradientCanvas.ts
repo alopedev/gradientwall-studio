@@ -101,12 +101,12 @@ export function useFittedGradientCanvas(
       const hInt = Math.round(h);
 
       // Layered identity check: split the params into a bitmap key (anything
-      // that affects pixels) and a grading triple (delegated to CSS filter).
-      // Slider drags on brightness/contrast/vibrance only mutate the style —
-      // no canvas work, no GC pressure. Slider drags on grain reuse the
-      // cached gradient base so only the overlay step runs.
+      // that affects pixels) and a grading pair (delegated to CSS filter).
+      // Slider drags on contrast/vibrance only mutate the style — no canvas
+      // work, no GC pressure. Slider drags on grain reuse the cached gradient
+      // base so only the overlay step runs.
       const bitmapKey = `${wInt}x${hInt}|${cur.style}|${cur.colors.join(",")}|${cur.blur}|${cur.seed}|${cur.lightAngle}|${cur.density}|${cur.grain}`;
-      const cssFilter = gradingCssFilter(cur.brightness, cur.contrast, cur.vibrance);
+      const cssFilter = gradingCssFilter(cur.contrast, cur.vibrance);
       if (bitmapKey !== lastKey) {
         lastKey = bitmapKey;
         paintWallpaperPreview(c, {
@@ -120,7 +120,6 @@ export function useFittedGradientCanvas(
           lightAngle: cur.lightAngle,
           density: cur.density,
           // Grading is applied via style.filter below, not by the painter.
-          brightness: 1,
           contrast: 1,
           vibrance: 1,
         });

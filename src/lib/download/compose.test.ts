@@ -159,7 +159,7 @@ describe("paintWallpaper", () => {
     ).not.toThrow();
     // Nebula path renders to a downsampled offscreen canvas (via factory) and
     // upscales to the main canvas via drawImage. The radial gradient layer
-    // pipeline used by mesh/blobs/liquid/aurora must never fire.
+    // pipeline used by mesh/liquid/aurora must never fire.
     expect(canvas._ctx.drawImage).toHaveBeenCalled();
     expect(canvas._ctx.createRadialGradient).not.toHaveBeenCalled();
     expect(canvas.width).toBe(200);

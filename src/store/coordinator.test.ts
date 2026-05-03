@@ -19,11 +19,11 @@ describe("coordinator", () => {
 
   describe("save()", () => {
     it("prepends current config to history", () => {
-      useConfigStore.setState({ style: "blobs", blur: 72, grain: 10, seed: 42 });
+      useConfigStore.setState({ style: "liquid", blur: 72, grain: 10, seed: 42 });
       save();
       const history = useHistoryStore.getState().history;
       expect(history).toHaveLength(1);
-      expect(history[0]).toMatchObject({ style: "blobs", blur: 72, grain: 10, seed: 42 });
+      expect(history[0]).toMatchObject({ style: "liquid", blur: 72, grain: 10, seed: 42 });
     });
 
     it("caps history at 12 items (oldest drops off)", () => {

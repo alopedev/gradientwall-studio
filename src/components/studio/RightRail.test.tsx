@@ -31,8 +31,8 @@ describe("<RightRail />", () => {
     render(<RightRail />);
     // All accordion sections start open under the multi-open layout, so
     // Style's pills are immediately reachable — no extra click to expand.
-    fireEvent.click(screen.getByRole("button", { name: "blobs" }));
-    expect(useConfigStore.getState().style).toBe("blobs");
+    fireEvent.click(screen.getByRole("button", { name: "aurora" }));
+    expect(useConfigStore.getState().style).toBe("aurora");
     fireEvent.click(screen.getByRole("button", { name: "liquid" }));
     expect(useConfigStore.getState().style).toBe("liquid");
   });

@@ -15,7 +15,13 @@ export const Slider = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SliderPrimitive.Root
     ref={ref}
-    className={cn("relative flex w-full touch-none select-none items-center py-1.5", className)}
+    className={cn(
+      // py-3 gives a 24px hit row (was 12px) so the user can grab the slider
+      // without pixel-hunting the thumb. Track stays at h-1.5 so the visual
+      // doesn't change.
+      "relative flex w-full touch-none select-none items-center py-3 cursor-pointer",
+      className,
+    )}
     {...props}
   >
     <SliderPrimitive.Track className="tactile-recessed relative h-1.5 w-full grow overflow-hidden rounded-full">
@@ -29,8 +35,13 @@ export const Slider = React.forwardRef<
     </SliderPrimitive.Track>
     {React.Children.map(props.children, () => null)}
     <SliderPrimitive.Thumb
+      // Visible thumb at 18px + an invisible 32px hit-circle via ::before so
+      // the grab target is comfortably bigger than the visual without making
+      // the knob look chunky.
       className={cn(
-        "tactile-knob block h-4 w-4 rounded-full outline-none will-change-transform",
+        "tactile-knob relative block h-[18px] w-[18px] rounded-full outline-none will-change-transform",
+        "cursor-grab active:cursor-grabbing",
+        "before:absolute before:inset-[-7px] before:content-['']",
         "transition-transform duration-100 ease-out hover:scale-[1.08] active:scale-[0.96]",
         "focus-visible:ring-2 focus-visible:ring-[color:var(--color-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--color-surface-1)]",
         "disabled:pointer-events-none disabled:opacity-50",

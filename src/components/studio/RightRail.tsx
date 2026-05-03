@@ -1,6 +1,8 @@
+import { AnimatePresence, m } from "motion/react";
+import { Sparkles } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
-import { useConfigStore, useUIStore, type SourceTab } from "@/store";
-import { STYLES, type Style } from "@/lib/palettes";
+import { useConfigStore, useUIStore, surpriseMe, type SourceTab } from "@/store";
+import { PALETTES, STYLES, type Style } from "@/lib/palettes";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/shadcn/accordion";
 import { Slider } from "@/components/ui/shadcn/slider";
 import { Swatches } from "./Swatches";
@@ -10,9 +12,10 @@ import { PillTabs } from "./PillTabs";
 import { LightDial } from "./LightDial";
 
 /**
- * Right rail of the Studio. Single-open accordion (Source / Style / Effects)
- * with Source expanded by default — progressive disclosure so the panel
- * never feels saturated. Each section is indexed (01–03) with a numeric
+ * Right rail of the Studio. Multi-open accordion (Source / Style / Effects)
+ * with Source expanded by default — progressive disclosure that still lets
+ * users keep Style + Effects visible together while iterating. Each section
+ * is indexed (01–03) with a numeric
  * chip on the trigger.
  *
  * Source has two tabs: Palettes (curated decks) and Picker (manual swatches
@@ -30,6 +33,23 @@ const COLOR_COUNT_LABEL: Record<2 | 3 | 4, string> = {
   4: "Four colors",
 };
 
+// One-line copy that fades in below the style PillTabs. Editorial italic so it
+// reads as guidance, not a label. Each line should describe what the user will
+// actually see — not the implementation (radial layers, FBM, etc.).
+const STYLE_DESCRIPTIONS: Record<Style, string> = {
+  mesh: "A few broad focal points — calm, brand-style background.",
+  liquid: "Horizontal bands with a bright crown overhead.",
+  aurora: "Vertical curtains drape down — northern-lights mood.",
+  nebula: "Procedural cloud field — soft turbulent fog.",
+};
+
+// Styles whose `density` parameter has a visible effect. `mesh / liquid /
+// aurora` ignore density in `buildGradientSpec`, so exposing the slider for
+// them would be a phantom control. Keep this in sync with `spec.ts`.
+const DENSITY_LABEL: Partial<Record<Style, string>> = {
+  nebula: "Density",
+};
+
 export function RightRail() {
   const {
     active,
@@ -37,14 +57,14 @@ export function RightRail() {
     blur,
     grain,
     lightAngle,
-    brightness,
+    density,
     contrast,
     vibrance,
     setStyle,
     setBlur,
     setGrain,
     setLightAngle,
-    setBrightness,
+    setDensity,
     setContrast,
     setVibrance,
   } = useConfigStore(
@@ -54,14 +74,14 @@ export function RightRail() {
       blur: s.blur,
       grain: s.grain,
       lightAngle: s.lightAngle,
-      brightness: s.brightness,
+      density: s.density,
       contrast: s.contrast,
       vibrance: s.vibrance,
       setStyle: s.setStyle,
       setBlur: s.setBlur,
       setGrain: s.setGrain,
       setLightAngle: s.setLightAngle,
-      setBrightness: s.setBrightness,
+      setDensity: s.setDensity,
       setContrast: s.setContrast,
       setVibrance: s.setVibrance,
     })),
@@ -114,7 +134,8 @@ export function RightRail() {
               </div>
             ) : (
               <div className="flex flex-col gap-3.5">
-                <LabelRow left="Curated" right="10 in the deck" />
+                <LabelRow left="Curated" right={`${PALETTES.length} in the deck`} />
+                <SurpriseTile />
                 <Palettes />
               </div>
             )}
@@ -122,8 +143,38 @@ export function RightRail() {
         </Section>
 
         <Section index="02" value="style" title="Style" hint={style}>
-          <div className="flex flex-col gap-3.5">
+          <div className="flex flex-col gap-4">
             <PillTabs options={STYLES} value={style} onChange={(s: Style) => setStyle(s)} />
+            <p className="font-serif italic text-[13px] leading-snug text-white/55 -mt-0.5">
+              {STYLE_DESCRIPTIONS[style]}
+            </p>
+            <AnimatePresence initial={false}>
+              {DENSITY_LABEL[style] ? (
+                <m.div
+                  key="density"
+                  // Animate height + opacity for a soft expand/collapse. We
+                  // animate `height: auto` via motion's `auto` keyword so the
+                  // content's natural height is measured and the transition
+                  // works without a hard-coded pixel value.
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.22, ease: [0.32, 0.72, 0, 1] }}
+                  className="overflow-hidden"
+                >
+                  <div className="flex flex-col gap-3 pt-1">
+                    <LabelRow left={DENSITY_LABEL[style]!} right={`${Math.round(density * 100)}%`} />
+                    <Slider
+                      value={[density]}
+                      min={0}
+                      max={1}
+                      step={0.01}
+                      onValueChange={(v) => setDensity(v[0]!)}
+                    />
+                  </div>
+                </m.div>
+              ) : null}
+            </AnimatePresence>
           </div>
         </Section>
 
@@ -136,16 +187,6 @@ export function RightRail() {
             <div className="flex flex-col gap-3">
               <LabelRow left="Grain" right={`${grain}%`} />
               <Slider value={[grain]} min={0} max={100} step={1} onValueChange={(v) => setGrain(v[0]!)} />
-            </div>
-            <div className="flex flex-col gap-3">
-              <LabelRow left="Brightness" right={`${Math.round(brightness * 100)}%`} />
-              <Slider
-                value={[brightness]}
-                min={0.5}
-                max={1.5}
-                step={0.01}
-                onValueChange={(v) => setBrightness(v[0]!)}
-              />
             </div>
             <div className="flex flex-col gap-3">
               <LabelRow left="Contrast" right={`${Math.round(contrast * 100)}%`} />
@@ -219,6 +260,38 @@ function Section({
       </AccordionTrigger>
       <AccordionContent className="pt-1 pb-0 px-0">{children}</AccordionContent>
     </AccordionItem>
+  );
+}
+
+/**
+ * Wildcard palette source. Sits above the curated grid because it is
+ * conceptually "another way to seed the colors" — not a wallpaper-level
+ * action like Reshuffle (which keeps colors and only redraws via a new
+ * seed). The full-width row + sparkle icon visually distinguish it from
+ * the swatch-based curated cards, so users don't read it as a palette.
+ */
+function SurpriseTile() {
+  return (
+    <button
+      type="button"
+      onClick={surpriseMe}
+      className="group flex items-center gap-2.5 rounded-[2px] px-2 py-1.5 liquid-subtle text-left cursor-pointer transition-colors duration-150 hover:bg-white/5 border-dashed"
+    >
+      <span
+        className="grid place-items-center h-5 w-12 rounded-[1px] flex-shrink-0 bg-white/[0.04] text-white/70 group-hover:text-white"
+        aria-hidden="true"
+      >
+        <Sparkles size={11} strokeWidth={1.75} />
+      </span>
+      <span className="flex flex-col leading-tight">
+        <span className="font-sans text-[10.5px] tracking-[0.14em] uppercase text-white/85">
+          Surprise me
+        </span>
+        <span className="font-sans text-[9.5px] tracking-[0.08em] uppercase text-white/40">
+          Random colors
+        </span>
+      </span>
+    </button>
   );
 }
 

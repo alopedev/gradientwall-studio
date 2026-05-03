@@ -162,11 +162,10 @@ export function buildGradientSpec(opts: SpecOpts): GradientSpec {
       "buildGradientSpec does not handle the Nebula style — render via paintWallpaper or renderNebulaToCanvas instead.",
     );
   }
-  // density=0.5 is the legacy operating point: it reproduces the historical
-  // hard-coded layer counts (mesh = colors.length, blobs = 14, liquid = 6,
-  // aurora = 2 bands per color). Existing snapshots and pre-density history
-  // items omit density → undefined → 0.5 → byte-identical output.
-  const density = opts.density ?? 0.5;
+  // After the blobs removal, none of the canvas2d styles vary their layer
+  // count by density (mesh = colors.length, liquid = 6, aurora = 2 bands per
+  // color). Density is still surfaced through `SpecOpts` for type compatibility
+  // with the WebGL Nebula path, but ignored here.
   const rand = mulberry32(seed);
   const blurPx = (blur / 100) * Math.min(w, h) * 0.35;
   const background = colors[0];
@@ -181,18 +180,6 @@ export function buildGradientSpec(opts: SpecOpts): GradientSpec {
       const cx = (0.25 + rand() * 0.5) * w * (i % 2 === 0 ? 0.7 : 1.3) * 0.8 + (i % 2) * w * 0.3;
       const cy = (0.15 + i / colors.length) * h + (rand() - 0.5) * h * 0.2;
       const r = Math.min(w, h) * (0.55 + rand() * 0.35);
-      layers.push({
-        fill: { kind: "radial", cx, cy, r, stops: [{ offset: 0, color: c }, { offset: 1, color: c + "00" }] },
-      });
-    }
-  } else if (style === "blobs") {
-    // density 0..1 maps to 7..21 blobs (density 0.5 → 14, the legacy count).
-    const count = Math.round(7 + density * 14);
-    for (let i = 0; i < count; i++) {
-      const c = colors[i % colors.length];
-      const cx = rand() * w;
-      const cy = rand() * h;
-      const r = Math.min(w, h) * (0.2 + rand() * 0.3);
       layers.push({
         fill: { kind: "radial", cx, cy, r, stops: [{ offset: 0, color: c }, { offset: 1, color: c + "00" }] },
       });
@@ -264,7 +251,9 @@ export function buildGradientSpec(opts: SpecOpts): GradientSpec {
         },
       });
     }
-    // Central white highlight
+    // Central white highlight — the visual signature that defines the liquid
+    // style. Alpha at 0.40 so the crown survives high softness values
+    // (otherwise blur ≥ 60 collapses it into the radial wash).
     layers.push({
       fill: {
         kind: "radial",
@@ -272,7 +261,7 @@ export function buildGradientSpec(opts: SpecOpts): GradientSpec {
         cy: h * 0.3,
         r: Math.min(w, h) * 0.5,
         stops: [
-          { offset: 0, color: "rgba(255,255,255,0.25)" },
+          { offset: 0, color: "rgba(255,255,255,0.4)" },
           { offset: 1, color: "rgba(255,255,255,0)" },
         ],
       },
