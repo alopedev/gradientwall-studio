@@ -9,7 +9,6 @@ import { PacksSection } from "./components/packs/PacksSection";
 import { PackPage } from "./components/packs/PackPage";
 import { PackPurchaseSuccess } from "./components/packs/PackPurchaseSuccess";
 import { RecoverForm } from "./components/RecoverForm";
-import { Closer } from "./components/Closer";
 import { Footer } from "./components/Footer";
 import { PageMeta } from "./components/PageMeta";
 import { LenisProvider } from "./components/ui/LenisProvider";
@@ -106,7 +105,6 @@ function HomePage() {
       <Marquee />
       <Studio />
       <PacksSection />
-      <Closer />
       <Footer />
     </>
   );

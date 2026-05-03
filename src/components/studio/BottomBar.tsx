@@ -4,6 +4,7 @@ import { useConfigStore, useRenderParams, save } from "@/store";
 import { downloadWallpaper } from "@/lib/download";
 import { EASE } from "@/lib/motion";
 import { SeedBadge } from "./SeedBadge";
+import { HistoryDrawer } from "./HistoryDrawer";
 import { MagneticButton } from "../ui/MagneticButton";
 
 /**
@@ -50,6 +51,7 @@ export function BottomBar() {
       </div>
 
       <div className="flex items-center gap-2">
+        <HistoryDrawer />
         <button
           type="button"
           onClick={save}

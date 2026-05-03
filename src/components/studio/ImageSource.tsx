@@ -2,13 +2,18 @@ import { useRef, useState } from "react";
 import { useConfigStore, useUIStore } from "@/store";
 import { extractColorsFromFile } from "@/lib/color-extract";
 
+interface ImageSourceProps {
+  onComplete?: () => void;
+}
+
 /**
- * Third Source tab. Drops image uploads through a k-means extractor to seed
- * the four color slots, then auto-switches to the picker tab so the user can
- * refine the result. Purely a "seed the palette" action — it does not persist
- * the uploaded image; after extraction the file is forgotten.
+ * Image-to-palette helper. Drops uploads through k-means to seed the four
+ * color slots; does not persist the file. By default it auto-switches to the
+ * picker tab so the user can refine. When `onComplete` is supplied (e.g.
+ * inside the "Use my photo" popover), the caller drives what happens next
+ * instead of the global tab switch.
  */
-export function ImageSource() {
+export function ImageSource({ onComplete }: ImageSourceProps = {}) {
   const setColors = useConfigStore((s) => s.setColors);
   const setActiveTab = useUIStore((s) => s.setActiveTab);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -23,12 +28,12 @@ export function ImageSource() {
     try {
       const extracted = await extractColorsFromFile(file);
       setColors(extracted);
-      setActiveTab("picker");
+      if (onComplete) onComplete();
+      else setActiveTab("picker");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to read image");
     } finally {
       setExtracting(false);
-      // Reset the input so re-uploading the same file fires onChange again.
       e.target.value = "";
     }
   }

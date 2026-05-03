@@ -1,7 +1,6 @@
 import { Preview } from "./Preview";
 import { RightRail } from "./RightRail";
 import { BottomBar } from "./BottomBar";
-import { History } from "./History";
 import { Reveal } from "../ui/Reveal";
 import { SplitWords } from "../ui/SplitWords";
 
@@ -36,8 +35,6 @@ export function Studio() {
         </div>
         <RightRail />
       </div>
-
-      <History />
     </section>
   );
 }

@@ -4,8 +4,8 @@
 @theme {
   /* Two-voice typography. Space Grotesk does the heavy lifting (UI, body,
      uppercase brutalist heads). Instrument Serif italic appears only at
-     editorial accent moments — second-line headlines, pack names, the
-     Closer's big phrase, italic intros of pack descriptions. Never body. */
+     editorial accent moments — second-line headlines, pack names, italic
+     intros of pack descriptions. Never body. */
   --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Instrument Serif", ui-serif, Georgia, "Times New Roman", serif;
 
@@ -316,20 +316,6 @@ body::before {
   }
   50% {
     transform: scale(1.006);
-  }
-}
-/* Drifting backdrop blob used behind the Closer headline. Translates in a
-   wide ellipse and rotates slowly so the gradient never settles into a
-   recognisable shape — keeps the section feeling atmospheric. */
-@keyframes gw-orbit-drift {
-  0% {
-    transform: translate(-8%, -4%) rotate(0deg);
-  }
-  50% {
-    transform: translate(8%, 6%) rotate(180deg);
-  }
-  100% {
-    transform: translate(-8%, -4%) rotate(360deg);
   }
 }
 /* =================== Slider =================== */

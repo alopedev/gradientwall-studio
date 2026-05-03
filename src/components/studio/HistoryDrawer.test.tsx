@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { History } from "./History";
+import { HistoryDrawer } from "./HistoryDrawer";
 import { useConfigStore } from "@/store/useConfigStore";
 import { useHistoryStore, type HistoryItem } from "@/store/useHistoryStore";
 import { resetStores } from "@/test-utils";
@@ -13,42 +13,48 @@ const item = (seed: number): HistoryItem => ({
   seed,
 });
 
-describe("<History />", () => {
+describe("<HistoryDrawer />", () => {
   beforeEach(resetStores);
 
-  it("shows the empty state when history is empty", () => {
-    render(<History />);
+  it("renders a 'Saved' trigger with the current count", () => {
+    useHistoryStore.setState({ history: [item(1), item(2)] });
+    render(<HistoryDrawer />);
+    const trigger = screen.getByRole("button", { name: /open saved gradients/i });
+    expect(trigger).toBeInTheDocument();
+    expect(trigger).toHaveTextContent("2");
+  });
+
+  it("opening the drawer shows the empty state when history is empty", () => {
+    render(<HistoryDrawer />);
+    fireEvent.click(screen.getByRole("button", { name: /open saved gradients/i }));
     expect(screen.getByText(/NOTHING HERE YET/i)).toBeInTheDocument();
     expect(screen.getByText("0 saved")).toBeInTheDocument();
   });
 
-  it("renders one card per history item and shows count", () => {
+  it("opening the drawer renders one card per history item", () => {
     useHistoryStore.setState({ history: [item(1), item(2), item(3)] });
-    render(<History />);
+    render(<HistoryDrawer />);
+    fireEvent.click(screen.getByRole("button", { name: /open saved gradients/i }));
     expect(screen.queryByText(/NOTHING HERE YET/i)).not.toBeInTheDocument();
     expect(screen.getByText("3 saved")).toBeInTheDocument();
-    const canvases = document.querySelectorAll("#gradientwall-history canvas, canvas");
-    // 3 history cards each render a canvas
+    const canvases = document.querySelectorAll("canvas");
     expect(canvases.length).toBeGreaterThanOrEqual(3);
   });
 
   it("clicking a card's delete button removes that item without loading it", () => {
-    useHistoryStore.setState({
-      history: [item(1), item(2), item(3)],
-    });
-    render(<History />);
+    useHistoryStore.setState({ history: [item(1), item(2), item(3)] });
+    render(<HistoryDrawer />);
+    fireEvent.click(screen.getByRole("button", { name: /open saved gradients/i }));
     const deleteBtns = screen.getAllByRole("button", { name: /delete saved gradient/i });
     expect(deleteBtns).toHaveLength(3);
-    // Capture config before clicking — load must NOT happen
     const seedBefore = useConfigStore.getState().seed;
     fireEvent.click(deleteBtns[1]!);
-    // Item 2 (seed 2) is gone; remaining seeds 1 and 3 in order
     const remaining = useHistoryStore.getState().history;
     expect(remaining.map((h) => h.seed)).toEqual([1, 3]);
     expect(useConfigStore.getState().seed).toBe(seedBefore);
   });
 
-  it("clicking a card calls loadHistoryItem → config store picks up item's values", () => {
+  it("clicking a card loads it via the coordinator", () => {
     useHistoryStore.setState({
       history: [
         {
@@ -60,10 +66,13 @@ describe("<History />", () => {
         },
       ],
     });
-    render(<History />);
-    // The card is a <button> wrapping the canvas. Find it via role.
-    const btn = screen.getAllByRole("button")[0];
-    fireEvent.click(btn);
+    render(<HistoryDrawer />);
+    fireEvent.click(screen.getByRole("button", { name: /open saved gradients/i }));
+    // The card itself is the only button inside the drawer body that is not the delete pip.
+    const cardButtons = screen
+      .getAllByRole("button")
+      .filter((b) => !/delete saved gradient/i.test(b.getAttribute("aria-label") ?? "") && !/open saved gradients/i.test(b.getAttribute("aria-label") ?? "") && !/close/i.test(b.getAttribute("aria-label") ?? ""));
+    fireEvent.click(cardButtons[0]!);
     const c = useConfigStore.getState();
     expect(c.style).toBe("liquid");
     expect(c.blur).toBe(90);

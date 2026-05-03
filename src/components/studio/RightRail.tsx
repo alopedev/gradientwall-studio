@@ -5,22 +5,24 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Slider } from "@/components/ui/shadcn/slider";
 import { Swatches } from "./Swatches";
 import { Palettes } from "./Palettes";
-import { ImageSource } from "./ImageSource";
+import { UseMyPhotoButton } from "./UseMyPhotoButton";
 import { PillTabs } from "./PillTabs";
 import { LightDial } from "./LightDial";
 
 /**
- * Right rail of the Studio. Three accordion sections (Source / Style /
- * Effects), all open by default, individually collapsible. Each section is
- * indexed (01–03) with a numeric chip on the trigger; the active accordion
- * gets a hair-thin accent stripe on the leading edge to anchor focus.
+ * Right rail of the Studio. Single-open accordion (Source / Style / Effects)
+ * with Source expanded by default — progressive disclosure so the panel
+ * never feels saturated. Each section is indexed (01–03) with a numeric
+ * chip on the trigger.
+ *
+ * Source has two tabs: Palettes (curated decks) and Picker (manual swatches
+ * with a "Use my photo" affordance for image-extracted palettes).
  *
  * Output (device, download) lives in the BottomBar under the canvas — not
  * duplicated here. The seed and reshuffle also live in BottomBar.
  */
-const SOURCE_TABS = ["palettes", "picker", "image"] as const satisfies readonly SourceTab[];
-const sourceLabel = (t: SourceTab) =>
-  t === "picker" ? "Picker" : t === "palettes" ? "Palettes" : "Image";
+const SOURCE_TABS = ["palettes", "picker"] as const satisfies readonly SourceTab[];
+const sourceLabel = (t: SourceTab) => (t === "picker" ? "Picker" : "Palettes");
 
 const COLOR_COUNT_LABEL: Record<2 | 3 | 4, string> = {
   2: "Two colors",
@@ -86,8 +88,9 @@ export function RightRail() {
         }}
       />
       <Accordion
-        type="multiple"
-        defaultValue={["source", "style", "effects"]}
+        type="single"
+        defaultValue="source"
+        collapsible
         className="relative z-[1] flex flex-col gap-2.5"
       >
         <Section
@@ -102,16 +105,12 @@ export function RightRail() {
               <div className="flex flex-col gap-3.5">
                 <LabelRow left={COLOR_COUNT_LABEL[activeCount]} right={`mix · ${activeCount}/4`} />
                 <Swatches />
-              </div>
-            ) : activeTab === "palettes" ? (
-              <div className="flex flex-col gap-3.5">
-                <LabelRow left="Curated" right="10 in the deck" />
-                <Palettes />
+                <UseMyPhotoButton />
               </div>
             ) : (
               <div className="flex flex-col gap-3.5">
-                <LabelRow left="Upload" right="k-means · 4 colors" />
-                <ImageSource />
+                <LabelRow left="Curated" right="10 in the deck" />
+                <Palettes />
               </div>
             )}
           </div>
