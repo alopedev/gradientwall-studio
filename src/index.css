@@ -110,14 +110,20 @@
 }
 
 /* =================== Site-wide grain (film level) =================== */
+/* Promoted to its own GPU compositing layer (translateZ + will-change) so the
+   browser doesn't have to recomposite the body grain on every paint of the
+   content beneath. mix-blend-mode is preserved for the film-overlay look — the
+   layer-promotion alone is what reclaims the lost frames during interactions. */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 100;
-  opacity: 0.65;
+  opacity: 0.55;
   mix-blend-mode: overlay;
+  transform: translateZ(0);
+  will-change: opacity;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.35 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
@@ -135,15 +141,15 @@ body::before {
 }
 @utility liquid-subtle {
   background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(14px) saturate(1.3);
-  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 @utility liquid-pill {
   background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(14px) saturate(1.3);
-  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.14);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }

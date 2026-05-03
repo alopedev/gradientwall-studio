@@ -15,13 +15,14 @@ export type ComposeOpts = PaintOpts;
 /**
  * Paint a wallpaper (gradient + optional grain) onto an existing canvas.
  *
- * Single source of truth for "render a wallpaper": Preview, the gradient
- * hooks, the download path and any future mockup surface go through here.
- * If you ever need a watermark, blend mode, or color-space tweak, this is
- * the only file to touch.
+ * Single source of truth for "render a wallpaper" in the download / mockup
+ * path. Composes pixels exactly: gradient → grading → grain. Grading is
+ * applied as a pixel-domain filter pass so the downloaded WebP/JPEG is
+ * pre-graded (the file works anywhere, no CSS).
  *
- * Use `paintWallpaper` when you already hold a `<canvas>` ref.
- * Use `composeWallpaper` when you need a fresh off-screen canvas.
+ * For the live Studio preview prefer `paintWallpaperPreview` — same gradient
+ * + grain output but grading is applied via `canvas.style.filter` so moving
+ * the brightness/contrast/vibrance sliders is free (no bitmap repaint).
  */
 export function paintWallpaper(
   canvas: HTMLCanvasElement,
@@ -66,6 +67,27 @@ export function paintWallpaper(
 const vibranceToSaturate = (v: number) => 1 + (v - 1) * 0.6;
 
 /**
+ * Build the CSS `filter` string for the grading triple. Used by the preview
+ * path to push grading off the bitmap and onto the compositor — moving the
+ * brightness/contrast/vibrance sliders becomes a style mutation instead of
+ * a full canvas repaint.
+ *
+ * Returns `""` (no filter) when all three are at identity so the common case
+ * is free.
+ */
+export function gradingCssFilter(
+  brightness: number | undefined,
+  contrast: number | undefined,
+  vibrance: number | undefined,
+): string {
+  const b = brightness ?? 1;
+  const c = contrast ?? 1;
+  const v = vibrance ?? 1;
+  if (b === 1 && c === 1 && v === 1) return "";
+  return `brightness(${b}) contrast(${c}) saturate(${vibranceToSaturate(v)})`;
+}
+
+/**
  * Apply brightness/contrast/vibrance as a post-processing pass that works
  * for both the canvas2d and WebGL (nebula) outputs. Skips when all three
  * are at identity (1) so the common case is free.
@@ -81,10 +103,8 @@ export function applyColorGrading(
   vibrance: number | undefined,
   canvasFactory: () => HTMLCanvasElement = () => document.createElement("canvas"),
 ): void {
-  const b = brightness ?? 1;
-  const c = contrast ?? 1;
-  const v = vibrance ?? 1;
-  if (b === 1 && c === 1 && v === 1) return;
+  const filter = gradingCssFilter(brightness, contrast, vibrance);
+  if (!filter) return;
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
   const tmp = canvasFactory();
@@ -94,7 +114,7 @@ export function applyColorGrading(
   if (!tctx) return;
   tctx.drawImage(canvas, 0, 0);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.filter = `brightness(${b}) contrast(${c}) saturate(${vibranceToSaturate(v)})`;
+  ctx.filter = filter;
   ctx.drawImage(tmp, 0, 0);
   ctx.filter = "none";
 }
@@ -170,4 +190,98 @@ export function getNoiseTile(
  */
 export function __resetNoiseTileForTests(): void {
   cachedNoiseTile = null;
+}
+
+// ---------------------------------------------------------------------------
+// Preview-only fast path: cached base gradient + grain, grading via CSS.
+// ---------------------------------------------------------------------------
+
+type BaseKey = string;
+
+function baseKey(opts: PaintOpts): BaseKey {
+  return `${opts.w}x${opts.h}|${opts.style}|${opts.colors.join(",")}|${opts.blur}|${opts.seed}|${opts.lightAngle ?? ""}|${opts.density ?? ""}`;
+}
+
+let cachedBase: { key: BaseKey; canvas: HTMLCanvasElement } | null = null;
+
+/**
+ * Build (or fetch from LRU(1) cache) an off-screen canvas with the base
+ * gradient — no grain, no grading. Cache key is the tuple that determines
+ * the bitmap exactly: `(style, colors, blur, seed, lightAngle, density, w, h)`.
+ *
+ * Slider-induced changes to grain/brightness/contrast/vibrance keep the same
+ * key, so the gradient pass (the genuinely expensive part) is skipped.
+ */
+function getBaseCanvas(
+  opts: PaintOpts,
+  canvasFactory: () => HTMLCanvasElement,
+): HTMLCanvasElement {
+  const key = baseKey(opts);
+  if (cachedBase && cachedBase.key === key) return cachedBase.canvas;
+  const c = canvasFactory();
+  c.width = opts.w;
+  c.height = opts.h;
+  if (opts.style === "nebula") {
+    renderNebulaToCanvas(
+      c,
+      {
+        w: opts.w,
+        h: opts.h,
+        colors: opts.colors,
+        seed: opts.seed,
+        density: opts.density,
+        lightAngle: opts.lightAngle,
+        blur: opts.blur,
+      },
+      canvasFactory,
+    );
+  } else {
+    renderGradient(c, {
+      w: opts.w,
+      h: opts.h,
+      colors: opts.colors,
+      style: opts.style,
+      blur: opts.blur,
+      seed: opts.seed,
+      lightAngle: opts.lightAngle,
+    });
+  }
+  cachedBase = { key, canvas: c };
+  return c;
+}
+
+/**
+ * Reset the base-gradient cache. Test-only.
+ */
+export function __resetBaseCacheForTests(): void {
+  cachedBase = null;
+}
+
+/**
+ * Preview-path paint: blit the cached base gradient onto the destination
+ * canvas, apply grain in pixels, and set `canvas.style.filter` so grading
+ * happens on the GPU compositor (no bitmap repaint when only grading sliders
+ * move).
+ *
+ * The pixel-domain output diverges from `paintWallpaper` ONLY in that
+ * grading is delegated to CSS — visually identical in the preview, and the
+ * download path (`composeWallpaper`) keeps its in-bitmap grading so the
+ * exported file is pre-graded.
+ */
+export function paintWallpaperPreview(
+  canvas: HTMLCanvasElement,
+  opts: PaintOpts,
+  canvasFactory: () => HTMLCanvasElement = () => document.createElement("canvas"),
+): void {
+  const base = getBaseCanvas(opts, canvasFactory);
+  if (canvas.width !== opts.w) canvas.width = opts.w;
+  if (canvas.height !== opts.h) canvas.height = opts.h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(base, 0, 0);
+  if (opts.grain && opts.grain > 0) {
+    applyGrainOverlay(canvas, opts.grain, canvasFactory);
+  }
+  canvas.style.filter = gradingCssFilter(opts.brightness, opts.contrast, opts.vibrance);
 }
