@@ -55,7 +55,7 @@ export function Swatches() {
                   <button
                     type="button"
                     aria-label={`Edit color ${i + 1}`}
-                    className="relative h-full w-full overflow-hidden rounded-[2px] border border-white/14 cursor-pointer transition-[transform,border-color] duration-150 hover:-translate-y-0.5 hover:border-white/30 focus-visible:outline-none focus-visible:border-white"
+                    className="relative h-full w-full overflow-hidden rounded-[2px] border border-white/14 cursor-pointer transition-[transform,border-color,box-shadow] duration-200 ease-out hover:scale-[1.05] hover:border-white/40 hover:shadow-[0_8px_18px_rgba(0,0,0,0.45)] active:scale-[0.96] active:transition-transform active:duration-100 focus-visible:outline-none focus-visible:border-white"
                     style={{ background: col }}
                   >
                     {cellChrome}

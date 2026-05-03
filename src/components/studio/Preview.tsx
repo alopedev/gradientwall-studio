@@ -132,7 +132,10 @@ export function Preview() {
                 transitionTimingFunction: EASE_CSS,
               }}
             >
-              <canvas ref={canvasRef} className="block w-full h-full" />
+              <canvas
+                ref={canvasRef}
+                className="block w-full h-full motion-safe:animate-[gw-breathe_9s_ease-in-out_infinite]"
+              />
             </m.div>
           )}
         </AnimatePresence>

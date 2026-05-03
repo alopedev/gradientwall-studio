@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from "react";
-import Lenis from "@studio-freight/lenis";
+import Lenis from "lenis";
 
 // Smooth-scroll inertia provider. Mounts a single Lenis instance, drives
 // rAF loop, tears down on unmount. Honors prefers-reduced-motion (skips
