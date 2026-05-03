@@ -85,7 +85,7 @@ function assertCover(c: Pack["cover"]): void {
   if (c.kind === "gradient") {
     expect(c.colors.length).toBe(4);
     for (const hex of c.colors) expect(hex).toMatch(/^#[0-9a-fA-F]{3,8}$/);
-    expect(["mesh", "blobs", "liquid", "aurora"]).toContain(c.style);
+    expect(["mesh", "liquid", "aurora"]).toContain(c.style);
     expect(c.blur).toBeGreaterThanOrEqual(0);
     expect(c.grain).toBeGreaterThanOrEqual(0);
     expect(c.grain).toBeLessThanOrEqual(100);

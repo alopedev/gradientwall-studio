@@ -3,7 +3,6 @@ import { create } from "zustand";
 import {
   activeColors,
   ALL_ACTIVE,
-  DEFAULT_BRIGHTNESS,
   DEFAULT_CONTRAST,
   DEFAULT_DENSITY,
   DEFAULT_LIGHT_ANGLE,
@@ -29,11 +28,10 @@ import { randomColors } from "@/lib/gradient";
  * concrete value, so we narrow it to required here.
  */
 export interface ConfigState
-  extends Omit<GradientConfig, "lightAngle" | "density" | "brightness" | "contrast" | "vibrance"> {
+  extends Omit<GradientConfig, "lightAngle" | "density" | "contrast" | "vibrance"> {
   device: Device;
   lightAngle: number;
   density: number;
-  brightness: number;
   contrast: number;
   vibrance: number;
   /**
@@ -65,7 +63,6 @@ export interface ConfigState
   /** Set visual density 0..1 (clamped). 0.5 reproduces the legacy counts. */
   setDensity: (n: number) => void;
   /** Color-grading multipliers, clamped to 0.5..1.5. Identity = 1. */
-  setBrightness: (n: number) => void;
   setContrast: (n: number) => void;
   setVibrance: (n: number) => void;
   reshuffle: () => void;
@@ -80,7 +77,7 @@ const clampGrade = (n: number) => (n < 0.5 ? 0.5 : n > 1.5 ? 1.5 : n);
 
 /** Numeric fields that are mutated repeatedly by slider/dial drags. */
 type RafPatch = Partial<
-  Pick<ConfigState, "blur" | "grain" | "lightAngle" | "density" | "brightness" | "contrast" | "vibrance">
+  Pick<ConfigState, "blur" | "grain" | "lightAngle" | "density" | "contrast" | "vibrance">
 >;
 
 /**
@@ -132,7 +129,6 @@ export const useConfigStore = create<ConfigState>()((set) => {
   seed: randomSeed(),
   lightAngle: DEFAULT_LIGHT_ANGLE,
   density: DEFAULT_DENSITY,
-  brightness: DEFAULT_BRIGHTNESS,
   contrast: DEFAULT_CONTRAST,
   vibrance: DEFAULT_VIBRANCE,
 
@@ -162,7 +158,6 @@ export const useConfigStore = create<ConfigState>()((set) => {
   setSeed: (n) => set({ seed: n & 0xffff }),
   setLightAngle: (deg) => rafSet({ lightAngle: ((deg % 360) + 360) % 360 }),
   setDensity: (n) => rafSet({ density: clamp01(n) }),
-  setBrightness: (n) => rafSet({ brightness: clampGrade(n) }),
   setContrast: (n) => rafSet({ contrast: clampGrade(n) }),
   setVibrance: (n) => rafSet({ vibrance: clampGrade(n) }),
   reshuffle: () => set({ seed: randomSeed() }),
@@ -191,7 +186,6 @@ export const selectRenderParams = (s: ConfigState): RenderParams => ({
   seed: s.seed,
   lightAngle: s.lightAngle,
   density: s.density,
-  brightness: s.brightness,
   contrast: s.contrast,
   vibrance: s.vibrance,
 });
@@ -219,7 +213,6 @@ export function useRenderParams(): RenderParams {
   const seed = useConfigStore((s) => s.seed);
   const lightAngle = useConfigStore((s) => s.lightAngle);
   const density = useConfigStore((s) => s.density);
-  const brightness = useConfigStore((s) => s.brightness);
   const contrast = useConfigStore((s) => s.contrast);
   const vibrance = useConfigStore((s) => s.vibrance);
   return useMemo(
@@ -231,10 +224,9 @@ export function useRenderParams(): RenderParams {
       seed,
       lightAngle,
       density,
-      brightness,
       contrast,
       vibrance,
     }),
-    [colors, active, style, blur, grain, seed, lightAngle, density, brightness, contrast, vibrance],
+    [colors, active, style, blur, grain, seed, lightAngle, density, contrast, vibrance],
   );
 }

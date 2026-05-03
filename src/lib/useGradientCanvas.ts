@@ -101,7 +101,6 @@ export function useFittedGradientCanvas(
         seed: cur.seed,
         lightAngle: cur.lightAngle,
         density: cur.density,
-        brightness: cur.brightness,
         contrast: cur.contrast,
         vibrance: cur.vibrance,
       });

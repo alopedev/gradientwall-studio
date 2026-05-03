@@ -30,8 +30,8 @@ describe("<RightRail />", () => {
     render(<RightRail />);
     // Single-open accordion now starts with Source expanded; open Style first.
     fireEvent.click(screen.getByRole("button", { name: /02\s*style/i }));
-    fireEvent.click(screen.getByRole("button", { name: "blobs" }));
-    expect(useConfigStore.getState().style).toBe("blobs");
+    fireEvent.click(screen.getByRole("button", { name: "aurora" }));
+    expect(useConfigStore.getState().style).toBe("aurora");
     fireEvent.click(screen.getByRole("button", { name: "liquid" }));
     expect(useConfigStore.getState().style).toBe("liquid");
   });

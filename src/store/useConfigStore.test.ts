@@ -22,8 +22,8 @@ describe("useConfigStore", () => {
   it("setDevice / setStyle / setBlur / setGrain are single-key mutations", async () => {
     useConfigStore.getState().setDevice("desktop");
     expect(useConfigStore.getState().device).toBe("desktop");
-    useConfigStore.getState().setStyle("blobs");
-    expect(useConfigStore.getState().style).toBe("blobs");
+    useConfigStore.getState().setStyle("liquid");
+    expect(useConfigStore.getState().style).toBe("liquid");
     // setBlur / setGrain go through an rAF batcher (slider drags coalesce
     // into one render per frame); flush before reading.
     useConfigStore.getState().setBlur(72);

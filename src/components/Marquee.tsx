@@ -2,7 +2,7 @@ import { Reveal } from "./ui/Reveal";
 
 const ITEMS = [
   "Mesh gradients",
-  "Organic blobs",
+  "Aurora curtains",
   "Soft grain",
   "Four colors",
   "Zero limits",

@@ -27,12 +27,12 @@ describe("<BottomBar />", () => {
   });
 
   it("clicking Save appends the current config to the history store", () => {
-    useConfigStore.setState({ style: "blobs", blur: 30, grain: 20, seed: 4242 });
+    useConfigStore.setState({ style: "liquid", blur: 30, grain: 20, seed: 4242 });
     render(<BottomBar />);
     fireEvent.click(screen.getByRole("button", { name: /^save$/i }));
     const history = useHistoryStore.getState().history;
     expect(history).toHaveLength(1);
-    expect(history[0]).toMatchObject({ style: "blobs", blur: 30, grain: 20, seed: 4242 });
+    expect(history[0]).toMatchObject({ style: "liquid", blur: 30, grain: 20, seed: 4242 });
   });
 
   it("Download button shows 'Generating' then '✓ Saved' then reverts to 'Download'", async () => {
