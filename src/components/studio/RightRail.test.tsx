@@ -8,13 +8,14 @@ import { resetStores, flushRaf } from "@/test-utils";
 describe("<RightRail />", () => {
   beforeEach(resetStores);
 
-  it("renders all three accordion sections (Source, Style, Effects) — Source open by default", () => {
+  it("renders all three accordion sections (Source, Style, Effects) — all open by default", () => {
     render(<RightRail />);
     const sourceTrigger = screen.getByRole("button", { name: /01\s*source/i });
-    expect(sourceTrigger).toBeInTheDocument();
+    const styleTrigger = screen.getByRole("button", { name: /02\s*style/i });
+    const effectsTrigger = screen.getByRole("button", { name: /03\s*effects/i });
     expect(sourceTrigger).toHaveAttribute("aria-expanded", "true");
-    expect(screen.getByRole("button", { name: /02\s*style/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /03\s*effects/i })).toBeInTheDocument();
+    expect(styleTrigger).toHaveAttribute("aria-expanded", "true");
+    expect(effectsTrigger).toHaveAttribute("aria-expanded", "true");
   });
 
   it("starts in palettes tab inside Source — switches to picker on tab click", () => {
@@ -28,8 +29,8 @@ describe("<RightRail />", () => {
 
   it("clicking a style tab updates the config store", () => {
     render(<RightRail />);
-    // Single-open accordion now starts with Source expanded; open Style first.
-    fireEvent.click(screen.getByRole("button", { name: /02\s*style/i }));
+    // All accordion sections start open under the multi-open layout, so
+    // Style's pills are immediately reachable — no extra click to expand.
     fireEvent.click(screen.getByRole("button", { name: "blobs" }));
     expect(useConfigStore.getState().style).toBe("blobs");
     fireEvent.click(screen.getByRole("button", { name: "liquid" }));
@@ -39,7 +40,6 @@ describe("<RightRail />", () => {
   it("nudging the softness slider with ArrowRight updates blur", async () => {
     const before = useConfigStore.getState().blur;
     render(<RightRail />);
-    fireEvent.click(screen.getByRole("button", { name: /03\s*effects/i }));
     const sliders = screen.getAllByRole("slider");
     sliders[0]!.focus();
     fireEvent.keyDown(sliders[0]!, { key: "ArrowRight" });
@@ -51,7 +51,6 @@ describe("<RightRail />", () => {
   it("nudging the grain slider with ArrowRight updates grain", async () => {
     const before = useConfigStore.getState().grain;
     render(<RightRail />);
-    fireEvent.click(screen.getByRole("button", { name: /03\s*effects/i }));
     const sliders = screen.getAllByRole("slider");
     sliders[1]!.focus();
     fireEvent.keyDown(sliders[1]!, { key: "ArrowRight" });

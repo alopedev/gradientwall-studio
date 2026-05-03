@@ -30,8 +30,8 @@ export const Slider = React.forwardRef<
     {React.Children.map(props.children, () => null)}
     <SliderPrimitive.Thumb
       className={cn(
-        "tactile-knob block h-4 w-4 rounded-full outline-none",
-        "transition-transform duration-150 ease-out hover:scale-[1.08] active:scale-[0.96]",
+        "tactile-knob block h-4 w-4 rounded-full outline-none will-change-transform",
+        "transition-transform duration-100 ease-out hover:scale-[1.08] active:scale-[0.96]",
         "focus-visible:ring-2 focus-visible:ring-[color:var(--color-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--color-surface-1)]",
         "disabled:pointer-events-none disabled:opacity-50",
       )}

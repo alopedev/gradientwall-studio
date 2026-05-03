@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Slider } from "@/components/ui/shadcn/slider";
 import { useColorEditing } from "./useColorEditing";
 
@@ -30,6 +31,17 @@ export function ColorHUD({ value, onChange }: ColorHUDProps) {
     openEyedropper,
   } = useColorEditing(value, onChange);
 
+  // Focus + select the hex input on open so the user can paste/type a new
+  // value with zero extra clicks. Reduces the cost of editing a swatch from
+  // "click → click in field → select-all → type" to "click → type".
+  const hexInputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const el = hexInputRef.current;
+    if (!el) return;
+    el.focus();
+    el.select();
+  }, []);
+
   return (
     <div className="w-[280px] flex flex-col gap-4">
       {/* Hex row */}
@@ -42,6 +54,7 @@ export function ColorHUD({ value, onChange }: ColorHUDProps) {
         <label className="flex-1 flex flex-col gap-1">
           <span className="font-sans text-[10px] tracking-[0.18em] uppercase text-white/40">Hex</span>
           <input
+            ref={hexInputRef}
             type="text"
             value={hexDraft}
             onChange={(e) => setHex(e.target.value)}
