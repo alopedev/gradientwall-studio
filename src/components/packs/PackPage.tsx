@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { m } from "motion/react";
 import { getPackBySlug, type Pack } from "@/lib/packs";
-import { isCheckoutConfigured, openCheckout } from "@/lib/checkout";
+import { canPurchasePack, openCheckout } from "@/lib/store";
 import { Nav } from "../Nav";
 import { Footer } from "../Footer";
 import { Framed } from "../ui/Framed";
@@ -51,7 +51,8 @@ export function PackPage() {
   const { slug = "" } = useParams<{ slug: string }>();
   const pack = getPackBySlug(slug);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const buyEnabled = !!pack?.lemonSqueezyVariantId && isCheckoutConfigured();
+  const eligibility = pack ? canPurchasePack(pack) : { kind: "missing-variant" as const };
+  const buyEnabled = eligibility.kind === "buyable";
 
   if (!pack) {
     return (
@@ -150,12 +151,18 @@ export function PackPage() {
                 <MagneticButton>
                   <button
                     disabled={!buyEnabled || checkoutLoading}
-                    title={buyEnabled ? "Open checkout" : "Checkout configuration pending"}
+                    title={
+                      eligibility.kind === "buyable"
+                        ? "Open checkout"
+                        : eligibility.kind === "missing-variant"
+                          ? "Checkout coming soon for this pack"
+                          : "Checkout configuration pending"
+                    }
                     onClick={async () => {
-                      if (!buyEnabled || !pack.lemonSqueezyVariantId) return;
+                      if (eligibility.kind !== "buyable") return;
                       setCheckoutLoading(true);
                       try {
-                        await openCheckout({ variantId: pack.lemonSqueezyVariantId, packSlug: pack.slug });
+                        await openCheckout({ variantId: eligibility.variantId, packSlug: pack.slug });
                       } finally {
                         setCheckoutLoading(false);
                       }
@@ -169,9 +176,14 @@ export function PackPage() {
                     {checkoutLoading ? "Loading…" : `↓ Buy €${pack.priceEur.toFixed(2)}`}
                   </button>
                 </MagneticButton>
-                {!buyEnabled && (
+                {eligibility.kind === "missing-variant" && (
                   <span className="font-sans text-[11px] tracking-[0.14em] uppercase text-white/40">
                     Checkout coming soon
+                  </span>
+                )}
+                {eligibility.kind === "checkout-not-configured" && (
+                  <span className="font-sans text-[11px] tracking-[0.14em] uppercase text-white/40">
+                    Checkout configuration pending
                   </span>
                 )}
               </div>
