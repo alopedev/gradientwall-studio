@@ -18,6 +18,7 @@ import {
   type Style,
 } from "@/lib/palettes";
 import { randomColors } from "@/lib/gradient";
+import { makeRafBatcher } from "@/lib/raf-batcher";
 
 /**
  * Current wallpaper configuration — the "what the studio is showing right now".
@@ -80,45 +81,8 @@ type RafPatch = Partial<
   Pick<ConfigState, "blur" | "grain" | "lightAngle" | "density" | "contrast" | "vibrance">
 >;
 
-/**
- * rAF-coalesced setter helper. Slider/dial drags emit dozens of `onChange`
- * events per second; without batching, every event triggers a zustand update,
- * a `useRenderParams` recompute and a canvas repaint. Coalescing collapses all
- * patches that arrive within a frame into a single `set()` call so we paint
- * at most once per rAF tick. Synchronous reads via `useConfigStore.getState()`
- * remain consistent because the patch is flushed within the same animation
- * frame the browser is about to render.
- *
- * Falls back to immediate `set()` when `requestAnimationFrame` is unavailable
- * (jsdom node-env tests, SSR) so no test setup is required.
- */
-function makeRafBatcher(set: (patch: RafPatch) => void) {
-  let pending: RafPatch | null = null;
-  let scheduled = false;
-  const hasRAF = typeof requestAnimationFrame === "function";
-  const flush = () => {
-    scheduled = false;
-    if (pending) {
-      const p = pending;
-      pending = null;
-      set(p);
-    }
-  };
-  return (patch: RafPatch) => {
-    if (!hasRAF) {
-      set(patch);
-      return;
-    }
-    pending = pending ? { ...pending, ...patch } : { ...patch };
-    if (!scheduled) {
-      scheduled = true;
-      requestAnimationFrame(flush);
-    }
-  };
-}
-
 export const useConfigStore = create<ConfigState>()((set) => {
-  const rafSet = makeRafBatcher(set);
+  const rafSet = makeRafBatcher<RafPatch>(set);
   return {
   device: "desktop",
   colors: [...PALETTES[0].colors] as Colors4,
