@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Nav } from "./Nav";
 import { Footer } from "./Footer";
 import { PageMeta } from "./PageMeta";
+import { submitRecoverRequest } from "@/lib/store";
 
 type State = { kind: "idle" } | { kind: "submitting" } | { kind: "done" } | { kind: "error"; message: string };
 
@@ -14,20 +15,11 @@ export function RecoverForm() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setState({ kind: "submitting" });
-    try {
-      const res = await fetch("/.netlify/functions/recover-link", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), orderId: orderId.trim() }),
-      });
-      if (!res.ok) {
-        const body = (await res.json().catch(() => ({}))) as { error?: string };
-        setState({ kind: "error", message: body.error ?? `Server returned ${res.status}` });
-        return;
-      }
+    const result = await submitRecoverRequest({ email, orderId });
+    if (result.kind === "ok") {
       setState({ kind: "done" });
-    } catch (err) {
-      setState({ kind: "error", message: err instanceof Error ? err.message : "Network error" });
+    } else {
+      setState({ kind: "error", message: result.message });
     }
   }
 

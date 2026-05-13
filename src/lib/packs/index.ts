@@ -1,5 +1,5 @@
 import packsData from "@/data/packs.json";
-import type { Pack, PackStyle } from "./types";
+import { PACK_STYLES, type Pack, type PackStyle } from "./types";
 
 export type { Pack, PackCover, PackStyle } from "./types";
 export { PACK_STYLES } from "./types";
@@ -38,10 +38,8 @@ export function filterPacks(style: PackStyle | null | undefined): Pack[] {
   return PACKS.filter((p) => p.style === style);
 }
 
-/** Distinct styles present in the catalog, in canonical order. */
+/** Distinct styles present in the catalog, in canonical order (PACK_STYLES). */
 export function availableStyles(): PackStyle[] {
   const present = new Set(PACKS.map((p) => p.style));
-  // Preserve PACK_STYLES canonical order; only return ones that have packs.
-  const order: PackStyle[] = ["gradient", "acrylic", "fluted", "photo"];
-  return order.filter((s) => present.has(s));
+  return PACK_STYLES.filter((s) => present.has(s));
 }
