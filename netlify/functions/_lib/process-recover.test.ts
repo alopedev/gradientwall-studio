@@ -9,6 +9,7 @@ import {
   type OrderRecord,
 } from "./orders-store";
 import { verifyDownloadToken } from "./signed-token";
+import { decodeJwt } from "jose";
 import type { LoopsClient } from "./loops";
 
 const NOW = Math.floor(Date.now() / 1000);
@@ -192,6 +193,73 @@ describe("processRecover", () => {
       { email: "buyer@example.com", orderId: "order_xyz" },
     );
     expect(loops.sent[0].email).toBe(baseOrder.email);
+  });
+
+  it("never shortens the Deadline — recovery on a 29d-fresh order keeps the original expiresAt", async () => {
+    const twentyNineDays = 60 * 60 * 24 * 29;
+    const longDeadline = NOW + twentyNineDays;
+    await putOrder(store, { ...baseOrder, expiresAt: longDeadline });
+
+    const out = await processRecover(deps(), {
+      email: "buyer@example.com",
+      orderId: "order_xyz",
+    });
+
+    expect(out).toMatchObject({ ok: true, reason: "reissued", expiresAt: longDeadline });
+    const stored = await getOrder(store, "order_xyz");
+    expect(stored?.expiresAt).toBe(longDeadline);
+    // counter still 4 (recovery doesn't reset)
+    expect(stored?.downloadsRemaining).toBe(baseOrder.downloadsRemaining);
+  });
+
+  it("JWT exp aligns with stored expiresAt when deadline is preserved (not the default 7d ttl)", async () => {
+    const twentyNineDays = 60 * 60 * 24 * 29;
+    const longDeadline = NOW + twentyNineDays;
+    await putOrder(store, { ...baseOrder, expiresAt: longDeadline });
+
+    await processRecover(deps(), {
+      email: "buyer@example.com",
+      orderId: "order_xyz",
+    });
+
+    const token = new URL(loops.sent[0].dataVariables.downloadUrl).searchParams.get("token");
+    const decoded = decodeJwt(token!);
+    // JWT exp must align with the store Deadline (not the default 7d ttl);
+    // otherwise the token expires while the Order is still valid.
+    expect(decoded.exp).toBe(longDeadline);
+  });
+
+  it("extends the Deadline when stored expiresAt is closer than now + ttl", async () => {
+    // baseOrder.expiresAt = NOW + 1000 (close); ttl default = 7d → recovery extends to NOW + 7d
+    const out = await processRecover(deps(), {
+      email: "buyer@example.com",
+      orderId: "order_xyz",
+    });
+    expect(out).toMatchObject({ ok: true, reason: "reissued", expiresAt: NOW + TTL });
+    const stored = await getOrder(store, "order_xyz");
+    expect(stored?.expiresAt).toBe(NOW + TTL);
+  });
+
+  it("expired — Order whose Deadline already passed; rejected before LS lookup", async () => {
+    await putOrder(store, { ...baseOrder, expiresAt: NOW - 1 });
+    const out = await processRecover(deps(), {
+      email: "buyer@example.com",
+      orderId: "order_xyz",
+    });
+    expect(out).toEqual({ ok: true, reason: "expired" });
+    expect(loops.sent).toHaveLength(0);
+    expect(lookupCalls).toEqual([]); // no upstream call wasted
+  });
+
+  it("exhausted — Order with downloadsRemaining=0; rejected before LS lookup", async () => {
+    await putOrder(store, { ...baseOrder, downloadsRemaining: 0 });
+    const out = await processRecover(deps(), {
+      email: "buyer@example.com",
+      orderId: "order_xyz",
+    });
+    expect(out).toEqual({ ok: true, reason: "exhausted" });
+    expect(loops.sent).toHaveLength(0);
+    expect(lookupCalls).toEqual([]);
   });
 
   it("preserves downloadsRemaining when /download decrements concurrently between getOrder and putOrder", async () => {

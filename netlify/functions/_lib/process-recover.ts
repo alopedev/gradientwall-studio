@@ -33,7 +33,13 @@ export type RecoverOutcome =
   | { ok: true; reason: "reissued"; expiresAt: number }
   | {
       ok: true;
-      reason: "bad_input" | "order_not_found" | "ls_lookup_failed" | "email_mismatch";
+      reason:
+        | "bad_input"
+        | "order_not_found"
+        | "expired"
+        | "exhausted"
+        | "ls_lookup_failed"
+        | "email_mismatch";
     };
 
 /**
@@ -59,6 +65,12 @@ export async function processRecover(
   const stored = await getOrder(deps.store, orderId);
   if (!stored) return { ok: true, reason: "order_not_found" };
 
+  const ttlSeconds = deps.ttlSeconds ?? DEFAULT_TTL_SECONDS;
+  const now = deps.now();
+
+  if (stored.expiresAt < now) return { ok: true, reason: "expired" };
+  if (stored.downloadsRemaining <= 0) return { ok: true, reason: "exhausted" };
+
   const lsLookup = await deps.lookupOrderEmail(orderId).catch(() => null);
   if (!lsLookup) return { ok: true, reason: "ls_lookup_failed" };
 
@@ -67,13 +79,13 @@ export async function processRecover(
     return { ok: true, reason: "email_mismatch" };
   }
 
-  const ttlSeconds = deps.ttlSeconds ?? DEFAULT_TTL_SECONDS;
-  const now = deps.now();
-  const expiresAt = now + ttlSeconds;
+  // Never shorten the Deadline — recovery only extends if it benefits the buyer.
+  // See docs/adr/0001-recovery-semantics.md.
+  const expiresAt = Math.max(now + ttlSeconds, stored.expiresAt);
 
   const token = await issueDownloadToken({
     payload: { orderId: stored.orderId, packSlug: stored.packSlug, email: stored.email },
-    ttlSeconds,
+    ttlSeconds: expiresAt - now,
     secret: deps.jwtSecret,
     iat: now,
   });
