@@ -41,7 +41,8 @@ export interface LSOrderCreated {
 }
 
 export interface ParsedOrder {
-  orderId: string;
+  /** `data.id` from the LS webhook — buyer-visible id. NOT our `orderId`. */
+  lsOrderId: string;
   email: string;
   packSlug: string;
 }
@@ -58,7 +59,7 @@ export function parseOrderCreatedEvent(body: unknown): ParsedOrder | null {
   const packSlug = body.meta.custom_data?.pack_slug;
   if (!packSlug) return null;
   return {
-    orderId: body.data.id,
+    lsOrderId: body.data.id,
     email: body.data.attributes.user_email,
     packSlug,
   };

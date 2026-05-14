@@ -33,7 +33,10 @@ export default async (req: Request, _ctx: Context): Promise<Response> => {
       publicSiteUrl: env.publicSiteUrl,
       now: () => Math.floor(Date.now() / 1000),
     },
-    { email: body.email ?? "", orderId: body.orderId ?? "" },
+    // The form labels its field "Order ID" — that's the buyer-visible LS id
+    // from their receipt, which we resolve to our own internal `orderId` via
+    // the `ls:{lsOrderId}` pointer.
+    { email: body.email ?? "", lsOrderId: body.orderId ?? "" },
   );
 
   console.log("[recover-link]", { reason: outcome.reason });

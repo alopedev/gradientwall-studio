@@ -1,5 +1,5 @@
 import { issueDownloadToken } from "./signed-token";
-import { getOrder, putOrder, type KVBackend } from "./orders-store";
+import { getOrder, getOrderByLsOrderId, putOrder, type KVBackend } from "./orders-store";
 import type { LoopsClient } from "./loops";
 
 const DEFAULT_TTL_SECONDS = 60 * 60 * 24 * 7; // 7 days
@@ -9,13 +9,14 @@ export interface ProcessRecoverDeps {
   loops: LoopsClient;
   /**
    * Looks up the email of record for an order in the upstream payment
-   * provider (Lemon Squeezy in prod). Returning `null` is the canonical
-   * "no such order" signal — the caller should treat thrown errors the
-   * same way (defensive: see processRecover catching below). Injected as
-   * a function (not an apiKey) so this orchestration layer never knows
-   * about HTTP transport.
+   * provider (Lemon Squeezy in prod). The `lsOrderId` passed here is the
+   * buyer-visible id from their receipt — the only value the form collects.
+   * Returning `null` is the canonical "no such order" signal — the caller
+   * should treat thrown errors the same way (defensive: see processRecover
+   * catching below). Injected as a function (not an apiKey) so this
+   * orchestration layer never knows about HTTP transport.
    */
-  lookupOrderEmail: (orderId: string) => Promise<{ email: string } | null>;
+  lookupOrderEmail: (lsOrderId: string) => Promise<{ email: string } | null>;
   jwtSecret: string;
   loopsTransactionalId: string;
   publicSiteUrl: string;
@@ -26,7 +27,11 @@ export interface ProcessRecoverDeps {
 
 export interface ProcessRecoverInput {
   email: string;
-  orderId: string;
+  /**
+   * The id the buyer typed in the recovery form, copied from their LS email.
+   * Resolved to our own `orderId` via the `ls:{lsOrderId}` pointer.
+   */
+  lsOrderId: string;
 }
 
 export type RecoverOutcome =
@@ -51,15 +56,15 @@ export async function processRecover(
   input: ProcessRecoverInput,
 ): Promise<RecoverOutcome> {
   const email = input.email.trim().toLowerCase();
-  const orderId = input.orderId.trim();
-  if (!email || !orderId) {
+  const lsOrderId = input.lsOrderId.trim();
+  if (!email || !lsOrderId) {
     return { ok: true, reason: "bad_input" };
   }
 
-  const stored = await getOrder(deps.store, orderId);
+  const stored = await getOrderByLsOrderId(deps.store, lsOrderId);
   if (!stored) return { ok: true, reason: "order_not_found" };
 
-  const lsLookup = await deps.lookupOrderEmail(orderId).catch(() => null);
+  const lsLookup = await deps.lookupOrderEmail(lsOrderId).catch(() => null);
   if (!lsLookup) return { ok: true, reason: "ls_lookup_failed" };
 
   const lsEmail = lsLookup.email.trim().toLowerCase();
@@ -82,7 +87,7 @@ export async function processRecover(
   // /download call could decrement downloadsRemaining and have its update
   // clobbered by ours. Same shape as `consumeDownload` — we don't have CAS
   // on Netlify Blobs, but we keep the read-write window as small as we can.
-  const fresh = (await getOrder(deps.store, orderId)) ?? stored;
+  const fresh = (await getOrder(deps.store, stored.orderId)) ?? stored;
   await putOrder(deps.store, { ...fresh, expiresAt });
 
   const downloadUrl = `${deps.publicSiteUrl}/.netlify/functions/download?token=${encodeURIComponent(token)}`;

@@ -46,9 +46,9 @@ describe("parseOrderCreatedEvent", () => {
     },
   };
 
-  it("extracts order/email/packSlug from a valid order_created paid event", () => {
+  it("extracts lsOrderId/email/packSlug from a valid order_created paid event", () => {
     expect(parseOrderCreatedEvent(validEvent)).toEqual({
-      orderId: "order_abc",
+      lsOrderId: "order_abc",
       email: "buyer@example.com",
       packSlug: "midnight-velvet",
     });

@@ -32,7 +32,10 @@ export function inMemoryBackend(seed: Record<string, string> = {}): KVBackend {
 }
 
 export interface OrderRecord {
+  /** Our own UUID — primary key in the orders store. Travels in the JWT. */
   orderId: string;
+  /** The id Lemon Squeezy assigned; the value the buyer sees in their email. */
+  lsOrderId: string;
   packSlug: string;
   email: string;
   downloadsRemaining: number;
@@ -42,18 +45,51 @@ export interface OrderRecord {
   createdAt: number;
 }
 
+// Key namespacing: the store holds two kinds of records and we keep them in
+// disjoint namespaces so a malicious `orderId` value can never collide with a
+// pointer (and vice versa).
+const orderKey = (orderId: string) => `order:${orderId}`;
+const lsPointerKey = (lsOrderId: string) => `ls:${lsOrderId}`;
+
+interface LsPointer {
+  orderId: string;
+}
+
 export async function putOrder(b: KVBackend, o: OrderRecord): Promise<void> {
-  await b.set(o.orderId, JSON.stringify(o));
+  await b.set(orderKey(o.orderId), JSON.stringify(o));
 }
 
 export async function getOrder(b: KVBackend, orderId: string): Promise<OrderRecord | null> {
-  const raw = await b.get(orderId);
+  const raw = await b.get(orderKey(orderId));
   if (!raw) return null;
   try {
     return JSON.parse(raw) as OrderRecord;
   } catch {
     return null;
   }
+}
+
+/**
+ * Write the secondary index `ls:{lsOrderId} → { orderId }`. /recover receives
+ * the LS id (the one the buyer pastes from their receipt) and needs to map it
+ * back to our own primary id.
+ */
+export async function putLsOrderPointer(b: KVBackend, lsOrderId: string, orderId: string): Promise<void> {
+  const pointer: LsPointer = { orderId };
+  await b.set(lsPointerKey(lsOrderId), JSON.stringify(pointer));
+}
+
+export async function getOrderByLsOrderId(b: KVBackend, lsOrderId: string): Promise<OrderRecord | null> {
+  const raw = await b.get(lsPointerKey(lsOrderId));
+  if (!raw) return null;
+  let pointer: LsPointer;
+  try {
+    pointer = JSON.parse(raw) as LsPointer;
+  } catch {
+    return null;
+  }
+  if (typeof pointer.orderId !== "string" || !pointer.orderId) return null;
+  return getOrder(b, pointer.orderId);
 }
 
 export type ConsumeResult =

@@ -58,6 +58,7 @@ describe("processDownload", () => {
   it("returns 403 exhausted when the counter is at zero", async () => {
     await putOrder(store, {
       ...ORDER,
+      lsOrderId: "ls_123",
       downloadsRemaining: 0,
       expiresAt: NOW + 1000,
       createdAt: NOW,
@@ -70,6 +71,7 @@ describe("processDownload", () => {
   it("returns 403 expired_order when the order's expiresAt has passed", async () => {
     await putOrder(store, {
       ...ORDER,
+      lsOrderId: "ls_123",
       downloadsRemaining: 5,
       expiresAt: NOW - 1,
       createdAt: NOW - 1000,
@@ -82,6 +84,7 @@ describe("processDownload", () => {
   it("on success: returns redirect URL, decrements counter, calls presign with packSlug", async () => {
     await putOrder(store, {
       ...ORDER,
+      lsOrderId: "ls_123",
       downloadsRemaining: 5,
       expiresAt: NOW + 1000,
       createdAt: NOW,

@@ -1,7 +1,15 @@
 import { SignJWT, jwtVerify, errors as joseErrors } from "jose";
 
 export interface DownloadTokenPayload {
-  /** Lemon Squeezy order ID — primary key in the orders store. */
+  /**
+   * Our own UUID for the order — primary key in the orders store.
+   *
+   * Invariant: this is NEVER the Lemon Squeezy order id (`lsOrderId`). LS ids
+   * are buyer-visible and re-typed by humans into /recover; mixing them into
+   * the JWT would let a buyer-visible identifier function as a capability
+   * lookup key. Keeping `orderId` opaque means /download resolves the Order
+   * directly without any pointer indirection.
+   */
   orderId: string;
   /** Pack the buyer is entitled to download. */
   packSlug: string;
