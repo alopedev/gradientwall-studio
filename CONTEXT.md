@@ -4,6 +4,18 @@ Studio gratuito de wallpapers gradient + tienda de packs curados (4.99€, pago 
 
 ## Language
 
+### Studio
+
+**Studio**:
+Herramienta gratuita de creación de wallpapers gradient. El usuario llega, **explora**, encuentra algo que le encanta, **lo descarga**. La descarga es el resultado deseado del flujo — el Studio no es un "vibe demo" ni un escaparate de marca; es un creator tool funcional. Roadmap **independiente** del comercial (tienda de Packs); no comparte PRD.
+_Avoid_: tratar al Studio como "demo" — produce un archivo que el usuario se lleva, igual que un Pack.
+
+**Surprise me**:
+Acción first-class del Studio: randomiza **solo los colores** de la paleta activa, dejando el resto del estado intacto. Distinto de **Reshuffle** (BottomBar): Reshuffle mantiene colores y rebobina el seed. Surprise me es el gesto motor central de la filosofía exploration-first (ver ADR-0003).
+
+**Reshuffle**:
+Acción del BottomBar: nuevo seed sobre la paleta y estilo actuales. Genera una variante distinta del mismo "look" sin cambiar la decisión cromática del usuario.
+
 ### Render pipeline (Studio)
 
 **Render**:
