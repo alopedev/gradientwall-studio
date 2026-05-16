@@ -174,12 +174,14 @@ export function Preview() {
         </div>
       </div>
 
-      {/* Stage — fit-to-aspect wallpaper. Padding kept light on desktop so the
-          wallpaper actually fills the frame; the previous md:p-14 was eating
-          ≥100px per side which shrunk wide aspects (16:9 desktop) to look
-          smaller than the iPad 4:3 preview. */}
+      {/* Stage — fit-to-aspect wallpaper. The stage declares
+          `container-type: size` so the wallpaper can sit in container-query
+          coordinates: width = min(stage-inline, stage-block × aspect). Without
+          an explicit width the wallpaper would collapse to the canvas's
+          intrinsic 300×150 — which is why the desktop preview previously
+          looked smaller than iPad. */}
       <div
-        className="absolute inset-0 flex items-center justify-center p-3 md:p-6"
+        className="absolute inset-0 flex items-center justify-center p-3 md:p-6 [container-type:size]"
         style={{ background: "radial-gradient(circle at 50% 50%, #0c0c10, #070709)" }}
       >
         <m.div
@@ -190,8 +192,10 @@ export function Preview() {
           className="relative overflow-hidden rounded-lg [&[data-alt=true]]:cursor-grab [&[data-alt=true]:active]:cursor-grabbing"
           style={{
             aspectRatio: `${d.w} / ${d.h}`,
-            maxWidth: "100%",
-            maxHeight: "100%",
+            // Take the largest box that fits both axes: the lesser of the
+            // stage's inline size and (stage block size × aspect ratio).
+            // Height is derived from aspect-ratio.
+            width: `min(100cqi, calc(100cqb * ${d.w} / ${d.h}))`,
             background: "#111",
             boxShadow: "0 30px 80px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.04)",
           }}
