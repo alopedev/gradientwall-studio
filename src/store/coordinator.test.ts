@@ -71,20 +71,10 @@ describe("coordinator", () => {
   });
 
   describe("applyPalette()", () => {
-    it("applies an unlocked palette to config + marks it active in UI", () => {
-      const unlockedIdx = PALETTES.findIndex((p) => !p.locked);
-      applyPalette(unlockedIdx);
-      expect(useConfigStore.getState().colors).toEqual(PALETTES[unlockedIdx].colors);
-      expect(useUIStore.getState().activePalette).toBe(unlockedIdx);
-    });
-
-    it("is a no-op for locked palettes", () => {
-      const beforeColors = useConfigStore.getState().colors;
-      const beforeActive = useUIStore.getState().activePalette;
-      const lockedIdx = PALETTES.findIndex((p) => p.locked);
-      applyPalette(lockedIdx);
-      expect(useConfigStore.getState().colors).toBe(beforeColors);
-      expect(useUIStore.getState().activePalette).toBe(beforeActive);
+    it("applies a curated palette to config + marks it active in UI", () => {
+      applyPalette(0);
+      expect(useConfigStore.getState().colors).toEqual(PALETTES[0].colors);
+      expect(useUIStore.getState().activePalette).toBe(0);
     });
 
     it("is a no-op for out-of-range indices", () => {
@@ -130,8 +120,7 @@ describe("coordinator", () => {
 
     it("applyPalette() resets the active mask to ALL_ACTIVE", () => {
       useConfigStore.setState({ active: [true, false, false, true] });
-      const unlockedIdx = PALETTES.findIndex((p) => !p.locked);
-      applyPalette(unlockedIdx);
+      applyPalette(0);
       expect(useConfigStore.getState().active).toEqual(ALL_ACTIVE);
     });
   });

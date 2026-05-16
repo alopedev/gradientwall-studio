@@ -56,13 +56,13 @@ export function removeHistoryItem(index: number): void {
 }
 
 /**
- * Apply a curated palette. No-op for locked palettes. On success, writes
+ * Apply a curated palette. No-op for out-of-range indices. On success, writes
  * colors to ConfigStore AND marks the palette as active in UIStore. The
  * active mask resets to all-four so the palette renders as designed.
  */
 export function applyPalette(i: number): void {
   const p = PALETTES[i];
-  if (!p || p.locked) return;
+  if (!p) return;
   useConfigStore.setState({
     colors: [...p.colors] as Colors4,
     active: [...ALL_ACTIVE] as ActiveMask,

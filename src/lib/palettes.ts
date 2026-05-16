@@ -147,19 +147,18 @@ export const DEFAULT_DENSITY = 0.5;
 export interface Palette {
   name: string;
   colors: Colors4;
-  locked: boolean;
 }
 
 export const PALETTES: Palette[] = [
-  { name: "Dusk", colors: ["#2b1055", "#7597de", "#ff6e7f", "#ffd86e"], locked: false },
-  { name: "Tokyo", colors: ["#f72585", "#7209b7", "#3a0ca3", "#4cc9f0"], locked: false },
-  { name: "Ember", colors: ["#0d0d0d", "#7a1b2e", "#ff5a36", "#ffd166"], locked: false },
-  { name: "Forest", colors: ["#0b3d2e", "#1f8a70", "#bedb39", "#fff275"], locked: false },
-  { name: "Nocturne", colors: ["#0a0a1a", "#1e1b4b", "#8b5cf6", "#f0abfc"], locked: false },
-  { name: "Coast", colors: ["#012a4a", "#2a9df4", "#caf0f8", "#fefae0"], locked: false },
-  { name: "Mocha", colors: ["#3a2618", "#7c5a3f", "#c9a982", "#f4e8d8"], locked: false },
-  { name: "Velvet", colors: ["#1a0b2e", "#5b21b6", "#c026d3", "#fb7185"], locked: false },
-  { name: "Mercury", colors: ["#0f172a", "#475569", "#cbd5e1", "#f8fafc"], locked: false },
-  { name: "Cherry", colors: ["#2b0a0a", "#9f1239", "#f43f5e", "#fecdd3"], locked: false },
+  { name: "Dusk", colors: ["#2b1055", "#7597de", "#ff6e7f", "#ffd86e"] },
+  { name: "Tokyo", colors: ["#f72585", "#7209b7", "#3a0ca3", "#4cc9f0"] },
+  { name: "Ember", colors: ["#0d0d0d", "#7a1b2e", "#ff5a36", "#ffd166"] },
+  { name: "Forest", colors: ["#0b3d2e", "#1f8a70", "#bedb39", "#fff275"] },
+  { name: "Nocturne", colors: ["#0a0a1a", "#1e1b4b", "#8b5cf6", "#f0abfc"] },
+  { name: "Coast", colors: ["#012a4a", "#2a9df4", "#caf0f8", "#fefae0"] },
+  { name: "Mocha", colors: ["#3a2618", "#7c5a3f", "#c9a982", "#f4e8d8"] },
+  { name: "Velvet", colors: ["#1a0b2e", "#5b21b6", "#c026d3", "#fb7185"] },
+  { name: "Mercury", colors: ["#0f172a", "#475569", "#cbd5e1", "#f8fafc"] },
+  { name: "Cherry", colors: ["#2b0a0a", "#9f1239", "#f43f5e", "#fecdd3"] },
 ];
 

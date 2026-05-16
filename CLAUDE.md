@@ -35,7 +35,7 @@ Four concentric layers: **pure render → state → React views → backend func
 - `download/`
   - `compose.ts` — **single source of truth for "render a wallpaper onto a canvas"**. Exposes `paintWallpaper(canvas, opts)` for callers that already hold a canvas (Preview, gradient hooks, PackCover) and `composeWallpaper(opts, factory?)` for callers that need a fresh off-screen canvas (download flow, mockup shared canvas). Both internally call `paintWallpaper` so the gradient + grain pipeline is defined exactly once. If you ever need a watermark / blend mode tweak, this is the only file to touch.
   - `encode.ts` + `sink.ts` + `index.ts` — encode-with-fallback + browser blob download wiring used by the Studio's Download button.
-- `palettes.ts` — `DEVICE_SIZES`, `PALETTES` (2 free + 4 locked premium), `GradientConfig` shape, `Device | Style | Colors4 | DEVICES | STYLES | ActiveMask` types and `activeColors` selector.
+- `palettes.ts` — `DEVICE_SIZES`, `PALETTES` (10 free curated decks), `GradientConfig` shape, `Device | Style | Colors4 | DEVICES | STYLES | ActiveMask` types and `activeColors` selector.
 - `packs/` — pure data layer for the store. Types (`Pack`, `PackStyle`, `PackCover` discriminated union), `getPacks()`, `getPackBySlug(slug)`, `filterPacks(style)`, `availableStyles()`. Source of truth: build-time JSON manifest at `src/data/packs.json` (10 previews per pack, all `kind: "gradient"` until real R2 assets land — the discriminator lets us migrate pack-by-pack without touching callers).
 - `checkout.ts` — lazy-loads `lemon.js` and opens the LS overlay with `pack_slug` in `custom_data`. `isCheckoutConfigured()` drives the Buy button's disabled state — false until `VITE_LEMONSQUEEZY_STORE` is set.
 - `useGradientCanvas.ts` — `useGradientCanvas` (legacy fixed-size) + `useFittedGradientCanvas` (DPR + ResizeObserver + rAF coalesced). Both delegate to `paintWallpaper`.
@@ -51,7 +51,7 @@ Three Zustand stores plus a coordinator module:
 - `useUIStore` — ephemeral UI state (active source tab, active palette index).
 - `coordinator.ts` — pure functions (NOT hooks) that orchestrate cross-store transactions: `save()`, `loadHistoryItem(h)`, `applyPalette(i)`. Components call these directly from event handlers; the coordinator reads/writes via vanilla `useX.getState()`/`.setState()`. **Always go through the coordinator for cross-store ops** — bypassing it leads to inconsistent partial states.
 
-`applyPalette(i)` silently no-ops for locked palettes; the shake animation on locked click lives in the `Palettes` component, not the store.
+`applyPalette(i)` silently no-ops for out-of-range indices.
 
 ### 3. React views (`src/components/`)
 Thin. Pattern:
