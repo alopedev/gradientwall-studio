@@ -1,7 +1,6 @@
 import { AnimatePresence, m } from "motion/react";
-import { Sparkles } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
-import { useConfigStore, useUIStore, surpriseMe, type SourceTab } from "@/store";
+import { useConfigStore, useUIStore, type SourceTab } from "@/store";
 import { PALETTES, STYLES, type Style } from "@/lib/palettes";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/shadcn/accordion";
 import { Slider } from "@/components/ui/shadcn/slider";
@@ -135,7 +134,6 @@ export function RightRail() {
             ) : (
               <div className="flex flex-col gap-3.5">
                 <LabelRow left="Curated" right={`${PALETTES.length} in the deck`} />
-                <SurpriseTile />
                 <Palettes />
               </div>
             )}
@@ -260,38 +258,6 @@ function Section({
       </AccordionTrigger>
       <AccordionContent className="pt-1 pb-0 px-0">{children}</AccordionContent>
     </AccordionItem>
-  );
-}
-
-/**
- * Wildcard palette source. Sits above the curated grid because it is
- * conceptually "another way to seed the colors" — not a wallpaper-level
- * action like Reshuffle (which keeps colors and only redraws via a new
- * seed). The full-width row + sparkle icon visually distinguish it from
- * the swatch-based curated cards, so users don't read it as a palette.
- */
-function SurpriseTile() {
-  return (
-    <button
-      type="button"
-      onClick={surpriseMe}
-      className="group flex items-center gap-2.5 rounded-[2px] px-2 py-1.5 liquid-subtle text-left cursor-pointer transition-colors duration-150 hover:bg-white/5 border-dashed"
-    >
-      <span
-        className="grid place-items-center h-5 w-12 rounded-[1px] flex-shrink-0 bg-white/[0.04] text-white/70 group-hover:text-white"
-        aria-hidden="true"
-      >
-        <Sparkles size={11} strokeWidth={1.75} />
-      </span>
-      <span className="flex flex-col leading-tight">
-        <span className="font-sans text-[10.5px] tracking-[0.14em] uppercase text-white/85">
-          Surprise me
-        </span>
-        <span className="font-sans text-[9.5px] tracking-[0.08em] uppercase text-white/40">
-          Random colors
-        </span>
-      </span>
-    </button>
   );
 }
 

@@ -1,5 +1,4 @@
 import { ALL_ACTIVE, PALETTES, type ActiveMask, type Colors4 } from "@/lib/palettes";
-import { randomColors } from "@/lib/gradient";
 import { useConfigStore } from "./useConfigStore";
 import { useHistoryStore, type HistoryItem } from "./useHistoryStore";
 import { useUIStore } from "./useUIStore";
@@ -70,18 +69,3 @@ export function applyPalette(i: number): void {
   useUIStore.getState()._setActivePalette(i);
 }
 
-/**
- * Pick four fresh random colors and clear the curated-palette selection. The
- * style/seed/lighting/grain etc. stay as-is — this is deliberately *not*
- * `Reshuffle` (which keeps colors and only redraws via a new seed) and *not*
- * `randomize()` (which also flips style/density). Surprise me lives in the
- * Palettes tab because, conceptually, it is "another palette source": curated
- * decks deliver hand-picked color sets, Surprise me delivers a wildcard one.
- */
-export function surpriseMe(): void {
-  useConfigStore.setState({
-    colors: randomColors(),
-    active: [...ALL_ACTIVE] as ActiveMask,
-  });
-  useUIStore.getState()._setActivePalette(-1);
-}
