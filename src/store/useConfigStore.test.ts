@@ -10,13 +10,13 @@ const INITIAL = useConfigStore.getState();
 describe("useConfigStore", () => {
   beforeEach(() => useConfigStore.setState(INITIAL, true));
 
-  it("initializes with Dusk palette, mesh style, blur 48, grain 45", () => {
+  it("initializes with Dusk palette, mesh style, blur 48, grain 18", () => {
     const s = useConfigStore.getState();
     expect(s.device).toBe("desktop");
     expect(s.colors).toEqual(PALETTES[0].colors);
     expect(s.style).toBe("mesh");
     expect(s.blur).toBe(48);
-    expect(s.grain).toBe(45);
+    expect(s.grain).toBe(18);
   });
 
   it("setDevice / setStyle / setBlur / setGrain are single-key mutations", async () => {

@@ -89,7 +89,11 @@ export const useConfigStore = create<ConfigState>()((set) => {
   active: freshMask(),
   style: "mesh",
   blur: 48,
-  grain: 45,
+  // Lower the default from 45 → 18 so the preview canvas reads as a clean
+  // gradient with subtle texture, not a noisy/dirty image. The Grain slider
+  // in the RightRail still spans 0–100 and the alpha cap (0.85) stays in
+  // place — this only resets where new sessions land.
+  grain: 18,
   seed: randomSeed(),
   lightAngle: DEFAULT_LIGHT_ANGLE,
   density: DEFAULT_DENSITY,

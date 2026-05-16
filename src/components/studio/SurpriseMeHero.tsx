@@ -53,27 +53,27 @@ export function SurpriseMeHero() {
         shimmerDuration="3.2s"
         shimmerSize="1px"
         borderRadius="2px"
-        className="w-full max-w-[420px] px-6 py-3.5 gap-3"
+        className="w-full max-w-[280px] px-5 py-2.5 gap-2.5"
       >
         <m.span
           aria-hidden
           animate={{ rotate: spins * 360 }}
           transition={{ duration: 0.6, ease: EASE }}
-          className="relative z-10 text-[18px] leading-none"
+          className="relative z-10 text-[15px] leading-none"
         >
           ✦
         </m.span>
-        <span className="relative z-10 font-sans text-[13px] font-medium tracking-[0.2em] uppercase">
+        <span className="relative z-10 font-sans text-[11px] font-medium tracking-[0.16em] uppercase">
           Surprise me
         </span>
         <kbd
           aria-hidden
           className="
             relative z-10 hidden sm:inline-flex items-center justify-center
-            min-w-[46px] h-[22px] px-2 rounded-[3px]
+            min-w-[38px] h-[18px] px-1.5 rounded-[3px]
             bg-black/40 border border-white/20
             shadow-[inset_0_-1px_0_rgba(0,0,0,0.35),0_1px_0_rgba(255,255,255,0.08)]
-            font-sans text-[10px] tracking-[0.08em] text-white/85 normal-case
+            font-sans text-[9px] tracking-[0.08em] text-white/85 normal-case
           "
         >
           Space
