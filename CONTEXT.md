@@ -36,7 +36,13 @@ Género visual de un Pack, usado como filtro del catálogo. Valores actuales: `g
 _Avoid_: "Style" sin calificador.
 
 **PackCover**:
-Imagen representativa de un pack o de uno de sus 10 wallpapers. Discriminated union `{ kind: "gradient" | "image" }` para soportar migración pack-a-pack del catálogo (gradient = pintado en cliente; image = URL de R2).
+Asset visual de un Pack. Discriminated union `{ kind: "gradient" | "image" }` para soportar migración pack-a-pack del catálogo (gradient = pintado en cliente; image = URL de R2). El tipo es agnóstico al rol; el rol lo da el nombre del campo donde aparece (**Cover** o **Preview**).
+
+**Cover**:
+El PackCover que **vende** un Pack — 1 por Pack, renderizado a calidad máxima en la card del catálogo y en el hero de PackPage. Pretende capturar la identidad del pack en una sola imagen.
+
+**Preview**:
+Uno de los PackCover que **muestra el contenido** de un Pack — 10 por Pack, renderizados como thumbnails de los wallpapers individuales. **Pendiente**: la PRD pedía que se sirvieran degradados (~800px + grain extra) para no regalar el archivo; hoy se renderizan igual que el Cover. La degradación pertenece al pipeline de render (parámetro `quality`), no al tipo.
 
 **Order**:
 Registro persistido en Netlify Blobs tras un `order_created` de Lemon Squeezy. Shape: `{ orderId, lsOrderId, packSlug, email, downloadsRemaining, expiresAt, createdAt }`.
