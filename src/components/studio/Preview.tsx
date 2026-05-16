@@ -139,7 +139,7 @@ export function Preview() {
   return (
     <Framed
       offset={10}
-      className="rounded-[2px] bg-[#0a0a0d] border border-white/8 min-h-[520px] overflow-hidden"
+      className="rounded-[2px] bg-[#0a0a0d] border border-white/8 min-h-[420px] overflow-hidden"
       onDragOver={onPreviewDragOver}
       onDragLeave={onPreviewDragLeave}
       onDrop={onPreviewDrop}
@@ -174,9 +174,12 @@ export function Preview() {
         </div>
       </div>
 
-      {/* Stage — fit-to-aspect wallpaper. */}
+      {/* Stage — fit-to-aspect wallpaper. Padding kept light on desktop so the
+          wallpaper actually fills the frame; the previous md:p-14 was eating
+          ≥100px per side which shrunk wide aspects (16:9 desktop) to look
+          smaller than the iPad 4:3 preview. */}
       <div
-        className="absolute inset-0 flex items-center justify-center p-4 md:p-14"
+        className="absolute inset-0 flex items-center justify-center p-3 md:p-6"
         style={{ background: "radial-gradient(circle at 50% 50%, #0c0c10, #070709)" }}
       >
         <m.div
