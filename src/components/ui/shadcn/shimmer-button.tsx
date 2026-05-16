@@ -72,12 +72,16 @@ export const ShimmerButton = React.forwardRef<
         </div>
         {children}
 
-        {/* Highlight */}
+        {/* Highlight — border-radius pinned to --radius so the inset shadow
+            follows the same silhouette as the parent button. The upstream
+            magicui component hardcoded rounded-2xl which made sharp-edge
+            consumers (like our 2px CTA) render a second curved line cutting
+            across each corner. */}
         <div
           className={cn(
-            "absolute inset-0 size-full",
+            "absolute inset-0 size-full pointer-events-none",
 
-            "rounded-2xl px-4 py-1.5 text-sm font-medium shadow-[inset_0_-8px_10px_#ffffff1f]",
+            "[border-radius:var(--radius)] px-4 py-1.5 text-sm font-medium shadow-[inset_0_-8px_10px_#ffffff1f]",
 
             // transition
             "transform-gpu transition-all duration-300 ease-in-out",
