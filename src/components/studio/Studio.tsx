@@ -1,6 +1,7 @@
 import { Preview } from "./Preview";
 import { RightRail } from "./RightRail";
 import { BottomBar } from "./BottomBar";
+import { SurpriseMeHero } from "./SurpriseMeHero";
 import { StudioHints } from "./StudioHints";
 import { Reveal } from "../ui/Reveal";
 import { SplitWords } from "../ui/SplitWords";
@@ -32,6 +33,7 @@ export function Studio() {
       <div className="grid gap-7 items-start grid-cols-1 md:[grid-template-columns:minmax(0,1.6fr)_minmax(0,1fr)]">
         <div className="flex flex-col">
           <Preview />
+          <SurpriseMeHero />
           <BottomBar />
           <StudioHints />
         </div>
