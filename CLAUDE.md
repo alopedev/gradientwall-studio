@@ -74,16 +74,15 @@ Netlify Functions v2 (Web Request/Response). Handlers are intentionally thin —
 - `_lib/signed-token.ts` — JWT HS256 with `jose` v5. Token payload = `{orderId, packSlug, email}`. `iat` is injectable so the JWT exp aligns with `expiresAt` written to the order store (using deps' clock instead of `Date.now()` directly — important for testability and for keeping JWT vs. store consistent on retry).
 - `_lib/lemon-squeezy.ts` — timing-safe HMAC verification of `X-Signature` + parser for `order_created` events (filters out non-paid + non-our event types).
 - `_lib/orders-store.ts` — `KVBackend` interface (`get`/`set`) with two implementations: `netlifyBlobsBackend()` for prod, `inMemoryBackend()` for tests. `consumeDownload` does read-check-write; not transactional, but acceptable for the 5-allowance budget. Order record = `{orderId, packSlug, email, downloadsRemaining, expiresAt, createdAt}`.
-- `_lib/loops.ts` — minimal fetch client (`sendTransactional`, `addContact`). Idempotent on 409 from add.
+- `_lib/loops.ts` — minimal fetch client (`sendTransactional` only — newsletter / contact list removed, see ADR-0004).
 - `_lib/r2.ts` — Cloudflare R2 presigned GET URL via `@aws-sdk/client-s3`. `packZipKey(slug)` = `packs/{slug}/{slug}.zip`.
 - `_lib/ls-api.ts` — `fetchOrderEmail(orderId, apiKey)` for /recover validation.
 - `_lib/process-order.ts`, `_lib/process-download.ts` — pure orchestration with deps inject. The handlers compose the prod deps and call these.
 - `_lib/env.ts` — boundary for env vars; throws on missing vars at import time.
 
-The 4 handlers:
+The 3 handlers:
 - `lemon-squeezy-webhook.ts` POST → verify HMAC → parse → `processOrderCreated` → 200.
 - `download.ts` GET → `processDownload(token)` → 302 to presigned R2 URL or 401/403 with `reason`.
-- `newsletter-subscribe.ts` POST → `loops.addContact`.
 - `recover-link.ts` POST → validates against LS API + store → re-issues 7d token + email. Returns generic 200 regardless to prevent enumeration.
 
 `netlify/functions/_lib/**` is conventionally not exposed as Functions because the directory starts with underscore.

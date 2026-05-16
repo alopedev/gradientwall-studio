@@ -43,16 +43,14 @@ Necesitarás:
 ## 2 · Loops
 
 1. Crear cuenta en [loops.so](https://loops.so).
-2. **Audiences**: la audience por defecto sirve para newsletter; los
-   compradores se identifican aparte vía la transactional.
-3. **Transactional → New Email**:
+2. **Transactional → New Email**:
    - Template name: `Your pack is ready`
    - Asunto: `Your ${packName} pack is ready ↓`
    - Body: usa las dos data variables disponibles:
      - `{{packName}}` — slug del pack (más adelante lo cambiamos a nombre legible)
      - `{{downloadUrl}}` — link absoluto al endpoint de descarga
    - Tras guardar, **copia el Transactional ID** → será `LOOPS_TRANSACTIONAL_ID`
-4. **Settings → API → Generate API Key** → será `LOOPS_API_KEY`
+3. **Settings → API → Generate API Key** → será `LOOPS_API_KEY`
 
 ## 3 · Cloudflare R2
 

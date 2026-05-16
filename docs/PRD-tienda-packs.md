@@ -1,5 +1,8 @@
 # PRD — GradientWall: Tienda de Packs + Rediseño de IA
 
+> **Deprecaciones posteriores al PRD** (mantener el resto del documento como histórico de intención):
+> - **Newsletter eliminada del scope** (2026-05). User stories 25–27, componente `NewsletterForm`, handler `newsletter-subscribe`, audience `newsletter_subscribers` y env vars asociadas dejan de aplicar. Ver `docs/adr/0004-newsletter-removed.md`.
+
 ## Context
 
 GradientWall es hoy una landing + Studio interactivo para generar wallpapers gradient en el navegador (Vite + React + Tailwind v4 + Zustand, render math puro y validado). El producto está bien construido pero **monetiza cero** y arrastra ruido editorial (sección Gallery de "wallpapers de la comunidad" que el dueño no quiere mantener).

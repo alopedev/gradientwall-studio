@@ -1,11 +1,10 @@
 /**
- * Minimal Loops client. Two operations matter for us:
+ * Minimal Loops client. Only used for transactional email today
+ * ("Your pack is ready" with the download link). Wraps fetch directly
+ * so the function bundle stays small (no SDK). The fetch impl is
+ * injectable so tests can stub it without nock-style hooks.
  *
- *  - sendTransactional → "Your pack is ready" email with the download link
- *  - addContact         → newsletter subscribers
- *
- * Both wrap fetch directly so the function bundle stays small (no SDK).
- * The fetch impl is injectable so tests can stub it without nock-style hooks.
+ * Newsletter / contact-list features were removed (see ADR-0004).
  */
 
 export type FetchLike = typeof fetch;
@@ -16,7 +15,6 @@ export interface LoopsClient {
     email: string;
     dataVariables: Record<string, string>;
   }): Promise<void>;
-  addContact(opts: { email: string; source: string }): Promise<void>;
 }
 
 export function createLoopsClient(apiKey: string, fetchImpl: FetchLike = fetch): LoopsClient {
@@ -35,20 +33,6 @@ export function createLoopsClient(apiKey: string, fetchImpl: FetchLike = fetch):
       if (!res.ok) {
         const text = await res.text().catch(() => "");
         throw new Error(`Loops sendTransactional failed: ${res.status} ${text}`);
-      }
-    },
-
-    async addContact({ email, source }) {
-      const res = await fetchImpl("https://app.loops.so/api/v1/contacts/create", {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ email, source, subscribed: true }),
-      });
-      // 409 = already subscribed → idempotent success.
-      if (res.status === 409) return;
-      if (!res.ok) {
-        const text = await res.text().catch(() => "");
-        throw new Error(`Loops addContact failed: ${res.status} ${text}`);
       }
     },
   };

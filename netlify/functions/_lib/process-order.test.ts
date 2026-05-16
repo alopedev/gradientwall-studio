@@ -18,7 +18,6 @@ function fakeLoops(): LoopsClient & { sent: Array<Parameters<LoopsClient["sendTr
     sendTransactional: vi.fn(async (opts) => {
       sent.push(opts);
     }),
-    addContact: vi.fn(async () => {}),
   };
 }
 

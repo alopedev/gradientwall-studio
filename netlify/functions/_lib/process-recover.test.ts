@@ -25,7 +25,6 @@ function fakeLoops(): LoopsClient & {
     sendTransactional: vi.fn(async (opts) => {
       sent.push(opts);
     }),
-    addContact: vi.fn(async () => {}),
   };
 }
 
