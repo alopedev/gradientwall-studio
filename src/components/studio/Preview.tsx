@@ -21,8 +21,49 @@ export function Preview() {
   const [dragActive, setDragActive] = useState(false);
   const d = DEVICE_SIZES[device];
 
+  // Cross-fade overlay: a sibling canvas that holds the snapshot of the
+  // previous frame and fades from opacity 1 → 0 each time the live canvas
+  // is about to repaint. See ADR-0003 ("anticipation > reveal"): the brief
+  // overlap of old + new gives the reveal a body that an instant repaint
+  // does not. Respects prefers-reduced-motion → instant disappearance.
+  const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
+
   const canvasRef = useFittedGradientCanvas(
-    { nativeW: d.w, nativeH: d.h, ...params },
+    {
+      nativeW: d.w,
+      nativeH: d.h,
+      ...params,
+      beforePaint: (live) => {
+        const overlay = overlayCanvasRef.current;
+        if (!overlay || live.width === 0 || live.height === 0) return;
+        if (overlay.width !== live.width) overlay.width = live.width;
+        if (overlay.height !== live.height) overlay.height = live.height;
+        const ctx = overlay.getContext("2d");
+        if (!ctx) return;
+        ctx.clearRect(0, 0, overlay.width, overlay.height);
+        ctx.drawImage(live, 0, 0);
+
+        const reduced =
+          typeof window !== "undefined" &&
+          window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+        overlay.style.transition = "none";
+        overlay.style.opacity = reduced ? "0" : "1";
+        if (!reduced) {
+          // Double rAF so the browser commits opacity:1 before the
+          // transition kicks in — otherwise the change is coalesced and
+          // the fade is skipped.
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              if (!overlayCanvasRef.current) return;
+              overlayCanvasRef.current.style.transition =
+                "opacity 700ms cubic-bezier(0.22, 1, 0.36, 1)";
+              overlayCanvasRef.current.style.opacity = "0";
+            });
+          });
+        }
+      },
+    },
     [device, params],
   );
 
@@ -162,6 +203,16 @@ export function Preview() {
           <canvas
             ref={canvasRef}
             className="block w-full h-full motion-safe:animate-[gw-breathe_9s_ease-in-out_infinite]"
+          />
+          {/* Cross-fade overlay — holds the snapshot of the previous frame.
+              opacity starts at 0; beforePaint snapshots into it, pops to 1,
+              then transitions back to 0. pointer-events:none so it never
+              steals the drag/drop or alt-drag gestures on the live canvas. */}
+          <canvas
+            ref={overlayCanvasRef}
+            aria-hidden
+            className="absolute inset-0 block w-full h-full pointer-events-none"
+            style={{ opacity: 0 }}
           />
         </m.div>
       </div>
