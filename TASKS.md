@@ -68,17 +68,17 @@ Objetivo Fase 5: delta ≤ 0 KB en main bundle (esperado reducir al eliminar v1)
 
 ---
 
-## Fase 2 — Surprise-first shell
+## Fase 2 — Surprise-first shell ✅
 
-- [ ] `src/components/studio/v2/SurpriseCTA.tsx`: magnetic hover + BorderBeam fresh-state + AnimatedShinyText + Space bind.
-- [ ] `src/components/studio/v2/ActionRow.tsx`: Save / Remix / Download (con DevicePicker) / Customize.
-- [ ] `src/components/studio/v2/DevicePicker.tsx`: DropdownMenu Radix con iPhone/iPad/Desktop.
-- [ ] `src/components/studio/v2/StudioShell.tsx`: orquestador layout, importa `<Preview>` tal cual.
-- [ ] Feature flag `?v2=1` en punto de montaje del Studio.
-- [ ] `useConfigStore`: añadir `applyRemix()`.
-- [ ] Verificar manualmente Space + drag-drop imagen + gestos Alt siguen funcionando.
-- [ ] Tests `applyRemix` + snapshot `StudioShell`.
-- [ ] `npm run check` verde.
+- [x] `src/components/studio/v2/SurpriseCTA.tsx`: magnetic hover + fresh-state ring pulsante (motion, sin BorderBeam dep) + Sparkles icon (Lucide) + Space bind.
+- [x] `src/components/studio/v2/ActionRow.tsx`: Save (disabled, Fase 4) / Remix (R bind) / Download (con DevicePicker) / Customize (disabled, Fase 3).
+- [x] `src/components/studio/v2/DevicePicker.tsx`: usando Popover Radix por consistencia con el resto del Studio. iPhone / iPad / Desktop con etiquetas de resolución.
+- [x] `src/components/studio/v2/StudioShell.tsx`: orquestador layout, importa `<Preview>` v1 tal cual. Nueva voz: "One tap. Done.".
+- [x] Feature flag `?v2=1` o `localStorage.gw_studio_v2 === "true"` en `HomePage` (`App.tsx`).
+- [x] `useConfigStore.applyRemix()` añadido (cableado en Fase 1, expuesto desde ActionRow).
+- [x] Verificado visualmente: Space, R, click CTA, click Remix, DevicePicker, drag-drop imagen — todo funcional. Canvas re-pinta tras surprise/remix. Cero errores en consola.
+- [x] Tests: 6 nuevos store (applySurprise / applyRemix contract) + 2 nuevos shell (mount + canvas) = 8 nuevos. Total 345/345.
+- [x] `npm run check` verde — exit 0.
 
 **Commits objetivo**:
 1. `feat(studio-v2): add SurpriseCTA with magnetic hover and BorderBeam`
