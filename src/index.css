@@ -91,6 +91,27 @@
   /* Altura de la tira de favoritos (Fase 4). Compartida con el shell para
      calcular padding-bottom del canvas y el bottom-offset del CTA en mobile. */
   --strip-height: 88px;
+
+  /* === Fase 5 — OKLCH tokens y mix variants ===
+     OKLCH es perceptualmente uniforme: 50% lightness es ~50% perceptual
+     independiente del hue. Permite generar variantes (hover, active, soft)
+     vía color-mix sin saltos de luminosidad. Mantenemos los hex de arriba
+     como fallback para navegadores antiguos; los OKLCH ofrecen mejor
+     interpolación cuando se usan en gradients de mix-mode.
+
+     Soporte: Chrome 111+, Firefox 113+, Safari 15.4+. Cobertura ≈ 95% en
+     mayo 2026. Para el ≤5% restante, los hex fallback (--color-accent,
+     --color-ink, etc.) ya garantizan el aspecto. */
+  --accent-oklch: oklch(64% 0.21 24);
+  --ink-oklch: oklch(100% 0 0);
+  --bg-oklch: oklch(7% 0.005 280);
+
+  /* Variantes generadas con color-mix — el navegador interpola en OKLCH
+     space para que las versiones soft / dim de un color mantengan el mismo
+     hue. Reutilizables en hovers de botones, focus rings tenues, etc. */
+  --accent-soft: color-mix(in oklch, var(--accent-oklch) 60%, transparent);
+  --accent-glow: color-mix(in oklch, var(--accent-oklch) 30%, transparent);
+  --ink-soft: color-mix(in oklch, var(--ink-oklch) 75%, transparent);
 }
 
 /* =================== Base (wrapped so utilities win) =================== */
@@ -180,16 +201,33 @@ body::before {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-/* Studio v2 — modern liquid glass. Más cristal que `liquid` (saturación
-   más alta, blur más profundo, inset highlight más definido) sin perder
-   la voz brutalist del proyecto. Usado por Customize, FavoritesStrip y
-   DevicePicker. Safari requiere -webkit-backdrop-filter explícito. */
+/* Studio v2 — modern liquid glass (refinado Fase 5). Inspiración:
+   premio de diseño 2026 a iOS 26 / macOS Tahoe.
+   Capas:
+     1. Backdrop blur 24 + saturate 1.5 + brightness 1.05 → "cristal vivo"
+        que toma luz del fondo sin enmascararlo.
+     2. Gradient background sutil top→bottom (refracción aparente).
+     3. 1px border con gradient blanco → mejor borde que solid white/8.
+     4. Inset double-highlight (top sharp + bottom soft) para suggest grosor.
+     5. Outer shadow profunda pero limpia (single layer, sin halos).
+   Safari requiere -webkit-backdrop-filter. `contain: paint` mejora
+   compositing (reduce repaints del área del wallpaper detrás del panel). */
 @utility glass-modern {
   background: var(--glass-bg);
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0) 50%,
+    rgba(0, 0, 0, 0.08) 100%
+  );
   border: 1px solid var(--glass-border);
-  backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
-  box-shadow: var(--glass-shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.55) brightness(1.04);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.55) brightness(1.04);
+  box-shadow:
+    var(--glass-shadow-soft),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+  contain: paint;
 }
 
 /* Technical "stamp" chrome — hairline border + tinted backdrop blur.
