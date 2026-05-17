@@ -95,10 +95,12 @@ describe("buildGradientSpec — structural invariants", () => {
     spec.layers.forEach((l) => expect(l.fill.kind).toBe("radial"));
   });
 
-  it("liquid style produces 6 bands + 1 central highlight (7 layers)", () => {
+  it("liquid style produces colors.length × 2 bands + 1 central highlight (4 colors → 9 layers)", () => {
     const spec = buildGradientSpec(baseOpts({ style: "liquid" }));
-    expect(spec.layers).toHaveLength(7);
-    const highlight = spec.layers[6].fill;
+    // 4 colors × 2 bands = 8 + central highlight = 9 layers (no lightAngle
+    // here, so no painterly highlight pair).
+    expect(spec.layers).toHaveLength(9);
+    const highlight = spec.layers[8].fill;
     expect(highlight.kind).toBe("radial");
     if (highlight.kind === "radial") {
       // Highlight is centered at (w/2, h*0.3)
@@ -151,8 +153,8 @@ describe("buildGradientSpec — structural invariants", () => {
 
   it("liquid band stops use #RRGGBBcc start → #RRGGBB00 end", () => {
     const spec = buildGradientSpec(baseOpts({ style: "liquid" }));
-    // First 6 layers are bands; layer 7 is the highlight (exempt)
-    for (let i = 0; i < 6; i++) {
+    // With 4 colors: first 8 layers are bands; layer 9 is the central highlight.
+    for (let i = 0; i < 8; i++) {
       const fill = spec.layers[i].fill;
       if (fill.kind !== "radial") throw new Error("expected radial");
       expect(fill.stops[0].color).toMatch(/^#[0-9a-f]{6}cc$/i);
@@ -197,10 +199,20 @@ describe("buildGradientSpec — variable-length color ramps", () => {
     ).toHaveLength(7);
   });
 
-  it("liquid keeps its 6 bands + 1 highlight regardless of ramp length", () => {
+  it("liquid scales bands with the ramp (2 colors → 6, 3 colors → 6, 4 colors → 8) + 1 highlight", () => {
+    // 2 colors → max(6, 2*2=4) = 6 bands + 1 highlight = 7 layers
     expect(
       buildGradientSpec(baseOpts({ colors: ["#a", "#b"], style: "liquid" })).layers,
     ).toHaveLength(7);
+    // 3 colors → max(6, 3*2=6) = 6 bands + 1 highlight = 7 layers
+    expect(
+      buildGradientSpec(baseOpts({ colors: ["#a", "#b", "#c"], style: "liquid" })).layers,
+    ).toHaveLength(7);
+    // 4 colors → max(6, 4*2=8) = 8 bands + 1 highlight = 9 layers (the new
+    // distribution that gives every active color equal representation).
+    expect(
+      buildGradientSpec(baseOpts({ colors: ["#a", "#b", "#c", "#d"], style: "liquid" })).layers,
+    ).toHaveLength(9);
   });
 
   it("background is always colors[0] even when the ramp has only two entries", () => {

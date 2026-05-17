@@ -27,33 +27,35 @@ describe("<Swatches />", () => {
   });
 
   describe("per-slot deactivation", () => {
-    it("exposes a toggle button for each swatch (labelled Deactivate/Activate color N)", () => {
+    it("exposes a toggle button for each swatch (labelled 'Remove/Add color N')", () => {
       render(<Swatches />);
       for (let n = 1; n <= 4; n++) {
-        expect(screen.getByRole("button", { name: `Deactivate color ${n}` })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: `Remove color ${n} from gradient` }),
+        ).toBeInTheDocument();
       }
     });
 
     it("clicking the toggle on an active slot flips the store mask", () => {
       render(<Swatches />);
-      fireEvent.click(screen.getByRole("button", { name: "Deactivate color 2" }));
+      fireEvent.click(screen.getByRole("button", { name: "Remove color 2 from gradient" }));
       expect(useConfigStore.getState().active).toEqual([true, false, true, true]);
     });
 
-    it("toggle button for an inactive slot offers the Activate action and re-enables", () => {
+    it("toggle button for an inactive slot offers the Add action and re-enables", () => {
       useConfigStore.setState({ active: [true, false, true, true] });
       render(<Swatches />);
-      fireEvent.click(screen.getByRole("button", { name: "Activate color 2" }));
+      fireEvent.click(screen.getByRole("button", { name: "Add color 2 to gradient" }));
       expect(useConfigStore.getState().active).toEqual([true, true, true, true]);
     });
 
     it("disables the toggle on active slots when only two remain active (minimum guard)", () => {
       useConfigStore.setState({ active: [true, false, true, false] });
       render(<Swatches />);
-      expect(screen.getByRole("button", { name: "Deactivate color 1" })).toBeDisabled();
-      expect(screen.getByRole("button", { name: "Deactivate color 3" })).toBeDisabled();
-      expect(screen.getByRole("button", { name: "Activate color 2" })).not.toBeDisabled();
-      expect(screen.getByRole("button", { name: "Activate color 4" })).not.toBeDisabled();
+      expect(screen.getByRole("button", { name: "Remove color 1 from gradient" })).toBeDisabled();
+      expect(screen.getByRole("button", { name: "Remove color 3 from gradient" })).toBeDisabled();
+      expect(screen.getByRole("button", { name: "Add color 2 to gradient" })).not.toBeDisabled();
+      expect(screen.getByRole("button", { name: "Add color 4 to gradient" })).not.toBeDisabled();
     });
 
     it("marks inactive swatches with data-active=false so CSS can dim them", () => {

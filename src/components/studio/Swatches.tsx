@@ -24,7 +24,9 @@ export function Swatches() {
       {colors.map((col, i) => {
         const isActive = active[i];
         const toggleDisabled = isActive && activeCount <= MIN_ACTIVE_COLORS;
-        const toggleLabel = isActive ? `Deactivate color ${i + 1}` : `Activate color ${i + 1}`;
+        const toggleLabel = isActive
+          ? `Remove color ${i + 1} from gradient`
+          : `Add color ${i + 1} to gradient`;
         const cellChrome = (
           <>
             <span
@@ -47,7 +49,7 @@ export function Swatches() {
             key={i}
             data-slot-index={i}
             data-active={isActive ? "true" : "false"}
-            className="relative aspect-[4/3]"
+            className="group/card relative aspect-[4/3]"
           >
             {isActive ? (
               <Popover>
@@ -68,13 +70,23 @@ export function Swatches() {
             ) : (
               <div
                 aria-disabled="true"
-                className="relative h-full w-full overflow-hidden rounded-[2px] border border-dashed border-white/20 opacity-30"
+                className="relative h-full w-full overflow-hidden rounded-[2px] border border-dashed border-white/25 opacity-45"
               >
                 {cellChrome}
+                <span
+                  className="absolute inset-0 grid place-items-center font-sans text-[10px] tracking-[0.18em] uppercase text-white/70 pointer-events-none"
+                  aria-hidden="true"
+                >
+                  Add
+                </span>
               </div>
             )}
             {/* Toggle sits OUTSIDE the popover trigger so its click doesn't
-                open the HUD — it only flips the active mask. */}
+                open the HUD — it only flips the active mask. Active swatches
+                reveal the × on hover/focus only (via revealOnGroupHover),
+                keeping the cell clean in the resting state; inactive
+                placeholders show "+" always because it's the sole affordance
+                to bring the color back. */}
             <CornerPipButton
               ariaLabel={toggleLabel}
               title={toggleDisabled ? `Minimum ${MIN_ACTIVE_COLORS} colors required` : toggleLabel}
@@ -85,6 +97,7 @@ export function Swatches() {
               }}
               disabled={toggleDisabled}
               variant={isActive ? "dim" : "solid"}
+              revealOnGroupHover={isActive}
             >
               {isActive ? "×" : "+"}
             </CornerPipButton>

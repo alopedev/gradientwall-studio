@@ -546,7 +546,7 @@ exports[`buildGradientSpec — regression snapshots > liquid @ seed 12 1`] = `
     {
       "fill": {
         "cx": 219.99108865857124,
-        "cy": 957.0393560578425,
+        "cy": 823.7060227245092,
         "kind": "radial",
         "r": 1017.8552218079566,
         "stops": [
@@ -564,7 +564,7 @@ exports[`buildGradientSpec — regression snapshots > liquid @ seed 12 1`] = `
     {
       "fill": {
         "cx": 921.7876518890262,
-        "cy": 1254.8303079853454,
+        "cy": 988.1636413186789,
         "kind": "radial",
         "r": 1407.4626455381513,
         "stops": [
@@ -582,7 +582,7 @@ exports[`buildGradientSpec — regression snapshots > liquid @ seed 12 1`] = `
     {
       "fill": {
         "cx": 43.83339632302523,
-        "cy": 1827.0103127509356,
+        "cy": 1427.0103127509356,
         "kind": "radial",
         "r": 1676.2114939391613,
         "stops": [
@@ -600,7 +600,7 @@ exports[`buildGradientSpec — regression snapshots > liquid @ seed 12 1`] = `
     {
       "fill": {
         "cx": 742.0072369650006,
-        "cy": 1966.7166126271086,
+        "cy": 1433.3832792937756,
         "kind": "radial",
         "r": 1547.7989647462964,
         "stops": [
@@ -618,7 +618,7 @@ exports[`buildGradientSpec — regression snapshots > liquid @ seed 12 1`] = `
     {
       "fill": {
         "cx": 765.1696684956551,
-        "cy": 2813.0308753500385,
+        "cy": 2146.3642086833715,
         "kind": "radial",
         "r": 1582.597527924925,
         "stops": [
@@ -628,6 +628,42 @@ exports[`buildGradientSpec — regression snapshots > liquid @ seed 12 1`] = `
           },
           {
             "color": "#7597de00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 346.9930927455425,
+        "cy": 2877.579000145197,
+        "kind": "radial",
+        "r": 1227.5178041607141,
+        "stops": [
+          {
+            "color": "#ff6e7fcc",
+            "offset": 0,
+          },
+          {
+            "color": "#ff6e7f00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 558.34278088063,
+        "cy": 3176.068387106061,
+        "kind": "radial",
+        "r": 1316.7495975382626,
+        "stops": [
+          {
+            "color": "#ffd86ecc",
+            "offset": 0,
+          },
+          {
+            "color": "#ffd86e00",
             "offset": 1,
           },
         ],
@@ -683,7 +719,7 @@ exports[`buildGradientSpec — regression snapshots > liquid @ seed 42 1`] = `
     {
       "fill": {
         "cx": 251.7320141941309,
-        "cy": 696.2780131151278,
+        "cy": 562.9446797817945,
         "kind": "radial",
         "r": 1387.146630372852,
         "stops": [
@@ -701,7 +737,7 @@ exports[`buildGradientSpec — regression snapshots > liquid @ seed 42 1`] = `
     {
       "fill": {
         "cx": 899.6323016658425,
-        "cy": 848.9655412236848,
+        "cy": 582.2988745570183,
         "kind": "radial",
         "r": 1631.1417467817664,
         "stops": [
@@ -719,7 +755,7 @@ exports[`buildGradientSpec — regression snapshots > liquid @ seed 42 1`] = `
     {
       "fill": {
         "cx": 359.89017728716135,
-        "cy": 1573.424372896552,
+        "cy": 1173.424372896552,
         "kind": "radial",
         "r": 1643.0823601149023,
         "stops": [
@@ -737,7 +773,7 @@ exports[`buildGradientSpec — regression snapshots > liquid @ seed 42 1`] = `
     {
       "fill": {
         "cx": 442.08217933773994,
-        "cy": 2369.2413957168656,
+        "cy": 1835.9080623835325,
         "kind": "radial",
         "r": 1150.0227633230388,
         "stops": [
@@ -755,7 +791,7 @@ exports[`buildGradientSpec — regression snapshots > liquid @ seed 42 1`] = `
     {
       "fill": {
         "cx": 988.7213058024645,
-        "cy": 2667.3669749001665,
+        "cy": 2000.7003082334995,
         "kind": "radial",
         "r": 1447.647046867758,
         "stops": [
@@ -765,6 +801,42 @@ exports[`buildGradientSpec — regression snapshots > liquid @ seed 42 1`] = `
           },
           {
             "color": "#7597de00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 677.9259701818228,
+        "cy": 1923.6892338842154,
+        "kind": "radial",
+        "r": 1610.8829466551542,
+        "stops": [
+          {
+            "color": "#ff6e7fcc",
+            "offset": 0,
+          },
+          {
+            "color": "#ff6e7f00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 852.9465463757515,
+        "cy": 2369.1608956456184,
+        "kind": "radial",
+        "r": 1030.7073280513287,
+        "stops": [
+          {
+            "color": "#ffd86ecc",
+            "offset": 0,
+          },
+          {
+            "color": "#ffd86e00",
             "offset": 1,
           },
         ],
@@ -820,7 +892,7 @@ exports[`buildGradientSpec — regression snapshots > liquid @ seed 77 1`] = `
     {
       "fill": {
         "cx": 166.69819056987762,
-        "cy": 519.7956336786349,
+        "cy": 386.4623003453016,
         "kind": "radial",
         "r": 1602.797893613577,
         "stops": [
@@ -838,7 +910,7 @@ exports[`buildGradientSpec — regression snapshots > liquid @ seed 77 1`] = `
     {
       "fill": {
         "cx": 1128.9530171826482,
-        "cy": 1434.4892242054143,
+        "cy": 1167.8225575387478,
         "kind": "radial",
         "r": 1048.295668412,
         "stops": [
@@ -856,7 +928,7 @@ exports[`buildGradientSpec — regression snapshots > liquid @ seed 77 1`] = `
     {
       "fill": {
         "cx": 1309.2900950834155,
-        "cy": 1293.5170062631369,
+        "cy": 893.5170062631369,
         "kind": "radial",
         "r": 1428.4212220944464,
         "stops": [
@@ -874,7 +946,7 @@ exports[`buildGradientSpec — regression snapshots > liquid @ seed 77 1`] = `
     {
       "fill": {
         "cx": 992.6862480863929,
-        "cy": 2129.410442834099,
+        "cy": 1596.0771095007658,
         "kind": "radial",
         "r": 1311.9197997562587,
         "stops": [
@@ -892,7 +964,7 @@ exports[`buildGradientSpec — regression snapshots > liquid @ seed 77 1`] = `
     {
       "fill": {
         "cx": 187.62344721704721,
-        "cy": 2238.208250800769,
+        "cy": 1571.5415841341019,
         "kind": "radial",
         "r": 1061.87918388471,
         "stops": [
@@ -902,6 +974,42 @@ exports[`buildGradientSpec — regression snapshots > liquid @ seed 77 1`] = `
           },
           {
             "color": "#7597de00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 729.4853150099516,
+        "cy": 2319.920473471284,
+        "kind": "radial",
+        "r": 1711.1147608347237,
+        "stops": [
+          {
+            "color": "#ff6e7fcc",
+            "offset": 0,
+          },
+          {
+            "color": "#ff6e7f00",
+            "offset": 1,
+          },
+        ],
+      },
+    },
+    {
+      "fill": {
+        "cx": 415.0766445323825,
+        "cy": 2375.2225257456303,
+        "kind": "radial",
+        "r": 1187.621253143996,
+        "stops": [
+          {
+            "color": "#ffd86ecc",
+            "offset": 0,
+          },
+          {
+            "color": "#ffd86e00",
             "offset": 1,
           },
         ],

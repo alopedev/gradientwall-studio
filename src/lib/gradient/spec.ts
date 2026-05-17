@@ -244,7 +244,10 @@ export function buildGradientSpec(opts: SpecOpts): GradientSpec {
       },
     });
   } else if (style === "liquid") {
-    const bands = 6;
+    // 2 bands per color → every active color contributes equally to the wash.
+    // Floor of 6 keeps the layered feel intact when the user has only 2-3
+    // active slots (with 4 active we get 8 bands; with 2 active, still 6).
+    const bands = Math.max(6, colors.length * 2);
     for (let i = 0; i < bands; i++) {
       const c = colors[i % colors.length];
       const cy = (i / bands) * h + (rand() - 0.5) * h * 0.3;
@@ -290,6 +293,9 @@ export function buildGradientSpec(opts: SpecOpts): GradientSpec {
     // Compass: 0° = top, 90° = right, in screen coords (y grows down).
     const dx = Math.sin(rad);
     const dy = -Math.cos(rad);
+    // Bright highlight pushed toward the light source. Alpha raised from 0.18
+    // → 0.32 (aligned with the Nebula path's biasMag of 0.32) so a 90° turn
+    // of the dial is visible without staring.
     layers.push({
       fill: {
         kind: "radial",
@@ -297,9 +303,25 @@ export function buildGradientSpec(opts: SpecOpts): GradientSpec {
         cy: h * 0.5 + dy * h * 0.42,
         r: Math.max(w, h) * 0.85,
         stops: [
-          { offset: 0, color: "rgba(255,255,255,0.18)" },
-          { offset: 0.55, color: "rgba(255,255,255,0.05)" },
+          { offset: 0, color: "rgba(255,255,255,0.32)" },
+          { offset: 0.55, color: "rgba(255,255,255,0.08)" },
           { offset: 1, color: "rgba(255,255,255,0)" },
+        ],
+      },
+    });
+    // Soft shadow on the opposite side. Pairs with the highlight to produce a
+    // "direction" cue instead of a lone bright spot — turning the dial now
+    // reads as light rotating around the wallpaper, not just a moving glare.
+    layers.push({
+      fill: {
+        kind: "radial",
+        cx: w * 0.5 - dx * w * 0.42,
+        cy: h * 0.5 - dy * h * 0.42,
+        r: Math.max(w, h) * 0.85,
+        stops: [
+          { offset: 0, color: "rgba(0,0,0,0.20)" },
+          { offset: 0.55, color: "rgba(0,0,0,0.05)" },
+          { offset: 1, color: "rgba(0,0,0,0)" },
         ],
       },
     });
