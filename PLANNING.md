@@ -6,7 +6,7 @@
 
 | Fase | Estado | Notas |
 |---|---|---|
-| 0 — Fundamentos | 🟡 en curso | Branch `studio/redesign-v2` creada desde `studio/mordible-pass`. Docs en raíz. |
+| 0 — Fundamentos | ✅ cerrada | Branch, docs raíz, Biome configurado, tokens `glass-modern`, `npm run check` verde. 7 commits. |
 | 1 — Motor mejorado | ⚪ pendiente | |
 | 2 — Surprise-first shell | ⚪ pendiente | |
 | 3 — Customize Popover | ⚪ pendiente | |

@@ -7,26 +7,33 @@ Feature flag durante dev: `?v2=1`.
 
 ---
 
-## Fase 0 — Fundamentos
+## Fase 0 — Fundamentos ✅
 
 - [x] Crear rama `studio/redesign-v2` desde `studio/mordible-pass`.
 - [x] Crear `PRD.md` en raíz.
 - [x] Crear `PLANNING.md` en raíz.
 - [x] Crear `TASKS.md` en raíz (este archivo).
-- [ ] `npm i -D @biomejs/biome` y commit aparte.
-- [ ] `npx @biomejs/biome init` → editar `biome.json` (indent 2, line width 100, ignorar `dist/`, `node_modules/`, `**/__snapshots__/`).
-- [ ] Añadir scripts a `package.json`: `lint`, `format`, `check`.
-- [ ] `npm run format` y commit `style: apply biome formatting` aislado.
-- [ ] Crear carpeta `src/components/studio/v2/` vacía.
-- [ ] Añadir a `src/index.css` `@theme` los tokens `--glass-bg`, `--glass-border`, `--glass-blur`, `--glass-shadow-soft`, `--magnetic-ease`, `--strip-height`.
-- [ ] Añadir utilidad `@utility glass-modern { ... }`.
-- [ ] Actualizar `CLAUDE.md` con sección "Studio v2 — tooling y feature flag" (scripts, MCPs, feature flag, contrato del motor).
-- [ ] `npm run check` debe pasar verde.
-- [ ] Capturar bundle baseline con `npm run build` + `du -sh dist/assets/*.js` y anotar abajo:
+- [x] `npm i -D @biomejs/biome` y commit aparte.
+- [x] `npx biome init` → editar `biome.json` (indent 2, line width 100, ignorar `dist/`, `node_modules/`, `**/__snapshots__/`, `**/*.css`).
+- [x] Añadir scripts a `package.json`: `lint`, `format`, `check`.
+- [x] `npm run format` y commit `style: apply biome formatting` aislado (59 archivos).
+- [x] Crear carpeta `src/components/studio/v2/` con README de contrato.
+- [x] Añadir a `src/index.css` `@theme` los tokens `--glass-bg`, `--glass-border`, `--glass-blur`, `--glass-shadow-soft`, `--magnetic-ease`, `--strip-height`.
+- [x] Añadir utilidad `@utility glass-modern { ... }`.
+- [x] Actualizar `CLAUDE.md` con sección "Studio v2 — tooling y feature flag" (scripts, MCPs, feature flag, contrato del motor).
+- [x] Relajar reglas de Biome para violations preexistentes (no se arregla deuda fuera del scope; código nuevo v2 sí respeta las reglas estrictas).
+- [x] `npm run check` debe pasar verde — verificado, exit 0, 293/293 tests.
+- [x] Capturar bundle baseline con `npm run build` + `du -sh dist/assets/*.js` y anotar abajo:
 
 ```
-Bundle baseline (Fase 0):
-(pendiente medir)
+Bundle baseline (Fase 0 — commit 916e291, 2026-05-17):
+  index-D5dNYX2w.css                 68 KB   (12.21 KB gzip)
+  react-Ce0fzBPp.js                 112 KB   (38.28 KB gzip)
+  index-BXwG5ZCJ.js                 472 KB  (156.67 KB gzip)
+  color-extract.worker-ConO1II4.js    4 KB
+  total dist/ (incluye video 42 MB):  50 MB
+
+Objetivo Fase 5: delta ≤ 0 KB en main bundle (esperado reducir al eliminar v1).
 ```
 
 **Commits objetivo**:
