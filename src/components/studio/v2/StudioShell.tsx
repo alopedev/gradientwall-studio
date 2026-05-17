@@ -1,5 +1,6 @@
 import { AnimatePresence, m } from "motion/react";
 import { useEffect, useState } from "react";
+import { useIsMobile } from "@/lib/useIsMobile";
 import { Preview } from "../Preview";
 import { Reveal } from "../../ui/Reveal";
 import { SplitWords } from "../../ui/SplitWords";
@@ -44,6 +45,7 @@ const LAYOUT_DURATION = 0.45;
 
 export function StudioShell() {
   const [customizeOpen, setCustomizeOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   // Escape global cierra el panel. Bail en inputs / contenteditable para no
   // colisionar con SeedBadge u otros editores de texto si reaparecen.
@@ -82,21 +84,20 @@ export function StudioShell() {
       </Reveal>
 
       <div className="mx-auto flex max-w-[1100px] flex-col items-stretch">
-        {/* Canvas + Panel viven en un row animable. Cuando customizeOpen es
-            true, el panel aparece a la derecha y el canvas se reajusta para
-            compartir el espacio. motion.div con prop `layout` interpola la
-            geometría del canvas wrapper de forma suave; useFittedGradientCanvas
-            ve el cambio de container via ResizeObserver y re-pinta a la
-            resolución correcta (rAF batcher coalesce los frames). */}
+        {/* Canvas + Panel — animados con motion layout.
+            • Desktop (≥640px): row side-by-side; panel anima width 0→340.
+            • Mobile (<640px): column stacked; panel anima height 0→auto.
+            En ambos casos, useFittedGradientCanvas detecta el resize del
+            container y re-pinta a la resolución correcta. */}
         <m.div
           layout
           transition={{ duration: LAYOUT_DURATION, ease: LAYOUT_EASE }}
-          className="flex items-start gap-5"
+          className="flex flex-col items-stretch gap-5 sm:flex-row sm:items-start"
         >
           <m.div
             layout
             transition={{ duration: LAYOUT_DURATION, ease: LAYOUT_EASE }}
-            className="min-w-0 flex-1"
+            className="min-w-0 sm:flex-1"
           >
             <Preview framed={false} />
           </m.div>
@@ -104,16 +105,21 @@ export function StudioShell() {
             {customizeOpen && (
               <m.aside
                 key="customize-panel"
-                initial={{ width: 0, opacity: 0 }}
-                animate={{ width: PANEL_WIDTH, opacity: 1 }}
-                exit={{ width: 0, opacity: 0 }}
+                initial={isMobile ? { height: 0, opacity: 0 } : { width: 0, opacity: 0 }}
+                animate={
+                  isMobile ? { height: "auto", opacity: 1 } : { width: PANEL_WIDTH, opacity: 1 }
+                }
+                exit={isMobile ? { height: 0, opacity: 0 } : { width: 0, opacity: 0 }}
                 transition={{ duration: LAYOUT_DURATION, ease: LAYOUT_EASE }}
-                className="shrink-0 self-stretch overflow-hidden"
+                className="w-full shrink-0 self-stretch overflow-hidden sm:w-auto"
               >
-                {/* Width interno fijo para evitar layout shift mientras la
-                    animación de width está en marcha — el wrapper recorta
-                    con overflow-hidden hasta llegar a PANEL_WIDTH. */}
-                <div style={{ width: PANEL_WIDTH }} className="h-full">
+                {/* Mobile: el panel ocupa todo el ancho disponible (apilado
+                    debajo del canvas). Desktop: width interno fijo 340 con
+                    overflow-hidden recortando durante la animación. */}
+                <div
+                  style={isMobile ? undefined : { width: PANEL_WIDTH }}
+                  className="h-full w-full sm:w-auto"
+                >
                   <CustomizePanel onClose={() => setCustomizeOpen(false)} />
                 </div>
               </m.aside>

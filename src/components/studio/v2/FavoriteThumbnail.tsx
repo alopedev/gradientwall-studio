@@ -79,7 +79,9 @@ export function FavoriteThumbnail({ item }: Props) {
       // vertical. Cero JS, GPU-composited. Donde no se soporta (Safari
       // <TP), el thumbnail aparece directo — degradación elegante.
       className="gw-reveal-on-scroll group relative shrink-0"
-      style={{ width: THUMB_W, height: THUMB_H }}
+      // scroll-snap-align: start hace que cada thumbnail "se enganche" al
+      // inicio del viewport visible cuando el usuario scrollea la strip.
+      style={{ width: THUMB_W, height: THUMB_H, scrollSnapAlign: "start" }}
     >
       <button
         type="button"

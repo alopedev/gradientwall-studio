@@ -55,7 +55,16 @@ export function FavoritesStrip() {
         values={items}
         onReorder={(reordered) => reorder(reordered.map((it) => it.id))}
         className="flex h-full items-center gap-2 overflow-x-auto overflow-y-hidden"
-        style={{ scrollSnapType: "x proximity" }}
+        // scroll-snap proximity da feedback táctil cuando arrastras la tira
+        // con el dedo en mobile (cada thumbnail "engancha" pero no es
+        // mandatory — el usuario puede scroll libre). overscroll-contain
+        // evita que el scroll horizontal de la strip robe el scroll
+        // vertical de la página cuando llega al borde.
+        style={{
+          scrollSnapType: "x proximity",
+          overscrollBehaviorX: "contain",
+          WebkitOverflowScrolling: "touch",
+        }}
       >
         {items.map((item) => (
           <FavoriteThumbnail key={item.id} item={item} />
