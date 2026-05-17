@@ -12,6 +12,7 @@
       "!**/node_modules/**",
       "!**/__snapshots__/**",
       "!**/*.tsbuildinfo",
+      "!**/*.css",
       "!**/package-lock.json"
     ]
   },
@@ -28,13 +29,35 @@
       "recommended": true,
       "style": {
         "noNonNullAssertion": "off",
-        "useImportType": "warn"
+        "useImportType": "warn",
+        "useTemplate": "warn",
+        "noParameterAssign": "warn"
       },
       "suspicious": {
-        "noExplicitAny": "warn"
+        "noExplicitAny": "warn",
+        "noArrayIndexKey": "warn",
+        "useIterableCallbackReturn": "warn",
+        "noAssignInExpressions": "warn"
+      },
+      "correctness": {
+        "useExhaustiveDependencies": "warn"
+      },
+      "complexity": {
+        "useOptionalChain": "warn",
+        "noUselessSwitchCase": "warn",
+        "noForEach": "warn",
+        "noUselessFragments": "warn"
       },
       "a11y": {
-        "useKeyWithClickEvents": "off"
+        "useKeyWithClickEvents": "off",
+        "useButtonType": "warn",
+        "noLabelWithoutControl": "warn",
+        "noAutofocus": "warn",
+        "noStaticElementInteractions": "warn",
+        "useSemanticElements": "warn"
+      },
+      "performance": {
+        "noImgElement": "off"
       }
     }
   },
