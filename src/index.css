@@ -389,6 +389,31 @@ body::before {
     transform: translate(-50%, -50%) rotate(360deg);
   }
 }
+/* BorderBeam Fase 5 — un beam ride alrededor del SurpriseCTA mientras el
+   wallpaper está "fresh" (el usuario aún no pineó nada en la sesión). El
+   beam usa conic-gradient que rota; el comp del padre añade clip y
+   mask. Mucho más cinemático que el border pulse anterior, y la
+   animación es CSS pura → respeta automáticamente prefers-reduced-motion
+   via @media reduce block más abajo. */
+@keyframes gw-beam-rotate {
+  to {
+    transform: rotate(1turn);
+  }
+}
+/* Heart-burst — 4 partículas que salen del corazón al hacer Save. Cada
+   partícula sigue su propia ruta vía CSS custom property `--angle`
+   inyectada inline (cuatro direcciones equiespaciadas alrededor del
+   centro del icono). Fade-out durante el viaje, scale de 1 a 0. */
+@keyframes gw-heart-burst {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(var(--angle, 0deg)) translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--angle, 0deg)) translateY(-18px) scale(0.4);
+  }
+}
 /* Slow scale-breathe used by the Studio preview canvas while idle. The
    amplitude (0.5%) is tuned to read as "the wallpaper is alive" without
    making the device frame look like it's wobbling. */

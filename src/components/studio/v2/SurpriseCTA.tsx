@@ -66,13 +66,25 @@ export function SurpriseCTA() {
           ring también acompañe el desplazamiento magnético. */}
       <MagneticButton>
         <div className="relative inline-block">
+          {/* BorderBeam fresh-state — conic-gradient rotativo (CSS pure) que
+              recorre el perímetro del botón mientras el usuario aún no ha
+              disparado nada en la sesión. Mucho más cinemático que el border
+              pulse anterior. La conic crea la "cabeza" del beam (~30°) +
+              tail tenue; el rotate la mueve. motion-safe automatically pauses
+              when prefers-reduced-motion is set. */}
           {fresh && (
-            <m.span
+            <span
               aria-hidden
-              className="absolute inset-[-6px] rounded-[6px] border border-white/35"
-              initial={{ opacity: 0.4, scale: 1 }}
-              animate={{ opacity: [0.4, 0.8, 0.4], scale: [1, 1.04, 1] }}
-              transition={{ duration: 2.4, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+              className="motion-safe:animate-[gw-beam-rotate_3.5s_linear_infinite] pointer-events-none absolute inset-[-2px] rounded-[4px]"
+              style={{
+                background:
+                  "conic-gradient(from 0deg, transparent 0deg, rgba(255,255,255,0.85) 25deg, rgba(255,255,255,0.4) 50deg, transparent 75deg, transparent 360deg)",
+                WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+                mask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+                WebkitMaskComposite: "xor",
+                maskComposite: "exclude",
+                padding: "1.5px",
+              }}
             />
           )}
           <ShimmerButton

@@ -93,26 +93,46 @@ export function ActionRow({ customizeOpen = false, onToggleCustomize }: ActionRo
       aria-label="Wallpaper actions"
       className="mt-4 flex flex-wrap items-center justify-center gap-2"
     >
-      {/* Save — pinea la config actual a useFavoritesStore. La key del span
-          interior cambia con savedTick para que motion remount el corazón con
-          una mini animación spring cada vez que se pulsa (feedback "se ha
-          guardado"). */}
+      {/* Save — pinea la config actual a useFavoritesStore. El corazón hace
+          spring + un heart-burst (4 partículas que vuelan) cada vez que se
+          pulsa. motion-safe: la animación se desactiva con reduced-motion. */}
       <button
         type="button"
         onClick={onSave}
         title="Save to favorites"
         aria-label="Save current wallpaper to favorites"
-        className="tactile inline-flex items-center gap-1.5 rounded-[2px] px-3 py-2 font-sans text-[11px] uppercase tracking-[0.14em] text-white/85 hover:text-white"
+        className="tactile relative inline-flex items-center gap-1.5 rounded-[2px] px-3 py-2 font-sans text-[11px] uppercase tracking-[0.14em] text-white/85 hover:text-white"
       >
-        <m.span
-          key={savedTick}
-          initial={savedTick === 0 ? false : { scale: 0.7 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 480, damping: 16 }}
-          className="inline-flex"
-        >
-          <Heart className="size-3.5" aria-hidden fill={savedTick > 0 ? "currentColor" : "none"} />
-        </m.span>
+        <span className="relative inline-flex">
+          <m.span
+            key={savedTick}
+            initial={savedTick === 0 ? false : { scale: 0.7 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 480, damping: 16 }}
+            className="inline-flex"
+          >
+            <Heart
+              className="size-3.5"
+              aria-hidden
+              fill={savedTick > 0 ? "currentColor" : "none"}
+            />
+          </m.span>
+          {/* Partículas: 4 dots, ángulos equiespaciados (0/90/180/270). Solo
+              renderizan tras el primer pin (savedTick>0) y la key=savedTick
+              fuerza el remount → animación se reproduce desde cero en cada
+              save sucesivo. Posición absoluta centrada en el corazón. */}
+          {savedTick > 0 && (
+            <span aria-hidden className="pointer-events-none absolute inset-0">
+              {[0, 90, 180, 270].map((angle) => (
+                <span
+                  key={`${savedTick}-${angle}`}
+                  className="motion-safe:animate-[gw-heart-burst_0.55s_ease-out_forwards] absolute left-1/2 top-1/2 size-1 rounded-full bg-[color:var(--color-accent)] opacity-0"
+                  style={{ ["--angle" as string]: `${angle}deg` }}
+                />
+              ))}
+            </span>
+          )}
+        </span>
         Save
       </button>
 
