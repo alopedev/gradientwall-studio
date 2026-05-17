@@ -2,7 +2,12 @@ import { AnimatePresence, m } from "motion/react";
 import { useShallow } from "zustand/react/shallow";
 import { useConfigStore, useUIStore, type SourceTab } from "@/store";
 import { PALETTES, STYLES, type Style } from "@/lib/palettes";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/shadcn/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/shadcn/accordion";
 import { Slider } from "@/components/ui/shadcn/slider";
 import { Swatches } from "./Swatches";
 import { Palettes } from "./Palettes";
@@ -117,14 +122,14 @@ export function RightRail() {
         defaultValue={["source", "style", "effects"]}
         className="relative z-[1] flex flex-col gap-2.5"
       >
-        <Section
-          index="01"
-          value="source"
-          title="Source"
-          hint={sourceLabel(activeTab)}
-        >
+        <Section index="01" value="source" title="Source" hint={sourceLabel(activeTab)}>
           <div className="flex flex-col gap-3.5">
-            <PillTabs options={SOURCE_TABS} value={activeTab} onChange={setActiveTab} labelFor={sourceLabel} />
+            <PillTabs
+              options={SOURCE_TABS}
+              value={activeTab}
+              onChange={setActiveTab}
+              labelFor={sourceLabel}
+            />
             {activeTab === "picker" ? (
               <div className="flex flex-col gap-3.5">
                 <LabelRow left={COLOR_COUNT_LABEL[activeCount]} right={`mix · ${activeCount}/4`} />
@@ -161,7 +166,10 @@ export function RightRail() {
                   className="overflow-hidden"
                 >
                   <div className="flex flex-col gap-3 pt-1">
-                    <LabelRow left={DENSITY_LABEL[style]!} right={`${Math.round(density * 100)}%`} />
+                    <LabelRow
+                      left={DENSITY_LABEL[style]!}
+                      right={`${Math.round(density * 100)}%`}
+                    />
                     <Slider
                       value={[density]}
                       min={0}
@@ -180,11 +188,23 @@ export function RightRail() {
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-3">
               <LabelRow left="Softness" right={`${blur}px`} />
-              <Slider value={[blur]} min={10} max={120} step={1} onValueChange={(v) => setBlur(v[0]!)} />
+              <Slider
+                value={[blur]}
+                min={10}
+                max={120}
+                step={1}
+                onValueChange={(v) => setBlur(v[0]!)}
+              />
             </div>
             <div className="flex flex-col gap-3">
               <LabelRow left="Grain" right={`${grain}%`} />
-              <Slider value={[grain]} min={0} max={100} step={1} onValueChange={(v) => setGrain(v[0]!)} />
+              <Slider
+                value={[grain]}
+                min={0}
+                max={100}
+                step={1}
+                onValueChange={(v) => setGrain(v[0]!)}
+              />
             </div>
             <div className="flex flex-col gap-3">
               <LabelRow left="Contrast" right={`${Math.round(contrast * 100)}%`} />
@@ -214,7 +234,9 @@ export function RightRail() {
                 <span className="font-sans text-white/85 text-[14px] font-medium leading-tight tracking-tight">
                   {compassLabel(lightAngle)}
                 </span>
-                <span className="font-sans text-[10px] text-white/40 mt-1 tracking-wider">{lightAngle}°</span>
+                <span className="font-sans text-[10px] text-white/40 mt-1 tracking-wider">
+                  {lightAngle}°
+                </span>
               </div>
               <LightDial value={lightAngle} onChange={setLightAngle} />
             </div>

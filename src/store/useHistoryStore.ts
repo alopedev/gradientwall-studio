@@ -33,7 +33,8 @@ export const useHistoryStore = create<HistoryState>()(
       storage: createJSONStorage(() => {
         // Fall back to a no-op in-memory store when localStorage is absent or
         // broken (e.g. Node SSR). The runtime browser always has a real one.
-        if (typeof localStorage !== "undefined" && typeof localStorage.setItem === "function") return localStorage;
+        if (typeof localStorage !== "undefined" && typeof localStorage.setItem === "function")
+          return localStorage;
         const mem = new Map<string, string>();
         return {
           get length() {

@@ -85,10 +85,10 @@ describe("processRecover", () => {
   });
 
   it("ls_lookup_failed — lookup returns null (404 upstream)", async () => {
-    const out = await processRecover(
-      deps({ lookupOrderEmail: async () => null }),
-      { email: "buyer@example.com", orderId: "order_xyz" },
-    );
+    const out = await processRecover(deps({ lookupOrderEmail: async () => null }), {
+      email: "buyer@example.com",
+      orderId: "order_xyz",
+    });
     expect(out).toEqual({ ok: true, reason: "ls_lookup_failed" });
     expect(loops.sent).toHaveLength(0);
   });
@@ -157,10 +157,10 @@ describe("processRecover", () => {
 
   it("idempotency — two recovers in a row issue distinct tokens, counter unchanged", async () => {
     await processRecover(deps(), { email: "buyer@example.com", orderId: "order_xyz" });
-    await processRecover(
-      deps({ now: () => NOW + 1 }),
-      { email: "buyer@example.com", orderId: "order_xyz" },
-    );
+    await processRecover(deps({ now: () => NOW + 1 }), {
+      email: "buyer@example.com",
+      orderId: "order_xyz",
+    });
     const t1 = new URL(loops.sent[0].dataVariables.downloadUrl).searchParams.get("token");
     const t2 = new URL(loops.sent[1].dataVariables.downloadUrl).searchParams.get("token");
     expect(t1).not.toEqual(t2);
@@ -173,10 +173,10 @@ describe("processRecover", () => {
     const cases = await Promise.all([
       processRecover(deps(), { email: "", orderId: "" }),
       processRecover(deps(), { email: "x@y.z", orderId: "ghost" }),
-      processRecover(
-        deps({ lookupOrderEmail: async () => null }),
-        { email: "buyer@example.com", orderId: "order_xyz" },
-      ),
+      processRecover(deps({ lookupOrderEmail: async () => null }), {
+        email: "buyer@example.com",
+        orderId: "order_xyz",
+      }),
       processRecover(deps(), { email: "wrong@example.com", orderId: "order_xyz" }),
     ]);
     for (const c of cases) {
@@ -187,10 +187,10 @@ describe("processRecover", () => {
   });
 
   it("emails the buyer at stored.email (not the LS lookup email) for receipt-history consistency", async () => {
-    await processRecover(
-      deps({ lookupOrderEmail: async () => ({ email: "BUYER@Example.com" }) }),
-      { email: "buyer@example.com", orderId: "order_xyz" },
-    );
+    await processRecover(deps({ lookupOrderEmail: async () => ({ email: "BUYER@Example.com" }) }), {
+      email: "buyer@example.com",
+      orderId: "order_xyz",
+    });
     expect(loops.sent[0].email).toBe(baseOrder.email);
   });
 

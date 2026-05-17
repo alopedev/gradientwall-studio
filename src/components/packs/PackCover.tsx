@@ -21,7 +21,9 @@ interface Props {
  */
 export function PackCover({ cover, w = 720, h = 720, className }: Props) {
   if (cover.kind === "image") {
-    return <img src={cover.url} alt={cover.alt} className={className} loading="lazy" decoding="async" />;
+    return (
+      <img src={cover.url} alt={cover.alt} className={className} loading="lazy" decoding="async" />
+    );
   }
   return <GradientCover cover={cover} w={w} h={h} className={className} />;
 }

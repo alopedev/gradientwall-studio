@@ -38,8 +38,10 @@ describe("kmeans", () => {
 
   it("is stable under many iterations (converged clusters don't drift)", () => {
     const points: RGB[] = [];
-    for (let i = 0; i < 30; i++) points.push([50 + (i % 3) * 2, 50 + (i % 3) * 2, 50 + (i % 3) * 2]);
-    for (let i = 0; i < 30; i++) points.push([200 + (i % 3) * 2, 80 + (i % 3) * 2, 50 + (i % 3) * 2]);
+    for (let i = 0; i < 30; i++)
+      points.push([50 + (i % 3) * 2, 50 + (i % 3) * 2, 50 + (i % 3) * 2]);
+    for (let i = 0; i < 30; i++)
+      points.push([200 + (i % 3) * 2, 80 + (i % 3) * 2, 50 + (i % 3) * 2]);
     const a = kmeans(points.slice(), 2, 50);
     const b = kmeans(points.slice(), 2, 100);
     // Sort by first component for deterministic comparison

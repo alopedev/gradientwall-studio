@@ -8,7 +8,11 @@ import { createHmac, timingSafeEqual } from "node:crypto";
  * any JSON parse or re-stringify (re-stringify reorders keys + alters
  * whitespace and breaks the signature).
  */
-export function verifyWebhookSignature(rawBody: string, signature: string | null, secret: string): boolean {
+export function verifyWebhookSignature(
+  rawBody: string,
+  signature: string | null,
+  secret: string,
+): boolean {
   if (!signature) return false;
   const expected = createHmac("sha256", secret).update(rawBody).digest("hex");
   // Buffers must be the same length for timingSafeEqual; mismatched length

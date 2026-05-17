@@ -33,11 +33,14 @@ export function PackPurchaseSuccess() {
           <p className="font-sans text-[16px] text-white/70 leading-relaxed mb-8">
             {pack ? (
               <>
-                We've sent the download link for <span className="text-white">{pack.name}</span> to the
-                email used at checkout. It should land within a minute.
+                We've sent the download link for <span className="text-white">{pack.name}</span> to
+                the email used at checkout. It should land within a minute.
               </>
             ) : (
-              <>We've sent the download link to the email used at checkout. It should land within a minute.</>
+              <>
+                We've sent the download link to the email used at checkout. It should land within a
+                minute.
+              </>
             )}
           </p>
 

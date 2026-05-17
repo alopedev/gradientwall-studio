@@ -40,7 +40,9 @@ export function HistoryDrawer() {
       <SheetContent side="right" className="overflow-y-auto">
         <div className="flex justify-between items-baseline">
           <SheetTitle>Your history</SheetTitle>
-          <span className="font-sans text-[11px] tracking-[0.18em] uppercase text-white/40">{count} saved</span>
+          <span className="font-sans text-[11px] tracking-[0.18em] uppercase text-white/40">
+            {count} saved
+          </span>
         </div>
         <SheetDescription>
           Click a tile to reload its config. Use the corner pip to remove a saved gradient.

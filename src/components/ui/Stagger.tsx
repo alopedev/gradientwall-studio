@@ -35,7 +35,14 @@ export function Stagger({
   return (
     <>
       {items.map((child, i) => (
-        <Reveal key={i} delay={delays[i]} y={y} amount={amount} variant={variant} className={className}>
+        <Reveal
+          key={i}
+          delay={delays[i]}
+          y={y}
+          amount={amount}
+          variant={variant}
+          className={className}
+        >
           <span data-stagger-delay={delays[i]} style={{ display: "contents" }}>
             {child}
           </span>

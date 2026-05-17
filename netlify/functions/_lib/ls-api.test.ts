@@ -3,11 +3,12 @@ import { describe, it, expect, vi } from "vitest";
 import { fetchOrderEmail } from "./ls-api";
 
 function mockFetch(status: number, body: unknown) {
-  return vi.fn(async () =>
-    new Response(JSON.stringify(body), {
-      status,
-      headers: { "content-type": "application/vnd.api+json" },
-    }),
+  return vi.fn(
+    async () =>
+      new Response(JSON.stringify(body), {
+        status,
+        headers: { "content-type": "application/vnd.api+json" },
+      }),
   );
 }
 
@@ -26,7 +27,9 @@ describe("fetchOrderEmail", () => {
     expect(result).toEqual({ orderId: "order_abc", email: "buyer@example.com" });
     expect(fetchImpl).toHaveBeenCalledWith(
       "https://api.lemonsqueezy.com/v1/orders/order_abc",
-      expect.objectContaining({ headers: expect.objectContaining({ Authorization: "Bearer key" }) }),
+      expect.objectContaining({
+        headers: expect.objectContaining({ Authorization: "Bearer key" }),
+      }),
     );
   });
 

@@ -16,12 +16,15 @@ export async function fetchOrderEmail(
   apiKey: string,
   fetchImpl: FetchLike = fetch,
 ): Promise<LSOrderLookup | null> {
-  const res = await fetchImpl(`https://api.lemonsqueezy.com/v1/orders/${encodeURIComponent(orderId)}`, {
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      Accept: "application/vnd.api+json",
+  const res = await fetchImpl(
+    `https://api.lemonsqueezy.com/v1/orders/${encodeURIComponent(orderId)}`,
+    {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        Accept: "application/vnd.api+json",
+      },
     },
-  });
+  );
   if (res.status === 404) return null;
   if (!res.ok) {
     const text = await res.text().catch(() => "");

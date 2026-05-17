@@ -26,7 +26,12 @@ export interface IssueTokenOpts {
 const ISSUER = "gradientwall";
 const AUDIENCE = "gradientwall-download";
 
-export async function issueDownloadToken({ payload, ttlSeconds, secret, iat }: IssueTokenOpts): Promise<string> {
+export async function issueDownloadToken({
+  payload,
+  ttlSeconds,
+  secret,
+  iat,
+}: IssueTokenOpts): Promise<string> {
   const key = encodeSecret(secret);
   const issuedAt = iat ?? Math.floor(Date.now() / 1000);
   return new SignJWT({ ...payload })

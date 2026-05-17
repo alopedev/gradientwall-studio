@@ -14,10 +14,12 @@ describe("browserDownloadSink", () => {
   it("creates an ObjectURL, clicks an anchor with filename + href, and revokes after 1s", async () => {
     const click = vi.fn();
     const anchor = { download: "", href: "", click } as unknown as HTMLAnchorElement;
-    const createElementSpy = vi.spyOn(document, "createElement").mockImplementation((tag: string) => {
-      if (tag === "a") return anchor;
-      return {} as HTMLElement;
-    });
+    const createElementSpy = vi
+      .spyOn(document, "createElement")
+      .mockImplementation((tag: string) => {
+        if (tag === "a") return anchor;
+        return {} as HTMLElement;
+      });
     const createURLSpy = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock-url");
     const revokeURLSpy = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
 

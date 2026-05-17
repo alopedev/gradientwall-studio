@@ -67,7 +67,10 @@ describe("parseOrderCreatedEvent", () => {
     expect(
       parseOrderCreatedEvent({
         ...validEvent,
-        data: { ...validEvent.data, attributes: { ...validEvent.data.attributes, status: "pending" } },
+        data: {
+          ...validEvent.data,
+          attributes: { ...validEvent.data.attributes, status: "pending" },
+        },
       }),
     ).toBeNull();
   });

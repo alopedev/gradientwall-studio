@@ -20,7 +20,7 @@ function makeCanvasMock() {
     _fillStyle: null as unknown,
     set fillStyle(v: unknown) {
       this._fillStyle = v;
-      ops.push(`fillStyle=${typeof v === "string" ? v : v?.constructor?.name ?? typeof v}`);
+      ops.push(`fillStyle=${typeof v === "string" ? v : (v?.constructor?.name ?? typeof v)}`);
     },
     get fillStyle() {
       return this._fillStyle as CanvasRenderingContext2D["fillStyle"];
@@ -34,10 +34,16 @@ function makeCanvasMock() {
     set filter(v: string) {
       ops.push(`filter=${v}`);
     },
-    fillRect: vi.fn((x: number, y: number, w: number, h: number) => ops.push(`fillRect(${x},${y},${w},${h})`)),
+    fillRect: vi.fn((x: number, y: number, w: number, h: number) =>
+      ops.push(`fillRect(${x},${y},${w},${h})`),
+    ),
     createRadialGradient: vi.fn(() => ({ addColorStop: vi.fn() })),
     createPattern: vi.fn(() => ({ _kind: "pattern" })),
-    createImageData: vi.fn((w: number, h: number) => ({ data: new Uint8ClampedArray(w * h * 4), width: w, height: h })),
+    createImageData: vi.fn((w: number, h: number) => ({
+      data: new Uint8ClampedArray(w * h * 4),
+      width: w,
+      height: h,
+    })),
     putImageData: vi.fn(),
     drawImage: vi.fn(() => ops.push("drawImage")),
     set imageSmoothingEnabled(_v: boolean) {},
@@ -112,7 +118,11 @@ describe("paintWallpaper", () => {
   it("paints onto the caller's canvas without creating a new one", () => {
     const canvas = makeCanvasMock();
     const factory = vi.fn(canvasFactory);
-    paintWallpaper(canvas, { w: 200, h: 100, colors: COLORS, style: "mesh", blur: 48, seed: 1 }, factory);
+    paintWallpaper(
+      canvas,
+      { w: 200, h: 100, colors: COLORS, style: "mesh", blur: 48, seed: 1 },
+      factory,
+    );
     // Only the noise tile (memoized, but we reset it so 0 if no grain) — without grain, factory must not be called
     expect(factory).not.toHaveBeenCalled();
     expect(canvas.width).toBe(200);
@@ -121,7 +131,11 @@ describe("paintWallpaper", () => {
 
   it("skips the grain overlay when grain is omitted", () => {
     const canvas = makeCanvasMock();
-    paintWallpaper(canvas, { w: 200, h: 100, colors: COLORS, style: "mesh", blur: 48, seed: 1 }, canvasFactory);
+    paintWallpaper(
+      canvas,
+      { w: 200, h: 100, colors: COLORS, style: "mesh", blur: 48, seed: 1 },
+      canvasFactory,
+    );
     expect(canvas._ops.some((o) => o === "globalCompositeOperation=overlay")).toBe(false);
   });
 

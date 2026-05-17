@@ -65,8 +65,12 @@ export function PackPage() {
         />
         <Nav />
         <main className="min-h-screen flex flex-col items-center justify-center px-6 text-center">
-          <span className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/40 mb-4">404</span>
-          <h1 className="display-head text-[clamp(40px,6vw,76px)] text-white mb-4">Pack not found.</h1>
+          <span className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/40 mb-4">
+            404
+          </span>
+          <h1 className="display-head text-[clamp(40px,6vw,76px)] text-white mb-4">
+            Pack not found.
+          </h1>
           <p className="font-sans text-[15px] text-white/60 mb-8 max-w-[42ch]">
             The pack you're looking for has moved or doesn't exist. Browse the full catalog instead.
           </p>
@@ -105,8 +109,16 @@ export function PackPage() {
 
           <div className="grid lg:grid-cols-[1.1fr_1fr] gap-[clamp(40px,5vw,80px)] items-center">
             <m.div layoutId={`pack-${pack.slug}-cover`}>
-              <Framed offset={10} className="rounded-[2px] bg-[#0a0a0d] border border-white/8 aspect-[3/4] overflow-hidden">
-                <PackCover cover={pack.cover} w={1080} h={1440} className="block w-full h-full object-cover" />
+              <Framed
+                offset={10}
+                className="rounded-[2px] bg-[#0a0a0d] border border-white/8 aspect-[3/4] overflow-hidden"
+              >
+                <PackCover
+                  cover={pack.cover}
+                  w={1080}
+                  h={1440}
+                  className="block w-full h-full object-cover"
+                />
               </Framed>
             </m.div>
 
@@ -162,15 +174,16 @@ export function PackPage() {
                       if (eligibility.kind !== "buyable") return;
                       setCheckoutLoading(true);
                       try {
-                        await openCheckout({ variantId: eligibility.variantId, packSlug: pack.slug });
+                        await openCheckout({
+                          variantId: eligibility.variantId,
+                          packSlug: pack.slug,
+                        });
                       } finally {
                         setCheckoutLoading(false);
                       }
                     }}
                     className={`inline-flex items-center gap-2 rounded-[2px] bg-white/95 text-[#0a0a0d] px-5 py-3 text-[11px] tracking-[0.14em] uppercase font-sans font-medium transition-colors focus-ring ${
-                      buyEnabled
-                        ? "hover:bg-white cursor-pointer"
-                        : "opacity-60 cursor-not-allowed"
+                      buyEnabled ? "hover:bg-white cursor-pointer" : "opacity-60 cursor-not-allowed"
                     } ${checkoutLoading ? "opacity-80 cursor-wait" : ""}`}
                   >
                     {checkoutLoading ? "Loading…" : `↓ Buy €${pack.priceEur.toFixed(2)}`}

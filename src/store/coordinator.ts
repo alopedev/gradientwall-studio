@@ -68,4 +68,3 @@ export function applyPalette(i: number): void {
   });
   useUIStore.getState()._setActivePalette(i);
 }
-

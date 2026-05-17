@@ -21,7 +21,10 @@ const EXT_FOR_TYPE: Record<EncodeFormat["type"], EncodedImage["ext"]> = {
  *
  * @throws if no format in the list produces a blob matching its declared type.
  */
-export function encodeWithFallback(canvas: HTMLCanvasElement, formats: EncodeFormat[]): Promise<EncodedImage> {
+export function encodeWithFallback(
+  canvas: HTMLCanvasElement,
+  formats: EncodeFormat[],
+): Promise<EncodedImage> {
   return new Promise((resolve, reject) => {
     const attempt = (index: number): void => {
       if (index >= formats.length) {

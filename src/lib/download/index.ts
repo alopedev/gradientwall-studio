@@ -29,7 +29,10 @@ const DEFAULT_FORMATS: EncodeFormat[] = [
  *
  * Pass a different `sink` (e.g. a cloud-upload impl) to save elsewhere.
  */
-export async function downloadWallpaper(opts: DownloadOpts, sink: Sink = browserDownloadSink): Promise<void> {
+export async function downloadWallpaper(
+  opts: DownloadOpts,
+  sink: Sink = browserDownloadSink,
+): Promise<void> {
   const d = DEVICE_SIZES[opts.device];
   const canvas = composeWallpaper({
     w: d.w,

@@ -46,7 +46,9 @@ export function SeedBadge() {
       </PopoverTrigger>
       <PopoverContent align="start" sideOffset={10}>
         <div className="flex flex-col gap-3 w-[220px]">
-          <span className="font-sans text-[10px] tracking-[0.18em] uppercase text-white/40">Seed (hex)</span>
+          <span className="font-sans text-[10px] tracking-[0.18em] uppercase text-white/40">
+            Seed (hex)
+          </span>
           <input
             type="text"
             value={draft}

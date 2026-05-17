@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { activeColors, ALL_ACTIVE, MIN_ACTIVE_COLORS, type ActiveMask, type Colors4 } from "./palettes";
+import {
+  activeColors,
+  ALL_ACTIVE,
+  MIN_ACTIVE_COLORS,
+  type ActiveMask,
+  type Colors4,
+} from "./palettes";
 
 const COLORS: Colors4 = ["#111111", "#222222", "#333333", "#444444"];
 

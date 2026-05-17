@@ -1,4 +1,10 @@
-import { useRef, useState, type DragEvent as ReactDragEvent, type PointerEvent as ReactPointerEvent, type WheelEvent as ReactWheelEvent } from "react";
+import {
+  useRef,
+  useState,
+  type DragEvent as ReactDragEvent,
+  type PointerEvent as ReactPointerEvent,
+  type WheelEvent as ReactWheelEvent,
+} from "react";
 import { m } from "motion/react";
 import { useConfigStore, useRenderParams } from "@/store";
 import { useFittedGradientCanvas } from "@/lib/useGradientCanvas";
@@ -74,7 +80,12 @@ export function Preview() {
   //   Alt + drag Y    → density
   // Double-click reshuffles the seed regardless of modifier — it's a clearly
   // discoverable "give me a different one of the same thing" gesture.
-  const dragRef = useRef<{ startX: number; startY: number; baseLight: number; baseDensity: number } | null>(null);
+  const dragRef = useRef<{
+    startX: number;
+    startY: number;
+    baseLight: number;
+    baseDensity: number;
+  } | null>(null);
   const onCanvasWheel = (e: ReactWheelEvent<HTMLDivElement>) => {
     if (!e.altKey) return;
     e.preventDefault();

@@ -14,7 +14,14 @@ const basePack: Pack = {
   style: "gradient",
   description: "",
   tagline: "",
-  cover: { kind: "gradient", colors: ["#000", "#111", "#222", "#333"], style: "mesh", blur: 50, grain: 30, seed: 1 },
+  cover: {
+    kind: "gradient",
+    colors: ["#000", "#111", "#222", "#333"],
+    style: "mesh",
+    blur: 50,
+    grain: 30,
+    seed: 1,
+  },
   previews: [],
   priceEur: 4.99,
 };

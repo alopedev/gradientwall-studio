@@ -11,7 +11,10 @@ import type { RenderParams } from "./palettes";
  * — it drives the canvas resolution from the container's CSS size × DPR, which
  * keeps the wallpaper crisp on Retina and avoids the sub-resolved look.
  */
-export function useGradientCanvas(opts: RenderOpts, deps: DependencyList): RefObject<HTMLCanvasElement> {
+export function useGradientCanvas(
+  opts: RenderOpts,
+  deps: DependencyList,
+): RefObject<HTMLCanvasElement> {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = ref.current;

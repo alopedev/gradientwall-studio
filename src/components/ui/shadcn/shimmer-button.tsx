@@ -20,10 +20,7 @@ export interface ShimmerButtonProps extends ComponentPropsWithoutRef<"button"> {
   children?: React.ReactNode;
 }
 
-export const ShimmerButton = React.forwardRef<
-  HTMLButtonElement,
-  ShimmerButtonProps
->(
+export const ShimmerButton = React.forwardRef<HTMLButtonElement, ShimmerButtonProps>(
   (
     {
       shimmerColor = "#ffffff",
@@ -59,10 +56,7 @@ export const ShimmerButton = React.forwardRef<
       >
         {/* spark container */}
         <div
-          className={cn(
-            "-z-30 blur-[2px]",
-            "@container-[size] absolute inset-0 overflow-visible",
-          )}
+          className={cn("-z-30 blur-[2px]", "@container-[size] absolute inset-0 overflow-visible")}
         >
           {/* spark */}
           <div className="animate-shimmer-slide absolute inset-0 aspect-[1] h-[100cqh] rounded-none [mask:none]">

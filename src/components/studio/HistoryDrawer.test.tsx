@@ -71,7 +71,12 @@ describe("<HistoryDrawer />", () => {
     // The card itself is the only button inside the drawer body that is not the delete pip.
     const cardButtons = screen
       .getAllByRole("button")
-      .filter((b) => !/delete saved gradient/i.test(b.getAttribute("aria-label") ?? "") && !/open saved gradients/i.test(b.getAttribute("aria-label") ?? "") && !/close/i.test(b.getAttribute("aria-label") ?? ""));
+      .filter(
+        (b) =>
+          !/delete saved gradient/i.test(b.getAttribute("aria-label") ?? "") &&
+          !/open saved gradients/i.test(b.getAttribute("aria-label") ?? "") &&
+          !/close/i.test(b.getAttribute("aria-label") ?? ""),
+      );
     fireEvent.click(cardButtons[0]!);
     const c = useConfigStore.getState();
     expect(c.style).toBe("liquid");

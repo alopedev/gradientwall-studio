@@ -13,9 +13,17 @@ describe("useHistoryStore", () => {
   });
 
   it("_setHistory writes and persists to localStorage under gw_history", () => {
-    useHistoryStore.getState()._setHistory([
-      { colors: ["#000000", "#111111", "#222222", "#333333"], style: "mesh", blur: 48, grain: 45, seed: 1 },
-    ]);
+    useHistoryStore
+      .getState()
+      ._setHistory([
+        {
+          colors: ["#000000", "#111111", "#222222", "#333333"],
+          style: "mesh",
+          blur: 48,
+          grain: 45,
+          seed: 1,
+        },
+      ]);
     expect(useHistoryStore.getState().history).toHaveLength(1);
     const raw = localStorage.getItem("gw_history");
     expect(raw).not.toBeNull();
