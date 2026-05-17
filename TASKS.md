@@ -148,3 +148,45 @@ Objetivo Fase 5: delta ≤ 0 KB en main bundle (esperado reducir al eliminar v1)
 5. `refactor(studio): remove v1 Studio RightRail BottomBar SeedBadge HistoryDrawer StudioHints SurpriseMeHero`
 6. `docs: update CLAUDE.md and CONTEXT.md with v2 architecture`
 7. `chore: close TASKS.md and mark PLANNING.md complete`
+
+---
+
+## Fase 6 — Lint debt cleanup (post-cutover)
+
+> Trabajo de deuda técnica heredada de antes de añadir Biome. Durante Fase 0 estas reglas se relajaron a `warn` para que el baseline arrancase verde, **pero deben resolverse**. La razón para diferirlo: el código nuevo de v2 ya las respeta y muchas violations viven en componentes v1 que se eliminan en Fase 5 — así reducimos antes el trabajo.
+
+**Cuándo**: tras el cutover de Fase 5 (cuando v1 esté borrada). Algunas violations habrán desaparecido solas; el resto se arregla en commits granulares por regla.
+
+**Inventario completo** (Fase 0, commit `916e291`, 62 violations en 66 ubicaciones):
+
+| Regla | Violations | Estrategia | FIXABLE auto |
+|---|---|---|---|
+| `lint/style/useTemplate` | 14 | Reemplazar concatenación por template literals | Sí (`biome check --write`) |
+| `lint/complexity/noForEach` | 11 | Convertir `forEach` a `for...of` | Manual (afecta semántica de control flow) |
+| `lint/suspicious/useIterableCallbackReturn` | 8 | Asegurar return explícito en callbacks de map/filter | Manual |
+| `lint/suspicious/noArrayIndexKey` | 7 | Cambiar `key={i}` por id estable | Manual (requiere id real) |
+| `lint/correctness/useExhaustiveDependencies` | 6 | Añadir deps faltantes a useEffect/useMemo | Manual (riesgo de bucles) |
+| `lint/complexity/useIndexOf` | 5 | Reemplazar `findIndex(x => x === y)` por `indexOf(y)` | Sí |
+| `lint/style/noParameterAssign` | 3 | Crear variable local antes de mutar parámetro | Manual |
+| `lint/suspicious/noAssignInExpressions` | 2 | Separar assignment de expression | Manual |
+| `lint/complexity/noUselessSwitchCase` | 2 | Eliminar case redundante de switch | Sí |
+| `lint/style/useImportType` | 1 | Añadir `import type` cuando solo es type | Sí |
+| `lint/style/useExponentiationOperator` | 1 | `Math.pow(x, y)` → `x ** y` | Sí |
+| `lint/complexity/useOptionalChain` | 1 | `a && a.b` → `a?.b` | Sí |
+| `lint/complexity/useArrowFunction` | 1 | Function expression → arrow function | Sí |
+
+**Plan de ataque**:
+1. Re-correr inventario tras Fase 5 (muchas violations en `RightRail`, `HistoryDrawer`, `SeedBadge` se irán solas).
+2. Aplicar fixes automáticos: `npx biome check src netlify --write --unsafe` (revisa el diff antes del commit).
+3. Para violations no automáticas, un commit por regla — más fácil de revisar.
+4. Endurecer biome.json: subir cada regla resuelta a `error`.
+5. `npm run check` debe seguir verde tras cada commit.
+
+**Commits objetivo** (depende del inventario final post-cutover):
+- `fix(lint): auto-fix useTemplate, useIndexOf, useExponentiationOperator, useOptionalChain, useArrowFunction, useImportType`
+- `fix(lint): manual fix noForEach in pure loops`
+- `fix(lint): give stable keys to map callbacks`
+- `fix(lint): complete useEffect dependency arrays`
+- `fix(lint): split noAssignInExpressions and noParameterAssign`
+- `fix(lint): handle useIterableCallbackReturn cases`
+- `chore(biome): promote resolved rules from warn to error`

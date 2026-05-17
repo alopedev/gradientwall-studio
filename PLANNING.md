@@ -12,6 +12,7 @@
 | 3 — Customize Popover | ⚪ pendiente | |
 | 4 — Favorites Strip | ⚪ pendiente | |
 | 5 — Polish + mobile + cutover | ⚪ pendiente | |
+| 6 — Lint debt cleanup | ⚪ pendiente | Resolver 62 violations heredadas (warns en Fase 0). Inventario en `TASKS.md`. |
 
 Branch base: `studio/redesign-v2` desde `studio/mordible-pass` (no desde `main`, porque mordible-pass tiene los últimos refactors del Studio v1 que sirven de baseline visual).
 
