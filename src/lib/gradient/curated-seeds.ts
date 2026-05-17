@@ -59,10 +59,7 @@ export function pickCuratedSeed(rng: () => number = Math.random): number {
  * dos surprises consecutivos no caigan en el mismo wallpaper. Si la lista
  * tiene un solo elemento devuelve ese (no debería pasar con 80).
  */
-export function pickCuratedSeedExcluding(
-  exclude: number,
-  rng: () => number = Math.random,
-): number {
+export function pickCuratedSeedExcluding(exclude: number, rng: () => number = Math.random): number {
   if (CURATED_SEEDS.length <= 1) return CURATED_SEEDS[0];
   let next = pickCuratedSeed(rng);
   // Loop hasta encontrar uno distinto. Vuelta máxima limitada por longitud

@@ -83,8 +83,12 @@ const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
  *                 caen en el mismo wallpaper.
  * @param rng      PRNG opcional. Por defecto `Math.random`.
  */
-export function generateSurprise(prevSeed?: number, rng: () => number = Math.random): GradientConfig {
-  const seed = prevSeed === undefined ? pickCuratedSeed(rng) : pickCuratedSeedExcluding(prevSeed, rng);
+export function generateSurprise(
+  prevSeed?: number,
+  rng: () => number = Math.random,
+): GradientConfig {
+  const seed =
+    prevSeed === undefined ? pickCuratedSeed(rng) : pickCuratedSeedExcluding(prevSeed, rng);
   const colors: Colors4 = randomHarmonicColors(rng);
   const style = pickWeightedStyle(rng);
   const blur = Math.round(lerp(SURPRISE_BLUR_MIN, SURPRISE_BLUR_MAX, rng()));

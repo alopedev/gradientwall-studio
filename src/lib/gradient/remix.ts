@@ -37,8 +37,7 @@ export const REMIX_DENSITY_DELTA = 0.1;
 /** Magnitud del giro de blur en remix (±10). */
 export const REMIX_BLUR_DELTA = 10;
 
-const clamp = (n: number, min: number, max: number): number =>
-  n < min ? min : n > max ? max : n;
+const clamp = (n: number, min: number, max: number): number => (n < min ? min : n > max ? max : n);
 
 const wrapAngle = (deg: number): number => ((deg % 360) + 360) % 360;
 
@@ -57,7 +56,10 @@ function jitter(value: number, delta: number, rng: () => number): number {
  * @param current Config actual del Studio.
  * @param rng     PRNG opcional. Por defecto `Math.random`.
  */
-export function generateRemix(current: GradientConfig, rng: () => number = Math.random): GradientConfig {
+export function generateRemix(
+  current: GradientConfig,
+  rng: () => number = Math.random,
+): GradientConfig {
   const seed = pickCuratedSeedExcluding(current.seed, rng);
 
   const baseLight = current.lightAngle ?? 135;
