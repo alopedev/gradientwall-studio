@@ -89,16 +89,17 @@ Objetivo Fase 5: delta ≤ 0 KB en main bundle (esperado reducir al eliminar v1)
 
 ---
 
-## Fase 3 — Customize Popover
+## Fase 3 — Customize Popover ✅
 
-- [ ] `src/components/studio/v2/CustomizePopover.tsx`: Radix Popover con `glass-modern`.
-- [ ] Style picker (4 thumbnails grandes con `useFittedGradientCanvas`).
-- [ ] Reusar `<Swatches>` + `<ColorHUD>` + `<UseMyPhotoButton>` + `<LightDial>`.
-- [ ] Sliders Radix renombrados "Density" y "Softness".
-- [ ] NO incluir contrast, vibrance, grain, seed badge.
-- [ ] En `useConfigStore` fijar grain/contrast/vibrance a defaults curados.
-- [ ] Tests snapshot del Popover.
-- [ ] `npm run check` verde.
+- [x] `src/components/studio/v2/CustomizePopover.tsx`: Radix Popover con `glass-modern`. Cinco bloques verticales.
+- [x] Style picker: `StyleThumbnail` (96×64) usando `useGradientCanvas` con paleta actual; click setea style.
+- [x] Reusa `<Swatches>` (con ColorHUD), `<UseMyPhotoButton>`, `<LightDial>` v1 sin tocar.
+- [x] Sliders Radix renombrados "Density" (0..1) y "Softness" (10..120, antes "Blur").
+- [x] NO incluye contrast, vibrance, grain, seed badge — superficie minimizada del editor.
+- [x] grain/contrast/vibrance se congelan en defaults curados vía `applySurprise()` (ya en Fase 1).
+- [x] Tests: 4 nuevos (open/close, controls present, controls absent, style switch). Total 349/349.
+- [x] Verificado visualmente: popover abre, thumbnails muestran mini-canvases, click cambia style real (mesh→aurora confirmado en store), Density slider funciona (0.50→0.51), Escape cierra.
+- [x] `npm run check` verde — exit 0.
 
 **Commits objetivo**:
 1. `feat(studio-v2): add CustomizePopover with style thumbnails`
