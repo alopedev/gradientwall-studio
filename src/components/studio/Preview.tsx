@@ -15,7 +15,18 @@ import { Framed } from "../ui/Framed";
 
 const clamp = (n: number, min: number, max: number) => (n < min ? min : n > max ? max : n);
 
-export function Preview() {
+/**
+ * `framed` controla el chrome envolvente: corners + border + bg + min-height
+ * que enmarcan el canvas como una "tarjeta". `true` (default) preserva el
+ * look del Studio v1. `false` lo monta sin marco — usado por el shell v2,
+ * donde el canvas respira sin la tarjeta y el lenguaje visual se acerca al
+ * editorial brutalist sin chrome editorial.
+ */
+interface PreviewProps {
+  framed?: boolean;
+}
+
+export function Preview({ framed = true }: PreviewProps = {}) {
   const device = useConfigStore((s) => s.device);
   const setDevice = useConfigStore((s) => s.setDevice);
   const reshuffle = useConfigStore((s) => s.reshuffle);
@@ -147,14 +158,11 @@ export function Preview() {
     }
   };
 
-  return (
-    <Framed
-      offset={10}
-      className="rounded-[2px] bg-[#0a0a0d] border border-white/8 min-h-[420px] overflow-hidden"
-      onDragOver={onPreviewDragOver}
-      onDragLeave={onPreviewDragLeave}
-      onDrop={onPreviewDrop}
-    >
+  // El cuerpo es idéntico en ambas variantes; sólo cambia el wrapper visual:
+  // v1 (framed=true) → Framed con corners + border + bg como una "tarjeta".
+  // v2 (framed=false) → div plano: el canvas respira sin chrome envolvente.
+  const body = (
+    <>
       {/* Device pills: centered on mobile, top-left on md+. */}
       <div
         className="absolute top-3.5 z-[3] flex gap-1.5 left-1/2 -translate-x-1/2 md:left-3.5 md:translate-x-0"
@@ -250,6 +258,31 @@ export function Preview() {
           </span>
         </div>
       )}
-    </Framed>
+    </>
+  );
+
+  if (framed) {
+    return (
+      <Framed
+        offset={10}
+        className="rounded-[2px] bg-[#0a0a0d] border border-white/8 min-h-[420px] overflow-hidden"
+        onDragOver={onPreviewDragOver}
+        onDragLeave={onPreviewDragLeave}
+        onDrop={onPreviewDrop}
+      >
+        {body}
+      </Framed>
+    );
+  }
+
+  return (
+    <div
+      className="relative min-h-[420px] overflow-hidden"
+      onDragOver={onPreviewDragOver}
+      onDragLeave={onPreviewDragLeave}
+      onDrop={onPreviewDrop}
+    >
+      {body}
+    </div>
   );
 }

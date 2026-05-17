@@ -53,7 +53,7 @@ export function StudioShell() {
           interno (container queries) — aquí solo le damos un max-width
           centrado para que respire en pantallas anchas. */}
       <div className="mx-auto flex max-w-[1100px] flex-col items-stretch">
-        <Preview />
+        <Preview framed={false} />
         <SurpriseCTA />
         <ActionRow />
       </div>
