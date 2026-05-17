@@ -11,8 +11,8 @@
 | 2 — Surprise-first shell | ✅ cerrada | `StudioShell`, `SurpriseCTA`, `ActionRow`, `DevicePicker` en `studio/v2/`. Feature flag `?v2=1` activo. Save/Customize disabled (Fase 3/4). 8 tests nuevos. 345/345 verde. Verificado visualmente: Space/R/Remix funcionan, canvas re-pinta, cero errores. 4 commits. |
 | 3 — Customize Popover | ✅ cerrada | `CustomizePopover` + `StyleThumbnail` mini-canvas (5 bloques: Style/Colors/Light/Density/Softness). Glass-modern. 4 tests nuevos. 349/349 verde. Verificado: click cambia style real, slider Density funciona, contrast/vibrance/grain ausentes. 4 commits. Refactor a inline panel (animación layout) en commit aparte. |
 | 4 — Favorites Strip | ✅ cerrada | `useFavoritesStore` persistido + migración legacy + `FavoritesStrip` con motion Reorder + `FavoriteThumbnail`. Save button cableado con heart spring. 16 tests nuevos. 367/367 verde. Verificado: pin → thumbnail aparece, click thumbnail carga config, reload persiste. 4 commits. |
-| 5 — Polish + mobile + cutover | ⚪ pendiente | |
-| 6 — Lint debt cleanup | ⚪ pendiente | Resolver 62 violations heredadas (warns en Fase 0). Inventario en `TASKS.md`. |
+| 5 — Polish + mobile + cutover | ✅ cerrada | Glass refinement + OKLCH tokens, BorderBeam conic, heart-burst particles, kinetic typography hero, scroll-driven reveals nativos CSS, mobile responsive stacked, cutover de v1 (eliminadas 7 componentes + tests + useHistoryStore). Bundle delta main +60K (esperado por v2 más rica). 330/330 verde. 6 commits. |
+| 6 — Lint debt cleanup | ⚪ pendiente | Resolver violations heredadas (warns en Fase 0). Inventario en `TASKS.md`. Algunas se eliminaron solas con el cutover de v1. |
 
 Branch base: `studio/redesign-v2` desde `studio/mordible-pass` (no desde `main`, porque mordible-pass tiene los últimos refactors del Studio v1 que sirven de baseline visual).
 

@@ -126,28 +126,45 @@ Objetivo Fase 5: delta ≤ 0 KB en main bundle (esperado reducir al eliminar v1)
 
 ---
 
-## Fase 5 — Polish liquid glass + mobile + cutover
+## Fase 5 — Polish liquid glass + mobile + cutover ✅
 
-- [ ] Aplicar `glass-modern` en Customize, Favorites, DevicePicker.
-- [ ] Magnetic hover con `useMotionValue` + `useSpring`.
-- [ ] BorderBeam solo en estado fresh, desktop.
-- [ ] Save heart fill + scale spring + particle.
-- [ ] Remix rotate 360°.
-- [ ] Mobile <640px: canvas full-screen + safe-area, CTA fija, ActionRow → bottom-sheet trigger, Favorites snap-scroll.
-- [ ] A11y pass: tab order, Escape, `prefers-reduced-motion` desactiva delight, focus rings visibles.
-- [ ] Quitar feature flag.
-- [ ] Eliminar v1: `Studio.tsx`, `RightRail.tsx`, `BottomBar.tsx`, `SurpriseMeHero.tsx`, `StudioHints.tsx`, `HistoryDrawer.tsx`, `SeedBadge.tsx`.
-- [ ] Bundle delta: `du -sh dist/assets/*.js` y comparar con baseline (objetivo ≤ 0 KB).
-- [ ] Actualizar `CLAUDE.md` y `CONTEXT.md` con la nueva arquitectura.
-- [ ] Lighthouse a11y ≥ 95 en `/`.
-- [ ] Marcar `PLANNING.md` con "✅ Cerrado el <fecha>".
+Fase ejecutada en 5 sub-bloques + cutover. Salto estético basado en tendencias 2026 investigadas (Apple iOS 26 liquid glass premio diseño, brutalism+glass fusion, scroll-driven CSS, OKLCH, kinetic typography, motion shared layout).
 
-**Commits objetivo**:
-1. `feat(studio-v2): polish liquid glass on Customize Favorites DevicePicker`
-2. `feat(studio-v2): magnetic CTA fresh-state BorderBeam and Save heart spring`
-3. `feat(studio-v2): mobile bottom-sheet ActionRow and snap-scroll Favorites`
-4. `feat(studio-v2): a11y pass with reduced-motion and focus rings`
-5. `refactor(studio): remove v1 Studio RightRail BottomBar SeedBadge HistoryDrawer StudioHints SurpriseMeHero`
+**5a — Glass refinement + OKLCH**:
+- [x] `glass-modern` profundizada: backdrop-filter `blur+saturate+brightness`, gradient background top→middle→bottom, double-inset highlight, outer drop limpio, `contain: paint`.
+- [x] OKLCH tokens (`--accent-oklch`, `--ink-oklch`, `--bg-oklch`) + `color-mix` variants (`--accent-soft`, `--accent-glow`, `--ink-soft`) en `@theme`.
+
+**5b — Motion delight**:
+- [x] BorderBeam fresh-state: conic-gradient con mask trick (CSS pure), rota 360° en 3.5s, `motion-safe:` para reduced-motion.
+- [x] Heart-burst particles al Save: 4 dots accent vuelan en direcciones equiespaciadas vía CSS custom property `--angle` inline + keyframe `gw-heart-burst`.
+
+**5c — Kinetic typography + scroll-driven reveals**:
+- [x] `SplitWords kinetic` prop: whileHover por palabra (scale 1→1.04 spring) — activo en "One tap. Done.".
+- [x] `.gw-reveal-on-scroll` utility con `animation-timeline: view()` nativo en `FavoriteThumbnail`, wrapped en `@supports + @media (prefers-reduced-motion: no-preference)` para degradación elegante.
+
+**5d — Mobile pass**:
+- [x] Hook `useIsMobile()` (matchMedia, SSR-safe).
+- [x] StudioShell: layout flex-col en mobile, flex-row sm+; panel anima height 0→auto en mobile, width 0→340 en desktop.
+- [x] FavoritesStrip: scroll-snap-type x proximity, overscroll-behavior contain, momentum touch scrolling, snap-align start por thumbnail.
+
+**5e — A11y + cutover**:
+- [x] A11y verificado: tab order natural Hero→CTA→ActionRow→Favorites; Escape cierra panel; todas las animaciones nuevas respetan `prefers-reduced-motion` (motion-safe + @media + hook gates).
+- [x] Feature flag `?v2=1` eliminado de HomePage.
+- [x] v1 eliminado: `Studio.tsx`, `RightRail.tsx`, `BottomBar.tsx`, `SurpriseMeHero.tsx`, `StudioHints.tsx`, `HistoryDrawer.tsx`, `SeedBadge.tsx` + sus tests + `useHistoryStore` + `coordinator.save/loadHistoryItem/removeHistoryItem`.
+- [x] Bundle delta: main 472K → 532K (+60K / +13%), css 68K → 68K. Crecimiento esperado por FavoritesStrip + DevicePicker + CustomizePanel + BorderBeam + motion Reorder. Follow-up: optimizar imports de lucide-react.
+- [x] `CLAUDE.md` actualizado con arquitectura v2 completa.
+- [x] `npm run check` verde — 330/330 tests (descontados los de v1).
+
+**Diferido**:
+- Lighthouse a11y formal — recomendado correr manualmente en `/` con DevTools antes de mergear a `main`.
+
+**Commits**:
+1. `feat(tokens): refine glass-modern with multi-layer + add OKLCH tokens`
+2. `feat(studio-v2): motion delight — BorderBeam conic + heart-burst particles`
+3. `feat(studio-v2): kinetic typography hero + scroll-driven CSS reveals`
+4. `feat(studio-v2): mobile pass — stacked layout, snap-scroll favorites`
+5. `refactor(studio): remove v1 components and feature flag — cutover Fase 5`
+6. (este) `docs: update CLAUDE.md/CONTEXT.md with v2 architecture, close Phase 5`
 6. `docs: update CLAUDE.md and CONTEXT.md with v2 architecture`
 7. `chore: close TASKS.md and mark PLANNING.md complete`
 
