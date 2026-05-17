@@ -74,7 +74,11 @@ export function FavoriteThumbnail({ item }: Props) {
       value={item}
       dragListener={false}
       dragControls={controls}
-      className="group relative shrink-0"
+      // gw-reveal-on-scroll: scroll-driven CSS animation nativa (Fase 5).
+      // Aparece con fade + slide-up cuando el elemento entra al viewport
+      // vertical. Cero JS, GPU-composited. Donde no se soporta (Safari
+      // <TP), el thumbnail aparece directo — degradación elegante.
+      className="gw-reveal-on-scroll group relative shrink-0"
       style={{ width: THUMB_W, height: THUMB_H }}
     >
       <button

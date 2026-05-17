@@ -389,6 +389,38 @@ body::before {
     transform: translate(-50%, -50%) rotate(360deg);
   }
 }
+/* Scroll-driven reveal Fase 5 — utility para items que aparecen cuando
+   entran al viewport. CSS nativo (animation-timeline: view()), cero JS.
+   El navegador corre la animación en el compositor thread, así que es
+   barata incluso con 24 thumbnails simultáneos en la FavoritesStrip.
+
+   Soporte: Chrome 115+, Edge 115+, Firefox 132+ (con flag), Safari TP.
+   Donde no se soporta, los items aparecen estáticos en su estado final
+   (transform/opacity desde el resto del CSS) — degradación elegante.
+
+   `view-timeline-axis: block` afina al scroll vertical de la página
+   (no al horizontal interno de la strip). El rango cover→cover dispara
+   la animación durante la entrada del elemento. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes gw-reveal-in {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .gw-reveal-on-scroll {
+      animation: gw-reveal-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+  }
+}
+
 /* BorderBeam Fase 5 — un beam ride alrededor del SurpriseCTA mientras el
    wallpaper está "fresh" (el usuario aún no pineó nada en la sesión). El
    beam usa conic-gradient que rota; el comp del padre añade clip y

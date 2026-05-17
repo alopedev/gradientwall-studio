@@ -71,7 +71,7 @@ export function StudioShell() {
             02 — The studio
           </span>
           <h2 className="m-0 font-sans text-[clamp(40px,5.5vw,76px)] font-bold uppercase leading-[0.95] tracking-[-0.03em] text-white">
-            <SplitWords text="One tap. Done." />
+            <SplitWords text="One tap. Done." kinetic />
           </h2>
         </div>
         <p className="max-w-[42ch] font-sans text-[15px] font-light text-white/75">
