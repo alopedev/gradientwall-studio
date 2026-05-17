@@ -11,6 +11,9 @@ npm run build       # tsc -b && vite build — full prod bundle into dist/
 npm run preview     # Serve dist/ locally to smoke-test a prod build
 npm test            # vitest run — one-shot test run (see "Test infra" below)
 npm run test:watch  # vitest in watch mode
+npm run lint        # biome check src netlify
+npm run format      # biome format --write src netlify
+npm run check       # typecheck + lint + test — el "ready to commit" del proyecto
 ```
 
 Test infra: **Vitest**. Default environment is `jsdom` (for React component tests with @testing-library); files under `netlify/**/*.test.ts` use `// @vitest-environment node` so jose v5 / crypto / process behave as at runtime. The setup file `src/test-setup.ts` early-outs when `typeof window === "undefined"` so node-env tests don't crash importing DOM-ware. Snapshot files live next to the test under `__snapshots__/` and are committed — regression guard on the core gradient math.
@@ -155,3 +158,41 @@ If imports resolve in the editor but Vite fails to build, suspect this.
 `.claude/launch.json` is configured so that `preview_start` with `name: "vite-dev"` works out of the box. Use it instead of running `npm run dev` in Bash when verifying changes.
 
 For backend Functions during local dev, use `netlify dev` (Netlify CLI) — it proxies the Vite server and runs Functions on the same origin so frontend `fetch('/.netlify/functions/...')` calls resolve correctly.
+
+## Studio v2 — tooling y feature flag
+
+Rediseño del Studio en curso. Plan completo en `~/.claude/plans/vamos-a-afrontar-el-polymorphic-fiddle.md`. Mini-framework vivo en raíz: `PRD.md`, `PLANNING.md`, `TASKS.md` — cualquier sesión nueva empieza leyendo los tres.
+
+**Branch**: `studio/redesign-v2` (desde `studio/mordible-pass`, no desde `main` — para conservar los últimos refactors visuales del v1 como baseline).
+
+**Feature flag durante desarrollo** (Fases 1–4):
+- `?v2=1` en la URL **o** `localStorage.gw_studio_v2 === "true"` monta el nuevo `StudioShell`. Sin el flag, sigue el Studio v1 actual.
+- En Fase 5 (cutover) el flag se elimina y v1 se borra del repo. Hasta entonces, v2 vive aislada en `src/components/studio/v2/`.
+
+**Tesis del rediseño**: surprise-first + remix + galería persistente de favoritos. Tres clicks máximo del primer carga a wallpaper instalado en el rollo. Toda potencia detrás de "Customize". Lenguaje visual: fusión liquid glass moderno (utilidad `glass-modern` ya definida en `src/index.css`) + brutalist tipográfico de la home.
+
+**Controles eliminados** (decisión consciente):
+- Sliders de **contrast**, **vibrance**, **grain editable** — sus valores se fijan a defaults curados en el motor.
+- **Seed badge** visible — el usuario ya no piensa en seeds.
+- **StudioHints** one-shot — UI autoexplicativa.
+
+**Motor — capa nueva (Fase 1)**, intocable lo demás:
+- `src/lib/gradient/curated-seeds.ts` — lista de 60–80 seeds aprobados visualmente. `pickCuratedSeed(rng?)`.
+- `src/lib/gradient/palette-constraints.ts` — `randomHarmonicColors(rng)` con HSL constreñido (sat 55–92%, light 42–78%, dist hue ≥25°).
+- `src/lib/gradient/surprise.ts` — `generateSurprise(prevSeed?)` que combina los anteriores + style weighted.
+- `src/lib/gradient/remix.ts` — `generateRemix(current)` para variación cercana.
+- `useConfigStore` añade `applySurprise()` y `applyRemix()` como métodos atómicos. `randomize()` se conserva `@deprecated` por retrocompat.
+
+**Intocables** (matemática firmada, snapshots blindan): `src/lib/gradient/spec.ts`, `canvas2d.ts`, `compose.ts`, `mulberry32`, `palettes.ts:activeColors`. Si un snapshot del motor falla tras un cambio, revertir, **no regenerar**.
+
+**Tooling externo (MCPs) durante el rediseño**:
+
+| Herramienta | Cuándo |
+|---|---|
+| `mcp__Claude_Preview__preview_start` (`vite-dev`) + `preview_screenshot` | Verificación visual tras cada fase |
+| `mcp__context7__query-docs` | Docs frescas de Radix / motion / Tailwind v4 antes de implementar primitivos |
+| `mcp__claude-in-chrome` | Testing manual real (gestos, magnetic hover) en Fases 2 y 5 |
+| `tdd` skill | Tests de `FavoritesStrip`, `useFavoritesStore`, `generateSurprise`, `generateRemix` |
+| `simplify` skill | Auditoría del código nuevo antes del commit final de cada fase |
+
+**Linter del proyecto**: Biome (config en `biome.json`, indent 2 espacios, line width 100, double quotes, trailing commas all). CSS deshabilitado porque Tailwind v4 `@theme/@utility` no es CSS estándar aún soportado.
