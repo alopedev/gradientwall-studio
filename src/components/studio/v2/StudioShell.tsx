@@ -5,6 +5,7 @@ import { Reveal } from "../../ui/Reveal";
 import { SplitWords } from "../../ui/SplitWords";
 import { ActionRow } from "./ActionRow";
 import { CustomizePanel } from "./CustomizePanel";
+import { FavoritesStrip } from "./FavoritesStrip";
 import { SurpriseCTA } from "./SurpriseCTA";
 
 /**
@@ -125,6 +126,7 @@ export function StudioShell() {
           customizeOpen={customizeOpen}
           onToggleCustomize={() => setCustomizeOpen((o) => !o)}
         />
+        <FavoritesStrip />
       </div>
     </section>
   );
