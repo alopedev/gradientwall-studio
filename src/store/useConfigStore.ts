@@ -18,6 +18,8 @@ import {
   type Style,
 } from "@/lib/palettes";
 import { randomColors } from "@/lib/gradient";
+import { generateRemix } from "@/lib/gradient/remix";
+import { generateSurprise } from "@/lib/gradient/surprise";
 import { makeRafBatcher } from "@/lib/raf-batcher";
 
 /**
@@ -67,7 +69,27 @@ export interface ConfigState
   setContrast: (n: number) => void;
   setVibrance: (n: number) => void;
   reshuffle: () => void;
+  /**
+   * @deprecated Studio v2 usa `applySurprise()` que sustituye este método con
+   * paletas armónicas constreñidas, seeds curados y defaults de grain /
+   * contrast / vibrance fijos. Se conserva por retrocompat de tests y por si
+   * v1 sigue montado tras el feature flag. Eliminar en Fase 5 (cutover).
+   */
   randomize: () => void;
+  /**
+   * Studio v2 — surprise-first. Aplica un `GradientConfig` generado por
+   * `generateSurprise` (paleta armónica + style weighted + curated seed +
+   * defaults curados). Garantiza que `seed` sea distinto al actual. Tras la
+   * llamada el canvas se repinta con un wallpaper distinto al anterior.
+   */
+  applySurprise: () => void;
+  /**
+   * Studio v2 — remix. Variación cercana del wallpaper actual: mantiene
+   * paleta y style, varía seed + lightAngle + density + blur dentro de
+   * rangos cortos. Pensado para el botón "Remix" cuando el usuario quiere
+   * ver otra cara de la misma idea.
+   */
+  applyRemix: () => void;
 }
 
 const randomSeed = () => Math.floor(Math.random() * 65535);
@@ -137,6 +159,49 @@ export const useConfigStore = create<ConfigState>()((set) => {
         seed: randomSeed(),
         lightAngle: Math.floor(Math.random() * 360),
         density: Math.random(),
+      }),
+    applySurprise: () =>
+      set((s) => {
+        const next = generateSurprise(s.seed);
+        return {
+          colors: next.colors,
+          active: freshMask(),
+          style: next.style,
+          blur: next.blur,
+          grain: next.grain ?? s.grain,
+          seed: next.seed,
+          lightAngle: next.lightAngle ?? s.lightAngle,
+          density: next.density ?? s.density,
+          contrast: next.contrast ?? s.contrast,
+          vibrance: next.vibrance ?? s.vibrance,
+        };
+      }),
+    applyRemix: () =>
+      set((s) => {
+        const current: GradientConfig = {
+          colors: s.colors,
+          style: s.style,
+          blur: s.blur,
+          grain: s.grain,
+          seed: s.seed,
+          lightAngle: s.lightAngle,
+          density: s.density,
+          contrast: s.contrast,
+          vibrance: s.vibrance,
+        };
+        const next = generateRemix(current);
+        return {
+          colors: next.colors,
+          // active no se toca — el remix mantiene la misma paleta
+          style: next.style,
+          blur: next.blur,
+          grain: next.grain ?? s.grain,
+          seed: next.seed,
+          lightAngle: next.lightAngle ?? s.lightAngle,
+          density: next.density ?? s.density,
+          contrast: next.contrast ?? s.contrast,
+          vibrance: next.vibrance ?? s.vibrance,
+        };
       }),
   };
 });
