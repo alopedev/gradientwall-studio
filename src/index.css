@@ -71,6 +71,26 @@
     inset 0 -1px 0 rgba(0, 0, 0, 0.35),
     0 1px 0 rgba(0, 0, 0, 0.4),
     0 8px 24px rgba(0, 0, 0, 0.35);
+
+  /* === Studio v2 — liquid glass moderno (iOS 26 / macOS Tahoe inspired) ===
+     Pareja de tokens para el chrome del nuevo Studio: Customize popover,
+     Favorites strip y DevicePicker. Más "cristal" que las utilidades
+     `liquid*` existentes (refracción + sat boost + inset highlight más
+     definido). Se aplican vía la utilidad `glass-modern`. */
+  --glass-bg: rgba(15, 15, 18, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: 24px;
+  --glass-shadow-soft:
+    0 12px 40px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+
+  /* Easing para hover magnético del CTA y motion delight de Fase 5.
+     Igual que el cubic-bezier que ya usan Reveal / Stagger en motion.ts. */
+  --magnetic-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Altura de la tira de favoritos (Fase 4). Compartida con el shell para
+     calcular padding-bottom del canvas y el bottom-offset del CTA en mobile. */
+  --strip-height: 88px;
 }
 
 /* =================== Base (wrapped so utilities win) =================== */
@@ -158,6 +178,18 @@ body::before {
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.14);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Studio v2 — modern liquid glass. Más cristal que `liquid` (saturación
+   más alta, blur más profundo, inset highlight más definido) sin perder
+   la voz brutalist del proyecto. Usado por Customize, FavoritesStrip y
+   DevicePicker. Safari requiere -webkit-backdrop-filter explícito. */
+@utility glass-modern {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+  box-shadow: var(--glass-shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 /* Technical "stamp" chrome — hairline border + tinted backdrop blur.
