@@ -59,10 +59,26 @@ export function CustomizePopover({ trigger }: Props) {
     <Popover>
       <PopoverTrigger asChild>{trigger}</PopoverTrigger>
       <PopoverContent
-        side="top"
+        // Reglas de posicionamiento para que el popover NO tape el canvas
+        // Preview (situado encima del trigger):
+        //   • side="bottom" + align="end" → sale debajo del Customize, anclado
+        //     a la derecha (Customize es el último botón de la fila).
+        //   • avoidCollisions={false} → desactiva el flip automático que
+        //     Radix haría a "top" cuando el contenido no cabe abajo (el
+        //     flip es justo lo que tapaba el canvas).
+        //   • max-h + overflow-y-auto → el popover ofrece scroll interno
+        //     si la altura disponible es menor que el contenido. El usuario
+        //     ve el canvas íntegro y desplaza los controles dentro del
+        //     popover si hace falta.
+        side="bottom"
         align="end"
         sideOffset={10}
-        className="glass-modern w-[340px] rounded-[10px] p-4"
+        collisionPadding={16}
+        avoidCollisions={false}
+        // `--radix-popover-content-available-height` lo expone Radix con el
+        // espacio real entre el trigger y el borde inferior del viewport
+        // menos `collisionPadding`. Cap a 540 (altura natural del contenido).
+        className="glass-modern max-h-[min(540px,var(--radix-popover-content-available-height))] w-[340px] overflow-y-auto rounded-[10px] p-4"
       >
         <div className="flex flex-col gap-5">
           {/* Style picker */}
@@ -84,7 +100,12 @@ export function CustomizePopover({ trigger }: Props) {
           <Section title="Colors">
             <div className="flex flex-col gap-2.5">
               <Swatches />
-              <UseMyPhotoButton />
+              {/* UseMyPhotoButton tiene `self-start` interno (alineado a la
+                  izquierda para el RightRail de v1). En v2 lo centramos
+                  envolviéndolo con `justify-center` sin tocar el componente. */}
+              <div className="flex justify-center">
+                <UseMyPhotoButton />
+              </div>
             </div>
           </Section>
 
