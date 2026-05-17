@@ -3,7 +3,9 @@ import { m } from "motion/react";
 import { useEffect, useState } from "react";
 import { downloadWallpaper } from "@/lib/download";
 import { EASE } from "@/lib/motion";
+import type { ActiveMask, Colors4 } from "@/lib/palettes";
 import { useConfigStore, useRenderParams } from "@/store";
+import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { CustomizeTriggerButton } from "./CustomizePanel";
 import { DevicePicker } from "./DevicePicker";
 
@@ -43,9 +45,30 @@ export function ActionRow({ customizeOpen = false, onToggleCustomize }: ActionRo
   const device = useConfigStore((s) => s.device);
   const applyRemix = useConfigStore((s) => s.applyRemix);
   const params = useRenderParams();
+  const pin = useFavoritesStore((s) => s.pin);
 
   const [downloadStatus, setDownloadStatus] = useState<"idle" | "downloading" | "saved">("idle");
   const [remixSpins, setRemixSpins] = useState(0);
+  // savedTick anima el heart cada vez que el usuario pinea (key change →
+  // re-mount con animación inicial). 0 = nunca pineado en esta sesión.
+  const [savedTick, setSavedTick] = useState(0);
+
+  const onSave = () => {
+    const s = useConfigStore.getState();
+    pin({
+      colors: [...s.colors] as Colors4,
+      active: [...s.active] as ActiveMask,
+      style: s.style,
+      blur: s.blur,
+      grain: s.grain,
+      seed: s.seed,
+      lightAngle: s.lightAngle,
+      density: s.density,
+      contrast: s.contrast,
+      vibrance: s.vibrance,
+    });
+    setSavedTick((t) => t + 1);
+  };
 
   // Bind global `R` → Remix. Mismo guard que SurpriseMeHero (no dispara
   // cuando se está escribiendo en un input).
@@ -70,15 +93,26 @@ export function ActionRow({ customizeOpen = false, onToggleCustomize }: ActionRo
       aria-label="Wallpaper actions"
       className="mt-4 flex flex-wrap items-center justify-center gap-2"
     >
-      {/* Save — Fase 4 lo cablea a useFavoritesStore */}
+      {/* Save — pinea la config actual a useFavoritesStore. La key del span
+          interior cambia con savedTick para que motion remount el corazón con
+          una mini animación spring cada vez que se pulsa (feedback "se ha
+          guardado"). */}
       <button
         type="button"
-        disabled
-        title="Save to favorites (coming in Phase 4)"
-        aria-label="Save to favorites — coming soon"
-        className="inline-flex items-center gap-1.5 rounded-[2px] border border-white/10 bg-white/4 px-3 py-2 font-sans text-[11px] uppercase tracking-[0.14em] text-white/40 transition-colors disabled:cursor-not-allowed"
+        onClick={onSave}
+        title="Save to favorites"
+        aria-label="Save current wallpaper to favorites"
+        className="tactile inline-flex items-center gap-1.5 rounded-[2px] px-3 py-2 font-sans text-[11px] uppercase tracking-[0.14em] text-white/85 hover:text-white"
       >
-        <Heart className="size-3.5" aria-hidden />
+        <m.span
+          key={savedTick}
+          initial={savedTick === 0 ? false : { scale: 0.7 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", stiffness: 480, damping: 16 }}
+          className="inline-flex"
+        >
+          <Heart className="size-3.5" aria-hidden fill={savedTick > 0 ? "currentColor" : "none"} />
+        </m.span>
         Save
       </button>
 
