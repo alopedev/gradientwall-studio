@@ -9,8 +9,8 @@
 | 0 — Fundamentos | ✅ cerrada | Branch, docs raíz, Biome configurado, tokens `glass-modern`, `npm run check` verde. 7 commits. |
 | 1 — Motor mejorado | ✅ cerrada | `surprise.ts`, `remix.ts`, `curated-seeds.ts`, `palette-constraints.ts`. 44 tests nuevos. 337/337 verde. Snapshots motor intactos. 6 commits. Visual review de seeds diferida. |
 | 2 — Surprise-first shell | ✅ cerrada | `StudioShell`, `SurpriseCTA`, `ActionRow`, `DevicePicker` en `studio/v2/`. Feature flag `?v2=1` activo. Save/Customize disabled (Fase 3/4). 8 tests nuevos. 345/345 verde. Verificado visualmente: Space/R/Remix funcionan, canvas re-pinta, cero errores. 4 commits. |
-| 3 — Customize Popover | ✅ cerrada | `CustomizePopover` + `StyleThumbnail` mini-canvas (5 bloques: Style/Colors/Light/Density/Softness). Glass-modern. 4 tests nuevos. 349/349 verde. Verificado: click cambia style real, slider Density funciona, contrast/vibrance/grain ausentes. 4 commits. |
-| 4 — Favorites Strip | ⚪ pendiente | |
+| 3 — Customize Popover | ✅ cerrada | `CustomizePopover` + `StyleThumbnail` mini-canvas (5 bloques: Style/Colors/Light/Density/Softness). Glass-modern. 4 tests nuevos. 349/349 verde. Verificado: click cambia style real, slider Density funciona, contrast/vibrance/grain ausentes. 4 commits. Refactor a inline panel (animación layout) en commit aparte. |
+| 4 — Favorites Strip | ✅ cerrada | `useFavoritesStore` persistido + migración legacy + `FavoritesStrip` con motion Reorder + `FavoriteThumbnail`. Save button cableado con heart spring. 16 tests nuevos. 367/367 verde. Verificado: pin → thumbnail aparece, click thumbnail carga config, reload persiste. 4 commits. |
 | 5 — Polish + mobile + cutover | ⚪ pendiente | |
 | 6 — Lint debt cleanup | ⚪ pendiente | Resolver 62 violations heredadas (warns en Fase 0). Inventario en `TASKS.md`. |
 

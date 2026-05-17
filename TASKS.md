@@ -109,13 +109,14 @@ Objetivo Fase 5: delta ≤ 0 KB en main bundle (esperado reducir al eliminar v1)
 
 ---
 
-## Fase 4 — Favorites Strip persistente
+## Fase 4 — Favorites Strip persistente ✅
 
-- [ ] `src/store/useFavoritesStore.ts`: zustand + `persist` v1, API `pin/unpin/reorder/clear`, cap 24, migration desde `gw_history`.
-- [ ] `src/components/studio/v2/FavoritesStrip.tsx`: tira horizontal `motion.Reorder`, thumbnails 64×112, click carga.
-- [ ] Wire Save button → `pin(currentConfig)` con heart spring.
-- [ ] Tests store (pin/unpin/reorder/cap/migration) + strip (render N items, click loads).
-- [ ] `npm run check` verde.
+- [x] `src/store/useFavoritesStore.ts`: zustand + `persist` v1, API `pin/unpin/reorder/clear`, cap 24 FIFO, `migrateLegacyHistory()` defensiva desde `gw_history`. Key `gw:favorites:v1`.
+- [x] `src/components/studio/v2/FavoritesStrip.tsx` + `FavoriteThumbnail.tsx`: tira horizontal con motion `Reorder.Group axis="x"`, thumbnails 64×112 con `useGradientCanvas`, click carga config en `useConfigStore`, X hover unpin, empty state suave.
+- [x] Wire Save button → `pin(currentConfig)` con motion spring (key change → remount heart, fill=currentColor tras primer save).
+- [x] Tests: 12 store + 4 strip = 16 nuevos.
+- [x] Verificado visualmente: 3 pin consecutivos producen 3 thumbnails, click carga seed (8327 → distinto), reload persiste los 3 items.
+- [x] `npm run check` verde — 367/367 tests.
 
 **Commits objetivo**:
 1. `feat(favorites-store): add useFavoritesStore with versioned persist and history migration`
