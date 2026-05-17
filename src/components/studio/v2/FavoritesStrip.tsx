@@ -54,7 +54,12 @@ export function FavoritesStrip() {
         axis="x"
         values={items}
         onReorder={(reordered) => reorder(reordered.map((it) => it.id))}
-        className="flex h-full items-center gap-2 overflow-x-auto overflow-y-hidden"
+        // justify-center: cuando los favoritos no llenan el contenedor, se
+        // centran horizontalmente (look más equilibrado, esp. con 1-3 items).
+        // Cuando hay overflow, el flex prefiere mantenerlos en sequence
+        // y el overflow-x-auto activa el scroll horizontal — el usuario ve
+        // los primeros centrados y descubre los demás scrolleando.
+        className="flex h-full items-center justify-center gap-2 overflow-x-auto overflow-y-hidden"
         // scroll-snap proximity da feedback táctil cuando arrastras la tira
         // con el dedo en mobile (cada thumbnail "engancha" pero no es
         // mandatory — el usuario puede scroll libre). overscroll-contain

@@ -158,10 +158,11 @@ export function Preview({ framed = true }: PreviewProps = {}) {
     }
   };
 
-  // El cuerpo es idéntico en ambas variantes; sólo cambia el wrapper visual:
-  // v1 (framed=true) → Framed con corners + border + bg como una "tarjeta".
-  // v2 (framed=false) → div plano: el canvas respira sin chrome envolvente.
-  const body = (
+  // El "chrome row" (device pills + resolution badge) ahora vive FUERA del
+  // canvas para que no tape el wallpaper. En v1 (framed=true) se mantiene
+  // dentro como antes (absolute top) para preservar el look original; en
+  // v2 (framed=false) se renderiza arriba del canvas como una row externa.
+  const chromeFloating = (
     <>
       {/* Device pills: centered on mobile, top-left on md+. */}
       <div
@@ -192,7 +193,39 @@ export function Preview({ framed = true }: PreviewProps = {}) {
           {DEVICE_SIZES[device].label}
         </div>
       </div>
+    </>
+  );
 
+  // Chrome row para framed=false: row externo encima del canvas, pastillas a
+  // la izquierda y badge a la derecha (responsive: stacked en mobile).
+  const chromeRow = (
+    <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+      <div className="flex gap-1.5" role="tablist">
+        {DEVICES.map((dev) => {
+          const active = device === dev;
+          return (
+            <button
+              key={dev}
+              onClick={() => setDevice(dev)}
+              className={`rounded-full px-3 py-1.5 font-sans text-[10px] uppercase tracking-[0.1em] transition-colors duration-150 md:text-[11px] ${
+                active
+                  ? "border border-white bg-white text-[#07070a]"
+                  : "border border-white/14 bg-white/4 text-white/75 hover:bg-white/8 hover:text-white"
+              }`}
+            >
+              {dev}
+            </button>
+          );
+        })}
+      </div>
+      <div className="rounded-full border border-white/14 bg-white/4 px-3 py-1.5 font-sans text-[10px] uppercase tracking-[0.08em] text-white/65 md:text-[11px]">
+        {DEVICE_SIZES[device].label}
+      </div>
+    </div>
+  );
+
+  const stageOnly = (
+    <>
       {/* Stage — fit-to-aspect wallpaper. The stage declares
           `container-type: size` so the wallpaper can sit in container-query
           coordinates: width = min(stage-inline, stage-block × aspect). Without
@@ -262,6 +295,8 @@ export function Preview({ framed = true }: PreviewProps = {}) {
   );
 
   if (framed) {
+    // v1 legacy (no usado tras Fase 5): chrome flotante DENTRO del canvas
+    // — preserva el look original con pastillas absolute over wallpaper.
     return (
       <Framed
         offset={10}
@@ -270,19 +305,26 @@ export function Preview({ framed = true }: PreviewProps = {}) {
         onDragLeave={onPreviewDragLeave}
         onDrop={onPreviewDrop}
       >
-        {body}
+        {chromeFloating}
+        {stageOnly}
       </Framed>
     );
   }
 
+  // v2 (framed=false, default tras cutover): chrome FUERA del canvas, en una
+  // row encima. El canvas queda 100% wallpaper; las pastillas y badge ya no
+  // tapan el preview.
   return (
-    <div
-      className="relative min-h-[420px] overflow-hidden"
-      onDragOver={onPreviewDragOver}
-      onDragLeave={onPreviewDragLeave}
-      onDrop={onPreviewDrop}
-    >
-      {body}
+    <div>
+      {chromeRow}
+      <div
+        className="relative min-h-[420px] overflow-hidden"
+        onDragOver={onPreviewDragOver}
+        onDragLeave={onPreviewDragLeave}
+        onDrop={onPreviewDrop}
+      >
+        {stageOnly}
+      </div>
     </div>
   );
 }
