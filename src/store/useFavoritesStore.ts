@@ -1,7 +1,14 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import type { ActiveMask, GradientConfig } from "@/lib/palettes";
-import type { HistoryItem } from "./useHistoryStore";
+
+/**
+ * Shape histórico del legacy `gw_history` localStorage key. Solo usado en
+ * `migrateLegacyHistory()` abajo; el store v1 que escribía esto ya no existe
+ * tras el cutover de Fase 5, pero el localStorage del usuario puede aún
+ * contener un valor antiguo y queremos importarlo.
+ */
+type LegacyHistoryItem = GradientConfig & { active?: ActiveMask };
 
 /**
  * useFavoritesStore — galería persistente del Studio v2.
@@ -96,7 +103,7 @@ export function migrateLegacyHistory(): FavoriteItem[] {
   try {
     const raw = localStorage.getItem("gw_history");
     if (!raw) return [];
-    const parsed = JSON.parse(raw) as { state?: { history?: HistoryItem[] } };
+    const parsed = JSON.parse(raw) as { state?: { history?: LegacyHistoryItem[] } };
     const history = parsed?.state?.history;
     if (!Array.isArray(history) || history.length === 0) return [];
     return history.map((h) => ({

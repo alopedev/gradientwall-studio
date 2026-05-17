@@ -4,7 +4,6 @@ import { LazyMotion, MotionConfig, AnimatePresence } from "motion/react";
 import { Nav } from "./components/Nav";
 import { Hero } from "./components/Hero";
 import { Marquee } from "./components/Marquee";
-import { Studio } from "./components/studio/Studio";
 import { StudioShell } from "./components/studio/v2/StudioShell";
 import { PacksSection } from "./components/packs/PacksSection";
 import { PackPage } from "./components/packs/PackPage";
@@ -102,30 +101,11 @@ function ScrollToTop() {
   return null;
 }
 
-/**
- * Studio v2 feature flag. Evaluado al montar; cambios requieren recarga.
- * - `?v2=1` en la URL → v2 (uso esperado durante desarrollo / QA).
- * - `localStorage.gw_studio_v2 === "true"` → v2 (uso esperado para testers
- *   que vuelven sin re-añadir el query string).
- * - Sin flag → Studio v1 (default actual hasta el cutover de Fase 5).
- *
- * Guard SSR: `typeof window` evita romper en jsdom y build.
- */
-function isStudioV2Enabled(search: string): boolean {
-  if (new URLSearchParams(search).get("v2") === "1") return true;
-  if (typeof window === "undefined") return false;
-  try {
-    return window.localStorage.getItem("gw_studio_v2") === "true";
-  } catch {
-    return false;
-  }
-}
-
 function HomePage() {
   // Scroll to the hash target on mount or when navigation lands here with a
   // fragment (e.g. /#packs from the pack page back-link). Without this, hash
   // anchors only work for in-page clicks, not cross-route navigations.
-  const { hash, search } = useLocation();
+  const { hash } = useLocation();
   useEffect(() => {
     if (!hash) return;
     const id = hash.slice(1);
@@ -133,8 +113,6 @@ function HomePage() {
     if (!el) return;
     requestAnimationFrame(() => el.scrollIntoView({ behavior: "instant", block: "start" }));
   }, [hash]);
-
-  const studioV2 = isStudioV2Enabled(search);
 
   return (
     <>
@@ -148,7 +126,7 @@ function HomePage() {
       <Nav />
       <Hero />
       <Marquee />
-      {studioV2 ? <StudioShell /> : <Studio />}
+      <StudioShell />
       <PacksSection />
       <Footer />
     </>
