@@ -46,17 +46,17 @@ Objetivo Fase 5: delta ≤ 0 KB en main bundle (esperado reducir al eliminar v1)
 
 ---
 
-## Fase 1 — Motor mejorado
+## Fase 1 — Motor mejorado ✅
 
-- [ ] `src/lib/gradient/curated-seeds.ts`: lista inicial 60–80 seeds. `pickCuratedSeed(rng?)`.
-- [ ] Revisión visual de los seeds (renderizar grid, eliminar los flojos).
-- [ ] `src/lib/gradient/palette-constraints.ts`: `randomHarmonicColors(rng): Colors4`. Tests con 1000 muestras (cero paletas con sat<55 o light>78).
-- [ ] `src/lib/gradient/surprise.ts`: `generateSurprise(prevSeed?)`. Style weighted (liquid 35 / mesh 30 / aurora 25 / nebula 10).
-- [ ] `src/lib/gradient/remix.ts`: `generateRemix(current)`.
-- [ ] `useConfigStore`: añadir `applySurprise()`. Marcar `randomize()` como `@deprecated`.
-- [ ] Tests de surprise, remix y palette constraints.
-- [ ] Verificar snapshots del motor (gradient/canvas2d/compose/palettes) intactos.
-- [ ] `npm run check` verde.
+- [x] `src/lib/gradient/curated-seeds.ts`: lista inicial 80 seeds distribuidos con offset prime. `pickCuratedSeed(rng?)` + `pickCuratedSeedExcluding(prev, rng?)`.
+- [ ] Revisión visual de los seeds (renderizar grid, eliminar los flojos) — **diferida a sesión manual post Fase 2**, requiere ojo humano + dev server.
+- [x] `src/lib/gradient/palette-constraints.ts`: `randomHarmonicColors(rng): Colors4` con 4 esquemas (analogous / complementary / triadic / split-comp). Tests con 1000 muestras: cero violations sat [55,92] o light [42,78].
+- [x] `src/lib/gradient/surprise.ts`: `generateSurprise(prevSeed?)`. Style weighted (liquid 35 / mesh 30 / aurora 25 / nebula 10). Defaults curados: grain=32, contrast=1, vibrance=1.05.
+- [x] `src/lib/gradient/remix.ts`: `generateRemix(current)` — paleta y style intactos, jitter ±30° light / ±0.1 density / ±10 blur.
+- [x] `useConfigStore`: añadir `applySurprise()` y `applyRemix()`. `randomize()` marcado `@deprecated` con nota de cutover en Fase 5.
+- [x] Tests: 44 nuevos (curated-seeds, palette-constraints, surprise, remix), todos deterministas vía PRNG inyectable.
+- [x] Verificado: snapshots del motor (`gradient/__snapshots__/spec.test.ts.snap`) cero diff.
+- [x] `npm run check` verde — 337/337 tests pasan.
 
 **Commits objetivo**:
 1. `feat(gradient): add curated-seeds list and pickCuratedSeed`

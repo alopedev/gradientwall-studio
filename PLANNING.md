@@ -7,7 +7,7 @@
 | Fase | Estado | Notas |
 |---|---|---|
 | 0 — Fundamentos | ✅ cerrada | Branch, docs raíz, Biome configurado, tokens `glass-modern`, `npm run check` verde. 7 commits. |
-| 1 — Motor mejorado | ⚪ pendiente | |
+| 1 — Motor mejorado | ✅ cerrada | `surprise.ts`, `remix.ts`, `curated-seeds.ts`, `palette-constraints.ts`. 44 tests nuevos. 337/337 verde. Snapshots motor intactos. 6 commits. Visual review de seeds diferida. |
 | 2 — Surprise-first shell | ⚪ pendiente | |
 | 3 — Customize Popover | ⚪ pendiente | |
 | 4 — Favorites Strip | ⚪ pendiente | |
