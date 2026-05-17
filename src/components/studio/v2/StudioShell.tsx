@@ -1,32 +1,63 @@
+import { AnimatePresence, m } from "motion/react";
+import { useEffect, useState } from "react";
 import { Preview } from "../Preview";
-import { SplitWords } from "../../ui/SplitWords";
 import { Reveal } from "../../ui/Reveal";
+import { SplitWords } from "../../ui/SplitWords";
 import { ActionRow } from "./ActionRow";
+import { CustomizePanel } from "./CustomizePanel";
 import { SurpriseCTA } from "./SurpriseCTA";
 
 /**
  * StudioShell — orquestador del Studio v2 (surprise-first).
  *
  * Composición:
- * - **Canvas Preview** (intocable, v1) ocupa el centro. Sus gestos
- *   (Alt+scroll, drag-drop de imagen, listeners propios) siguen viviendo en
- *   `Preview.tsx` original — aquí lo montamos tal cual sin tocar ni props
- *   ni context.
- * - **SurpriseCTA** debajo: el botón hero magnético con fresh-state ring.
- *   Bind global `Space` para acción rápida.
+ * - **Canvas Preview** (intocable, v1) ocupa el espacio principal. Sus
+ *   gestos (Alt+scroll, drag-drop de imagen, listeners propios) siguen
+ *   viviendo en `Preview.tsx` original — aquí lo montamos tal cual.
+ * - **CustomizePanel** (Fase 3) aparece como columna lateral derecha cuando
+ *   el usuario aprieta el botón Customize del ActionRow. NO es un overlay:
+ *   el shell anima el layout reduciendo la columna del canvas y abriendo
+ *   espacio a la derecha — el feedback visual de cada control sigue siendo
+ *   inmediato sobre el wallpaper porque ambos viven en el mismo viewport.
+ * - **SurpriseCTA** debajo del canvas: el botón hero magnético con
+ *   fresh-state ring. Bind global `Space`.
  * - **ActionRow** debajo: Save (Fase 4) · Remix · Download+DevicePicker ·
- *   Customize (Fase 3). Bind global `R` para Remix.
+ *   Customize. Bind global `R` para Remix.
  * - **FavoritesStrip** llegará en Fase 4 al pie del shell.
  *
- * Diferencias con v1 (`Studio.tsx`):
- * - Una sola columna centrada en el canvas — sin RightRail.
- * - No `BottomBar` separada; sus acciones supervivientes viven en ActionRow.
- * - No `StudioHints` one-shot — UI autoexplicativa.
+ * El estado `customizeOpen` se mantiene aquí (no en `ActionRow` ni en
+ * `CustomizePanel`) porque coreografía cambios de layout que afectan al
+ * canvas. Subirlo a este nivel es lo que permite la animación de
+ * "el canvas se encoge y aparece el panel".
  *
- * El feature flag `?v2=1` o `localStorage.gw_studio_v2 === "true"` controla
+ * Feature flag: `?v2=1` o `localStorage.gw_studio_v2 === "true"` controla
  * el switch entre v1 y v2 desde `App.tsx`.
  */
+
+/** Ancho fijo del panel cuando está abierto. Coincide con el viejo popover. */
+const PANEL_WIDTH = 340;
+
+/** Easing común con el resto del proyecto — coincide con `--magnetic-ease`. */
+const LAYOUT_EASE = [0.22, 1, 0.36, 1] as const;
+const LAYOUT_DURATION = 0.45;
+
 export function StudioShell() {
+  const [customizeOpen, setCustomizeOpen] = useState(false);
+
+  // Escape global cierra el panel. Bail en inputs / contenteditable para no
+  // colisionar con SeedBadge u otros editores de texto si reaparecen.
+  useEffect(() => {
+    if (!customizeOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+      setCustomizeOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [customizeOpen]);
+
   return (
     <section
       id="studio"
@@ -49,13 +80,51 @@ export function StudioShell() {
         </p>
       </Reveal>
 
-      {/* Canvas-dominant column. El Preview lleva su propio aspect-ratio
-          interno (container queries) — aquí solo le damos un max-width
-          centrado para que respire en pantallas anchas. */}
       <div className="mx-auto flex max-w-[1100px] flex-col items-stretch">
-        <Preview framed={false} />
+        {/* Canvas + Panel viven en un row animable. Cuando customizeOpen es
+            true, el panel aparece a la derecha y el canvas se reajusta para
+            compartir el espacio. motion.div con prop `layout` interpola la
+            geometría del canvas wrapper de forma suave; useFittedGradientCanvas
+            ve el cambio de container via ResizeObserver y re-pinta a la
+            resolución correcta (rAF batcher coalesce los frames). */}
+        <m.div
+          layout
+          transition={{ duration: LAYOUT_DURATION, ease: LAYOUT_EASE }}
+          className="flex items-start gap-5"
+        >
+          <m.div
+            layout
+            transition={{ duration: LAYOUT_DURATION, ease: LAYOUT_EASE }}
+            className="min-w-0 flex-1"
+          >
+            <Preview framed={false} />
+          </m.div>
+          <AnimatePresence initial={false}>
+            {customizeOpen && (
+              <m.aside
+                key="customize-panel"
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: PANEL_WIDTH, opacity: 1 }}
+                exit={{ width: 0, opacity: 0 }}
+                transition={{ duration: LAYOUT_DURATION, ease: LAYOUT_EASE }}
+                className="shrink-0 self-stretch overflow-hidden"
+              >
+                {/* Width interno fijo para evitar layout shift mientras la
+                    animación de width está en marcha — el wrapper recorta
+                    con overflow-hidden hasta llegar a PANEL_WIDTH. */}
+                <div style={{ width: PANEL_WIDTH }} className="h-full">
+                  <CustomizePanel onClose={() => setCustomizeOpen(false)} />
+                </div>
+              </m.aside>
+            )}
+          </AnimatePresence>
+        </m.div>
+
         <SurpriseCTA />
-        <ActionRow />
+        <ActionRow
+          customizeOpen={customizeOpen}
+          onToggleCustomize={() => setCustomizeOpen((o) => !o)}
+        />
       </div>
     </section>
   );

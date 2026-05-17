@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { downloadWallpaper } from "@/lib/download";
 import { EASE } from "@/lib/motion";
 import { useConfigStore, useRenderParams } from "@/store";
-import { CustomizePopover, CustomizeTriggerButton } from "./CustomizePopover";
+import { CustomizeTriggerButton } from "./CustomizePanel";
 import { DevicePicker } from "./DevicePicker";
 
 /**
@@ -30,7 +30,16 @@ import { DevicePicker } from "./DevicePicker";
  * - Save aún no se anima — el spring del heart aterriza en Fase 4 junto con
  *   `FavoritesStrip`.
  */
-export function ActionRow() {
+interface ActionRowProps {
+  /** Estado actual del panel Customize — el StudioShell lo gestiona porque
+   *  reordena su layout (canvas se encoge / panel aparece) en función de
+   *  este flag. */
+  customizeOpen?: boolean;
+  /** Toggle del panel Customize. Llamado por el botón Customize. */
+  onToggleCustomize?: () => void;
+}
+
+export function ActionRow({ customizeOpen = false, onToggleCustomize }: ActionRowProps = {}) {
   const device = useConfigStore((s) => s.device);
   const applyRemix = useConfigStore((s) => s.applyRemix);
   const params = useRenderParams();
@@ -144,8 +153,8 @@ export function ActionRow() {
         </button>
       </div>
 
-      {/* Customize — bandeja de potencia (Fase 3). */}
-      <CustomizePopover trigger={<CustomizeTriggerButton />} />
+      {/* Customize — toggle del panel inline gestionado por StudioShell. */}
+      <CustomizeTriggerButton pressed={customizeOpen} onClick={onToggleCustomize} />
     </div>
   );
 }
