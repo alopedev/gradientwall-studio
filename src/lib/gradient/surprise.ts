@@ -90,7 +90,12 @@ export function generateSurprise(
   const seed =
     prevSeed === undefined ? pickCuratedSeed(rng) : pickCuratedSeedExcluding(prevSeed, rng);
   const colors: Colors4 = randomHarmonicColors(rng);
-  const style = pickWeightedStyle(rng);
+  // Studio v2 (rediseño): style hardcoded a "liquid". El picker de estilo se
+  // eliminó del CustomizePanel; los favoritos guardados antes del cambio
+  // conservan su style original porque el motor sigue soportando los 4.
+  // `pickWeightedStyle` sigue exportada y testeada por si callers externos
+  // (snapshot tests, gallery legacy) la necesitan.
+  const style: Style = "liquid";
   const blur = Math.round(lerp(SURPRISE_BLUR_MIN, SURPRISE_BLUR_MAX, rng()));
   const lightAngle = Math.round(lerp(SURPRISE_LIGHT_MIN, SURPRISE_LIGHT_MAX, rng()));
   const density = lerp(SURPRISE_DENSITY_MIN, SURPRISE_DENSITY_MAX, rng());

@@ -147,16 +147,24 @@ export const DEFAULT_DENSITY = 0.5;
 export interface Palette {
   name: string;
   colors: Colors4;
+  /**
+   * Marca si la paleta aparece en el `PaletteCards` del Studio v2. Solo 4
+   * iniciales (Dusk, Tokyo, Forest, Mocha) para no saturar el panel y cubrir
+   * 4 moods (warm/cool/nature/neutral). Las 6 restantes se conservan en
+   * código y siguen funcionando vía `applyPalette(i)` desde callers que
+   * referencian el índice (gallery, tests). Para activar más: flip flag.
+   */
+  featured?: boolean;
 }
 
 export const PALETTES: Palette[] = [
-  { name: "Dusk", colors: ["#2b1055", "#7597de", "#ff6e7f", "#ffd86e"] },
-  { name: "Tokyo", colors: ["#f72585", "#7209b7", "#3a0ca3", "#4cc9f0"] },
+  { name: "Dusk", colors: ["#2b1055", "#7597de", "#ff6e7f", "#ffd86e"], featured: true },
+  { name: "Tokyo", colors: ["#f72585", "#7209b7", "#3a0ca3", "#4cc9f0"], featured: true },
   { name: "Ember", colors: ["#0d0d0d", "#7a1b2e", "#ff5a36", "#ffd166"] },
-  { name: "Forest", colors: ["#0b3d2e", "#1f8a70", "#bedb39", "#fff275"] },
+  { name: "Forest", colors: ["#0b3d2e", "#1f8a70", "#bedb39", "#fff275"], featured: true },
   { name: "Nocturne", colors: ["#0a0a1a", "#1e1b4b", "#8b5cf6", "#f0abfc"] },
   { name: "Coast", colors: ["#012a4a", "#2a9df4", "#caf0f8", "#fefae0"] },
-  { name: "Mocha", colors: ["#3a2618", "#7c5a3f", "#c9a982", "#f4e8d8"] },
+  { name: "Mocha", colors: ["#3a2618", "#7c5a3f", "#c9a982", "#f4e8d8"], featured: true },
   { name: "Velvet", colors: ["#1a0b2e", "#5b21b6", "#c026d3", "#fb7185"] },
   { name: "Mercury", colors: ["#0f172a", "#475569", "#cbd5e1", "#f8fafc"] },
   { name: "Cherry", colors: ["#2b0a0a", "#9f1239", "#f43f5e", "#fecdd3"] },

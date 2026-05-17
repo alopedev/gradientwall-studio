@@ -346,6 +346,21 @@ body::before {
   }
 }
 
+/* PaletteCards (Studio v2) — hover-expand de los 4 swatches dentro de una
+   palette card. Inspirado en `ravikatiyar/color-palette-card` (21st.dev):
+   al hover sobre un swatch, ese flex pasa a 2.5 y los otros se comprimen
+   a 0.5, revelando el hex con fade. CSS puro porque Tailwind no expresa
+   "hover sobre hijo afecta a hermanos" sin trucos no portables. */
+.palette-strip:hover > .palette-swatch {
+  flex: 0.5;
+}
+.palette-strip > .palette-swatch:hover {
+  flex: 2.5;
+}
+.palette-strip > .palette-swatch:hover > .palette-hex {
+  opacity: 1;
+}
+
 /* Two-line brutalist display headline (Studio / Gallery / Footer).
    Callers set their own size via a `text-[clamp(...)]` utility. */
 @utility display-head {

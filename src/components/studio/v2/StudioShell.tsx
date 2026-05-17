@@ -36,8 +36,12 @@ import { SurpriseCTA } from "./SurpriseCTA";
  * el switch entre v1 y v2 desde `App.tsx`.
  */
 
-/** Ancho fijo del panel cuando está abierto. Coincide con el viejo popover. */
-const PANEL_WIDTH = 340;
+/**
+ * Ancho fijo del panel cuando está abierto. Ajustado a 420px tras feedback v4:
+ * el wheel circular + palette cards stack vertical + sliders fullwidth caben
+ * cómodos sin reducir el Preview a un thumbnail. Mobile fallback: stacked.
+ */
+const PANEL_WIDTH = 420;
 
 /** Easing común con el resto del proyecto — coincide con `--magnetic-ease`. */
 const LAYOUT_EASE = [0.22, 1, 0.36, 1] as const;
@@ -83,7 +87,7 @@ export function StudioShell() {
         </p>
       </Reveal>
 
-      <div className="mx-auto flex max-w-[1100px] flex-col items-stretch">
+      <div className="mx-auto flex max-w-[1500px] flex-col items-stretch">
         {/* Canvas + Panel — animados con motion layout.
             • Desktop (≥640px): row side-by-side; panel anima width 0→340.
             • Mobile (<640px): column stacked; panel anima height 0→auto.

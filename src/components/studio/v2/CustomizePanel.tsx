@@ -1,42 +1,43 @@
 import { Settings2, X } from "lucide-react";
 import { forwardRef, type ReactNode } from "react";
 import { Slider } from "@/components/ui/shadcn/slider";
-import { STYLES, type Style } from "@/lib/palettes";
 import { useConfigStore } from "@/store";
-import { LightDial } from "../LightDial";
-import { Swatches } from "../Swatches";
+import { HarmonicWheel } from "../HarmonicWheel";
+import { PaletteCards } from "../PaletteCards";
 import { UseMyPhotoButton } from "../UseMyPhotoButton";
-import { StyleThumbnail } from "./StyleThumbnail";
 
 /**
- * CustomizePanel — bandeja de potencia que vive **inline** dentro del
- * StudioShell, NO como overlay. Cuando el usuario aprieta Customize en el
- * ActionRow, el shell reordena su layout para que el canvas Preview se
- * encoja a la izquierda y el panel aparezca a la derecha — animado con
- * `motion` layout. El feedback visual de cada control sigue siendo
- * inmediato sobre el wallpaper porque ambos viven en el mismo viewport,
- * sin tapado.
+ * CustomizePanel — bandeja de potencia del Studio v2 (rediseño).
  *
- * Diferencia con la versión anterior (`CustomizePopover` con Radix
- * Popover): el state `open` se subió al StudioShell para que pueda
- * coreografiar el layout del canvas. Aquí solo se renderiza el contenido.
+ * Layout single column (panel 420px wide tras feedback v4):
  *
- * Cinco bloques verticales en utilidad glass-modern:
- * 1. Style — 4 thumbnails grandes (paleta actual + cada style).
- * 2. Colors — Swatches + UseMyPhotoButton (centrado).
- * 3. Light direction — dial + lectura de ángulo.
- * 4. Density — slider 0..1.
- * 5. Softness — slider 10..120 (renombrado de "Blur" en v1).
+ *  ┌── header ─────────────────────────┐
+ *  │  CUSTOMIZE                   [×]  │
+ *  ├───────────────────────────────────┤
+ *  │  COLORS                           │
+ *  │  • HarmonicWheel (circular)       │
+ *  │    + anillo de luz + bullets +    │
+ *  │    eyedropper + ColorSelector     │
+ *  │    dots                           │
+ *  │                                   │
+ *  │  PALETTES                         │
+ *  │  • PaletteCards stack vertical    │
+ *  │    (4 cards featured)             │
+ *  │  • Use my photo                   │
+ *  ├───────────────────────────────────┤
+ *  │  SOFTNESS slider                  │
+ *  │  GRAIN slider                     │
  *
- * Eliminados respecto al RightRail v1: contrast, vibrance, grain.
+ * Eliminados del CustomizePanel v1/v2 anterior:
+ * - Style picker (style hardcoded a "liquid" en surprise/remix).
+ * - Light direction (LightDial absorbido por el anillo del HarmonicWheel).
+ * - Density (no producía cambio visual en Canvas2D, solo en Nebula WebGL).
+ * - Swatches grid + ColorHUD popover (reemplazado por HarmonicWheel).
+ * - Palettes legacy chip list (reemplazado por PaletteCards).
+ *
+ * Añadido:
+ * - Grain slider (antes existía en el store con default 18 pero no se exponía).
  */
-
-const STYLE_LABELS: Record<Style, string> = {
-  mesh: "Mesh",
-  liquid: "Liquid",
-  aurora: "Aurora",
-  nebula: "Nebula",
-};
 
 interface Props {
   /** Handler para cerrar el panel — disparado por el botón X interno y Escape. */
@@ -44,24 +45,19 @@ interface Props {
 }
 
 export function CustomizePanel({ onClose }: Props) {
-  const style = useConfigStore((s) => s.style);
-  const setStyle = useConfigStore((s) => s.setStyle);
   const blur = useConfigStore((s) => s.blur);
   const setBlur = useConfigStore((s) => s.setBlur);
-  const density = useConfigStore((s) => s.density);
-  const setDensity = useConfigStore((s) => s.setDensity);
-  const lightAngle = useConfigStore((s) => s.lightAngle);
-  const setLightAngle = useConfigStore((s) => s.setLightAngle);
+  const grain = useConfigStore((s) => s.grain);
+  const setGrain = useConfigStore((s) => s.setGrain);
 
   return (
     <div
       role="dialog"
-      aria-label="Customize style, colors, light and density"
-      className="glass-modern flex h-full flex-col gap-5 overflow-y-auto rounded-[10px] p-4"
+      aria-label="Customize colors, light, softness and grain"
+      className="glass-modern flex h-full w-full flex-col overflow-y-auto rounded-[10px]"
     >
-      {/* Header bar con título + close. El close vive aquí (no en ActionRow)
-          para que el panel sea autocontenido. */}
-      <div className="flex items-center justify-between">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-white/6 px-5 py-3.5">
         <span className="font-sans text-[11px] uppercase tracking-[0.22em] text-white/55">
           Customize
         </span>
@@ -75,105 +71,95 @@ export function CustomizePanel({ onClose }: Props) {
         </button>
       </div>
 
-      {/* Style picker */}
-      <Section title="Style">
-        <div className="grid grid-cols-4 gap-1.5">
-          {STYLES.map((s) => (
-            <StyleThumbnail
-              key={s}
-              style={s}
-              label={STYLE_LABELS[s]}
-              selected={s === style}
-              onSelect={setStyle}
-            />
-          ))}
-        </div>
-      </Section>
+      {/* Body: stack vertical (single column) */}
+      <div className="flex flex-col gap-6 px-5 py-5">
+        <Section title="Colors">
+          <HarmonicWheel />
+        </Section>
 
-      {/* Colors + image source */}
-      <Section title="Colors">
-        <div className="flex flex-col gap-2.5">
-          <Swatches />
-          {/* UseMyPhotoButton tiene `self-start` interno (alineado a la
-              izquierda para el RightRail de v1). En v2 lo centramos
-              envolviéndolo con `justify-center` sin tocar el componente. */}
-          <div className="flex justify-center">
+        <Section title="Palettes">
+          <PaletteCards />
+          <div className="mt-3 flex justify-center">
             <UseMyPhotoButton />
           </div>
-        </div>
-      </Section>
+        </Section>
+      </div>
 
-      {/* Light direction */}
-      <Section title="Light direction">
-        <div className="flex items-center gap-3">
-          <LightDial value={lightAngle} onChange={setLightAngle} size={64} />
-          <div className="flex flex-col font-sans">
-            <span className="text-[10px] uppercase tracking-[0.14em] text-white/45">Angle</span>
-            <span className="text-[13px] tabular-nums text-white/85">{lightAngle}°</span>
-          </div>
-        </div>
-      </Section>
-
-      {/* Density */}
-      <Section title="Density" right={`${Math.round(density * 100)}%`}>
-        <Slider
-          value={[density]}
-          min={0}
-          max={1}
-          step={0.01}
-          onValueChange={(v) => setDensity(v[0]!)}
-          aria-label="Density"
-        />
-      </Section>
-
-      {/* Softness (renombrado de Blur) */}
-      <Section title="Softness" right={`${blur}px`}>
-        <Slider
-          value={[blur]}
+      {/* Footer fullwidth: sliders */}
+      <div className="flex flex-col gap-4 border-t border-white/6 px-5 py-4">
+        <SliderSection
+          title="Softness"
+          metric={`${blur}px`}
+          value={blur}
           min={10}
           max={120}
           step={1}
-          onValueChange={(v) => setBlur(v[0]!)}
-          aria-label="Softness"
+          onChange={setBlur}
         />
-      </Section>
+        <SliderSection
+          title="Grain"
+          metric={`${grain}%`}
+          value={grain}
+          min={0}
+          max={100}
+          step={1}
+          onChange={setGrain}
+        />
+      </div>
     </div>
   );
 }
 
-/** Etiqueta de sección consistente — title a la izquierda + métrica a la derecha. */
-function Section({
-  title,
-  right,
-  children,
-}: {
+/** Sección con label uppercase consistente. */
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <span className="font-sans text-[10px] uppercase tracking-[0.18em] text-white/45">
+        {title}
+      </span>
+      {children}
+    </div>
+  );
+}
+
+interface SliderSectionProps {
   title: string;
-  right?: string;
-  children: ReactNode;
-}) {
+  metric: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  onChange: (n: number) => void;
+}
+
+function SliderSection({ title, metric, value, min, max, step, onChange }: SliderSectionProps) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
         <span className="font-sans text-[10px] uppercase tracking-[0.18em] text-white/45">
           {title}
         </span>
-        {right ? (
-          <span className="font-sans text-[11px] tabular-nums text-white/65">{right}</span>
-        ) : null}
+        <span className="font-sans text-[11px] tabular-nums text-white/65">{metric}</span>
       </div>
-      {children}
+      <Slider
+        value={[value]}
+        min={min}
+        max={max}
+        step={step}
+        onValueChange={(v) => onChange(v[0]!)}
+        aria-label={title}
+      />
     </div>
   );
 }
 
 /**
- * Trigger button del panel. `forwardRef` mantenido por si en futuro vuelve
- * a usarse como child de un Slot (Radix DropdownMenu, etc.) — para el flujo
- * actual basta como botón controlado por su onClick.
+ * Trigger button del panel. `forwardRef` se mantiene por si en futuro vuelve a
+ * usarse como child de un Slot (Radix DropdownMenu). Para el flujo actual basta
+ * como botón controlado por su onClick.
  *
- * `pressed` activa el estado "is open" visualmente: el botón se hunde
- * (active-like) mientras el panel está abierto, para que el usuario sepa
- * que ese click es el que abrió la bandeja.
+ * `pressed` activa el estado "is open" visualmente (botón hundido), para que
+ * el usuario sepa que ese click es el que abrió la bandeja.
  */
 interface TriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   pressed?: boolean;
@@ -186,8 +172,8 @@ export const CustomizeTriggerButton = forwardRef<HTMLButtonElement, TriggerProps
         ref={ref}
         type="button"
         aria-pressed={pressed}
-        title="Customize style, colors, light, density"
-        aria-label="Customize style, colors, light and density"
+        title="Customize colors, light, softness, grain"
+        aria-label="Customize colors, light, softness and grain"
         className={`tactile inline-flex items-center gap-1.5 rounded-[2px] px-3 py-2 font-sans text-[11px] uppercase tracking-[0.14em] transition-colors ${
           pressed ? "text-white" : "text-white/85 hover:text-white"
         } ${className ?? ""}`}
