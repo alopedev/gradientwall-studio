@@ -25,10 +25,12 @@ export const SheetOverlay = React.forwardRef<
 SheetOverlay.displayName = "SheetOverlay";
 
 const sideClasses = {
-  right: "inset-y-0 right-0 h-full w-full sm:max-w-[640px] border-l data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right",
+  right:
+    "inset-y-0 right-0 h-full w-full sm:max-w-[640px] border-l data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right",
   left: "inset-y-0 left-0 h-full w-full sm:max-w-[640px] border-r data-[state=open]:slide-in-from-left data-[state=closed]:slide-out-to-left",
   top: "inset-x-0 top-0 w-full border-b data-[state=open]:slide-in-from-top data-[state=closed]:slide-out-to-top",
-  bottom: "inset-x-0 bottom-0 w-full border-t data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom",
+  bottom:
+    "inset-x-0 bottom-0 w-full border-t data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom",
 } as const;
 
 interface SheetContentProps extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {
@@ -63,7 +65,10 @@ export const SheetTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn("font-sans font-semibold uppercase tracking-[0.02em] text-[18px] text-white", className)}
+    className={cn(
+      "font-sans font-semibold uppercase tracking-[0.02em] text-[18px] text-white",
+      className,
+    )}
     {...props}
   />
 ));

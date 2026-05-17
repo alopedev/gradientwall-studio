@@ -3,9 +3,7 @@ export interface RecoverInput {
   orderId: string;
 }
 
-export type RecoverResult =
-  | { kind: "ok" }
-  | { kind: "error"; message: string; status?: number };
+export type RecoverResult = { kind: "ok" } | { kind: "error"; message: string; status?: number };
 
 export interface RecoverOptions {
   signal?: AbortSignal;

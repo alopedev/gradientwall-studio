@@ -5,7 +5,11 @@ import { Footer } from "./Footer";
 import { PageMeta } from "./PageMeta";
 import { submitRecoverRequest } from "@/lib/store";
 
-type State = { kind: "idle" } | { kind: "submitting" } | { kind: "done" } | { kind: "error"; message: string };
+type State =
+  | { kind: "idle" }
+  | { kind: "submitting" }
+  | { kind: "done" }
+  | { kind: "error"; message: string };
 
 export function RecoverForm() {
   const [email, setEmail] = useState("");
@@ -47,8 +51,8 @@ export function RecoverForm() {
             Lost your <span className="font-serif italic text-white/70">link?</span>
           </h1>
           <p className="font-sans text-[15px] text-white/70 leading-relaxed mb-8">
-            Enter the email and order ID from your Lemon Squeezy receipt. If they match a real
-            paid order, we'll re-send the download link to that email.
+            Enter the email and order ID from your Lemon Squeezy receipt. If they match a real paid
+            order, we'll re-send the download link to that email.
           </p>
 
           {state.kind === "done" ? (

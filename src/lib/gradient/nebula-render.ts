@@ -41,9 +41,7 @@ type RGB = readonly [number, number, number];
 function hexToRgb(hex: string): RGB {
   const m = hex.replace(/^#/, "");
   const v =
-    m.length === 3
-      ? parseInt(m[0] + m[0] + m[1] + m[1] + m[2] + m[2], 16)
-      : parseInt(m, 16);
+    m.length === 3 ? parseInt(m[0] + m[0] + m[1] + m[1] + m[2] + m[2], 16) : parseInt(m, 16);
   return [(v >> 16) & 0xff, (v >> 8) & 0xff, v & 0xff];
 }
 
@@ -55,11 +53,7 @@ function paletteLerp(palette: readonly RGB[], t: number): RGB {
   const frac = scaled - idx;
   const a = palette[idx];
   const b = palette[idx + 1] ?? a;
-  return [
-    a[0] + (b[0] - a[0]) * frac,
-    a[1] + (b[1] - a[1]) * frac,
-    a[2] + (b[2] - a[2]) * frac,
-  ];
+  return [a[0] + (b[0] - a[0]) * frac, a[1] + (b[1] - a[1]) * frac, a[2] + (b[2] - a[2]) * frac];
 }
 
 /**
@@ -77,7 +71,7 @@ const DEFAULT_DENSITY = 0.5;
  */
 function hash2(x: number, y: number, seed: number): number {
   let n = (x * 374761393 + y * 668265263 + seed * 2654435761) | 0;
-  n = (Math.imul(n ^ (n >>> 13), 1274126177)) | 0;
+  n = Math.imul(n ^ (n >>> 13), 1274126177) | 0;
   return ((n ^ (n >>> 16)) >>> 0) / 4294967296;
 }
 
@@ -229,9 +223,7 @@ export function renderNebulaToCanvas(
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
   const blurPx =
-    params.blur && params.blur > 0
-      ? (params.blur / 100) * Math.min(params.w, params.h) * 0.12
-      : 0;
+    params.blur && params.blur > 0 ? (params.blur / 100) * Math.min(params.w, params.h) * 0.12 : 0;
   if (blurPx > 0) {
     ctx.filter = `blur(${blurPx}px)`;
     ctx.drawImage(small, 0, 0, sw, sh, 0, 0, params.w, params.h);

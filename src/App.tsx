@@ -4,7 +4,7 @@ import { LazyMotion, MotionConfig, AnimatePresence } from "motion/react";
 import { Nav } from "./components/Nav";
 import { Hero } from "./components/Hero";
 import { Marquee } from "./components/Marquee";
-import { Studio } from "./components/studio/Studio";
+import { StudioShell } from "./components/studio/v2/StudioShell";
 import { PacksSection } from "./components/packs/PacksSection";
 import { PackPage } from "./components/packs/PackPage";
 import { PackPurchaseSuccess } from "./components/packs/PackPurchaseSuccess";
@@ -126,7 +126,7 @@ function HomePage() {
       <Nav />
       <Hero />
       <Marquee />
-      <Studio />
+      <StudioShell />
       <PacksSection />
       <Footer />
     </>

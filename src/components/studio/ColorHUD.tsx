@@ -52,7 +52,9 @@ export function ColorHUD({ value, onChange }: ColorHUDProps) {
           aria-hidden
         />
         <label className="flex-1 flex flex-col gap-1">
-          <span className="font-sans text-[10px] tracking-[0.18em] uppercase text-white/40">Hex</span>
+          <span className="font-sans text-[10px] tracking-[0.18em] uppercase text-white/40">
+            Hex
+          </span>
           <input
             ref={hexInputRef}
             type="text"
@@ -69,8 +71,20 @@ export function ColorHUD({ value, onChange }: ColorHUDProps) {
       {/* HSL sliders */}
       <div className="flex flex-col gap-3">
         <HslRow label="Hue" value={h} max={360} unit="°" onChange={(n) => setHslChannel("h", n)} />
-        <HslRow label="Saturation" value={s} max={100} unit="%" onChange={(n) => setHslChannel("s", n)} />
-        <HslRow label="Lightness" value={l} max={100} unit="%" onChange={(n) => setHslChannel("l", n)} />
+        <HslRow
+          label="Saturation"
+          value={s}
+          max={100}
+          unit="%"
+          onChange={(n) => setHslChannel("s", n)}
+        />
+        <HslRow
+          label="Lightness"
+          value={l}
+          max={100}
+          unit="%"
+          onChange={(n) => setHslChannel("l", n)}
+        />
       </div>
 
       {/* Eyedropper + Recents */}
@@ -90,12 +104,22 @@ export function ColorHUD({ value, onChange }: ColorHUDProps) {
   );
 }
 
-function RecentsGrid({ recents, onPick }: { recents: readonly string[]; onPick: (hex: string) => void }) {
+function RecentsGrid({
+  recents,
+  onPick,
+}: {
+  recents: readonly string[];
+  onPick: (hex: string) => void;
+}) {
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="font-sans text-[10px] tracking-[0.18em] uppercase text-white/40">Recents</span>
+      <span className="font-sans text-[10px] tracking-[0.18em] uppercase text-white/40">
+        Recents
+      </span>
       {recents.length === 0 ? (
-        <span className="font-sans text-[11px] text-white/30 italic">— pick a color to start —</span>
+        <span className="font-sans text-[11px] text-white/30 italic">
+          — pick a color to start —
+        </span>
       ) : (
         <div className="grid grid-cols-12 gap-1.5">
           {recents.map((r) => (

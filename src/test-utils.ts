@@ -1,22 +1,25 @@
 import { useConfigStore } from "@/store/useConfigStore";
-import { useHistoryStore } from "@/store/useHistoryStore";
-import { useUIStore } from "@/store/useUIStore";
+import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { useRecentColorsStore } from "@/store/useRecentColorsStore";
+import { useUIStore } from "@/store/useUIStore";
 
 const CONFIG_INITIAL = useConfigStore.getState();
-const HISTORY_INITIAL = useHistoryStore.getState();
 const UI_INITIAL = useUIStore.getState();
 const RECENT_COLORS_INITIAL = useRecentColorsStore.getState();
 
 /**
  * Reset every store to its pristine post-init state.
  * Use in beforeEach() to isolate tests.
+ *
+ * Tras el cutover Studio v2 (Fase 5), `useHistoryStore` se eliminó; los
+ * favoritos persistidos se limpian vía `clear()` (no necesita snapshot
+ * inicial porque el estado base es { items: [] }).
  */
 export function resetStores(): void {
   useConfigStore.setState(CONFIG_INITIAL);
-  useHistoryStore.setState(HISTORY_INITIAL);
   useUIStore.setState(UI_INITIAL);
   useRecentColorsStore.setState(RECENT_COLORS_INITIAL);
+  useFavoritesStore.getState().clear();
 }
 
 /**

@@ -32,8 +32,12 @@ describe("computeNebulaImageData", () => {
   });
 
   it("different palettes produce different output", () => {
-    const cool = computeNebulaImageData(baseParams({ colors: ["#000080", "#0044aa", "#0088ff", "#88ddff"] }));
-    const warm = computeNebulaImageData(baseParams({ colors: ["#330000", "#aa3300", "#ff5500", "#ffaa55"] }));
+    const cool = computeNebulaImageData(
+      baseParams({ colors: ["#000080", "#0044aa", "#0088ff", "#88ddff"] }),
+    );
+    const warm = computeNebulaImageData(
+      baseParams({ colors: ["#330000", "#aa3300", "#ff5500", "#ffaa55"] }),
+    );
     expect(cool).not.toEqual(warm);
   });
 
@@ -62,8 +66,12 @@ describe("computeNebulaImageData", () => {
   });
 
   it("warm-toned palette produces redder average than blue-toned palette (same seed)", () => {
-    const cool = computeNebulaImageData(baseParams({ colors: ["#000080", "#0044aa", "#0088ff", "#88ddff"] }));
-    const warm = computeNebulaImageData(baseParams({ colors: ["#330000", "#aa3300", "#ff5500", "#ffaa55"] }));
+    const cool = computeNebulaImageData(
+      baseParams({ colors: ["#000080", "#0044aa", "#0088ff", "#88ddff"] }),
+    );
+    const warm = computeNebulaImageData(
+      baseParams({ colors: ["#330000", "#aa3300", "#ff5500", "#ffaa55"] }),
+    );
     const avg = (data: Uint8ClampedArray, channel: 0 | 1 | 2) => {
       let sum = 0;
       const pixels = data.length / 4;

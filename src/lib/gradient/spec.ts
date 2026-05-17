@@ -181,7 +181,16 @@ export function buildGradientSpec(opts: SpecOpts): GradientSpec {
       const cy = (0.15 + i / colors.length) * h + (rand() - 0.5) * h * 0.2;
       const r = Math.min(w, h) * (0.55 + rand() * 0.35);
       layers.push({
-        fill: { kind: "radial", cx, cy, r, stops: [{ offset: 0, color: c }, { offset: 1, color: c + "00" }] },
+        fill: {
+          kind: "radial",
+          cx,
+          cy,
+          r,
+          stops: [
+            { offset: 0, color: c },
+            { offset: 1, color: c + "00" },
+          ],
+        },
       });
     }
   } else if (style === "aurora") {
@@ -247,7 +256,10 @@ export function buildGradientSpec(opts: SpecOpts): GradientSpec {
           cx,
           cy,
           r,
-          stops: [{ offset: 0, color: c + "cc" }, { offset: 1, color: c + "00" }],
+          stops: [
+            { offset: 0, color: c + "cc" },
+            { offset: 1, color: c + "00" },
+          ],
         },
       });
     }

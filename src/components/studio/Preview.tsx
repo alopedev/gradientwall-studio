@@ -1,4 +1,10 @@
-import { useRef, useState, type DragEvent as ReactDragEvent, type PointerEvent as ReactPointerEvent, type WheelEvent as ReactWheelEvent } from "react";
+import {
+  useRef,
+  useState,
+  type DragEvent as ReactDragEvent,
+  type PointerEvent as ReactPointerEvent,
+  type WheelEvent as ReactWheelEvent,
+} from "react";
 import { m } from "motion/react";
 import { useConfigStore, useRenderParams } from "@/store";
 import { useFittedGradientCanvas } from "@/lib/useGradientCanvas";
@@ -9,7 +15,18 @@ import { Framed } from "../ui/Framed";
 
 const clamp = (n: number, min: number, max: number) => (n < min ? min : n > max ? max : n);
 
-export function Preview() {
+/**
+ * `framed` controla el chrome envolvente: corners + border + bg + min-height
+ * que enmarcan el canvas como una "tarjeta". `true` (default) preserva el
+ * look del Studio v1. `false` lo monta sin marco — usado por el shell v2,
+ * donde el canvas respira sin la tarjeta y el lenguaje visual se acerca al
+ * editorial brutalist sin chrome editorial.
+ */
+interface PreviewProps {
+  framed?: boolean;
+}
+
+export function Preview({ framed = true }: PreviewProps = {}) {
   const device = useConfigStore((s) => s.device);
   const setDevice = useConfigStore((s) => s.setDevice);
   const reshuffle = useConfigStore((s) => s.reshuffle);
@@ -21,8 +38,49 @@ export function Preview() {
   const [dragActive, setDragActive] = useState(false);
   const d = DEVICE_SIZES[device];
 
+  // Cross-fade overlay: a sibling canvas that holds the snapshot of the
+  // previous frame and fades from opacity 1 → 0 each time the live canvas
+  // is about to repaint. See ADR-0003 ("anticipation > reveal"): the brief
+  // overlap of old + new gives the reveal a body that an instant repaint
+  // does not. Respects prefers-reduced-motion → instant disappearance.
+  const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
+
   const canvasRef = useFittedGradientCanvas(
-    { nativeW: d.w, nativeH: d.h, ...params },
+    {
+      nativeW: d.w,
+      nativeH: d.h,
+      ...params,
+      beforePaint: (live) => {
+        const overlay = overlayCanvasRef.current;
+        if (!overlay || live.width === 0 || live.height === 0) return;
+        if (overlay.width !== live.width) overlay.width = live.width;
+        if (overlay.height !== live.height) overlay.height = live.height;
+        const ctx = overlay.getContext("2d");
+        if (!ctx) return;
+        ctx.clearRect(0, 0, overlay.width, overlay.height);
+        ctx.drawImage(live, 0, 0);
+
+        const reduced =
+          typeof window !== "undefined" &&
+          window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+        overlay.style.transition = "none";
+        overlay.style.opacity = reduced ? "0" : "1";
+        if (!reduced) {
+          // Double rAF so the browser commits opacity:1 before the
+          // transition kicks in — otherwise the change is coalesced and
+          // the fade is skipped.
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              if (!overlayCanvasRef.current) return;
+              overlayCanvasRef.current.style.transition =
+                "opacity 700ms cubic-bezier(0.22, 1, 0.36, 1)";
+              overlayCanvasRef.current.style.opacity = "0";
+            });
+          });
+        }
+      },
+    },
     [device, params],
   );
 
@@ -33,7 +91,12 @@ export function Preview() {
   //   Alt + drag Y    → density
   // Double-click reshuffles the seed regardless of modifier — it's a clearly
   // discoverable "give me a different one of the same thing" gesture.
-  const dragRef = useRef<{ startX: number; startY: number; baseLight: number; baseDensity: number } | null>(null);
+  const dragRef = useRef<{
+    startX: number;
+    startY: number;
+    baseLight: number;
+    baseDensity: number;
+  } | null>(null);
   const onCanvasWheel = (e: ReactWheelEvent<HTMLDivElement>) => {
     if (!e.altKey) return;
     e.preventDefault();
@@ -95,14 +158,12 @@ export function Preview() {
     }
   };
 
-  return (
-    <Framed
-      offset={10}
-      className="rounded-[2px] bg-[#0a0a0d] border border-white/8 min-h-[520px] overflow-hidden"
-      onDragOver={onPreviewDragOver}
-      onDragLeave={onPreviewDragLeave}
-      onDrop={onPreviewDrop}
-    >
+  // El "chrome row" (device pills + resolution badge) ahora vive FUERA del
+  // canvas para que no tape el wallpaper. En v1 (framed=true) se mantiene
+  // dentro como antes (absolute top) para preservar el look original; en
+  // v2 (framed=false) se renderiza arriba del canvas como una row externa.
+  const chromeFloating = (
+    <>
       {/* Device pills: centered on mobile, top-left on md+. */}
       <div
         className="absolute top-3.5 z-[3] flex gap-1.5 left-1/2 -translate-x-1/2 md:left-3.5 md:translate-x-0"
@@ -132,10 +193,47 @@ export function Preview() {
           {DEVICE_SIZES[device].label}
         </div>
       </div>
+    </>
+  );
 
-      {/* Stage — fit-to-aspect wallpaper. */}
+  // Chrome row para framed=false: row externo encima del canvas, pastillas a
+  // la izquierda y badge a la derecha (responsive: stacked en mobile).
+  const chromeRow = (
+    <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+      <div className="flex gap-1.5" role="tablist">
+        {DEVICES.map((dev) => {
+          const active = device === dev;
+          return (
+            <button
+              key={dev}
+              onClick={() => setDevice(dev)}
+              className={`rounded-full px-3 py-1.5 font-sans text-[10px] uppercase tracking-[0.1em] transition-colors duration-150 md:text-[11px] ${
+                active
+                  ? "border border-white bg-white text-[#07070a]"
+                  : "border border-white/14 bg-white/4 text-white/75 hover:bg-white/8 hover:text-white"
+              }`}
+            >
+              {dev}
+            </button>
+          );
+        })}
+      </div>
+      <div className="rounded-full border border-white/14 bg-white/4 px-3 py-1.5 font-sans text-[10px] uppercase tracking-[0.08em] text-white/65 md:text-[11px]">
+        {DEVICE_SIZES[device].label}
+      </div>
+    </div>
+  );
+
+  const stageOnly = (
+    <>
+      {/* Stage — fit-to-aspect wallpaper. The stage declares
+          `container-type: size` so the wallpaper can sit in container-query
+          coordinates: width = min(stage-inline, stage-block × aspect). Without
+          an explicit width the wallpaper would collapse to the canvas's
+          intrinsic 300×150 — which is why the desktop preview previously
+          looked smaller than iPad. */}
       <div
-        className="absolute inset-0 flex items-center justify-center p-4 md:p-14"
+        className="absolute inset-0 flex items-center justify-center p-3 md:p-6 [container-type:size]"
         style={{ background: "radial-gradient(circle at 50% 50%, #0c0c10, #070709)" }}
       >
         <m.div
@@ -146,8 +244,10 @@ export function Preview() {
           className="relative overflow-hidden rounded-lg [&[data-alt=true]]:cursor-grab [&[data-alt=true]:active]:cursor-grabbing"
           style={{
             aspectRatio: `${d.w} / ${d.h}`,
-            maxWidth: "100%",
-            maxHeight: "100%",
+            // Take the largest box that fits both axes: the lesser of the
+            // stage's inline size and (stage block size × aspect ratio).
+            // Height is derived from aspect-ratio.
+            width: `min(100cqi, calc(100cqb * ${d.w} / ${d.h}))`,
             background: "#111",
             boxShadow: "0 30px 80px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.04)",
           }}
@@ -162,6 +262,16 @@ export function Preview() {
           <canvas
             ref={canvasRef}
             className="block w-full h-full motion-safe:animate-[gw-breathe_9s_ease-in-out_infinite]"
+          />
+          {/* Cross-fade overlay — holds the snapshot of the previous frame.
+              opacity starts at 0; beforePaint snapshots into it, pops to 1,
+              then transitions back to 0. pointer-events:none so it never
+              steals the drag/drop or alt-drag gestures on the live canvas. */}
+          <canvas
+            ref={overlayCanvasRef}
+            aria-hidden
+            className="absolute inset-0 block w-full h-full pointer-events-none"
+            style={{ opacity: 0 }}
           />
         </m.div>
       </div>
@@ -181,6 +291,40 @@ export function Preview() {
           </span>
         </div>
       )}
-    </Framed>
+    </>
+  );
+
+  if (framed) {
+    // v1 legacy (no usado tras Fase 5): chrome flotante DENTRO del canvas
+    // — preserva el look original con pastillas absolute over wallpaper.
+    return (
+      <Framed
+        offset={10}
+        className="rounded-[2px] bg-[#0a0a0d] border border-white/8 min-h-[420px] overflow-hidden"
+        onDragOver={onPreviewDragOver}
+        onDragLeave={onPreviewDragLeave}
+        onDrop={onPreviewDrop}
+      >
+        {chromeFloating}
+        {stageOnly}
+      </Framed>
+    );
+  }
+
+  // v2 (framed=false, default tras cutover): chrome FUERA del canvas, en una
+  // row encima. El canvas queda 100% wallpaper; las pastillas y badge ya no
+  // tapan el preview.
+  return (
+    <div>
+      {chromeRow}
+      <div
+        className="relative min-h-[420px] overflow-hidden"
+        onDragOver={onPreviewDragOver}
+        onDragLeave={onPreviewDragLeave}
+        onDrop={onPreviewDrop}
+      >
+        {stageOnly}
+      </div>
+    </div>
   );
 }

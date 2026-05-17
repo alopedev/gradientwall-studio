@@ -178,19 +178,29 @@ describe("buildGradientSpec — variable-length color ramps", () => {
   });
 
   it("mesh produces one radial per color in the ramp (2/3/4)", () => {
-    expect(buildGradientSpec(baseOpts({ colors: ["#a", "#b"], style: "mesh" })).layers).toHaveLength(2);
-    expect(buildGradientSpec(baseOpts({ colors: ["#a", "#b", "#c"], style: "mesh" })).layers).toHaveLength(3);
+    expect(
+      buildGradientSpec(baseOpts({ colors: ["#a", "#b"], style: "mesh" })).layers,
+    ).toHaveLength(2);
+    expect(
+      buildGradientSpec(baseOpts({ colors: ["#a", "#b", "#c"], style: "mesh" })).layers,
+    ).toHaveLength(3);
   });
 
   it("aurora produces colors.length × 2 bands + 1 horizon glow", () => {
     // 2 colors → 4 bands + 1 = 5
-    expect(buildGradientSpec(baseOpts({ colors: ["#a", "#b"], style: "aurora" })).layers).toHaveLength(5);
+    expect(
+      buildGradientSpec(baseOpts({ colors: ["#a", "#b"], style: "aurora" })).layers,
+    ).toHaveLength(5);
     // 3 colors → 6 bands + 1 = 7
-    expect(buildGradientSpec(baseOpts({ colors: ["#a", "#b", "#c"], style: "aurora" })).layers).toHaveLength(7);
+    expect(
+      buildGradientSpec(baseOpts({ colors: ["#a", "#b", "#c"], style: "aurora" })).layers,
+    ).toHaveLength(7);
   });
 
   it("liquid keeps its 6 bands + 1 highlight regardless of ramp length", () => {
-    expect(buildGradientSpec(baseOpts({ colors: ["#a", "#b"], style: "liquid" })).layers).toHaveLength(7);
+    expect(
+      buildGradientSpec(baseOpts({ colors: ["#a", "#b"], style: "liquid" })).layers,
+    ).toHaveLength(7);
   });
 
   it("background is always colors[0] even when the ramp has only two entries", () => {

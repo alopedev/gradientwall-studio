@@ -161,4 +161,3 @@ export const PALETTES: Palette[] = [
   { name: "Mercury", colors: ["#0f172a", "#475569", "#cbd5e1", "#f8fafc"] },
   { name: "Cherry", colors: ["#2b0a0a", "#9f1239", "#f43f5e", "#fecdd3"] },
 ];
-

@@ -25,4 +25,5 @@ export const useRecentColorsStore = create<RecentColorsState>()((set) => ({
 }));
 
 export const useRecentColors = (): readonly string[] => useRecentColorsStore((s) => s.items);
-export const usePushRecentColor = (): ((hex: string) => void) => useRecentColorsStore((s) => s.push);
+export const usePushRecentColor = (): ((hex: string) => void) =>
+  useRecentColorsStore((s) => s.push);

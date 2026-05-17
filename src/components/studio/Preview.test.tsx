@@ -23,10 +23,16 @@ describe("<Preview />", () => {
     expect(screen.getByText("5120 × 2880")).toBeInTheDocument();
   });
 
-  it("renders a canvas (the wallpaper preview)", () => {
+  it("renders TWO canvases — the live wallpaper + the cross-fade overlay", () => {
+    // The overlay holds the snapshot of the previous frame during the
+    // cross-fade transition (ADR-0003 "anticipation > reveal"). It starts
+    // hidden (opacity 0) and is aria-hidden so it never appears in a11y trees.
     render(<Preview />);
     const canvases = document.querySelectorAll("canvas");
-    expect(canvases.length).toBeGreaterThanOrEqual(1);
+    expect(canvases.length).toBe(2);
+    const overlay = canvases[1];
+    expect(overlay.getAttribute("aria-hidden")).toBe("true");
+    expect(overlay.style.opacity).toBe("0");
   });
 
   afterEach(() => vi.restoreAllMocks());

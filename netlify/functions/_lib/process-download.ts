@@ -20,7 +20,10 @@ export type DownloadResult =
  * here pure means we test the entire decision tree without spinning up R2
  * or a real Blobs store.
  */
-export async function processDownload(deps: ProcessDownloadDeps, token: string | null): Promise<DownloadResult> {
+export async function processDownload(
+  deps: ProcessDownloadDeps,
+  token: string | null,
+): Promise<DownloadResult> {
   if (!token) return { ok: false, status: 401, reason: "invalid_token" };
 
   const verified = await verifyDownloadToken(token, deps.jwtSecret);

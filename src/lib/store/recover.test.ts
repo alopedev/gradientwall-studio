@@ -49,7 +49,9 @@ describe("submitRecoverRequest", () => {
     fetchSpy.mockImplementation(
       (_url: RequestInfo | URL, init?: RequestInit) =>
         new Promise<Response>((_resolve, reject) => {
-          init?.signal?.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError")));
+          init?.signal?.addEventListener("abort", () =>
+            reject(new DOMException("aborted", "AbortError")),
+          );
         }),
     );
     const promise = submitRecoverRequest(

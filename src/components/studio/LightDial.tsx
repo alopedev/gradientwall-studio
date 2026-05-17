@@ -81,10 +81,7 @@ export function LightDial({ value, onChange, size = 72 }: Props) {
       className="relative shrink-0 rounded-full border border-white/14 bg-[radial-gradient(circle_at_30%_30%,#2c2c33_0%,#1a1a1f_60%,#070709_100%)] outline-none transition-shadow duration-150 hover:border-white/30 focus-visible:border-white/40 focus-visible:ring-2 focus-visible:ring-[color:var(--color-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--color-bg)] cursor-grab active:cursor-grabbing select-none touch-none"
     >
       {/* 12-o'clock tick — anchors the user's mental model of "0 = top". */}
-      <span
-        aria-hidden
-        className="absolute left-1/2 top-1 h-1 w-px -translate-x-1/2 bg-white/40"
-      />
+      <span aria-hidden className="absolute left-1/2 top-1 h-1 w-px -translate-x-1/2 bg-white/40" />
       {/* Pointer — a hairline + a small dot at the tip, rotated by `value`. */}
       <span
         aria-hidden

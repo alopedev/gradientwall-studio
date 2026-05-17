@@ -25,7 +25,10 @@ function mountWithGeometry(value: number, onChange: (v: number) => void) {
 describe("<LightDial />", () => {
   it("renders with the value reflected in aria-valuenow", () => {
     render(<LightDial value={135} onChange={() => {}} />);
-    expect(screen.getByRole("slider", { name: /light direction/i })).toHaveAttribute("aria-valuenow", "135");
+    expect(screen.getByRole("slider", { name: /light direction/i })).toHaveAttribute(
+      "aria-valuenow",
+      "135",
+    );
   });
 
   it("ArrowRight nudges the angle by 1°", () => {
@@ -49,7 +52,9 @@ describe("<LightDial />", () => {
   it("ArrowLeft from 0° wraps to 359°", () => {
     const onChange = vi.fn();
     render(<LightDial value={0} onChange={onChange} />);
-    fireEvent.keyDown(screen.getByRole("slider", { name: /light direction/i }), { key: "ArrowLeft" });
+    fireEvent.keyDown(screen.getByRole("slider", { name: /light direction/i }), {
+      key: "ArrowLeft",
+    });
     expect(onChange).toHaveBeenCalledWith(359);
   });
 

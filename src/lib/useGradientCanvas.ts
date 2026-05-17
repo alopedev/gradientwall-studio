@@ -11,7 +11,10 @@ import type { RenderParams } from "./palettes";
  * — it drives the canvas resolution from the container's CSS size × DPR, which
  * keeps the wallpaper crisp on Retina and avoids the sub-resolved look.
  */
-export function useGradientCanvas(opts: RenderOpts, deps: DependencyList): RefObject<HTMLCanvasElement> {
+export function useGradientCanvas(
+  opts: RenderOpts,
+  deps: DependencyList,
+): RefObject<HTMLCanvasElement> {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = ref.current;
@@ -36,6 +39,13 @@ export type FittedGradientOpts = RenderParams & {
   maxDim?: number;
   /** Effective devicePixelRatio cap. Default 2. */
   maxDpr?: number;
+  /**
+   * Called with the live canvas right before it is repainted with new params.
+   * Only fires AFTER the first paint (i.e., the canvas already has content).
+   * Used by Preview for the cross-fade overlay: it snapshots the current
+   * bitmap into a sibling canvas before the live one is overwritten.
+   */
+  beforePaint?: (canvas: HTMLCanvasElement) => void;
 };
 
 /**
@@ -108,6 +118,10 @@ export function useFittedGradientCanvas(
       const bitmapKey = `${wInt}x${hInt}|${cur.style}|${cur.colors.join(",")}|${cur.blur}|${cur.seed}|${cur.lightAngle}|${cur.density}|${cur.grain}`;
       const cssFilter = gradingCssFilter(cur.contrast, cur.vibrance);
       if (bitmapKey !== lastKey) {
+        // Only fire beforePaint when the canvas already had a previous frame
+        // — skip on the very first paint so the cross-fade overlay doesn't
+        // capture an empty bitmap and flash transparent over the new content.
+        if (lastKey !== "") optsRef.current.beforePaint?.(c);
         lastKey = bitmapKey;
         paintWallpaperPreview(c, {
           w: wInt,

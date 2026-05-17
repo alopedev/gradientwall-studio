@@ -18,6 +18,8 @@ import {
   type Style,
 } from "@/lib/palettes";
 import { randomColors } from "@/lib/gradient";
+import { generateRemix } from "@/lib/gradient/remix";
+import { generateSurprise } from "@/lib/gradient/surprise";
 import { makeRafBatcher } from "@/lib/raf-batcher";
 
 /**
@@ -67,7 +69,27 @@ export interface ConfigState
   setContrast: (n: number) => void;
   setVibrance: (n: number) => void;
   reshuffle: () => void;
+  /**
+   * @deprecated Studio v2 usa `applySurprise()` que sustituye este método con
+   * paletas armónicas constreñidas, seeds curados y defaults de grain /
+   * contrast / vibrance fijos. Se conserva por retrocompat de tests y por si
+   * v1 sigue montado tras el feature flag. Eliminar en Fase 5 (cutover).
+   */
   randomize: () => void;
+  /**
+   * Studio v2 — surprise-first. Aplica un `GradientConfig` generado por
+   * `generateSurprise` (paleta armónica + style weighted + curated seed +
+   * defaults curados). Garantiza que `seed` sea distinto al actual. Tras la
+   * llamada el canvas se repinta con un wallpaper distinto al anterior.
+   */
+  applySurprise: () => void;
+  /**
+   * Studio v2 — remix. Variación cercana del wallpaper actual: mantiene
+   * paleta y style, varía seed + lightAngle + density + blur dentro de
+   * rangos cortos. Pensado para el botón "Remix" cuando el usuario quiere
+   * ver otra cara de la misma idea.
+   */
+  applyRemix: () => void;
 }
 
 const randomSeed = () => Math.floor(Math.random() * 65535);
@@ -84,56 +106,103 @@ type RafPatch = Partial<
 export const useConfigStore = create<ConfigState>()((set) => {
   const rafSet = makeRafBatcher<RafPatch>(set);
   return {
-  device: "desktop",
-  colors: [...PALETTES[0].colors] as Colors4,
-  active: freshMask(),
-  style: "mesh",
-  blur: 48,
-  grain: 45,
-  seed: randomSeed(),
-  lightAngle: DEFAULT_LIGHT_ANGLE,
-  density: DEFAULT_DENSITY,
-  contrast: DEFAULT_CONTRAST,
-  vibrance: DEFAULT_VIBRANCE,
+    device: "desktop",
+    colors: [...PALETTES[0].colors] as Colors4,
+    active: freshMask(),
+    style: "mesh",
+    blur: 48,
+    // Lower the default from 45 → 18 so the preview canvas reads as a clean
+    // gradient with subtle texture, not a noisy/dirty image. The Grain slider
+    // in the RightRail still spans 0–100 and the alpha cap (0.85) stays in
+    // place — this only resets where new sessions land.
+    grain: 18,
+    seed: randomSeed(),
+    lightAngle: DEFAULT_LIGHT_ANGLE,
+    density: DEFAULT_DENSITY,
+    contrast: DEFAULT_CONTRAST,
+    vibrance: DEFAULT_VIBRANCE,
 
-  setDevice: (d) => set({ device: d }),
-  // A fresh palette invalidates any per-slot deactivation — reset the mask.
-  setColors: (colors) => set({ colors: [...colors] as Colors4, active: freshMask() }),
-  setColor: (i, hex) =>
-    set((s) => {
-      const next = [...s.colors] as Colors4;
-      next[i] = hex;
-      return { colors: next };
-    }),
-  toggleColor: (i) =>
-    set((s) => {
-      const next = [...s.active] as ActiveMask;
-      const turningOff = next[i];
-      const remaining = next.filter(Boolean).length;
-      if (turningOff && remaining <= MIN_ACTIVE_COLORS) return {};
-      next[i] = !next[i];
-      return { active: next };
-    }),
-  setStyle: (s) => set({ style: s }),
-  // Slider/dial setters route through the rAF batcher so a fast drag fires at
-  // most one render per frame instead of one per pointermove event.
-  setBlur: (n) => rafSet({ blur: n }),
-  setGrain: (n) => rafSet({ grain: n }),
-  setSeed: (n) => set({ seed: n & 0xffff }),
-  setLightAngle: (deg) => rafSet({ lightAngle: ((deg % 360) + 360) % 360 }),
-  setDensity: (n) => rafSet({ density: clamp01(n) }),
-  setContrast: (n) => rafSet({ contrast: clampGrade(n) }),
-  setVibrance: (n) => rafSet({ vibrance: clampGrade(n) }),
-  reshuffle: () => set({ seed: randomSeed() }),
-  randomize: () =>
-    set({
-      colors: randomColors(),
-      active: freshMask(),
-      style: STYLES[Math.floor(Math.random() * STYLES.length)],
-      seed: randomSeed(),
-      lightAngle: Math.floor(Math.random() * 360),
-      density: Math.random(),
-    }),
+    setDevice: (d) => set({ device: d }),
+    // A fresh palette invalidates any per-slot deactivation — reset the mask.
+    setColors: (colors) => set({ colors: [...colors] as Colors4, active: freshMask() }),
+    setColor: (i, hex) =>
+      set((s) => {
+        const next = [...s.colors] as Colors4;
+        next[i] = hex;
+        return { colors: next };
+      }),
+    toggleColor: (i) =>
+      set((s) => {
+        const next = [...s.active] as ActiveMask;
+        const turningOff = next[i];
+        const remaining = next.filter(Boolean).length;
+        if (turningOff && remaining <= MIN_ACTIVE_COLORS) return {};
+        next[i] = !next[i];
+        return { active: next };
+      }),
+    setStyle: (s) => set({ style: s }),
+    // Slider/dial setters route through the rAF batcher so a fast drag fires at
+    // most one render per frame instead of one per pointermove event.
+    setBlur: (n) => rafSet({ blur: n }),
+    setGrain: (n) => rafSet({ grain: n }),
+    setSeed: (n) => set({ seed: n & 0xffff }),
+    setLightAngle: (deg) => rafSet({ lightAngle: ((deg % 360) + 360) % 360 }),
+    setDensity: (n) => rafSet({ density: clamp01(n) }),
+    setContrast: (n) => rafSet({ contrast: clampGrade(n) }),
+    setVibrance: (n) => rafSet({ vibrance: clampGrade(n) }),
+    reshuffle: () => set({ seed: randomSeed() }),
+    randomize: () =>
+      set({
+        colors: randomColors(),
+        active: freshMask(),
+        style: STYLES[Math.floor(Math.random() * STYLES.length)],
+        seed: randomSeed(),
+        lightAngle: Math.floor(Math.random() * 360),
+        density: Math.random(),
+      }),
+    applySurprise: () =>
+      set((s) => {
+        const next = generateSurprise(s.seed);
+        return {
+          colors: next.colors,
+          active: freshMask(),
+          style: next.style,
+          blur: next.blur,
+          grain: next.grain ?? s.grain,
+          seed: next.seed,
+          lightAngle: next.lightAngle ?? s.lightAngle,
+          density: next.density ?? s.density,
+          contrast: next.contrast ?? s.contrast,
+          vibrance: next.vibrance ?? s.vibrance,
+        };
+      }),
+    applyRemix: () =>
+      set((s) => {
+        const current: GradientConfig = {
+          colors: s.colors,
+          style: s.style,
+          blur: s.blur,
+          grain: s.grain,
+          seed: s.seed,
+          lightAngle: s.lightAngle,
+          density: s.density,
+          contrast: s.contrast,
+          vibrance: s.vibrance,
+        };
+        const next = generateRemix(current);
+        return {
+          colors: next.colors,
+          // active no se toca — el remix mantiene la misma paleta
+          style: next.style,
+          blur: next.blur,
+          grain: next.grain ?? s.grain,
+          seed: next.seed,
+          lightAngle: next.lightAngle ?? s.lightAngle,
+          density: next.density ?? s.density,
+          contrast: next.contrast ?? s.contrast,
+          vibrance: next.vibrance ?? s.vibrance,
+        };
+      }),
   };
 });
 

@@ -15,7 +15,11 @@ export interface R2Config {
  * v4. The endpoint shape `https://{accountId}.r2.cloudflarestorage.com`
  * comes from Cloudflare's dashboard.
  */
-export async function presignDownloadUrl(config: R2Config, key: string, ttlSeconds: number): Promise<string> {
+export async function presignDownloadUrl(
+  config: R2Config,
+  key: string,
+  ttlSeconds: number,
+): Promise<string> {
   const client = new S3Client({
     region: "auto",
     endpoint: `https://${config.accountId}.r2.cloudflarestorage.com`,

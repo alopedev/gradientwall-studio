@@ -1,4 +1,5 @@
 import { m } from "motion/react";
+import { Fragment } from "react";
 import { EASE } from "@/lib/motion";
 
 const CONTAINER = {
@@ -24,12 +25,19 @@ export function SplitWords({
   stagger = 0.07,
   amount = 0.5,
   delayChildren = 0,
+  kinetic = false,
 }: {
   text: string;
   className?: string;
   stagger?: number;
   amount?: number;
   delayChildren?: number;
+  /**
+   * Studio v2 — kinetic typography. Activa hover por palabra: cada palabra
+   * hace un mini scale (1 → 1.04) con spring suave. Off por defecto para
+   * no afectar headlines del resto del sitio.
+   */
+  kinetic?: boolean;
 }) {
   const words = text.split(/\s+/);
   return (
@@ -44,15 +52,27 @@ export function SplitWords({
       transition={{ delayChildren }}
     >
       {words.map((w, i) => (
-        <span
-          key={i}
-          style={{ display: "inline-block", overflow: "hidden", paddingBottom: "0.08em" }}
-        >
-          <m.span variants={WORD} style={{ display: "inline-block" }}>
-            {w}
-            {i < words.length - 1 ? " " : ""}
-          </m.span>
-        </span>
+        // El espacio entre palabras vive FUERA del wrapper inline-block. Con
+        // el espacio dentro, `overflow: hidden` lo recortaba (trailing
+        // whitespace de inline-block colapsa visualmente), produciendo
+        // "ONETAP.DONE." sin espacios entre palabras.
+        <Fragment key={i}>
+          <span style={{ display: "inline-block", overflow: "hidden", paddingBottom: "0.08em" }}>
+            <m.span
+              variants={WORD}
+              style={{ display: "inline-block" }}
+              {...(kinetic
+                ? {
+                    whileHover: { scale: 1.04 },
+                    transition: { type: "spring", stiffness: 380, damping: 22 },
+                  }
+                : {})}
+            >
+              {w}
+            </m.span>
+          </span>
+          {i < words.length - 1 ? " " : null}
+        </Fragment>
       ))}
     </m.span>
   );

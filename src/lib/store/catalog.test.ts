@@ -18,9 +18,23 @@ const base: Pack = {
   style: "gradient",
   description: "",
   tagline: "",
-  cover: { kind: "gradient", colors: ["#000", "#111", "#222", "#333"], style: "mesh", blur: 50, grain: 30, seed: 1 },
+  cover: {
+    kind: "gradient",
+    colors: ["#000", "#111", "#222", "#333"],
+    style: "mesh",
+    blur: 50,
+    grain: 30,
+    seed: 1,
+  },
   previews: [
-    { kind: "gradient", colors: ["#000", "#111", "#222", "#333"], style: "mesh", blur: 50, grain: 30, seed: 1 },
+    {
+      kind: "gradient",
+      colors: ["#000", "#111", "#222", "#333"],
+      style: "mesh",
+      blur: 50,
+      grain: 30,
+      seed: 1,
+    },
   ],
   priceEur: 4.99,
   lemonSqueezyVariantId: "var_1",
@@ -38,7 +52,10 @@ describe("validateCatalog", () => {
   });
 
   it("flags duplicate slugs", () => {
-    mockPacks.packs = [{ ...base, slug: "dupe" }, { ...base, slug: "dupe" }];
+    mockPacks.packs = [
+      { ...base, slug: "dupe" },
+      { ...base, slug: "dupe" },
+    ];
     expect(validateCatalog()).toContainEqual({ kind: "duplicate-slug", slug: "dupe" });
   });
 

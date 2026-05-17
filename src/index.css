@@ -35,6 +35,12 @@
   --radius-sharp: 2px;
   --radius-glass: 14px;
 
+  /* Magic UI ShimmerButton animations. See keyframes in the Animations
+     section below. `--speed` is set per-instance via inline style by the
+     ShimmerButton component. */
+  --animate-shimmer-slide: shimmer-slide var(--speed, 3s) ease-in-out infinite alternate;
+  --animate-spin-around: spin-around calc(var(--speed, 3s) * 2) infinite linear;
+
   /* Tactile elevation stack — adapted from the keyboard-key shadow pattern.
      The pair (inset top white highlight + inset bottom black + outer drop +
      hairline ring) makes a small button feel physically pressable on dark
@@ -65,6 +71,47 @@
     inset 0 -1px 0 rgba(0, 0, 0, 0.35),
     0 1px 0 rgba(0, 0, 0, 0.4),
     0 8px 24px rgba(0, 0, 0, 0.35);
+
+  /* === Studio v2 — liquid glass moderno (iOS 26 / macOS Tahoe inspired) ===
+     Pareja de tokens para el chrome del nuevo Studio: Customize popover,
+     Favorites strip y DevicePicker. Más "cristal" que las utilidades
+     `liquid*` existentes (refracción + sat boost + inset highlight más
+     definido). Se aplican vía la utilidad `glass-modern`. */
+  --glass-bg: rgba(15, 15, 18, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: 24px;
+  --glass-shadow-soft:
+    0 12px 40px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+
+  /* Easing para hover magnético del CTA y motion delight de Fase 5.
+     Igual que el cubic-bezier que ya usan Reveal / Stagger en motion.ts. */
+  --magnetic-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Altura de la tira de favoritos (Fase 4). Compartida con el shell para
+     calcular padding-bottom del canvas y el bottom-offset del CTA en mobile. */
+  --strip-height: 88px;
+
+  /* === Fase 5 — OKLCH tokens y mix variants ===
+     OKLCH es perceptualmente uniforme: 50% lightness es ~50% perceptual
+     independiente del hue. Permite generar variantes (hover, active, soft)
+     vía color-mix sin saltos de luminosidad. Mantenemos los hex de arriba
+     como fallback para navegadores antiguos; los OKLCH ofrecen mejor
+     interpolación cuando se usan en gradients de mix-mode.
+
+     Soporte: Chrome 111+, Firefox 113+, Safari 15.4+. Cobertura ≈ 95% en
+     mayo 2026. Para el ≤5% restante, los hex fallback (--color-accent,
+     --color-ink, etc.) ya garantizan el aspecto. */
+  --accent-oklch: oklch(64% 0.21 24);
+  --ink-oklch: oklch(100% 0 0);
+  --bg-oklch: oklch(7% 0.005 280);
+
+  /* Variantes generadas con color-mix — el navegador interpola en OKLCH
+     space para que las versiones soft / dim de un color mantengan el mismo
+     hue. Reutilizables en hovers de botones, focus rings tenues, etc. */
+  --accent-soft: color-mix(in oklch, var(--accent-oklch) 60%, transparent);
+  --accent-glow: color-mix(in oklch, var(--accent-oklch) 30%, transparent);
+  --ink-soft: color-mix(in oklch, var(--ink-oklch) 75%, transparent);
 }
 
 /* =================== Base (wrapped so utilities win) =================== */
@@ -152,6 +199,35 @@ body::before {
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.14);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Studio v2 — modern liquid glass (refinado Fase 5). Inspiración:
+   premio de diseño 2026 a iOS 26 / macOS Tahoe.
+   Capas:
+     1. Backdrop blur 24 + saturate 1.5 + brightness 1.05 → "cristal vivo"
+        que toma luz del fondo sin enmascararlo.
+     2. Gradient background sutil top→bottom (refracción aparente).
+     3. 1px border con gradient blanco → mejor borde que solid white/8.
+     4. Inset double-highlight (top sharp + bottom soft) para suggest grosor.
+     5. Outer shadow profunda pero limpia (single layer, sin halos).
+   Safari requiere -webkit-backdrop-filter. `contain: paint` mejora
+   compositing (reduce repaints del área del wallpaper detrás del panel). */
+@utility glass-modern {
+  background: var(--glass-bg);
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0) 50%,
+    rgba(0, 0, 0, 0.08) 100%
+  );
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.55) brightness(1.04);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.55) brightness(1.04);
+  box-shadow:
+    var(--glass-shadow-soft),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+  contain: paint;
 }
 
 /* Technical "stamp" chrome — hairline border + tinted backdrop blur.
@@ -313,6 +389,63 @@ body::before {
     transform: translate(-50%, -50%) rotate(360deg);
   }
 }
+/* Scroll-driven reveal Fase 5 — utility para items que aparecen cuando
+   entran al viewport. CSS nativo (animation-timeline: view()), cero JS.
+   El navegador corre la animación en el compositor thread, así que es
+   barata incluso con 24 thumbnails simultáneos en la FavoritesStrip.
+
+   Soporte: Chrome 115+, Edge 115+, Firefox 132+ (con flag), Safari TP.
+   Donde no se soporta, los items aparecen estáticos en su estado final
+   (transform/opacity desde el resto del CSS) — degradación elegante.
+
+   `view-timeline-axis: block` afina al scroll vertical de la página
+   (no al horizontal interno de la strip). El rango cover→cover dispara
+   la animación durante la entrada del elemento. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes gw-reveal-in {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .gw-reveal-on-scroll {
+      animation: gw-reveal-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+  }
+}
+
+/* BorderBeam Fase 5 — un beam ride alrededor del SurpriseCTA mientras el
+   wallpaper está "fresh" (el usuario aún no pineó nada en la sesión). El
+   beam usa conic-gradient que rota; el comp del padre añade clip y
+   mask. Mucho más cinemático que el border pulse anterior, y la
+   animación es CSS pura → respeta automáticamente prefers-reduced-motion
+   via @media reduce block más abajo. */
+@keyframes gw-beam-rotate {
+  to {
+    transform: rotate(1turn);
+  }
+}
+/* Heart-burst — 4 partículas que salen del corazón al hacer Save. Cada
+   partícula sigue su propia ruta vía CSS custom property `--angle`
+   inyectada inline (cuatro direcciones equiespaciadas alrededor del
+   centro del icono). Fade-out durante el viaje, scale de 1 a 0. */
+@keyframes gw-heart-burst {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(var(--angle, 0deg)) translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--angle, 0deg)) translateY(-18px) scale(0.4);
+  }
+}
 /* Slow scale-breathe used by the Studio preview canvas while idle. The
    amplitude (0.5%) is tuned to read as "the wallpaper is alive" without
    making the device frame look like it's wobbling. */
@@ -322,6 +455,30 @@ body::before {
   }
   50% {
     transform: scale(1.006);
+  }
+}
+/* Magic UI ShimmerButton — conic-gradient ring that traces the button border.
+   `shimmer-slide` sweeps the spark container horizontally; `spin-around`
+   rotates the conic gradient continuously. The pair, layered behind a
+   backdrop-filled inset, creates the "alive button" effect on the
+   SurpriseMeHero. */
+@keyframes shimmer-slide {
+  to {
+    transform: translate(calc(100cqw - 100%), 0);
+  }
+}
+@keyframes spin-around {
+  0% {
+    transform: translateZ(0) rotate(0);
+  }
+  15%, 35% {
+    transform: translateZ(0) rotate(90deg);
+  }
+  65%, 85% {
+    transform: translateZ(0) rotate(270deg);
+  }
+  100% {
+    transform: translateZ(0) rotate(360deg);
   }
 }
 /* =================== Slider =================== */

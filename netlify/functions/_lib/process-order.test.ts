@@ -11,7 +11,9 @@ import type { LoopsClient } from "./loops";
 const NOW = Math.floor(Date.now() / 1000);
 const SECRET = "test-jwt-secret-32-chars-padding-ok";
 
-function fakeLoops(): LoopsClient & { sent: Array<Parameters<LoopsClient["sendTransactional"]>[0]> } {
+function fakeLoops(): LoopsClient & {
+  sent: Array<Parameters<LoopsClient["sendTransactional"]>[0]>;
+} {
   const sent: Array<Parameters<LoopsClient["sendTransactional"]>[0]> = [];
   return {
     sent,
@@ -76,7 +78,9 @@ describe("processOrderCreated", () => {
       email: "buyer@example.com",
       dataVariables: { packName: "midnight-velvet" },
     });
-    expect(loops.sent[0].dataVariables.downloadUrl).toMatch(/^https:\/\/gradientwall\.com\/\.netlify\/functions\/download\?token=/);
+    expect(loops.sent[0].dataVariables.downloadUrl).toMatch(
+      /^https:\/\/gradientwall\.com\/\.netlify\/functions\/download\?token=/,
+    );
   });
 
   it("re-issues a fresh token when the same order is processed twice (LS retry)", async () => {

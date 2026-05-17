@@ -11,6 +11,9 @@ npm run build       # tsc -b && vite build — full prod bundle into dist/
 npm run preview     # Serve dist/ locally to smoke-test a prod build
 npm test            # vitest run — one-shot test run (see "Test infra" below)
 npm run test:watch  # vitest in watch mode
+npm run lint        # biome check src netlify
+npm run format      # biome format --write src netlify
+npm run check       # typecheck + lint + test — el "ready to commit" del proyecto
 ```
 
 Test infra: **Vitest**. Default environment is `jsdom` (for React component tests with @testing-library); files under `netlify/**/*.test.ts` use `// @vitest-environment node` so jose v5 / crypto / process behave as at runtime. The setup file `src/test-setup.ts` early-outs when `typeof window === "undefined"` so node-env tests don't crash importing DOM-ware. Snapshot files live next to the test under `__snapshots__/` and are committed — regression guard on the core gradient math.
@@ -45,13 +48,12 @@ Four concentric layers: **pure render → state → React views → backend func
 These files import nothing from React, Zustand, or components. Keep them that way.
 
 ### 2. State (`src/store/`)
-Three Zustand stores plus a coordinator module:
-- `useConfigStore` — current Studio config (device, colors, active mask, style, blur, grain, seed) + atomic setters + `randomize()`. Ephemeral.
-- `useHistoryStore` — persisted to `localStorage` key `gw_history` (capped 12). Only exposes a `_setHistory` setter; mutations go through `coordinator.save()`.
+Cuatro Zustand stores + coordinator (Studio v2):
+- `useConfigStore` — current Studio config (device, colors, active mask, style, blur, grain, seed, lightAngle, density, contrast, vibrance). Setters atómicos, `applySurprise()` (motor mejorado de Fase 1), `applyRemix()` (variación cercana), `randomize()` legacy `@deprecated`.
+- `useFavoritesStore` — persistido en `localStorage` key `gw:favorites:v1`. API `pin/unpin/reorder/clear`, cap 24 FIFO. `migrateLegacyHistory()` (one-time) importa cualquier `gw_history` antiguo automáticamente.
 - `useUIStore` — ephemeral UI state (active source tab, active palette index).
-- `coordinator.ts` — pure functions (NOT hooks) that orchestrate cross-store transactions: `save()`, `loadHistoryItem(h)`, `applyPalette(i)`. Components call these directly from event handlers; the coordinator reads/writes via vanilla `useX.getState()`/`.setState()`. **Always go through the coordinator for cross-store ops** — bypassing it leads to inconsistent partial states.
-
-`applyPalette(i)` silently no-ops for out-of-range indices.
+- `useRecentColorsStore` — ring buffer de colores recientes para el ColorHUD picker.
+- `coordinator.ts` — `applyPalette(i)` (silent no-op para índices fuera de rango). Las operaciones legacy `save/loadHistoryItem/removeHistoryItem` se eliminaron en el cutover de Fase 5.
 
 ### 3. React views (`src/components/`)
 Thin. Pattern:
@@ -63,10 +65,11 @@ useEffect(() => { paintWallpaper(canvasRef.current!, { colors, ... }); }, [color
 
 Component layout:
 - `Nav.tsx`, `Hero.tsx`, `Marquee.tsx`, `Footer.tsx` — the editorial chrome.
-- `studio/` — Studio section components: `Preview` (the live canvas + Download button + Mockup mode), `ControlsPanel`, `Swatches`, `Palettes`, `History`, `IPhoneMockup`, `ImageSource`, `PillTabs`.
+- `studio/v2/` (Fase 5 cutover) — el Studio activo: `StudioShell` (orquestador), `SurpriseCTA` (hero magnético con BorderBeam conic en fresh-state), `ActionRow` (Save/Remix/Download+DevicePicker/Customize), `CustomizePanel` (inline lateral con Style picker + Swatches + LightDial + Density + Softness), `FavoritesStrip` + `FavoriteThumbnail` (galería persistente con motion Reorder + scroll-driven reveal CSS nativo), `StyleThumbnail` (mini canvas per style), `DevicePicker`.
+- `studio/` (hojas reutilizadas por v2) — `Preview` (canvas con prop `framed`), `Swatches`, `ColorHUD`, `useColorEditing`, `Palettes`, `LightDial`, `PillTabs`, `ImageSource`, `UseMyPhotoButton`.
 - `packs/` — store components: `PacksSection` (home), `PackCard`, `PackFilters`, `PackPage` (route `/packs/:slug`), `PackPurchaseSuccess` (route `/packs/:slug/success`), `PackCover` (renders gradient-kind via `paintWallpaper`, image-kind via `<img>`).
 - `RecoverForm.tsx` — route `/recover`; POSTs `{email, orderId}` to the recover-link Function.
-- `ui/` — design-system primitives: `Framed`, `Reveal`, `Stagger`, `GrainOverlay`.
+- `ui/` — design-system primitives: `Framed`, `Reveal`, `Stagger`, `GrainOverlay`, `MagneticButton`.
 
 ### 4. Backend (`netlify/functions/`)
 Netlify Functions v2 (Web Request/Response). Handlers are intentionally thin — domain logic lives in pure `_lib/` modules with dependency injection so they're testable without spinning up Blobs/R2/Loops.
@@ -155,3 +158,45 @@ If imports resolve in the editor but Vite fails to build, suspect this.
 `.claude/launch.json` is configured so that `preview_start` with `name: "vite-dev"` works out of the box. Use it instead of running `npm run dev` in Bash when verifying changes.
 
 For backend Functions during local dev, use `netlify dev` (Netlify CLI) — it proxies the Vite server and runs Functions on the same origin so frontend `fetch('/.netlify/functions/...')` calls resolve correctly.
+
+## Studio v2 — surprise-first shell (Fase 5 cerrada)
+
+El Studio v2 es ahora el único Studio (cutover Fase 5 completado). Mini-framework histórico en raíz: `PRD.md`, `PLANNING.md`, `TASKS.md`. Plan completo en `~/.claude/plans/vamos-a-afrontar-el-polymorphic-fiddle.md`.
+
+**Tesis**: surprise-first + remix + galería persistente. Tres clicks máximo del primer load a wallpaper instalado. Potencia detrás de "Customize". Lenguaje visual: liquid glass moderno (iOS 26 / macOS Tahoe inspired) + brutalist tipográfico.
+
+**Arquitectura de componentes en `src/components/studio/v2/`**:
+- `StudioShell` — orquestador layout. Maneja `customizeOpen` state. Anima canvas/panel con motion `layout` (desktop side-by-side, mobile stacked).
+- `SurpriseCTA` — hero magnético + BorderBeam conic en fresh-state + bind Space.
+- `ActionRow` — Save (heart-burst particles) · Remix (R) · Download+DevicePicker · Customize (toggle inline panel).
+- `CustomizePanel` — Style picker (4 thumbnails) + Colors + Light + Density + Softness. Glass-modern.
+- `FavoritesStrip` + `FavoriteThumbnail` — galería persistente, motion Reorder, scroll-driven CSS reveal.
+- `StyleThumbnail`, `DevicePicker` — primitivos.
+
+**Stores**:
+- `useConfigStore` — `applySurprise()`, `applyRemix()`, setters atómicos.
+- `useFavoritesStore` — persist `gw:favorites:v1`, API pin/unpin/reorder/clear, migración one-time desde `gw_history` legacy.
+
+**Motor de generación (capa nueva, Fase 1)** en `src/lib/gradient/`:
+- `curated-seeds.ts` — 80 seeds aprobados. `pickCuratedSeed(rng?)`, `pickCuratedSeedExcluding(prev, rng?)`.
+- `palette-constraints.ts` — `randomHarmonicColors(rng)` con 4 esquemas armónicos + constraints HSL.
+- `surprise.ts` — `generateSurprise(prevSeed?)` style weighted (liquid 35 / mesh 30 / aurora 25 / nebula 10).
+- `remix.ts` — `generateRemix(current)` paleta intacta, varía seed/light/density.
+
+**Intocables** (matemática firmada, snapshots blindan): `src/lib/gradient/spec.ts`, `canvas2d.ts`, `compose.ts`, `mulberry32`, `palettes.ts:activeColors`. Si un snapshot del motor falla tras un cambio, **revertir, no regenerar**.
+
+**Controles eliminados** (decisión consciente): sliders de contrast/vibrance/grain (defaults curados en motor), SeedBadge visible, StudioHints one-shot.
+
+**Tendencias 2026 aplicadas (Fase 5)**:
+- Liquid glass refinement: backdrop-filter `blur+saturate+brightness`, double-inset highlight, gradient background, `contain: paint`.
+- OKLCH tokens (`--accent-oklch`, `--ink-oklch`, `--bg-oklch`) + `color-mix` variants para hovers consistentes.
+- BorderBeam conic-gradient con mask trick (CSS pure, `motion-safe:` para reduced-motion).
+- Heart-burst particles con CSS custom property `--angle` inyectada inline (4 direcciones equiespaciadas).
+- Kinetic typography (`SplitWords kinetic` — scale spring por palabra al hover).
+- Scroll-driven CSS reveals (`animation-timeline: view()` nativo, dentro de `@supports + @media no-preference`).
+- Mobile responsive: stacked layout <640px vía `useIsMobile()` hook.
+
+**Tooling del proyecto**:
+- Linter: Biome (config en `biome.json`, indent 2 espacios, line width 100). CSS deshabilitado porque Tailwind v4 `@theme/@utility` no es CSS estándar aún soportado.
+- `npm run check` (typecheck + lint + test) — el "ready to commit".
+- Lint debt pendiente: 62 violations en código preexistente registradas en `TASKS.md` Fase 6 (cleanup post-cutover).

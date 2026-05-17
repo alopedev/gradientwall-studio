@@ -37,7 +37,11 @@ describe("processDownload", () => {
   });
 
   it("rejects a token signed with a different secret as 401 invalid_token", async () => {
-    const token = await issueDownloadToken({ payload: ORDER, ttlSeconds: 60, secret: "different-secret-padding" });
+    const token = await issueDownloadToken({
+      payload: ORDER,
+      ttlSeconds: 60,
+      secret: "different-secret-padding",
+    });
     const result = await processDownload(deps(), token);
     expect(result).toEqual({ ok: false, status: 401, reason: "invalid_token" });
   });

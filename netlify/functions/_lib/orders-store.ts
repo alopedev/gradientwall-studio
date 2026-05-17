@@ -67,7 +67,11 @@ export type ConsumeResult =
  * which is acceptable for the MVP. Hardening (CAS via etag, or a Durable
  * Object) is a follow-up if abuse appears in telemetry.
  */
-export async function consumeDownload(b: KVBackend, orderId: string, nowSeconds: number): Promise<ConsumeResult> {
+export async function consumeDownload(
+  b: KVBackend,
+  orderId: string,
+  nowSeconds: number,
+): Promise<ConsumeResult> {
   const order = await getOrder(b, orderId);
   if (!order) return { ok: false, reason: "not_found" };
   if (order.expiresAt <= nowSeconds) return { ok: false, reason: "expired" };

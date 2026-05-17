@@ -209,10 +209,7 @@ let cachedBase: { key: BaseKey; canvas: HTMLCanvasElement } | null = null;
  * Slider-induced changes to grain/contrast/vibrance keep the same
  * key, so the gradient pass (the genuinely expensive part) is skipped.
  */
-function getBaseCanvas(
-  opts: PaintOpts,
-  canvasFactory: () => HTMLCanvasElement,
-): HTMLCanvasElement {
+function getBaseCanvas(opts: PaintOpts, canvasFactory: () => HTMLCanvasElement): HTMLCanvasElement {
   const key = baseKey(opts);
   if (cachedBase && cachedBase.key === key) return cachedBase.canvas;
   const c = canvasFactory();

@@ -1,6 +1,10 @@
 /** Lógica pura del mouse-trail: throttle, rotación y selección de pool. */
 
-export function computeSpawn(a: { lastSpawnTs: number; now: number; minInterval: number }): boolean {
+export function computeSpawn(a: {
+  lastSpawnTs: number;
+  now: number;
+  minInterval: number;
+}): boolean {
   return a.now - a.lastSpawnTs >= a.minInterval;
 }
 
