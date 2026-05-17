@@ -1,7 +1,6 @@
 import { Download, Heart, RotateCcw, Settings2 } from "lucide-react";
 import { m } from "motion/react";
 import { useEffect, useState } from "react";
-import { MagneticButton } from "@/components/ui/MagneticButton";
 import { downloadWallpaper } from "@/lib/download";
 import { EASE } from "@/lib/motion";
 import { useConfigStore, useRenderParams } from "@/store";
@@ -101,45 +100,47 @@ export function ActionRow() {
         </kbd>
       </button>
 
-      {/* Download — primary white CTA con DevicePicker integrado */}
+      {/* Download — primary white CTA con DevicePicker integrado a la izquierda.
+          Decisión consciente: el Download NO va envuelto en MagneticButton;
+          el único elemento magnético del Studio v2 es el SurpriseCTA hero.
+          Mantener la magnética sólo donde realmente atrae la atención evita
+          que la UX se sienta inquieta. */}
       <div className="inline-flex items-stretch gap-px rounded-[2px] bg-white/[0.06] p-[2px]">
         <DevicePicker />
-        <MagneticButton>
-          <button
-            type="button"
-            disabled={downloadStatus === "downloading"}
-            onClick={async () => {
-              setDownloadStatus("downloading");
-              await new Promise((r) => requestAnimationFrame(() => r(null)));
-              try {
-                await downloadWallpaper({ device, ...params });
-                setDownloadStatus("saved");
-                setTimeout(() => setDownloadStatus("idle"), 1600);
-              } catch {
-                setDownloadStatus("idle");
-              }
-            }}
-            aria-label="Download wallpaper for the selected device"
-            className="focus-ring inline-flex items-center gap-2 rounded-[2px] bg-gradient-to-b from-white to-[#e6e6e6] px-3.5 py-2 font-sans text-[11px] font-medium uppercase tracking-[0.14em] text-[#171717] shadow-[inset_0_1px_0_rgba(255,255,255,0.95),inset_0_-1px_0_rgba(0,0,0,0.18),0_1px_0_rgba(255,255,255,0.05),0_4px_10px_rgba(0,0,0,0.55),0_0_0_1px_rgba(0,0,0,0.4)] transition-[background,transform,opacity] duration-150 hover:from-white hover:to-white active:translate-y-[0.5px] disabled:cursor-wait disabled:opacity-80"
-          >
-            {downloadStatus === "downloading" ? (
-              <>
-                <span
-                  aria-hidden
-                  className="inline-block size-3 animate-spin rounded-full border-2 border-[#171717] border-t-transparent"
-                />
-                Generating
-              </>
-            ) : downloadStatus === "saved" ? (
-              <>✓ Saved</>
-            ) : (
-              <>
-                <Download className="size-3.5" aria-hidden />
-                Download
-              </>
-            )}
-          </button>
-        </MagneticButton>
+        <button
+          type="button"
+          disabled={downloadStatus === "downloading"}
+          onClick={async () => {
+            setDownloadStatus("downloading");
+            await new Promise((r) => requestAnimationFrame(() => r(null)));
+            try {
+              await downloadWallpaper({ device, ...params });
+              setDownloadStatus("saved");
+              setTimeout(() => setDownloadStatus("idle"), 1600);
+            } catch {
+              setDownloadStatus("idle");
+            }
+          }}
+          aria-label="Download wallpaper for the selected device"
+          className="focus-ring inline-flex items-center gap-2 rounded-[2px] bg-gradient-to-b from-white to-[#e6e6e6] px-3.5 py-2 font-sans text-[11px] font-medium uppercase tracking-[0.14em] text-[#171717] shadow-[inset_0_1px_0_rgba(255,255,255,0.95),inset_0_-1px_0_rgba(0,0,0,0.18),0_1px_0_rgba(255,255,255,0.05),0_4px_10px_rgba(0,0,0,0.55),0_0_0_1px_rgba(0,0,0,0.4)] transition-[background,transform,opacity] duration-150 hover:from-white hover:to-white active:translate-y-[0.5px] disabled:cursor-wait disabled:opacity-80"
+        >
+          {downloadStatus === "downloading" ? (
+            <>
+              <span
+                aria-hidden
+                className="inline-block size-3 animate-spin rounded-full border-2 border-[#171717] border-t-transparent"
+              />
+              Generating
+            </>
+          ) : downloadStatus === "saved" ? (
+            <>✓ Saved</>
+          ) : (
+            <>
+              <Download className="size-3.5" aria-hidden />
+              Download
+            </>
+          )}
+        </button>
       </div>
 
       {/* Customize — Fase 3 lo cablea al Popover */}
