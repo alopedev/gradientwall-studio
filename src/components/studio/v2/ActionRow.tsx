@@ -1,9 +1,10 @@
-import { Download, Heart, RotateCcw, Settings2 } from "lucide-react";
+import { Download, Heart, RotateCcw } from "lucide-react";
 import { m } from "motion/react";
 import { useEffect, useState } from "react";
 import { downloadWallpaper } from "@/lib/download";
 import { EASE } from "@/lib/motion";
 import { useConfigStore, useRenderParams } from "@/store";
+import { CustomizePopover, CustomizeTriggerButton } from "./CustomizePopover";
 import { DevicePicker } from "./DevicePicker";
 
 /**
@@ -143,17 +144,8 @@ export function ActionRow() {
         </button>
       </div>
 
-      {/* Customize — Fase 3 lo cablea al Popover */}
-      <button
-        type="button"
-        disabled
-        title="Customize style, colors, light, density (coming in Phase 3)"
-        aria-label="Customize — coming soon"
-        className="inline-flex items-center gap-1.5 rounded-[2px] border border-white/10 bg-white/4 px-3 py-2 font-sans text-[11px] uppercase tracking-[0.14em] text-white/40 transition-colors disabled:cursor-not-allowed"
-      >
-        <Settings2 className="size-3.5" aria-hidden />
-        Customize
-      </button>
+      {/* Customize — bandeja de potencia (Fase 3). */}
+      <CustomizePopover trigger={<CustomizeTriggerButton />} />
     </div>
   );
 }
