@@ -164,13 +164,7 @@ export function PackPage() {
                   <button
                     type="button"
                     disabled={!buyEnabled || checkoutLoading}
-                    title={
-                      eligibility.kind === "buyable"
-                        ? "Open checkout"
-                        : eligibility.kind === "missing-variant"
-                          ? "Checkout coming soon for this pack"
-                          : "Checkout configuration pending"
-                    }
+                    title={buyEnabled ? "Open checkout" : "Checkout coming soon"}
                     onClick={async () => {
                       if (eligibility.kind !== "buyable") return;
                       setCheckoutLoading(true);
@@ -190,14 +184,9 @@ export function PackPage() {
                     {checkoutLoading ? "Loading…" : `↓ Buy €${pack.priceEur.toFixed(2)}`}
                   </button>
                 </MagneticButton>
-                {eligibility.kind === "missing-variant" && (
+                {!buyEnabled && (
                   <span className="font-sans text-[11px] tracking-[0.14em] uppercase text-white/40">
                     Checkout coming soon
-                  </span>
-                )}
-                {eligibility.kind === "checkout-not-configured" && (
-                  <span className="font-sans text-[11px] tracking-[0.14em] uppercase text-white/40">
-                    Checkout configuration pending
                   </span>
                 )}
               </div>

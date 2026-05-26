@@ -32,17 +32,17 @@ export function PacksSection() {
             03 — Curated packs
           </span>
           <h2 className="display-head text-[clamp(40px,5.5vw,76px)]">
-            <SplitWords text="Ten wallpapers," className="block text-white" />
+            <SplitWords text="Curated drops." className="block text-white" />
             <SplitWords
-              text="one quiet mood."
+              text="Made to last."
               className="block text-white/75 font-serif italic"
               delayChildren={0.2}
             />
           </h2>
         </div>
         <p className="max-w-[42ch] text-[15px] text-white/75 font-sans font-light">
-          Curated drops of ten wallpapers each, in maximum resolution. Personal use, no watermarks,
-          no account. Pay once, download forever.
+          Ten wallpapers per pack, at maximum resolution. Personal use, no watermarks, no account.
+          Pay once, download forever.
         </p>
       </Reveal>
 

@@ -1,10 +1,9 @@
 import { Reveal } from "./ui/Reveal";
-import { Stagger } from "./ui/Stagger";
 
 export function Footer() {
   return (
-    <footer className="mx-auto max-w-[1600px] px-[clamp(24px,5vw,80px)] pt-20 pb-10 border-t border-white/8 grid grid-cols-2 md:grid-cols-4 gap-10">
-      <Reveal className="col-span-2 md:col-span-1">
+    <footer className="mx-auto max-w-[1600px] px-[clamp(24px,5vw,80px)] pt-20 pb-10 border-t border-white/8 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-10">
+      <Reveal>
         <div className="max-w-[18ch] leading-[0.98] tracking-[-0.03em] text-[clamp(28px,3.5vw,44px)]">
           <span className="block font-sans font-bold uppercase text-white">Small tools for</span>
           <span className="block font-sans font-bold uppercase text-white/80 mt-1">
@@ -16,37 +15,20 @@ export function Footer() {
         </div>
       </Reveal>
 
-      <Stagger step={0.08} baseDelay={0.1}>
+      <Reveal delay={0.1}>
         <FooterCol
-          title="Studio"
+          title="Get started"
           links={[
-            { label: "Create", href: "#studio" },
-            { label: "Gallery", href: "#gallery" },
-            { label: "Premium palettes", href: "#" },
-            { label: "Changelog", href: "#" },
+            { label: "Studio", href: "/#studio" },
+            { label: "Packs", href: "/#packs" },
+            { label: "Recover download", href: "/recover" },
           ]}
         />
-        <FooterCol
-          title="About"
-          links={[
-            { label: "Manifesto", href: "#" },
-            { label: "Journal", href: "#" },
-            { label: "Contact", href: "#" },
-          ]}
-        />
-        <FooterCol
-          title="Elsewhere"
-          links={[
-            { label: "Instagram", href: "#" },
-            { label: "Are.na", href: "#" },
-            { label: "RSS", href: "#" },
-          ]}
-        />
-      </Stagger>
+      </Reveal>
 
-      <Reveal delay={0.4} className="col-span-2 md:col-span-4 pt-10 mt-5 border-t border-white/8">
-        <div className="flex justify-between font-sans text-[11px] tracking-[0.14em] uppercase text-white/40">
-          <span>© 2026 GradientWall Studio</span>
+      <Reveal delay={0.2} className="md:col-span-2 pt-10 mt-5 border-t border-white/8">
+        <div className="flex flex-wrap justify-between gap-4 font-sans text-[11px] tracking-[0.14em] uppercase text-white/40">
+          <span>© 2026 GradientWall</span>
           <span>Terms · Privacy · Cookies</span>
         </div>
       </Reveal>

@@ -7,7 +7,7 @@ const ITEMS = [
   "Four colors",
   "Zero limits",
   "Mobile · Desktop · Tablet",
-  "Made in ∞ hours",
+  "Free studio · paid packs",
 ];
 
 /**

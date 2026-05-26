@@ -59,7 +59,7 @@ export function Hero() {
         <span className="text-[color:var(--color-ink)]">{formatHHMM(now)}</span>
       </Stamp>
       <Stamp className="bottom-[clamp(40px,8vh,96px)] left-[clamp(24px,7vw,120px)] z-[3]">
-        <span>∞ Gradients · 0 presets</span>
+        <span>Wallpaper studio · 4.99€ packs</span>
       </Stamp>
 
       <MagneticButton className="absolute z-[3] bottom-[clamp(40px,8vh,96px)] right-[clamp(24px,7vw,120px)]">
