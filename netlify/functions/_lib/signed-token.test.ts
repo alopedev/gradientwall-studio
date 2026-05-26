@@ -22,9 +22,12 @@ describe("signed-token", () => {
 
   it("rejects a token whose signature has been tampered", async () => {
     const token = await issueDownloadToken({ payload: PAYLOAD, ttlSeconds: 60, secret: SECRET });
-    // Flip the last char of the signature segment.
+    // Reverse the entire signature segment. Flipping a single base64url char
+    // is flaky because the trailing 2 bits of the final char are don't-care
+    // for 256-bit HMACs — some flips decode to the same bytes. Reversing
+    // guarantees a different signature.
     const parts = token.split(".");
-    parts[2] = parts[2].slice(0, -1) + (parts[2].slice(-1) === "a" ? "b" : "a");
+    parts[2] = parts[2].split("").reverse().join("");
     const result = await verifyDownloadToken(parts.join("."), SECRET);
     expect(result.ok).toBe(false);
   });

@@ -6,16 +6,14 @@ import { mulberry32 } from "./spec";
 /**
  * `generateSurprise` — núcleo del modelo "surprise-first" de Studio v2.
  *
- * Devuelve un `GradientConfig` completo (paleta armónica + style + seed +
- * light + density) listo para que `useConfigStore.applySurprise` lo aplique
+ * Devuelve un `GradientConfig` completo (paleta armónica + seed + light +
+ * density) listo para que `useConfigStore.applySurprise` lo aplique
  * atómicamente. Cada llamada produce un wallpaper distinto al anterior
  * (excluye el seed previo).
  *
- * **Style weighted**:
- * - liquid 35% — el más versátil y "calmo".
- * - mesh 30%   — el clásico, alta variedad.
- * - aurora 25% — dramático, light angle muy expresivo.
- * - nebula 10% — caro (WebGL); usado con moderación para no machacar batería.
+ * **Style**: hardcoded a `"liquid"`. El picker de estilo se eliminó del
+ * CustomizePanel en el rediseño (commit 3dda9c5). El motor sigue soportando
+ * los 4 styles para favoritos guardados antes del cambio.
  *
  * **lightAngle 30–330** evita los extremos (0° y 360° son visualmente iguales
  * y los muy cercanos a 0/180 generan composiciones aplastadas).
@@ -46,32 +44,6 @@ export const SURPRISE_LIGHT_MAX = 330;
 export const SURPRISE_DENSITY_MIN = 0.35;
 export const SURPRISE_DENSITY_MAX = 0.85;
 
-interface StyleWeight {
-  style: Style;
-  weight: number;
-}
-
-const STYLE_WEIGHTS: readonly StyleWeight[] = [
-  { style: "liquid", weight: 0.35 },
-  { style: "mesh", weight: 0.3 },
-  { style: "aurora", weight: 0.25 },
-  { style: "nebula", weight: 0.1 },
-];
-
-/**
- * Sampleo weighted de style. Acumula los pesos y busca dónde cae `r`.
- */
-export function pickWeightedStyle(rng: () => number = Math.random): Style {
-  const r = rng();
-  let acc = 0;
-  for (const { style, weight } of STYLE_WEIGHTS) {
-    acc += weight;
-    if (r < acc) return style;
-  }
-  // Fallback por rounding — el último (nebula) si llegamos al final.
-  return STYLE_WEIGHTS[STYLE_WEIGHTS.length - 1].style;
-}
-
 const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
 
 /**
@@ -93,8 +65,6 @@ export function generateSurprise(
   // Studio v2 (rediseño): style hardcoded a "liquid". El picker de estilo se
   // eliminó del CustomizePanel; los favoritos guardados antes del cambio
   // conservan su style original porque el motor sigue soportando los 4.
-  // `pickWeightedStyle` sigue exportada y testeada por si callers externos
-  // (snapshot tests, gallery legacy) la necesitan.
   const style: Style = "liquid";
   const blur = Math.round(lerp(SURPRISE_BLUR_MIN, SURPRISE_BLUR_MAX, rng()));
   const lightAngle = Math.round(lerp(SURPRISE_LIGHT_MIN, SURPRISE_LIGHT_MAX, rng()));
