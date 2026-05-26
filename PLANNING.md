@@ -12,7 +12,8 @@
 | 3 — Customize Popover | ✅ cerrada | `CustomizePopover` + `StyleThumbnail` mini-canvas (5 bloques: Style/Colors/Light/Density/Softness). Glass-modern. 4 tests nuevos. 349/349 verde. Verificado: click cambia style real, slider Density funciona, contrast/vibrance/grain ausentes. 4 commits. Refactor a inline panel (animación layout) en commit aparte. |
 | 4 — Favorites Strip | ✅ cerrada | `useFavoritesStore` persistido + migración legacy + `FavoritesStrip` con motion Reorder + `FavoriteThumbnail`. Save button cableado con heart spring. 16 tests nuevos. 367/367 verde. Verificado: pin → thumbnail aparece, click thumbnail carga config, reload persiste. 4 commits. |
 | 5 — Polish + mobile + cutover | ✅ cerrada | Glass refinement + OKLCH tokens, BorderBeam conic, heart-burst particles, kinetic typography hero, scroll-driven reveals nativos CSS, mobile responsive stacked, cutover de v1 (eliminadas 7 componentes + tests + useHistoryStore). Bundle delta main +60K (esperado por v2 más rica). 330/330 verde. 6 commits. |
-| 6 — Lint debt cleanup | ⚪ pendiente | Resolver violations heredadas (warns en Fase 0). Inventario en `TASKS.md`. Algunas se eliminaron solas con el cutover de v1. |
+| 5b — Rediseño CustomizePanel | ✅ cerrada | Reemplazo de Swatches+ColorHUD por `HarmonicWheel` circular (4 bullets armónicos + anillo de luz absorbiendo `lightAngle`). `PaletteCards` con hover-expand sustituyen la chip list. Style picker eliminado (style hardcoded a "liquid"). Density slider eliminado (no producía cambio en Canvas2D). Grain expuesto como slider. 33 tests nuevos. 362/362 verde. Snapshots motor intactos. Dead code post-rediseño limpiado en commit `6ad28c0` (-910 LOC, -31 tests, CSS -5 KB). |
+| 6 — Lint debt cleanup | 🚧 en curso | Resolver violations heredadas (warns en Fase 0). Inventario inicial en `TASKS.md`. Muchas violations vivían en componentes eliminados — re-inventariar antes de atacar. |
 
 Branch base: `studio/redesign-v2` desde `studio/mordible-pass` (no desde `main`, porque mordible-pass tiene los últimos refactors del Studio v1 que sirven de baseline visual).
 
@@ -85,22 +86,29 @@ Sin tocar `spec.ts`, `canvas2d.ts`, `compose.ts`, `mulberry32` ni `palettes.ts:a
 ## Controles que sobreviven, mueren o cambian
 
 **Sobreviven** (migran de contenedor):
-- `Swatches`, `ColorHUD`, `useColorEditing`, `Palettes`, `LightDial`, `ImageSource`, `UseMyPhotoButton`.
+- `useColorEditing`, `ImageSource`, `UseMyPhotoButton`.
 
-**Eliminados** (Fase 5):
+**Eliminados Fase 5 (cutover de v1)**:
 - `RightRail.tsx`, `BottomBar.tsx`, `SurpriseMeHero.tsx` actual, `HistoryDrawer.tsx`, `StudioHints.tsx`, `SeedBadge.tsx`.
+
+**Eliminados en el rediseño del CustomizePanel (commit `3dda9c5` + cleanup `6ad28c0`)**:
+- `Swatches.tsx` + `ColorHUD.tsx` → reemplazados por `HarmonicWheel` (un wheel circular con 4 bullets armónicamente sincronizados).
+- `Palettes.tsx` chip list → reemplazado por `PaletteCards` (4 paletas featured con hover-expand).
+- `LightDial.tsx` standalone → absorbido por el anillo perimetral exterior del `HarmonicWheel`.
+- `PillTabs.tsx` → no se usaba ya en v2.
+- `StyleThumbnail.tsx` → ver style picker más abajo.
 
 **Eliminados de la UI** (valores fijados a defaults curados):
 - Slider de **contrast** (default `1.0`).
 - Slider de **vibrance** (default `1.05`).
-- Slider de **grain** (default `32`).
+- **Style picker**: style hardcoded a `"liquid"` en `generateSurprise`. El motor sigue soportando mesh/aurora/nebula para favoritos guardados antes del cambio.
+- **Density slider**: no producía cambio visual en Canvas2D (solo afectaba a Nebula WebGL).
 - **Seed badge** visible (el usuario ya no piensa en seeds).
 - **StudioHints** one-shot (UI autoexplicativa).
 
-**Renombrados** en Customize:
+**Renombrados / añadidos**:
 - `Blur` → `Softness`.
-- `Density` se mantiene.
-- Style mesh/liquid/aurora/nebula se mantienen como nombres internos pero se eligen visualmente con 4 thumbnails grandes.
+- `Grain` (antes congelado a `32` en defaults curados) ahora **expuesto como slider** en el footer del CustomizePanel.
 
 ---
 

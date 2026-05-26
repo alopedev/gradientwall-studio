@@ -65,8 +65,8 @@ useEffect(() => { paintWallpaper(canvasRef.current!, { colors, ... }); }, [color
 
 Component layout:
 - `Nav.tsx`, `Hero.tsx`, `Marquee.tsx`, `Footer.tsx` — the editorial chrome.
-- `studio/v2/` (Fase 5 cutover) — el Studio activo: `StudioShell` (orquestador), `SurpriseCTA` (hero magnético con BorderBeam conic en fresh-state), `ActionRow` (Save/Remix/Download+DevicePicker/Customize), `CustomizePanel` (inline lateral con Style picker + Swatches + LightDial + Density + Softness), `FavoritesStrip` + `FavoriteThumbnail` (galería persistente con motion Reorder + scroll-driven reveal CSS nativo), `StyleThumbnail` (mini canvas per style), `DevicePicker`.
-- `studio/` (hojas reutilizadas por v2) — `Preview` (canvas con prop `framed`), `Swatches`, `ColorHUD`, `useColorEditing`, `Palettes`, `LightDial`, `PillTabs`, `ImageSource`, `UseMyPhotoButton`.
+- `studio/v2/` (Fase 5 cutover) — el Studio activo: `StudioShell` (orquestador), `SurpriseCTA` (ShimmerButton magnético + spin-around conic en fresh-state), `ActionRow` (Save/Remix/Download+DevicePicker/Customize), `CustomizePanel` (inline lateral 420 px con `HarmonicWheel` circular + `PaletteCards` + Softness + Grain), `FavoritesStrip` + `FavoriteThumbnail` (galería persistente con motion Reorder + scroll-driven reveal CSS nativo), `DevicePicker`.
+- `studio/` (hojas reutilizadas por v2) — `Preview` (canvas con prop `framed`), `HarmonicWheel` (color picker armónico + anillo de luz), `PaletteCards` (4 paletas featured con hover-expand), `useColorEditing` (subset eyedropper para HarmonicWheel), `ImageSource`, `UseMyPhotoButton`.
 - `packs/` — store components: `PacksSection` (home), `PackCard`, `PackFilters`, `PackPage` (route `/packs/:slug`), `PackPurchaseSuccess` (route `/packs/:slug/success`), `PackCover` (renders gradient-kind via `paintWallpaper`, image-kind via `<img>`).
 - `RecoverForm.tsx` — route `/recover`; POSTs `{email, orderId}` to the recover-link Function.
 - `ui/` — design-system primitives: `Framed`, `Reveal`, `Stagger`, `GrainOverlay`, `MagneticButton`.
@@ -167,11 +167,16 @@ El Studio v2 es ahora el único Studio (cutover Fase 5 completado). Mini-framewo
 
 **Arquitectura de componentes en `src/components/studio/v2/`**:
 - `StudioShell` — orquestador layout. Maneja `customizeOpen` state. Anima canvas/panel con motion `layout` (desktop side-by-side, mobile stacked).
-- `SurpriseCTA` — hero magnético + BorderBeam conic en fresh-state + bind Space.
+- `SurpriseCTA` — `ShimmerButton` magnético (shimmer-slide + spin-around conic incorporados) + bind Space.
 - `ActionRow` — Save (heart-burst particles) · Remix (R) · Download+DevicePicker · Customize (toggle inline panel).
-- `CustomizePanel` — Style picker (4 thumbnails) + Colors + Light + Density + Softness. Glass-modern.
+- `CustomizePanel` — panel inline 420 px con `HarmonicWheel` (colores + luz absorbida en el anillo perimetral) + `PaletteCards` + sliders de Softness y Grain. Glass-modern. Sin Style picker ni Density slider.
 - `FavoritesStrip` + `FavoriteThumbnail` — galería persistente, motion Reorder, scroll-driven CSS reveal.
-- `StyleThumbnail`, `DevicePicker` — primitivos.
+- `DevicePicker` — primitivo (iPhone / iPad / Desktop).
+
+Hojas reutilizadas en `src/components/studio/`:
+- `HarmonicWheel` (500 LOC) — Arc-like color picker circular con 4 bullets (focal + 3 satélites) sincronizados por `computeHarmonicColors`. Anillo concéntrico exterior con handle dorado absorbe `lightAngle`. Eyedropper Pipette + ColorSelector dots para cambiar slot focal.
+- `PaletteCards` — 4 paletas featured (Dusk / Tokyo / Forest / Mocha) en stack vertical estilo ravikatiyar hover-expand.
+- `Preview`, `ImageSource`, `UseMyPhotoButton`, `useColorEditing` — primitivos compartidos.
 
 **Stores**:
 - `useConfigStore` — `applySurprise()`, `applyRemix()`, setters atómicos.
@@ -180,12 +185,13 @@ El Studio v2 es ahora el único Studio (cutover Fase 5 completado). Mini-framewo
 **Motor de generación (capa nueva, Fase 1)** en `src/lib/gradient/`:
 - `curated-seeds.ts` — 80 seeds aprobados. `pickCuratedSeed(rng?)`, `pickCuratedSeedExcluding(prev, rng?)`.
 - `palette-constraints.ts` — `randomHarmonicColors(rng)` con 4 esquemas armónicos + constraints HSL.
-- `surprise.ts` — `generateSurprise(prevSeed?)` style weighted (liquid 35 / mesh 30 / aurora 25 / nebula 10).
+- `surprise.ts` — `generateSurprise(prevSeed?)`. Style hardcoded a `"liquid"` tras el rediseño del CustomizePanel; el motor sigue soportando los 4 styles para favoritos guardados antes del cambio.
 - `remix.ts` — `generateRemix(current)` paleta intacta, varía seed/light/density.
+- `harmonic-edit.ts` — capa pura (sin React) para el `HarmonicWheel`: spread angular, derivación de 4 colores armónicos desde `(anchorHue, anchorLight, spread, focalSlot)`, inversión (`inferAnchor`) para reposicionar el wheel cuando una palette card sobrescribe colores.
 
 **Intocables** (matemática firmada, snapshots blindan): `src/lib/gradient/spec.ts`, `canvas2d.ts`, `compose.ts`, `mulberry32`, `palettes.ts:activeColors`. Si un snapshot del motor falla tras un cambio, **revertir, no regenerar**.
 
-**Controles eliminados** (decisión consciente): sliders de contrast/vibrance/grain (defaults curados en motor), SeedBadge visible, StudioHints one-shot.
+**Controles eliminados** (decisión consciente): sliders de contrast/vibrance (defaults curados en motor), Style picker (style siempre `liquid`), Density slider (no producía cambio visual en Canvas2D), SeedBadge visible, StudioHints one-shot, Swatches grid + ColorHUD popover (reemplazados por HarmonicWheel), Palettes chip list (reemplazado por PaletteCards), LightDial standalone (absorbido por el anillo del HarmonicWheel). Grain sí se expone (slider en el footer del panel).
 
 **Tendencias 2026 aplicadas (Fase 5)**:
 - Liquid glass refinement: backdrop-filter `blur+saturate+brightness`, double-inset highlight, gradient background, `contain: paint`.

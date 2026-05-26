@@ -1,17 +1,27 @@
 # Studio v2 — surprise-first shell
 
-Componentes del rediseño del Studio. Vive en paralelo a `src/components/studio/` (v1) detrás de feature flag `?v2=1` durante Fases 1–4. En Fase 5 (cutover) v1 se elimina y estos componentes se convierten en el Studio único.
-
-Contrato esperado (al cerrar el rediseño):
+Componentes del Studio activo. Tras el cutover de Fase 5 (commit `604b7f2`) v1 se eliminó y estos son el Studio único.
 
 | Componente | Responsabilidad |
 |---|---|
-| `StudioShell.tsx` | Orquestador layout. Monta `<Preview>` tal cual (de v1) sin tocar gestos. |
-| `SurpriseCTA.tsx` | CTA hero magnética + BorderBeam fresh-state. Bind global Space. |
-| `ActionRow.tsx` | Save · Remix · Download (con DevicePicker integrado) · Customize. |
-| `DevicePicker.tsx` | DropdownMenu Radix con iPhone / iPad / Desktop. |
-| `CustomizePopover.tsx` | Bandeja con Style picker (thumbnails) + Swatches + LightDial + Density + Softness. |
-| `FavoritesStrip.tsx` | Tira persistente abajo, `motion.Reorder`, thumbnails 64×112. |
+| `StudioShell.tsx` | Orquestador layout. Maneja `customizeOpen` y monta `<Preview>` (de `studio/`) tal cual sin tocar gestos. |
+| `SurpriseCTA.tsx` | `ShimmerButton` magnético (shimmer-slide + spin-around conic incorporados). Bind global `Space`. |
+| `ActionRow.tsx` | Save · Remix · Download (con `DevicePicker` integrado) · Customize. Bind global `R` para Remix. |
+| `DevicePicker.tsx` | Popover Radix con iPhone / iPad / Desktop + labels de resolución. |
+| `CustomizePanel.tsx` | Panel inline lateral (420 px desktop, stacked en mobile). Contiene `HarmonicWheel` + `PaletteCards` + sliders Softness y Grain. |
+| `FavoritesStrip.tsx` + `FavoriteThumbnail.tsx` | Tira persistente abajo, `motion.Reorder`, thumbnails 64×112, scroll-snap en mobile. |
 
-Plan completo en `~/.claude/plans/vamos-a-afrontar-el-polymorphic-fiddle.md`.
-Decisiones vivas en `/PLANNING.md` y `/TASKS.md`.
+Hojas que viven en `studio/` (no en `v2/`) y consume el panel:
+
+| Componente | Responsabilidad |
+|---|---|
+| `HarmonicWheel.tsx` | Arc-like color picker circular con 4 bullets sincronizados + anillo de luz exterior. Edita los 4 slots a la vez vía `computeHarmonicColors`. |
+| `PaletteCards.tsx` | 4 paletas featured (Dusk / Tokyo / Forest / Mocha) con hover-expand reveal hex. |
+| `UseMyPhotoButton.tsx` | Popover con `ImageSource` para extraer paleta de una foto subida. |
+| `Preview.tsx` | Canvas + gestos (Alt+scroll, drag-drop). |
+| `useColorEditing.ts` | Hook compartido (eyedropper) usado por `HarmonicWheel`. |
+
+Documentos de proceso:
+- `/PRD.md` — tesis del rediseño.
+- `/PLANNING.md` — estado vivo por fase.
+- `/TASKS.md` — checklist granular + Fase 6 (lint debt).
