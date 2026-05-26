@@ -149,7 +149,7 @@ export function Preview({ framed = true }: PreviewProps = {}) {
     e.preventDefault();
     setDragActive(false);
     const file = e.dataTransfer.files?.[0];
-    if (!file || !file.type.startsWith("image/")) return;
+    if (!file?.type.startsWith("image/")) return;
     try {
       const colors = await extractColorsFromFile(file);
       setColors(colors);

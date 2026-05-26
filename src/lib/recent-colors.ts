@@ -13,7 +13,7 @@ export const RECENT_COLORS_CAP = 12;
 
 /** Canonicalize a hex string to `#RRGGBB` (uppercase, hash-prefixed). */
 export function normalizeHex(hex: string): string {
-  return "#" + hex.trim().replace(/^#/, "").toUpperCase();
+  return `#${hex.trim().replace(/^#/, "").toUpperCase()}`;
 }
 
 /**

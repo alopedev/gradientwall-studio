@@ -51,7 +51,9 @@ export function SurpriseCTA() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // `trigger` is recreated on every render but only closes over the stable
+    // store action; re-subscribing per render would thrash the listener.
+    // biome-ignore lint/correctness/useExhaustiveDependencies: applySurprise is the stable dep
   }, [applySurprise]);
 
   return (

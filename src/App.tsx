@@ -90,6 +90,10 @@ function RoutesShell() {
 function ScrollToTop() {
   const { pathname, hash } = useLocation();
   const lenis = useLenis();
+  // `pathname` is intentionally a dep even though it's not read inside the
+  // callback: the whole point is to re-run on every route change. Without it
+  // the effect only fires when `hash` changes.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: pathname is the trigger
   useLayoutEffect(() => {
     if (hash) return;
     if (lenis) {

@@ -96,9 +96,9 @@ describe("applyGrainOverlay", () => {
 
     const ops = canvas._ops;
     // Must include overlay setup before fill, and reset after
-    const idxAlpha = ops.findIndex((o) => o === "globalAlpha=0.425");
-    const idxCompOverlay = ops.findIndex((o) => o === "globalCompositeOperation=overlay");
-    const idxFillRect = ops.findIndex((o) => o === "fillRect(0,0,100,50)");
+    const idxAlpha = ops.indexOf("globalAlpha=0.425");
+    const idxCompOverlay = ops.indexOf("globalCompositeOperation=overlay");
+    const idxFillRect = ops.indexOf("fillRect(0,0,100,50)");
     const idxAlphaReset = ops.lastIndexOf("globalAlpha=1");
     const idxCompReset = ops.lastIndexOf("globalCompositeOperation=source-over");
 
@@ -157,7 +157,7 @@ describe("paintWallpaper", () => {
       canvasFactory,
     );
     const lastBlur = canvas._ops.findIndex((o) => o.startsWith("filter=blur"));
-    const overlayOp = canvas._ops.findIndex((o) => o === "globalCompositeOperation=overlay");
+    const overlayOp = canvas._ops.indexOf("globalCompositeOperation=overlay");
     expect(lastBlur).toBeGreaterThanOrEqual(0);
     expect(overlayOp).toBeGreaterThan(lastBlur);
   });
@@ -218,7 +218,7 @@ describe("composeWallpaper", () => {
 
     // Gradient step uses `filter=blur(...)`, grain step uses `globalCompositeOperation=overlay`
     const lastBlur = canvas._ops.findIndex((o) => o.startsWith("filter=blur"));
-    const overlayOp = canvas._ops.findIndex((o) => o === "globalCompositeOperation=overlay");
+    const overlayOp = canvas._ops.indexOf("globalCompositeOperation=overlay");
     expect(lastBlur).toBeGreaterThanOrEqual(0);
     expect(overlayOp).toBeGreaterThan(lastBlur);
   });

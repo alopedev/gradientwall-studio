@@ -147,7 +147,7 @@ describe("buildGradientSpec — structural invariants", () => {
     spec.layers.forEach((l) => {
       if (l.fill.kind !== "radial") return;
       const [start, end] = l.fill.stops;
-      expect(end.color).toBe(start.color + "00");
+      expect(end.color).toBe(`${start.color}00`);
     });
   });
 

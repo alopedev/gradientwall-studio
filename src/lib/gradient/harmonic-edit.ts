@@ -70,7 +70,7 @@ export interface Point2D {
 
 export function spreadFromRadius(rNormalized: number): number {
   const r = Math.max(0, Math.min(1, rNormalized));
-  return (MIN_SPREAD + (MAX_SPREAD - MIN_SPREAD) * Math.pow(r, 3)) * SPREAD_FACTOR;
+  return (MIN_SPREAD + (MAX_SPREAD - MIN_SPREAD) * r ** 3) * SPREAD_FACTOR;
 }
 
 export function clampLight(l: number): number {

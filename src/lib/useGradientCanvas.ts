@@ -1,5 +1,5 @@
 import { useEffect, useRef, type DependencyList, type RefObject } from "react";
-import { type RenderOpts } from "./gradient";
+import type { RenderOpts } from "./gradient";
 import { paintWallpaper, paintWallpaperPreview, gradingCssFilter } from "./download/compose";
 import type { RenderParams } from "./palettes";
 
@@ -162,7 +162,10 @@ export function useFittedGradientCanvas(
       ro.disconnect();
       schedulerRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Setup effect: mounts the ResizeObserver and rAF scheduler once.
+    // The container ref's `.current` isn't reactive, and the params-change
+    // effect below handles updates by nudging the scheduler.
+    // biome-ignore lint/correctness/useExhaustiveDependencies: setup-once by design
   }, []);
 
   // Params-change effect — cheap. Just nudges the scheduler; the setup effect

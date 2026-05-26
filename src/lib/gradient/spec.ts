@@ -9,7 +9,7 @@ export type { ColorRamp } from "../palettes";
  * Seeded PRNG — mulberry32. Ported 1:1 from the original prototype.
  */
 export function mulberry32(a: number): () => number {
-  return function () {
+  return () => {
     let t = (a += 0x6d2b79f5);
     t = Math.imul(t ^ (t >>> 15), t | 1);
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
@@ -18,7 +18,7 @@ export function mulberry32(a: number): () => number {
 }
 
 export function seedToHex(s: number): string {
-  return "#" + (s & 0xffff).toString(16).toUpperCase().padStart(4, "0");
+  return `#${(s & 0xffff).toString(16).toUpperCase().padStart(4, "0")}`;
 }
 
 export function hslToHex(h: number, s: number, l: number): string {
@@ -32,7 +32,7 @@ export function hslToHex(h: number, s: number, l: number): string {
       .toString(16)
       .padStart(2, "0");
   };
-  return "#" + f(0) + f(8) + f(4);
+  return `#${f(0)}${f(8)}${f(4)}`;
 }
 
 /**
@@ -188,7 +188,7 @@ export function buildGradientSpec(opts: SpecOpts): GradientSpec {
           r,
           stops: [
             { offset: 0, color: c },
-            { offset: 1, color: c + "00" },
+            { offset: 1, color: `${c}00` },
           ],
         },
       });
@@ -223,8 +223,8 @@ export function buildGradientSpec(opts: SpecOpts): GradientSpec {
             // Slight transparency (aa) gives overlapping bands a "blending"
             // feel without the harder edge of full-alpha mesh layers.
             stops: [
-              { offset: 0, color: c + "aa" },
-              { offset: 1, color: c + "00" },
+              { offset: 0, color: `${c}aa` },
+              { offset: 1, color: `${c}00` },
             ],
           },
         });
@@ -238,8 +238,8 @@ export function buildGradientSpec(opts: SpecOpts): GradientSpec {
         cy: h * 1.05,
         r: w * 0.8,
         stops: [
-          { offset: 0, color: colors[colors.length - 1] + "55" },
-          { offset: 1, color: colors[colors.length - 1] + "00" },
+          { offset: 0, color: `${colors[colors.length - 1]}55` },
+          { offset: 1, color: `${colors[colors.length - 1]}00` },
         ],
       },
     });
@@ -260,8 +260,8 @@ export function buildGradientSpec(opts: SpecOpts): GradientSpec {
           cy,
           r,
           stops: [
-            { offset: 0, color: c + "cc" },
-            { offset: 1, color: c + "00" },
+            { offset: 0, color: `${c}cc` },
+            { offset: 1, color: `${c}00` },
           ],
         },
       });

@@ -138,7 +138,7 @@ function rgbToHex([r, g, b]: RGB): string {
     Math.max(0, Math.min(255, Math.round(n)))
       .toString(16)
       .padStart(2, "0");
-  return "#" + toHex(r) + toHex(g) + toHex(b);
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
 function sqDist(a: RGB, b: RGB): number {

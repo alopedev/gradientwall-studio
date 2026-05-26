@@ -25,7 +25,7 @@ describe("pushRecent", () => {
   it("caps at RECENT_COLORS_CAP, dropping the oldest entry", () => {
     const full = Array.from(
       { length: RECENT_COLORS_CAP },
-      (_, i) => "#" + i.toString(16).padStart(6, "0").toUpperCase(),
+      (_, i) => `#${i.toString(16).padStart(6, "0").toUpperCase()}`,
     );
     const out = pushRecent(full, "#FFFFFF");
     expect(out[0]).toBe("#FFFFFF");

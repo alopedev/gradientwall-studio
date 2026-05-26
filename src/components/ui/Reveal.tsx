@@ -10,7 +10,6 @@ const initialFor = (variant: RevealVariant, y: number) => {
       return { opacity: 0, y, filter: "blur(12px)" };
     case "mask":
       return { opacity: 0, y, clipPath: "inset(0 100% 0 0)" };
-    case "fade":
     default:
       return { opacity: 0, y };
   }
@@ -22,7 +21,6 @@ const animateFor = (variant: RevealVariant) => {
       return { opacity: 1, y: 0, filter: "blur(0px)" };
     case "mask":
       return { opacity: 1, y: 0, clipPath: "inset(0 0% 0 0)" };
-    case "fade":
     default:
       return { opacity: 1, y: 0 };
   }
