@@ -31,9 +31,9 @@ describe("kmeans", () => {
     const out = kmeans(points, 4, 10);
     expect(out).toHaveLength(4);
     // All centroids land near the single point
-    out.forEach((c) => {
+    for (const c of out) {
       expect(Math.abs(c[0] - 100)).toBeLessThan(1);
-    });
+    }
   });
 
   it("is stable under many iterations (converged clusters don't drift)", () => {
@@ -79,7 +79,7 @@ describe("extractFromPixels", () => {
     for (let i = 0; i < 10; i++) pixels.push([15 + i * 0.1, 25 + i * 0.1, 220 + i * 0.1, 255]);
     const out = extractFromPixels(buffer(pixels));
     expect(out).toHaveLength(4);
-    out.forEach((hex) => expect(hex).toMatch(/^#[0-9a-f]{6}$/));
+    for (const hex of out) expect(hex).toMatch(/^#[0-9a-f]{6}$/);
   });
 
   it("sorts output colors by BT.709 luminance ascending (darkest first)", () => {
@@ -108,7 +108,7 @@ describe("extractFromPixels", () => {
     for (let i = 0; i < 100; i++) pixels.push([0, 0, 0, 50]); // alpha 50 < 128
     const out = extractFromPixels(buffer(pixels));
     // Should have 4 near-white centroids — transparents ignored
-    out.forEach((hex) => expect(hex).toMatch(/^#f[ef][ef][ef][ef][ef]$/i));
+    for (const hex of out) expect(hex).toMatch(/^#f[ef][ef][ef][ef][ef]$/i);
   });
 
   it("keeps pixels with alpha exactly 128 (boundary inclusive at ≥128)", () => {
@@ -116,7 +116,7 @@ describe("extractFromPixels", () => {
     for (let i = 0; i < 4; i++) pixels.push([255, 0, 0, 128]); // exactly at threshold
     const out = extractFromPixels(buffer(pixels));
     expect(out).toHaveLength(4);
-    out.forEach((hex) => expect(hex).toMatch(/^#f[0-9a-f]0000$/i));
+    for (const hex of out) expect(hex).toMatch(/^#f[0-9a-f]0000$/i);
   });
 
   it("throws a clear error when all pixels are transparent", () => {
@@ -135,6 +135,6 @@ describe("extractFromPixels", () => {
     const out = extractFromPixels(buffer(pixels));
     expect(out).toHaveLength(4);
     // All centroids land on the same color (duplicated via k-means++ degeneracy handling)
-    out.forEach((hex) => expect(hex).toBe("#7850c8"));
+    for (const hex of out) expect(hex).toBe("#7850c8");
   });
 });

@@ -466,6 +466,7 @@ function ColorDots({
         const toggleDisabled = isActive && activeCount <= MIN_ACTIVE_COLORS;
         return (
           <div key={slot} className="flex flex-col items-center gap-1">
+            {/* biome-ignore lint/a11y/useSemanticElements: custom-styled color swatch — native radio cannot render the swatch fill */}
             <button
               type="button"
               role="radio"

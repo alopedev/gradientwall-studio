@@ -27,7 +27,7 @@ function Track() {
       {ITEMS.map((t, i) => {
         const accentDot = i % 3 === 2;
         return (
-          <span key={i} className="inline-flex items-center gap-14">
+          <span key={t} className="inline-flex items-center gap-14">
             <span className="inline-block transition-[transform,color,text-shadow] duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.04] hover:text-white hover:[text-shadow:0_0_18px_rgba(255,59,48,0.35)]">
               {t}
             </span>

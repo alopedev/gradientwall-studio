@@ -36,7 +36,7 @@ export function Stagger({
     <>
       {items.map((child, i) => (
         <Reveal
-          key={i}
+          key={child.key ?? i}
           delay={delays[i]}
           y={y}
           amount={amount}

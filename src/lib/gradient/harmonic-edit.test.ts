@@ -57,18 +57,18 @@ describe("slotHues — distribución angular de los 4 slots", () => {
     const hues = slotHues(state);
     const offsetsRad = [-1.5, -0.5, 0.5, 1.5];
     const offsetsDeg = offsetsRad.map((m) => (m * spread * 180) / Math.PI);
-    hues.forEach((h, i) => {
+    for (const [i, h] of hues.entries()) {
       expect(h).toBeCloseTo((180 + offsetsDeg[i] + 360) % 360, 3);
-    });
+    }
   });
 
   it("wrap-around 360°: anchor=10°, spread grande → algunos hues < 0 antes de modular", () => {
     const state: WheelState = { anchorHue: 10, anchorLight: 50, spread: 1, focalSlot: 0 };
     const hues = slotHues(state);
-    hues.forEach((h) => {
+    for (const h of hues) {
       expect(h).toBeGreaterThanOrEqual(0);
       expect(h).toBeLessThan(360);
-    });
+    }
   });
 });
 
@@ -77,7 +77,7 @@ describe("computeHarmonicColors", () => {
     const state: WheelState = { anchorHue: 200, anchorLight: 50, spread: 0.4, focalSlot: 0 };
     const colors = computeHarmonicColors(state);
     expect(colors).toHaveLength(4);
-    colors.forEach((c) => expect(c).toMatch(/^#[0-9a-f]{6}$/i));
+    for (const c of colors) expect(c).toMatch(/^#[0-9a-f]{6}$/i);
   });
 
   it("aplica LIGHT_OFFSETS por slot (jerarquía deep→light clampada)", () => {
@@ -108,7 +108,7 @@ describe("computeHarmonicColors", () => {
 
 describe("inferAnchor — round-trip aproximado para las 10 PALETTES", () => {
   it("devuelve un WheelState válido para cada paleta curada", () => {
-    PALETTES.forEach((p) => {
+    for (const p of PALETTES) {
       const state = inferAnchor(p.colors);
       expect(state.anchorHue).toBeGreaterThanOrEqual(0);
       expect(state.anchorHue).toBeLessThan(360);
@@ -116,7 +116,7 @@ describe("inferAnchor — round-trip aproximado para las 10 PALETTES", () => {
       expect(state.anchorLight).toBeLessThanOrEqual(100);
       expect(state.spread).toBeGreaterThan(0);
       expect(state.focalSlot).toBe(0);
-    });
+    }
   });
 
   it("verifica que LIGHT_OFFSETS son simétricos alrededor de 0 (suman 0)", () => {

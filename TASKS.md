@@ -170,42 +170,44 @@ Fase ejecutada en 5 sub-bloques + cutover. Salto estético basado en tendencias 
 
 ---
 
-## Fase 6 — Lint debt cleanup (post-cutover)
+## Fase 6 — Lint debt cleanup (post-cutover) ✅
 
-> Trabajo de deuda técnica heredada de antes de añadir Biome. Durante Fase 0 estas reglas se relajaron a `warn` para que el baseline arrancase verde, **pero deben resolverse**. La razón para diferirlo: el código nuevo de v2 ya las respeta y muchas violations viven en componentes v1 que se eliminan en Fase 5 — así reducimos antes el trabajo.
+Trabajo de deuda técnica heredada de antes de añadir Biome. Fase 0 había relajado las reglas a `warn` para arrancar verde; esta fase resuelve las violations y endurece las reglas a `error`.
 
-**Cuándo**: tras el cutover de Fase 5 (cuando v1 esté borrada). Algunas violations habrán desaparecido solas; el resto se arregla en commits granulares por regla.
+**Inventario inicial** (Fase 0, commit `916e291`, 62 violations) → **0 errors, 2 warnings** restantes (warnings curados intencionalmente con justificación).
 
-**Inventario completo** (Fase 0, commit `916e291`, 62 violations en 66 ubicaciones):
+**Resolución por regla**:
 
-| Regla | Violations | Estrategia | FIXABLE auto |
-|---|---|---|---|
-| `lint/style/useTemplate` | 14 | Reemplazar concatenación por template literals | Sí (`biome check --write`) |
-| `lint/complexity/noForEach` | 11 | Convertir `forEach` a `for...of` | Manual (afecta semántica de control flow) |
-| `lint/suspicious/useIterableCallbackReturn` | 8 | Asegurar return explícito en callbacks de map/filter | Manual |
-| `lint/suspicious/noArrayIndexKey` | 7 | Cambiar `key={i}` por id estable | Manual (requiere id real) |
-| `lint/correctness/useExhaustiveDependencies` | 6 | Añadir deps faltantes a useEffect/useMemo | Manual (riesgo de bucles) |
-| `lint/complexity/useIndexOf` | 5 | Reemplazar `findIndex(x => x === y)` por `indexOf(y)` | Sí |
-| `lint/style/noParameterAssign` | 3 | Crear variable local antes de mutar parámetro | Manual |
-| `lint/suspicious/noAssignInExpressions` | 2 | Separar assignment de expression | Manual |
-| `lint/complexity/noUselessSwitchCase` | 2 | Eliminar case redundante de switch | Sí |
-| `lint/style/useImportType` | 1 | Añadir `import type` cuando solo es type | Sí |
-| `lint/style/useExponentiationOperator` | 1 | `Math.pow(x, y)` → `x ** y` | Sí |
-| `lint/complexity/useOptionalChain` | 1 | `a && a.b` → `a?.b` | Sí |
-| `lint/complexity/useArrowFunction` | 1 | Function expression → arrow function | Sí |
+| Regla | Violations | Estado |
+|---|---|---|
+| `lint/style/useTemplate` | 13 | ✅ auto-fix (`biome check --write --unsafe`) |
+| `lint/complexity/noForEach` | 15 | ✅ manual: `for...of` en tests + 1 caller real (`PageMeta.tsx`) |
+| `lint/suspicious/useIterableCallbackReturn` | 9 | ✅ manual: resuelto junto a `noForEach` |
+| `lint/suspicious/noArrayIndexKey` | 4 | ✅ manual: keys estables (Marquee→texto, PackPage→url/seed, SplitWords→`${w}-${i}`, Stagger→`child.key ?? i`) |
+| `lint/correctness/useExhaustiveDependencies` | 4 | ✅ 3 auto-fixed + 4 `biome-ignore` documentados (hook contracts + setup-once) |
+| `lint/complexity/useIndexOf` | 5 | ✅ auto-fix |
+| `lint/style/noParameterAssign` | 3 | ✅ 1 manual (`hslToHex` → vars locales) + 1 `biome-ignore` (`mulberry32` closure-mutation by design) + 1 desapareció con la simplificación de `nebula-render.ts` |
+| `lint/suspicious/noAssignInExpressions` | 2 | ✅ manual (`nebula-render.ts` separación) + `biome-ignore` en `mulberry32` |
+| `lint/complexity/noUselessSwitchCase` | 2 | ✅ auto-fix |
+| `lint/style/useImportType` | 1 | ✅ auto-fix |
+| `lint/style/useExponentiationOperator` | 2 | ✅ auto-fix |
+| `lint/complexity/useOptionalChain` | 1 | ✅ auto-fix |
+| `lint/complexity/useArrowFunction` | 1 | ✅ auto-fix |
+| `lint/a11y/useButtonType` | 4 nuevos | ✅ manual: `type="button"` añadido a PackFilters, PackPage, Preview (2×) |
+| `lint/a11y/useSemanticElements` | 1 nuevo | ✅ `biome-ignore` documentado (color swatch en `HarmonicWheel` no admite `<input type="radio">` con custom fill) |
+| `lint/a11y/noStaticElementInteractions` | 1 nuevo | ✅ `biome-ignore` documentado (`Preview.tsx` drag-drop surface, keyboard path vía `UseMyPhotoButton`) |
 
-**Plan de ataque**:
-1. Re-correr inventario tras Fase 5 (muchas violations en `RightRail`, `HistoryDrawer`, `SeedBadge` se irán solas).
-2. Aplicar fixes automáticos: `npx biome check src netlify --write --unsafe` (revisa el diff antes del commit).
-3. Para violations no automáticas, un commit por regla — más fácil de revisar.
-4. Endurecer biome.json: subir cada regla resuelta a `error`.
-5. `npm run check` debe seguir verde tras cada commit.
+**Reglas endurecidas a `error` en `biome.json`**:
+- `style.useImportType`, `style.useTemplate`, `style.noParameterAssign`
+- `suspicious.noArrayIndexKey`, `suspicious.useIterableCallbackReturn`, `suspicious.noAssignInExpressions`
+- `correctness.useExhaustiveDependencies`
+- `complexity.useOptionalChain`, `complexity.noUselessSwitchCase`, `complexity.noForEach`
+- `a11y.useButtonType`, `a11y.noStaticElementInteractions`, `a11y.useSemanticElements`
 
-**Commits objetivo** (depende del inventario final post-cutover):
-- `fix(lint): auto-fix useTemplate, useIndexOf, useExponentiationOperator, useOptionalChain, useArrowFunction, useImportType`
-- `fix(lint): manual fix noForEach in pure loops`
-- `fix(lint): give stable keys to map callbacks`
-- `fix(lint): complete useEffect dependency arrays`
-- `fix(lint): split noAssignInExpressions and noParameterAssign`
-- `fix(lint): handle useIterableCallbackReturn cases`
-- `chore(biome): promote resolved rules from warn to error`
+**Mantenidas como `warn`** (deuda pendiente, no críticas para CI):
+- `suspicious.noExplicitAny`, `a11y.noLabelWithoutControl`, `a11y.noAutofocus`, `complexity.noUselessFragments`
+
+**Verificación final**:
+- `npm run check` → 331/331 tests verde, lint `0 errors`, typecheck OK.
+- Bundle: main JS 545 KB (sin cambio), CSS 68 KB.
+- Snapshots motor (`spec.test.ts.snap`) byte-idénticos tras los cambios sintácticos.

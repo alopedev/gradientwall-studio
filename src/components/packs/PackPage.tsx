@@ -162,6 +162,7 @@ export function PackPage() {
               <div className="mt-8 flex items-center gap-3">
                 <MagneticButton>
                   <button
+                    type="button"
                     disabled={!buyEnabled || checkoutLoading}
                     title={
                       eligibility.kind === "buyable"
@@ -223,7 +224,7 @@ export function PackPage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {pack.previews.map((preview, i) => (
               <div
-                key={i}
+                key={preview.kind === "image" ? preview.url : `gradient-${preview.seed}`}
                 className="relative aspect-[3/4] rounded-[2px] overflow-hidden bg-black border border-white/8"
               >
                 <PackCover

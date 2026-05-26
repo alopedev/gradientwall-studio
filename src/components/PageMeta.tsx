@@ -81,7 +81,7 @@ export function PageMeta({
 
     return () => {
       document.title = previousTitle;
-      apply.forEach((restore) => restore());
+      for (const restore of apply) restore();
       jsonLdEl?.remove();
     };
   }, [title, description, path, ogImage, ogType, ogImageAlt, jsonLd, noindex]);

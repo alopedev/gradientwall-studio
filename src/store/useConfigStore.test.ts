@@ -61,7 +61,7 @@ describe("useConfigStore", () => {
     const s = useConfigStore.getState();
     expect(STYLES).toContain(s.style);
     expect(s.colors).toHaveLength(4);
-    s.colors.forEach((c) => expect(c).toMatch(/^#[0-9a-f]{6}$/));
+    for (const c of s.colors) expect(c).toMatch(/^#[0-9a-f]{6}$/);
   });
 
   describe("active mask", () => {

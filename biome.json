@@ -29,32 +29,32 @@
       "recommended": true,
       "style": {
         "noNonNullAssertion": "off",
-        "useImportType": "warn",
-        "useTemplate": "warn",
-        "noParameterAssign": "warn"
+        "useImportType": "error",
+        "useTemplate": "error",
+        "noParameterAssign": "error"
       },
       "suspicious": {
         "noExplicitAny": "warn",
-        "noArrayIndexKey": "warn",
-        "useIterableCallbackReturn": "warn",
-        "noAssignInExpressions": "warn"
+        "noArrayIndexKey": "error",
+        "useIterableCallbackReturn": "error",
+        "noAssignInExpressions": "error"
       },
       "correctness": {
-        "useExhaustiveDependencies": "warn"
+        "useExhaustiveDependencies": "error"
       },
       "complexity": {
-        "useOptionalChain": "warn",
-        "noUselessSwitchCase": "warn",
-        "noForEach": "warn",
+        "useOptionalChain": "error",
+        "noUselessSwitchCase": "error",
+        "noForEach": "error",
         "noUselessFragments": "warn"
       },
       "a11y": {
         "useKeyWithClickEvents": "off",
-        "useButtonType": "warn",
+        "useButtonType": "error",
         "noLabelWithoutControl": "warn",
         "noAutofocus": "warn",
-        "noStaticElementInteractions": "warn",
-        "useSemanticElements": "warn"
+        "noStaticElementInteractions": "error",
+        "useSemanticElements": "error"
       },
       "performance": {
         "noImgElement": "off"

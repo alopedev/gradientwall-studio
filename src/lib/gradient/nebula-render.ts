@@ -207,7 +207,8 @@ export function renderNebulaToCanvas(
   // targets still produce a valid offscreen buffer.
   const sw = Math.max(2, Math.round(params.w * INTERNAL_SCALE));
   const sh = Math.max(2, Math.round(params.h * INTERNAL_SCALE));
-  const small = cachedSmallCanvas ?? (cachedSmallCanvas = canvasFactory());
+  if (!cachedSmallCanvas) cachedSmallCanvas = canvasFactory();
+  const small = cachedSmallCanvas;
   small.width = sw;
   small.height = sh;
   const sctx = small.getContext("2d");

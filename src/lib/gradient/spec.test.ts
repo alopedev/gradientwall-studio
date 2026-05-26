@@ -92,7 +92,7 @@ describe("buildGradientSpec — structural invariants", () => {
   it("mesh style produces exactly colors.length radial layers", () => {
     const spec = buildGradientSpec(baseOpts({ style: "mesh" }));
     expect(spec.layers).toHaveLength(4);
-    spec.layers.forEach((l) => expect(l.fill.kind).toBe("radial"));
+    for (const l of spec.layers) expect(l.fill.kind).toBe("radial");
   });
 
   it("liquid style produces colors.length × 2 bands + 1 central highlight (4 colors → 9 layers)", () => {
@@ -115,7 +115,7 @@ describe("buildGradientSpec — structural invariants", () => {
     const spec = buildGradientSpec(baseOpts({ style: "aurora" }));
     // 4 colors × 2 bands each + 1 horizon = 9 layers
     expect(spec.layers).toHaveLength(9);
-    spec.layers.forEach((l) => expect(l.fill.kind).toBe("radial"));
+    for (const l of spec.layers) expect(l.fill.kind).toBe("radial");
   });
 
   it("aurora bands are placed off-canvas vertically (curtain fade look)", () => {
@@ -123,12 +123,12 @@ describe("buildGradientSpec — structural invariants", () => {
     // First 8 layers are the band pairs; band centers are either above (cy < 0)
     // or below (cy > h) the canvas. This is what creates the soft vertical drape.
     const bands = spec.layers.slice(0, 8);
-    bands.forEach((layer) => {
+    for (const layer of bands) {
       if (layer.fill.kind !== "radial") throw new Error("expected radial");
       const cy = layer.fill.cy;
       const offCanvas = cy < 0 || cy > 2000;
       expect(offCanvas).toBe(true);
-    });
+    }
   });
 
   it("aurora uses semi-transparent #RRGGBBaa starts (soft blending) vs mesh opaque", () => {
@@ -144,11 +144,11 @@ describe("buildGradientSpec — structural invariants", () => {
 
   it("mesh stops end in fully transparent (#RRGGBB00) variant of the base color", () => {
     const spec = buildGradientSpec(baseOpts({ style: "mesh" }));
-    spec.layers.forEach((l) => {
-      if (l.fill.kind !== "radial") return;
+    for (const l of spec.layers) {
+      if (l.fill.kind !== "radial") continue;
       const [start, end] = l.fill.stops;
       expect(end.color).toBe(`${start.color}00`);
-    });
+    }
   });
 
   it("liquid band stops use #RRGGBBcc start → #RRGGBB00 end", () => {

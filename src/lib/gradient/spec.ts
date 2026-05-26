@@ -7,9 +7,16 @@ export type { ColorRamp } from "../palettes";
 
 /**
  * Seeded PRNG — mulberry32. Ported 1:1 from the original prototype.
+ *
+ * The parameter `a` is intentionally mutated via closure on every call so the
+ * generator advances. Refactoring to a local copy would also work but the
+ * arithmetic semantics of `+=` (number, no int32 truncation) are baked into
+ * the engine snapshots — leave the body byte-identical.
  */
 export function mulberry32(a: number): () => number {
   return () => {
+    // biome-ignore lint/style/noParameterAssign: closure-mutation by design
+    // biome-ignore lint/suspicious/noAssignInExpressions: closure-mutation by design
     let t = (a += 0x6d2b79f5);
     t = Math.imul(t ^ (t >>> 15), t | 1);
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
@@ -22,12 +29,12 @@ export function seedToHex(s: number): string {
 }
 
 export function hslToHex(h: number, s: number, l: number): string {
-  s /= 100;
-  l /= 100;
+  const sNorm = s / 100;
+  const lNorm = l / 100;
   const k = (n: number) => (n + h / 30) % 12;
-  const a = s * Math.min(l, 1 - l);
+  const a = sNorm * Math.min(lNorm, 1 - lNorm);
   const f = (n: number) => {
-    const c = l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
+    const c = lNorm - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
     return Math.round(255 * c)
       .toString(16)
       .padStart(2, "0");

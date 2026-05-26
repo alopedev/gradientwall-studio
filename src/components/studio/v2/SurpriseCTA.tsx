@@ -46,14 +46,12 @@ export function SurpriseCTA() {
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
       if (e.code === "Space") {
         e.preventDefault();
-        trigger();
+        applySurprise();
+        setSpins((s) => s + 1);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-    // `trigger` is recreated on every render but only closes over the stable
-    // store action; re-subscribing per render would thrash the listener.
-    // biome-ignore lint/correctness/useExhaustiveDependencies: applySurprise is the stable dep
   }, [applySurprise]);
 
   return (

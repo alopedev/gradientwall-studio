@@ -174,6 +174,7 @@ export function Preview({ framed = true }: PreviewProps = {}) {
           return (
             <button
               key={dev}
+              type="button"
               onClick={() => setDevice(dev)}
               className={`rounded-full px-2.5 md:px-3 py-1.5 text-[10px] md:text-[11px] tracking-[0.1em] uppercase font-sans transition-colors duration-150 backdrop-blur-md ${
                 active
@@ -206,6 +207,7 @@ export function Preview({ framed = true }: PreviewProps = {}) {
           return (
             <button
               key={dev}
+              type="button"
               onClick={() => setDevice(dev)}
               className={`rounded-full px-3 py-1.5 font-sans text-[10px] uppercase tracking-[0.1em] transition-colors duration-150 md:text-[11px] ${
                 active
@@ -317,6 +319,12 @@ export function Preview({ framed = true }: PreviewProps = {}) {
   return (
     <div>
       {chromeRow}
+      {/* Drag-and-drop image upload zone. There is no native HTML element for
+          "drop a file here" that matches our visual treatment, so a div with
+          pointer handlers is the standard pattern. The handlers don't need
+          keyboard equivalents because UseMyPhotoButton provides the same
+          functionality via file picker. */}
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: drag-drop surface, keyboard path via UseMyPhotoButton */}
       <div
         className="relative min-h-[420px] overflow-hidden"
         onDragOver={onPreviewDragOver}

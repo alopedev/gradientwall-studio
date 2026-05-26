@@ -56,7 +56,8 @@ export function SplitWords({
         // el espacio dentro, `overflow: hidden` lo recortaba (trailing
         // whitespace de inline-block colapsa visualmente), produciendo
         // "ONETAP.DONE." sin espacios entre palabras.
-        <Fragment key={i}>
+        // biome-ignore lint/suspicious/noArrayIndexKey: words are static text, index disambiguates duplicates
+        <Fragment key={`${w}-${i}`}>
           <span style={{ display: "inline-block", overflow: "hidden", paddingBottom: "0.08em" }}>
             <m.span
               variants={WORD}

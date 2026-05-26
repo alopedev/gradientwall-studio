@@ -97,8 +97,8 @@ describe("<HarmonicWheel />", () => {
     expect(spy).toHaveBeenCalled();
     const calledWith = spy.mock.calls[0][0];
     expect(calledWith).toHaveLength(4);
-    calledWith.forEach((c: string) => {
+    for (const c of calledWith as string[]) {
       expect(c).toMatch(/^#[0-9a-f]{6}$/i);
-    });
+    }
   });
 });

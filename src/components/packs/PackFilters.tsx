@@ -37,6 +37,7 @@ function FilterPill({
 }) {
   return (
     <button
+      type="button"
       role="tab"
       aria-selected={selected}
       onClick={onClick}

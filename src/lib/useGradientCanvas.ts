@@ -16,11 +16,14 @@ export function useGradientCanvas(
   deps: DependencyList,
 ): RefObject<HTMLCanvasElement> {
   const ref = useRef<HTMLCanvasElement>(null);
+  // Caller passes `deps` as a runtime DependencyList — biome wants an array
+  // literal but the whole point of this hook is to forward whatever the
+  // caller decides drives a repaint.
   useEffect(() => {
     const canvas = ref.current;
     if (!canvas) return;
     paintWallpaper(canvas, opts);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // biome-ignore lint/correctness/useExhaustiveDependencies: deps is the hook contract
   }, deps);
   return ref;
 }
@@ -74,7 +77,10 @@ export function useFittedGradientCanvas(
   const schedulerRef = useRef<{ schedule: () => void } | null>(null);
 
   // Setup effect — owns the ResizeObserver and the shared rAF scheduler.
-  // Runs once on mount; survives every params change.
+  // Runs once on mount; survives every params change. The container ref's
+  // `.current` isn't reactive, so depending on it would be a lie; the
+  // params-change effect below nudges the scheduler when the caller wants.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: setup-once by design
   useEffect(() => {
     const canvas = ref.current;
     const container = opts.containerRef?.current ?? canvas?.parentElement ?? null;
@@ -162,17 +168,13 @@ export function useFittedGradientCanvas(
       ro.disconnect();
       schedulerRef.current = null;
     };
-    // Setup effect: mounts the ResizeObserver and rAF scheduler once.
-    // The container ref's `.current` isn't reactive, and the params-change
-    // effect below handles updates by nudging the scheduler.
-    // biome-ignore lint/correctness/useExhaustiveDependencies: setup-once by design
   }, []);
 
   // Params-change effect — cheap. Just nudges the scheduler; the setup effect
   // owns the actual painting and the identity check.
   useEffect(() => {
     schedulerRef.current?.schedule();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // biome-ignore lint/correctness/useExhaustiveDependencies: deps is the hook contract
   }, deps);
 
   return ref;
