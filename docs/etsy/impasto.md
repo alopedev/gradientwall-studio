@@ -7,10 +7,10 @@ scripts/etsy-pack.sh acrylic impasto    # 5 ZIPs → etsy-out/impasto/
 scripts/etsy-listing/render.sh impasto  # 6 fotos → etsy-out/impasto/listing/
 ```
 
-## Title (≤140 caracteres)
+## Title (≤140 caracteres, ≤14 palabras según Etsy)
 
 ```
-Impasto, 10 Acrylic Paint Wallpapers, Abstract Textured Backgrounds, 4K 5K Desktop + iPhone Lock Screen, Aesthetic Digital Download
+Impasto, 10 Acrylic Paint Wallpapers, Abstract Textured Backgrounds, 4K 5K Desktop + iPhone
 ```
 
 ## Description
