@@ -1,22 +1,22 @@
-# Etsy listing — Acrylic pack
+# Etsy listing — Impasto (acrylic pack)
 
 Textos listos para pegar en el anuncio. Imágenes y ZIPs se regeneran con:
 
 ```bash
-scripts/etsy-pack.sh acrylic            # 5 ZIPs → etsy-out/acrylic/
-scripts/etsy-listing/render.sh acrylic  # 6 fotos → etsy-out/acrylic/listing/
+scripts/etsy-pack.sh acrylic impasto    # 5 ZIPs → etsy-out/impasto/
+scripts/etsy-listing/render.sh impasto  # 6 fotos → etsy-out/impasto/listing/
 ```
 
 ## Title (≤140 caracteres)
 
 ```
-Acrylic Paint Wallpaper Pack, 10 Abstract Textured Backgrounds, 4K 5K Desktop + iPhone Lock Screen, Colorful Aesthetic Digital Download
+Impasto, 10 Acrylic Paint Wallpapers, Abstract Textured Backgrounds, 4K 5K Desktop + iPhone Lock Screen, Aesthetic Digital Download
 ```
 
 ## Description
 
 ```
-10 abstract acrylic paint wallpapers — thick, glossy brushstrokes in bold and pastel colours — ready for your desktop and your phone.
+IMPASTO — 10 abstract acrylic paint wallpapers — thick, glossy brushstrokes in bold and pastel colours — ready for your desktop and your phone.
 
 WHAT YOU GET
 • 10 unique designs, each in 3 sizes (30 files)
@@ -51,13 +51,13 @@ These wallpapers were created with AI-assisted image generation, then selected, 
 | Category | Art & Collectibles › Digital Prints (o la sugerencia de Etsy al escribir "wallpaper") |
 | Price | **4,99 €** (≈ 4,12 € netos) |
 | Quantity | 999 |
-| Files | los 5 ZIP de `etsy-out/acrylic/` |
-| Photos | las 6 JPG de `etsy-out/acrylic/listing/`, en orden (01 = portada) |
+| Files | los 5 ZIP de `etsy-out/impasto/` |
+| Photos | las 6 JPG de `etsy-out/impasto/listing/`, en orden (01 = portada) |
 
 ## Tags (13, ≤20 caracteres cada uno)
 
 ```
-acrylic wallpaper, abstract wallpaper, iphone wallpaper, desktop wallpaper, 4k wallpaper, paint texture, aesthetic wallpaper, lock screen, mac wallpaper, colorful wallpaper, textured art, wallpaper bundle, digital download
+impasto wallpaper, acrylic wallpaper, abstract wallpaper, iphone wallpaper, desktop wallpaper, 4k wallpaper, paint texture, aesthetic wallpaper, lock screen, mac wallpaper, colorful wallpaper, textured art, digital download
 ```
 
 ## Materials

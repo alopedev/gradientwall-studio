@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 # Build the Etsy deliverables for one wallpaper pack.
 #
-#   scripts/etsy-pack.sh <pack-slug>
+#   scripts/etsy-pack.sh <source-slug> [product-slug]
 #
-# Source:  public/assets/packs/<slug>/*.jpg  (1600×900 originals)
-# Output:  etsy-out/<slug>/{4k,5k,mobile}/*.jpg + 5 ZIPs, each under Etsy's
+# product-slug names the Etsy product (files, ZIPs, output dir) when it differs
+# from the web-store source folder — e.g. `acrylic impasto`.
+#
+# Source:  public/assets/packs/<source-slug>/*.jpg  (1600×900 originals)
+# Output:  etsy-out/<product-slug>/{4k,5k,mobile}/*.jpg + 5 ZIPs, each under Etsy's
 #          20 MB/file limit (max 5 files per listing): 4k and 5k are split
 #          into two halves (01-05, 06-10), mobile fits in one.
 #
@@ -14,9 +17,10 @@
 # 1320×2868 (iPhone Pro Max native; smaller iPhones scale it down).
 set -euo pipefail
 
-SLUG="${1:?usage: scripts/etsy-pack.sh <pack-slug>}"
+SOURCE="${1:?usage: scripts/etsy-pack.sh <source-slug> [product-slug]}"
+SLUG="${2:-$SOURCE}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-SRC="$ROOT/public/assets/packs/$SLUG"
+SRC="$ROOT/public/assets/packs/$SOURCE"
 OUT="$ROOT/etsy-out/$SLUG"
 MASTER="$OUT/.master"
 

@@ -21,6 +21,7 @@
   h1 { font-weight: 700; font-size: 200px; line-height: .92; letter-spacing: -.02em; }
   h1 em { font-family: "Instrument Serif", serif; font-weight: 400; }
   h2 { font-weight: 700; font-size: 120px; line-height: 1; letter-spacing: -.01em; }
+  #cover .sub { font-weight: 500; font-size: 96px; line-height: 1.02; }
   h2 em { font-family: "Instrument Serif", serif; font-weight: 400; }
   .chips { display: flex; gap: 24px; flex-wrap: wrap; }
   .chip { border: 3px solid var(--ink); border-radius: 2px; padding: 18px 34px; font-weight: 600; font-size: 46px; letter-spacing: .08em; text-transform: uppercase; }
@@ -75,7 +76,8 @@
 <section class="view" id="cover">
   <div class="copy">
     <div class="eyebrow">Digital download · Wallpaper pack</div>
-    <h1>10 Acrylic<br><em>paint</em><br>wallpapers</h1>
+    <h1>Impasto</h1>
+    <h2 class="sub">10 acrylic <em>paint</em><br>wallpapers</h2>
     <div class="chips"><span class="chip solid">4K + 5K</span><span class="chip">iPhone</span><span class="chip">Mac · PC</span></div>
   </div>
   <div class="monitor"><div class="screen" data-img="4k/01"></div><div class="neck"></div><div class="foot"></div></div>
@@ -124,7 +126,7 @@
 
 <script>
   const q = new URLSearchParams(location.search);
-  const slug = q.get("slug") || "acrylic";
+  const slug = q.get("slug") || "impasto";
   const base = `../../etsy-out/${slug}/`;
   const file = (path) => {
     const [fmt, n] = path.split("/");
