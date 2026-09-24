@@ -7,10 +7,12 @@ scripts/etsy-pack.sh acrylic impasto    # 5 ZIPs → etsy-out/impasto/
 scripts/etsy-listing/render.sh impasto  # 6 fotos → etsy-out/impasto/listing/
 ```
 
-## Title (≤140 caracteres, ≤14 palabras según Etsy)
+## Title (70–100 caracteres, keyword principal en los primeros ~50)
+
+"Impasto" va en portada y descripción, no al inicio del título: nadie lo busca.
 
 ```
-Impasto, 10 Acrylic Paint Wallpapers, Abstract Textured Backgrounds, 4K 5K Desktop + iPhone
+Acrylic Paint Wallpaper Bundle, 10 Abstract Textured Backgrounds for Desktop and iPhone, 4K 5K
 ```
 
 ## Description
