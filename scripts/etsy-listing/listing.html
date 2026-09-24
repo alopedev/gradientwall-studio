@@ -21,7 +21,6 @@
   h1 { font-weight: 700; font-size: 200px; line-height: .92; letter-spacing: -.02em; }
   h1 em { font-family: "Instrument Serif", serif; font-weight: 400; }
   h2 { font-weight: 700; font-size: 120px; line-height: 1; letter-spacing: -.01em; }
-  #cover .sub { font-weight: 500; font-size: 96px; line-height: 1.02; }
   h2 em { font-family: "Instrument Serif", serif; font-weight: 400; }
   .chips { display: flex; gap: 24px; flex-wrap: wrap; }
   .chip { border: 3px solid var(--ink); border-radius: 2px; padding: 18px 34px; font-weight: 600; font-size: 46px; letter-spacing: .08em; text-transform: uppercase; }
@@ -36,11 +35,14 @@
   .phone::after { content: ""; position: absolute; top: 26px; left: 50%; transform: translateX(-50%); width: 30%; height: 44px; border-radius: 30px; background: var(--frame); }
   .phone .time { position: absolute; top: 15%; width: 100%; text-align: center; color: #fff; font-weight: 500; font-size: 150px; text-shadow: 0 4px 30px rgba(0,0,0,.25); }
 
-  /* cover */
-  #cover .copy { position: absolute; left: 170px; top: 160px; width: 1100px; display: grid; gap: 60px; }
-  #cover .monitor { right: 150px; top: 330px; width: 1700px; }
-  #cover .p1 { width: 470px; right: 1480px; top: 1020px; transform: rotate(-4deg); }
-  #cover .p2 { width: 470px; right: 90px; top: 1170px; transform: rotate(3deg); }
+  /* cover — everything inside the central 2250×2250 square Etsy crops for thumbnails */
+  #cover .copy { position: absolute; top: 130px; left: 0; right: 0; display: grid; justify-items: center; gap: 34px; text-align: center; }
+  #cover h1 { font-size: 230px; }
+  #cover .sub { font-weight: 500; font-size: 84px; line-height: 1; }
+  #cover .monitor { left: 50%; transform: translateX(-50%); top: 860px; width: 1480px; }
+  #cover .p1 { width: 400px; left: 470px; top: 1230px; transform: rotate(-4deg); }
+  #cover .p2 { width: 400px; right: 470px; top: 1290px; transform: rotate(3deg); }
+  #cover .phone .time { font-size: 120px; }
 
   /* grid */
   #grid .head { display: flex; justify-content: space-between; align-items: end; margin-bottom: 90px; }
@@ -77,7 +79,7 @@
   <div class="copy">
     <div class="eyebrow">Digital download · Wallpaper pack</div>
     <h1>Impasto</h1>
-    <h2 class="sub">10 acrylic <em>paint</em><br>wallpapers</h2>
+    <h2 class="sub">10 acrylic <em>paint</em> wallpapers</h2>
     <div class="chips"><span class="chip solid">4K + 5K</span><span class="chip">iPhone</span><span class="chip">Mac · PC</span></div>
   </div>
   <div class="monitor"><div class="screen" data-img="4k/01"></div><div class="neck"></div><div class="foot"></div></div>
