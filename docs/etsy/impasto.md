@@ -50,17 +50,28 @@ These wallpapers were created with AI-assisted image generation, then selected, 
 | What is it | A finished product |
 | When was it made | **2020–2026** |
 | AI | Marcar **"Created with AI"** / la casilla de uso de IA que muestre el formulario |
-| Category | Art & Collectibles › Digital Prints (o la sugerencia de Etsy al escribir "wallpaper") |
+| Category | Dibujos e ilustraciones digitales (escribir "wallpaper" y elegir la opción digital) |
 | Price | **4,99 €** (≈ 4,12 € netos) |
 | Quantity | 999 |
 | Files | los 5 ZIP de `etsy-out/impasto/` |
 | Photos | las 6 JPG de `etsy-out/impasto/listing/`, en orden (01 = portada) |
 
-## Tags (13, ≤20 caracteres cada uno)
+## Tags (13, ≤20 caracteres cada uno — límite real de esta tienda)
+
+Frases de varias palabras (long-tail). No repetir la categoría ni el tipo "digital", que ya cuentan como tag.
 
 ```
-impasto wallpaper, acrylic wallpaper, abstract wallpaper, iphone wallpaper, desktop wallpaper, 4k wallpaper, paint texture, aesthetic wallpaper, lock screen, mac wallpaper, colorful wallpaper, textured art, digital download
+impasto wallpaper, acrylic wallpaper, iphone wallpaper, desktop background, 4k desktop wallpaper, 5k mac wallpaper, lockscreen wallpaper, paint texture art, colorful abstract, aesthetic wallpaper, pastel wallpaper, dark abstract art, gift for art lovers
 ```
+
+## Attributes
+
+| Atributo | Valor |
+|---|---|
+| Número de piezas | 5 o más |
+| Relación de aspecto | 16:9, 1:2 |
+| Orientación | Horizontal |
+| Tema | Abstracto y geométrico |
 
 ## Materials
 
