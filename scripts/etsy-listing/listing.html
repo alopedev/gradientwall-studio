@@ -3,7 +3,7 @@
   Etsy listing images for a wallpaper pack. Rendered at 3000×2250 (Etsy's
   recommended 4:3) by scripts/etsy-listing/render.sh — one screenshot per
   #view. Reads the pack's exported JPGs from etsy-out/<slug>/.
-  Params (query string): slug.
+  Params (query string): slug. Per-pack copy and image picks live in PACKS below.
 -->
 <html>
 <head>
@@ -34,6 +34,7 @@
   .phone { position: absolute; aspect-ratio: 1320/2868; border: 18px solid var(--frame); border-radius: 90px; background-size: cover; background-position: center; box-shadow: 0 50px 110px rgba(0,0,0,.32); }
   .phone::after { content: ""; position: absolute; top: 26px; left: 50%; transform: translateX(-50%); width: 30%; height: 44px; border-radius: 30px; background: var(--frame); }
   .phone .time { position: absolute; top: 15%; width: 100%; text-align: center; color: #fff; font-weight: 500; font-size: 150px; text-shadow: 0 4px 30px rgba(0,0,0,.25); }
+  .phone.dark-clock .time { color: #161616; text-shadow: none; }
 
   /* cover — everything inside the central 2250×2250 square Etsy crops for thumbnails */
   #cover .copy { position: absolute; top: 130px; left: 0; right: 0; display: grid; justify-items: center; gap: 34px; text-align: center; }
@@ -55,6 +56,9 @@
   .phones-view .head { margin-bottom: 110px; display: grid; gap: 24px; }
   .phones-view .row { position: relative; display: flex; justify-content: center; gap: 70px; }
   .phones-view .phone { position: relative; width: 470px; }
+  /* Rows of 3 phones instead of 5: bigger devices so the view doesn't feel empty. */
+  .short-pack .phones-view .row { gap: 120px; }
+  .short-pack .phones-view .phone { width: 610px; }
 
   /* desktop */
   #desktop .monitor { left: 50%; transform: translateX(-50%); top: 330px; width: 2400px; }
@@ -78,34 +82,34 @@
 <section class="view" id="cover">
   <div class="copy">
     <div class="eyebrow">Digital download · Wallpaper pack</div>
-    <h1>Impasto</h1>
-    <h2 class="sub">10 acrylic <em>paint</em> wallpapers</h2>
+    <h1 data-text="title"></h1>
+    <h2 class="sub" data-text="sub"></h2>
     <div class="chips"><span class="chip solid">4K + 5K</span><span class="chip">iPhone</span><span class="chip">Mac · PC</span></div>
   </div>
-  <div class="monitor"><div class="screen" data-img="4k/01"></div><div class="neck"></div><div class="foot"></div></div>
-  <div class="phone p1" data-img="mobile/08"><div class="time">9:41</div></div>
-  <div class="phone p2" data-img="mobile/02"><div class="time">9:41</div></div>
+  <div class="monitor"><div class="screen" data-pick="coverDesk" data-fmt="4k"></div><div class="neck"></div><div class="foot"></div></div>
+  <div class="phone p1" data-pick="coverPhone1" data-fmt="mobile"><div class="time">9:41</div></div>
+  <div class="phone p2" data-pick="coverPhone2" data-fmt="mobile"><div class="time">9:41</div></div>
 </section>
 
 <section class="view" id="grid">
-  <div class="head"><h2>All <em>10</em> designs</h2><div class="eyebrow">Desktop 16:9 + phone versions</div></div>
+  <div class="head"><h2 data-text="gridTitle"></h2><div class="eyebrow">Desktop 16:9 + phone versions</div></div>
   <div class="tiles" data-set="4k"></div>
   <div class="tiles phones" data-set="mobile"></div>
 </section>
 
 <section class="view phones-view" id="phones-a">
   <div class="head"><div class="eyebrow">Phone · 1320 × 2868</div><h2>Made for <em>your lock screen</em></h2></div>
-  <div class="row" data-phones="01,03,05,07,09"></div>
+  <div class="row" data-phones="phonesA"></div>
 </section>
 
 <section class="view phones-view" id="phones-b">
-  <div class="head"><div class="eyebrow">Phone · 1320 × 2868</div><h2>Five more, <em>all included</em></h2></div>
-  <div class="row" data-phones="02,04,06,08,10"></div>
+  <div class="head"><div class="eyebrow">Phone · 1320 × 2868</div><h2 data-text="phonesBTitle"></h2></div>
+  <div class="row" data-phones="phonesB"></div>
 </section>
 
 <section class="view" id="desktop">
   <div class="head"><div class="eyebrow">Desktop · 4K 3840 × 2160 · 5K 5120 × 2880</div></div>
-  <div class="monitor"><div class="screen" data-img="4k/08"></div><div class="neck"></div><div class="foot"></div></div>
+  <div class="monitor"><div class="screen" data-pick="desktop" data-fmt="4k"></div><div class="neck"></div><div class="foot"></div></div>
 </section>
 
 <section class="view" id="included">
@@ -113,38 +117,73 @@
     <div class="eyebrow">What you get</div>
     <h2 style="margin-top:30px">Instant<br><em>download</em></h2>
     <div class="list">
-      <div class="item"><span class="k">10</span><span class="v"><b>unique acrylic designs</b>, each in three sizes</span></div>
+      <div class="item"><span class="k" data-text="count"></span><span class="v" data-text="designs"></span></div>
       <div class="item"><span class="k">4K</span><span class="v"><b>3840 × 2160</b> · monitors, laptops, TV</span></div>
       <div class="item"><span class="k">5K</span><span class="v"><b>5120 × 2880</b> · iMac, Studio Display</span></div>
       <div class="item"><span class="k">Phone</span><span class="v"><b>1320 × 2868</b> · every modern iPhone &amp; Android</span></div>
     </div>
-    <p class="note">5 ZIP files · high-quality JPG · personal use.<br>Designed by GradientWall with AI-assisted image generation, upscaled and curated by hand.</p>
+    <p class="note"><span data-text="zips"></span> · high-quality JPG · personal use.<br>Designed by GradientWall with AI-assisted image generation, upscaled and curated by hand.</p>
   </div>
   <div class="stack">
-    <div class="phone s1" data-img="mobile/06"><div class="time">9:41</div></div>
-    <div class="phone s2" data-img="mobile/10"><div class="time">9:41</div></div>
+    <div class="phone s1" data-pick="stack1" data-fmt="mobile"><div class="time">9:41</div></div>
+    <div class="phone s2" data-pick="stack2" data-fmt="mobile"><div class="time">9:41</div></div>
   </div>
 </section>
 
 <script>
+  const PACKS = {
+    impasto: {
+      count: 10, gridCols: 5, zips: "5 ZIP files",
+      title: "Impasto", sub: "10 acrylic <em>paint</em> wallpapers",
+      gridTitle: "All <em>10</em> designs", phonesBTitle: "Five more, <em>all included</em>",
+      designs: "<b>unique acrylic designs</b>, each in three sizes",
+      phonesA: "01,03,05,07,09", phonesB: "02,04,06,08,10",
+      coverDesk: "01", coverPhone1: "08", coverPhone2: "02", desktop: "08", stack1: "06", stack2: "10",
+    },
+    dessau: {
+      count: 6, gridCols: 3, zips: "3 ZIP files",
+      title: "Dessau", sub: "6 Bauhaus <em>modern</em> wallpapers",
+      gridTitle: "All <em>6</em> designs", phonesBTitle: "Three more, <em>all included</em>",
+      designs: "<b>original Bauhaus designs</b>, each in three sizes",
+      phonesA: "01,02,03", phonesB: "04,05,06",
+      coverDesk: "01", coverPhone1: "02", coverPhone2: "03", desktop: "03", stack1: "05", stack2: "06",
+      darkClock: ["04"], // iOS switches the clock to dark on light wallpapers
+    },
+  };
   const q = new URLSearchParams(location.search);
   const slug = q.get("slug") || "impasto";
+  const pack = PACKS[slug];
+  if (pack.count < 10) document.body.classList.add("short-pack");
   const base = `../../etsy-out/${slug}/`;
   const file = (path) => {
     const [fmt, n] = path.split("/");
     return `${base}${fmt}/gradientwall-${slug}-${n}-${fmt}.jpg`;
   };
-  const ids = ["01","02","03","04","05","06","07","08","09","10"];
+  const ids = Array.from({ length: pack.count }, (_, i) => String(i + 1).padStart(2, "0"));
+
+  document.querySelectorAll("[data-text]").forEach((el) => { el.innerHTML = pack[el.dataset.text]; });
+  document.querySelectorAll("[data-pick]").forEach((el) => {
+    el.dataset.img = `${el.dataset.fmt}/${pack[el.dataset.pick]}`;
+  });
+  document.querySelector("#grid .tiles:not(.phones)").style.gridTemplateColumns = `repeat(${pack.gridCols}, 1fr)`;
+  // Phone strip keeps the 10-up tile width; shorter packs stay centered.
+  if (pack.count < 10) {
+    const strip = document.querySelector("#grid .tiles.phones");
+    strip.style.gridTemplateColumns = `repeat(${pack.count}, 230px)`;
+    strip.style.justifyContent = "center";
+  }
 
   document.querySelectorAll("[data-set]").forEach((el) => {
     el.innerHTML = ids.map((n) => `<div class="tile" data-img="${el.dataset.set}/${n}"></div>`).join("");
   });
   document.querySelectorAll("[data-phones]").forEach((el) => {
-    el.innerHTML = el.dataset.phones.split(",").map((n) =>
+    el.innerHTML = pack[el.dataset.phones].split(",").map((n) =>
       `<div class="phone" data-img="mobile/${n}"><div class="time">9:41</div></div>`).join("");
   });
   document.querySelectorAll("[data-img]").forEach((el) => {
     el.style.backgroundImage = `url("${file(el.dataset.img)}")`;
+    const [fmt, n] = el.dataset.img.split("/");
+    if (fmt === "mobile" && (pack.darkClock || []).includes(n)) el.classList.add("dark-clock");
   });
   const view = location.hash.slice(1) || "cover";
   document.getElementById(view).classList.add("on");
