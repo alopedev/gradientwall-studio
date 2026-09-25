@@ -18,6 +18,15 @@ npm run check       # typecheck + lint + test — el "ready to commit" del proye
 
 Test infra: **Vitest**. Default environment is `jsdom` (for React component tests with @testing-library); files under `netlify/**/*.test.ts` use `// @vitest-environment node` so jose v5 / crypto / process behave as at runtime. The setup file `src/test-setup.ts` early-outs when `typeof window === "undefined"` so node-env tests don't crash importing DOM-ware. Snapshot files live next to the test under `__snapshots__/` and are committed — regression guard on the core gradient math.
 
+## Current focus — Etsy (since 2026-09-24)
+
+The active channel is the **Etsy shop `gradientwall.etsy.com`**, not the web store below. The web (Studio + Lemon Squeezy store) is parked, not deleted; `PROJECT_LAUNCH.md` is obsolete. Its future is an open decision — don't invest in it unless asked.
+
+- Published packs: **Impasto** (10 acrylic, from `public/assets/packs/acrylic/`) and **Dessau** (6 Bauhaus, from `public/assets/packs/dessau/`). One listing doc per pack in `docs/etsy/<product>.md` (title, description, tags, attributes, listing id); shop policies in `docs/etsy/shop-policies.md`.
+- `scripts/etsy-pack.sh <source> [product]` → upscale with Upscayl + export 4K/5K/phone JPGs + ZIPs into `etsy-out/<product>/` (gitignored). Two modes, auto-detected: **crop** (16:9 `NN.jpg` originals, phone cropped from the center — fine for texture) and **split** (`NN_<name>.png` 9:16 + `NN_<name>-desktop.png` 16:9 — for composed art). Upscayl model differs per mode; both validated visually, don't swap them.
+- `scripts/etsy-listing/render.sh <product>` → the 6 listing photos (3000×2250) from `listing.html`; per-pack copy and image picks live in its `PACKS` object.
+- Pack artwork is generated with GPT Image from per-piece prompts (AI use is declared on the listing). Code-generated art was tried for Dessau and rejected on quality.
+
 ## What this project is
 
 GradientWall — an interactive wallpaper studio plus a digital store for curated wallpaper packs. Free Studio + paid packs (4.99€ each, single payment, no account, email-delivered).
