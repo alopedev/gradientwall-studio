@@ -3,7 +3,8 @@
   Etsy listing images for a wallpaper pack. Rendered at 3000×2250 (Etsy's
   recommended 4:3) by scripts/etsy-listing/render.sh — one screenshot per
   #view. Reads the pack's exported JPGs from etsy-out/<slug>/.
-  Params (query string): slug. Per-pack copy and image picks live in PACKS below.
+  Params (query string): slug, and single=NN for a one-wallpaper listing (views
+  s-cover, s-full, s-pack). Per-pack copy and image picks live in PACKS below.
 -->
 <html>
 <head>
@@ -76,6 +77,26 @@
   #included .stack .phone { width: 560px; }
   #included .stack .s1 { left: 40px; top: 120px; transform: rotate(-6deg); }
   #included .stack .s2 { left: 520px; top: 60px; transform: rotate(5deg); }
+
+  /* single — one wallpaper per listing; the last view points to the full pack */
+  #s-cover .copy { position: absolute; top: 130px; left: 0; right: 0; display: grid; justify-items: center; gap: 34px; text-align: center; }
+  #s-cover h1 { font-size: 230px; }
+  #s-cover .sub { font-weight: 500; font-size: 84px; line-height: 1; }
+  #s-cover .monitor { left: 520px; top: 860px; width: 1480px; }
+  #s-cover .phone { width: 420px; left: 1900px; top: 1250px; transform: rotate(3deg); }
+  #s-cover .phone .time { font-size: 120px; }
+  #s-full.on { padding: 0; background-size: cover; background-position: center; }
+  #s-full .phone { width: 640px; right: 200px; top: 50%; transform: translateY(-50%); }
+  #s-full .chips { position: absolute; left: 170px; bottom: 150px; }
+  #s-full .chip { background: var(--bg); border-color: var(--bg); }
+  #s-full .chip.solid { background: var(--ink); border-color: var(--ink); }
+  #s-pack.on { display: flex; flex-direction: column; justify-content: center; }
+  #s-pack .head { display: flex; justify-content: space-between; align-items: end; margin-bottom: 90px; }
+  #s-pack .tiles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 48px; }
+  #s-pack .tile { aspect-ratio: 16/9; background-size: cover; background-position: center; border-radius: 6px; box-shadow: 0 20px 50px rgba(0,0,0,.18); }
+  #s-pack .tile.this { outline: 10px solid var(--ink); outline-offset: 14px; }
+  #s-pack h2 { font-size: 170px; }
+  #s-pack .foot { margin-top: 120px; font-size: 64px; font-weight: 500; line-height: 1.3; }
 </style>
 </head>
 <body>
@@ -130,6 +151,28 @@
   </div>
 </section>
 
+<section class="view" id="s-cover">
+  <div class="copy">
+    <div class="eyebrow">Digital download · Single wallpaper</div>
+    <h1 data-text="singleTitle"></h1>
+    <h2 class="sub">Phone <em>+</em> desktop</h2>
+    <div class="chips"><span class="chip solid">4K + 5K</span><span class="chip">iPhone</span><span class="chip">Mac · PC</span></div>
+  </div>
+  <div class="monitor"><div class="screen" data-pick="single" data-fmt="4k"></div><div class="neck"></div><div class="foot"></div></div>
+  <div class="phone" data-pick="single" data-fmt="mobile"><div class="time">9:41</div></div>
+</section>
+
+<section class="view" id="s-full" data-pick="single" data-fmt="4k">
+  <div class="phone" data-pick="single" data-fmt="mobile"><div class="time">9:41</div></div>
+  <div class="chips"><span class="chip solid">3 files</span><span class="chip">Phone 1320 × 2868</span><span class="chip">4K</span><span class="chip">5K</span></div>
+</section>
+
+<section class="view" id="s-pack">
+  <div class="head"><h2 data-text="packTitle"></h2><div class="eyebrow">Full pack · same shop</div></div>
+  <div class="tiles" data-set="4k"></div>
+  <p class="foot" data-text="packFoot"></p>
+</section>
+
 <script>
   const PACKS = {
     impasto: {
@@ -139,6 +182,7 @@
       designs: "<b>unique acrylic designs</b>, each in three sizes",
       phonesA: "01,03,05,07,09", phonesB: "02,04,06,08,10",
       coverDesk: "01", coverPhone1: "08", coverPhone2: "02", desktop: "08", stack1: "06", stack2: "10",
+      names: {},
     },
     dessau: {
       count: 6, gridCols: 3, zips: "3 ZIP files",
@@ -148,12 +192,20 @@
       phonesA: "01,02,03", phonesB: "04,05,06",
       coverDesk: "01", coverPhone1: "02", coverPhone2: "03", desktop: "03", stack1: "05", stack2: "06",
       darkClock: ["04"], // iOS switches the clock to dark on light wallpapers
+      names: { "01": "Kreise", "02": "Rot", "03": "Schwarz", "04": "Gelb", "05": "Sonne", "06": "Halbkreise" },
     },
   };
   const q = new URLSearchParams(location.search);
   const slug = q.get("slug") || "impasto";
   const pack = PACKS[slug];
   if (pack.count < 10) document.body.classList.add("short-pack");
+  const single = q.get("single");
+  if (single) {
+    pack.single = single;
+    pack.singleTitle = `${pack.title} <em>${pack.names[single] || single}</em>`;
+    pack.packTitle = `Want all <em>${pack.count}</em>?`;
+    pack.packFoot = `This design is part of the <b>${pack.title}</b> pack — ${pack.count} designs, phone + desktop, one download.`;
+  }
   const base = `../../etsy-out/${slug}/`;
   const file = (path) => {
     const [fmt, n] = path.split("/");
@@ -166,6 +218,7 @@
     el.dataset.img = `${el.dataset.fmt}/${pack[el.dataset.pick]}`;
   });
   document.querySelector("#grid .tiles:not(.phones)").style.gridTemplateColumns = `repeat(${pack.gridCols}, 1fr)`;
+  document.querySelector("#s-pack .tiles").style.gridTemplateColumns = `repeat(${pack.gridCols}, 1fr)`;
   // Phone strip keeps the 10-up tile width; shorter packs stay centered.
   if (pack.count < 10) {
     const strip = document.querySelector("#grid .tiles.phones");
@@ -174,7 +227,8 @@
   }
 
   document.querySelectorAll("[data-set]").forEach((el) => {
-    el.innerHTML = ids.map((n) => `<div class="tile" data-img="${el.dataset.set}/${n}"></div>`).join("");
+    el.innerHTML = ids.map((n) =>
+      `<div class="tile${n === single ? " this" : ""}" data-img="${el.dataset.set}/${n}"></div>`).join("");
   });
   document.querySelectorAll("[data-phones]").forEach((el) => {
     el.innerHTML = pack[el.dataset.phones].split(",").map((n) =>
