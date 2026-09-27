@@ -99,3 +99,8 @@ bauhaus wallpaper, bauhaus art, mid century modern, iphone wallpaper, desktop ba
 ## Materials
 
 No aplica: en esta categoría es una lista cerrada de materiales físicos. El formulario tampoco pide "When was it made".
+
+## Video
+
+12 s, 1920 × 1440, sin audio, subido el 2026-09-27. Fuente: `videos/etsy-video/` (HyperFrames: Three.js + GSAP).
+Render: `cd videos/etsy-video && npx hyperframes render . -q high -o ./renders/dessau.mp4`.
