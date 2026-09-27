@@ -28,8 +28,11 @@ Frases elegidas con el autocompletado de Etsy (2026-09-25): "bauhaus wallpaper",
 "iphone wallpaper aesthetic", "mid century modern art". "bauhaus phone" solo sugiere fundas; 13 palabras
 (guía de ≤14). "4K 5K" queda en tags y descripción.
 
+Actualizado el 2026-09-27 con la recomendación de título de Etsy (Visibilidad en la búsqueda). Anterior:
+`Bauhaus Wallpaper Pack, Phone and Desktop, Mid Century Modern Art, iPhone Wallpaper Aesthetic`.
+
 ```
-Bauhaus Wallpaper Pack, Phone and Desktop, Mid Century Modern Art, iPhone Wallpaper Aesthetic
+Bauhaus Dessau Wallpaper Pack, Mid-Century Modern Art, Phone & Desktop (Digital Download)
 ```
 
 ## Description
@@ -71,7 +74,7 @@ These wallpapers were created with AI-assisted image generation, then art-direct
 | When was it made | **2020–2026** |
 | AI | Marcar **"Created with AI"** / la casilla de uso de IA que muestre el formulario |
 | Category | Dibujos e ilustraciones digitales (escribir "wallpaper" y elegir la opción digital) |
-| Price | **4,99 €** (≈ 4,12 € netos) |
+| Price | **4,95 €** base → **5,99 €** con IVA (21 %) en la ficha · ≈ 4,09 € netos (desde 2026-09-27; antes 4,99 € = 6,04 € con IVA) |
 | Quantity | 999 |
 | Files | los 3 ZIP de `etsy-out/dessau/` |
 | Photos | las 6 JPG de `etsy-out/dessau/listing/`, en orden (01 = portada) |
