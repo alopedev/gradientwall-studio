@@ -1,5 +1,7 @@
 # Etsy listing — Impasto (acrylic pack)
 
+Publicado el 2026-09-24 · listing `4581611099`.
+
 Textos listos para pegar en el anuncio. Imágenes y ZIPs se regeneran con:
 
 ```bash
@@ -11,20 +13,21 @@ scripts/etsy-listing/render.sh impasto  # 6 fotos → etsy-out/impasto/listing/
 
 "Impasto" va en portada y descripción, no al inicio del título: nadie lo busca.
 
+Actualizado el 2026-09-27: "10" → "20" para cuadrar con el vídeo y la descripción (10 diseños × móvil + escritorio).
+
 ```
-Acrylic Paint Wallpaper Bundle, 10 Abstract Textured Backgrounds for Desktop and iPhone, 4K 5K
+Acrylic Paint Wallpaper Bundle, 20 Abstract Textured Backgrounds for Desktop and iPhone, 4K 5K
 ```
 
 ## Description
 
 ```
-IMPASTO — 10 abstract acrylic paint wallpapers — thick, glossy brushstrokes in bold and pastel colours — ready for your desktop and your phone.
+IMPASTO — 20 acrylic paint wallpapers (10 designs × phone + desktop) — thick, glossy brushstrokes in bold and pastel colours.
 
 WHAT YOU GET
-• 10 unique designs, each in 3 sizes (30 files)
-• 4K desktop — 3840 × 2160 (monitors, laptops, TV)
-• 5K desktop — 5120 × 2880 (iMac, Studio Display)
-• Phone — 1320 × 2868 (every modern iPhone and Android)
+• 20 wallpapers: 10 designs, each ready for phone and for desktop
+• 10 × desktop — in 4K 3840 × 2160 (monitors, laptops, TV) and 5K 5120 × 2880 (iMac, Studio Display), both included
+• 10 × phone — 1320 × 2868 (every modern iPhone and Android), cropped from the same painting
 • High-quality JPG, delivered as 5 ZIP files
 
 HOW IT WORKS

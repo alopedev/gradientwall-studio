@@ -38,16 +38,14 @@ Bauhaus Dessau Wallpaper Pack, Mid-Century Modern Art, Phone & Desktop (Digital 
 ## Description
 
 ```
-DESSAU — 6 Bauhaus wallpapers — bold circles, clean lines and flat colour fields in cobalt, vermilion, mustard and black — ready for your phone and your desktop.
+DESSAU — 12 Bauhaus modern wallpapers (6 designs × phone + desktop) — bold circles, clean lines and flat colour fields in cobalt, vermilion, mustard and black.
 
 Named after the city of the Bauhaus school, each design follows its rules: asymmetric balance, a few strong shapes, and plenty of calm space so your clock and icons stay easy to read.
 
 WHAT YOU GET
-• 6 unique designs, each in 3 sizes (18 files)
-• Phone — 1320 × 2868 (every modern iPhone and Android)
-• 4K desktop — 3840 × 2160 (monitors, laptops, TV)
-• 5K desktop — 5120 × 2880 (iMac, Studio Display)
-• Phone and desktop versions are composed separately for each screen, not cropped
+• 12 wallpapers: 6 designs, each composed separately for phone and for desktop (not cropped)
+• 6 × phone — 1320 × 2868 (every modern iPhone and Android)
+• 6 × desktop — in 4K 3840 × 2160 (monitors, laptops, TV) and 5K 5120 × 2880 (iMac, Studio Display), both included
 • High-quality JPG, delivered as 3 ZIP files
 
 HOW IT WORKS
