@@ -37,5 +37,6 @@ aparece debajo). Se puede generar con `scripts/etsy-listing/render.sh` añadiend
 
 ## Estado
 
-- 2026-09-27 · Eslogan e historia publicados en Etsy. Banner pendiente.
+- 2026-09-27 · Eslogan e historia publicados en Etsy.
+- 2026-09-27 · Banner grande (3360 × 840) subido; se regenera con `scripts/etsy-listing/render-banner.sh`.
 - 2026-09-27 · Oferta `LAUNCH25`: −25 % en toda la tienda del 27/09 al 04/10/2026 → 5,99 € tachado, 4,49 € final.
