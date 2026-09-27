@@ -78,3 +78,8 @@ impasto wallpaper, acrylic wallpaper, iphone wallpaper, desktop background, 4k d
 ```
 digital file, JPG
 ```
+
+## Video
+
+12 s, 1920 × 1440, sin audio, subido el 2026-09-27. Fuente: `videos/etsy-video/` (misma plantilla que Dessau, variable `pack`).
+Render: `cd videos/etsy-video && npx hyperframes render . -q high --variables '{"pack":"impasto"}' -o ./renders/impasto.mp4` y recomprimir con `ffmpeg -crf 20` (sale a ~32 MB).

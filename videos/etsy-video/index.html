@@ -1,20 +1,23 @@
 <!DOCTYPE html>
 <!--
-  Etsy listing video — Dessau (12 Bauhaus wallpapers: 6 phone + 6 desktop). 12 s, 1920×1440 (4:3, like
-  the listing photos), silent, loop-safe: first and last frames are the empty
-  cream backdrop.
+  Etsy listing video, one per pack (variable `pack`: dessau | impasto).
+  12 s, 1920×1440 (4:3, like the listing photos), silent, loop-safe: first and
+  last frames are the empty cream backdrop.
 
-  Three.js draws the 3D scene (procedural iPhone + Studio Display from
-  lib/devices.js, wallpapers through the transition shader in lib/screen.js,
-  flat Bauhaus shapes behind). Every value is a pure function of time: a private GSAP
-  timeline (`stl`) is seeked to the requested time and the scene is drawn from
-  its state. The registered timeline (`main`) owns the HTML overlays and
-  re-renders the canvas on every seek.
+  Three.js draws the 3D scene: procedural iPhone + Studio Display (lib/devices.js)
+  showing the pack's wallpapers through the transition shader (lib/screen.js),
+  in front of the pack's backdrop (lib/backdrop.js). Per-pack data lives in
+  lib/packs.js. Every value is a pure function of time: a private GSAP timeline
+  (`stl`) is seeked to the requested time and the scene is drawn from its state.
+  The registered timeline (`main`) owns the HTML overlays and redraws the canvas
+  on every seek.
+
+  Render: npx hyperframes render . -q high --variables '{"pack":"impasto"}' -o renders/impasto.mp4
 -->
-<html lang="en">
+<html lang="en" data-composition-variables='[{"id":"pack","type":"enum","label":"Pack","default":"dessau","options":[{"value":"dessau","label":"Dessau"},{"value":"impasto","label":"Impasto"}]}]'>
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=1920, height=1440">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1440" />
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <script type="importmap">
       {
@@ -55,25 +58,16 @@
     </style>
   </head>
   <body>
-    <div data-hf-id="hf-xfz3" id="root" data-composition-id="main" data-start="0" data-duration="12" data-width="1920" data-height="1440">
-      <div data-hf-id="hf-zz7x" id="stage" class="clip" data-start="0" data-duration="12" data-track-index="0">
-        <canvas data-hf-id="hf-sw8x" id="gl" width="1920" height="1440"></canvas>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="12" data-width="1920" data-height="1440">
+      <div id="stage" class="clip" data-start="0" data-duration="12" data-track-index="0">
+        <canvas id="gl" width="1920" height="1440"></canvas>
       </div>
-
-      <div data-hf-id="hf-cly0" id="counter" data-layout-allow-overlap="" class="clip" data-start="0" data-duration="12" data-track-index="1">
-        <div data-hf-id="hf-k8k7" class="count-item"><span data-hf-id="hf-6jz6" class="count-num">01</span><span data-hf-id="hf-u36l" class="count-name">Kreise</span></div>
-        <div data-hf-id="hf-aj4n" class="count-item"><span data-hf-id="hf-6ya7" class="count-num">02</span><span data-hf-id="hf-gx5r" class="count-name">Rot</span></div>
-        <div data-hf-id="hf-a4tm" class="count-item"><span data-hf-id="hf-7cl8" class="count-num">03</span><span data-hf-id="hf-fms4" class="count-name">Schwarz</span></div>
-        <div data-hf-id="hf-9qil" class="count-item"><span data-hf-id="hf-7qw9" class="count-num">04</span><span data-hf-id="hf-33ls" class="count-name">Gelb</span></div>
-        <div data-hf-id="hf-cins" class="count-item"><span data-hf-id="hf-857a" class="count-num">05</span><span data-hf-id="hf-hlnn" class="count-name">Sonne</span></div>
-        <div data-hf-id="hf-c4cr" class="count-item"><span data-hf-id="hf-8jib" class="count-num">06</span><span data-hf-id="hf-l3hc" class="count-name">Halbkreise</span></div>
-      </div>
-
-      <div data-hf-id="hf-ml34" id="endcard" class="clip" data-start="0" data-duration="12" data-track-index="2">
-        <div data-hf-id="hf-u3if" class="eyebrow" id="ec-eyebrow">Digital download · Wallpaper pack</div>
-        <div data-hf-id="hf-62u9" class="title" id="ec-title"><span data-hf-id="hf-ksn3">D</span><span data-hf-id="hf-xwr0">e</span><span data-hf-id="hf-scgm">s</span><span data-hf-id="hf-kwl6">s</span><span data-hf-id="hf-zhz4">a</span><span data-hf-id="hf-rjuk">u</span></div>
-        <div data-hf-id="hf-3dot" class="sub" id="ec-sub">12 Bauhaus <em data-hf-id="hf-rcd4">modern</em> wallpapers</div>
-        <div data-hf-id="hf-70yh" class="chips" id="ec-chips"><span data-hf-id="hf-rpwu" class="chip solid">6 × iPhone</span><span data-hf-id="hf-f0re" class="chip solid">6 × Mac · PC</span><span data-hf-id="hf-90n4" class="chip">4K + 5K</span></div>
+      <div id="counter" data-layout-allow-overlap class="clip" data-start="0" data-duration="12" data-track-index="1"></div>
+      <div id="endcard" class="clip" data-start="0" data-duration="12" data-track-index="2">
+        <div class="eyebrow" id="ec-eyebrow">Digital download · Wallpaper pack</div>
+        <div class="title" id="ec-title"></div>
+        <div class="sub" id="ec-sub"></div>
+        <div class="chips" id="ec-chips"></div>
       </div>
     </div>
 
@@ -82,34 +76,29 @@
       import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
       import { buildPhone, buildMonitor, PHONE, MONITOR } from "./lib/devices.js";
       import { screenMaterial, screenAt, applyScreen } from "./lib/screen.js";
+      import { bauhausBackdrop, paintingBackdrop } from "./lib/backdrop.js";
+      import { PACKS } from "./lib/packs.js";
 
       const W = 1920, H = 1440, DURATION = 12;
+      const vars = window.__hyperframes?.getVariables?.() ?? {};
+      const SLUG = PACKS[vars.pack] ? vars.pack : "dessau";
+      const PACK = PACKS[SLUG];
+      const PHONE_SWAPS = [...PACK.tour, ...PACK.duo];
+      const PHONE_FIRST = PACK.tour[0].from;
+      const MONITOR_FIRST = PACK.duo[0].from;
+      const swapEase = gsap.parseEase("power2.inOut");
+      const clamp01 = (v) => Math.min(1, Math.max(0, v));
 
-      // ── Pack data ────────────────────────────────────────────────────────────
-      const PAL = { cobalt: "#1e50c9", vermilion: "#e54128", black: "#161616", mustard: "#f9b522" };
-      const IDS = ["01", "02", "03", "04", "05", "06"];
-      // A contrasting disc sits behind the phone while each design is on screen.
-      const DISC = [PAL.mustard, PAL.cobalt, PAL.vermilion, PAL.cobalt, PAL.black, PAL.vermilion];
-      // Light wallpapers get a dark clock, like iOS does.
-      const DARK_CLOCK = [false, false, false, true, false, false];
-      // Act 1: the phone walks through the six designs.
-      const TOUR = [
-        { t: 2.0, from: 0, to: 1, mode: 0, origin: [0.0, -0.35], accent: PAL.mustard },
-        { t: 3.05, from: 1, to: 2, mode: 1, dir: [0.55, 1.0], accent: PAL.cobalt },
-        { t: 4.1, from: 2, to: 3, mode: 2, origin: [0.0, 0.1], accent: PAL.vermilion },
-        { t: 5.15, from: 3, to: 4, mode: 0, origin: [1.0, 1.0], accent: PAL.black },
-        { t: 6.2, from: 4, to: 5, mode: 1, dir: [-1.0, 0.25], accent: PAL.vermilion },
-      ].map((s) => ({ ...s, dur: 0.62 }));
-      // Act 2: phone and monitor flip through designs together — every design has
-      // its own desktop composition, not a crop.
-      const DUO = [
-        { t: 9.05, from: 5, to: 1, mode: 0, origin: [0, 0], accent: PAL.mustard },
-        { t: 9.45, from: 1, to: 2, mode: 1, dir: [1, 0.3], accent: PAL.cobalt },
-        { t: 9.85, from: 2, to: 3, mode: 0, origin: [-1, 1], accent: PAL.vermilion },
-        { t: 10.25, from: 3, to: 4, mode: 1, dir: [-0.4, 1], accent: PAL.black },
-        { t: 10.65, from: 4, to: 0, mode: 0, origin: [0, -1], accent: PAL.vermilion },
-      ].map((s) => ({ ...s, dur: 0.34 }));
-      const PHONE_SWAPS = [...TOUR, ...DUO];
+      // ── Overlay copy from the pack ───────────────────────────────────────────
+      const tourShown = [PHONE_FIRST, ...PACK.tour.map((s) => s.to)];
+      document.getElementById("counter").innerHTML = tourShown
+        .map((i) => `<div class="count-item"><span class="count-num">${PACK.ids[i]}</span><span class="count-name">${PACK.names[i]}</span></div>`)
+        .join("");
+      document.getElementById("ec-title").innerHTML = [...PACK.title].map((c) => `<span>${c}</span>`).join("");
+      document.getElementById("ec-sub").innerHTML = PACK.sub;
+      document.getElementById("ec-chips").innerHTML = PACK.chips
+        .map((c, i) => `<span class="chip${i < 2 ? " solid" : ""}">${c}</span>`)
+        .join("");
 
       // ── Renderer / scene ─────────────────────────────────────────────────────
       const canvas = document.getElementById("gl");
@@ -137,7 +126,7 @@
       key.shadow.bias = -0.0004;
       scene.add(key, new THREE.AmbientLight(0xffffff, 0.25));
 
-      // Shadows land on an invisible sheet just in front of the Bauhaus shapes.
+      // Shadows land on an invisible sheet just in front of the backdrop pieces.
       const shadowSheet = new THREE.Mesh(new THREE.PlaneGeometry(24, 18), new THREE.ShadowMaterial({ opacity: 0.2 }));
       shadowSheet.position.z = -0.9;
       shadowSheet.receiveShadow = true;
@@ -155,26 +144,7 @@
       const monitor = buildMonitor(screenMaterial(MONITOR.sw / MONITOR.sh));
       scene.add(phone.group, monitor.group);
 
-      // ── Bauhaus backdrop ─────────────────────────────────────────────────────
-      const flat = (c) => new THREE.MeshBasicMaterial({ color: c, toneMapped: false, side: THREE.DoubleSide });
-      const disc = new THREE.Mesh(new THREE.CircleGeometry(1, 96), flat(DISC[0]));
-      disc.position.z = -0.95;
-      scene.add(disc);
-      const SHAPES = [
-        { geo: new THREE.PlaneGeometry(0.018, 4.4), color: PAL.black, pos: [0.25, 0.05, -1.45], rot: 0.62, spin: 0.018 },
-        { geo: new THREE.CircleGeometry(0.2, 64), color: PAL.vermilion, pos: [1.3, 0.92, -1.1], rot: 0, spin: 0 },
-        { geo: new THREE.PlaneGeometry(0.16, 0.95), color: PAL.mustard, pos: [-1.35, -0.72, -1.2], rot: -0.32, spin: 0.03 },
-        { geo: new THREE.CircleGeometry(0.44, 64, 0, Math.PI), color: PAL.cobalt, pos: [1.2, -0.9, -1.6], rot: 0.4, spin: 0.06 },
-        { geo: new THREE.CircleGeometry(0.07, 48), color: PAL.black, pos: [-1.08, 0.98, -0.6], rot: 0, spin: 0 },
-        { geo: new THREE.RingGeometry(0.27, 0.3, 72), color: PAL.black, pos: [-1.5, 0.22, -1.8], rot: 0, spin: 0 },
-      ].map((d) => {
-        const m = new THREE.Mesh(d.geo, flat(d.color));
-        m.position.set(...d.pos);
-        scene.add(m);
-        return { mesh: m, ...d, s: 0 };
-      });
-
-      // ── State timeline (private, seeked from renderAt) ───────────────────────
+      // ── State timeline (private, seeked from renderAt; built once assets load) ─
       const S = {
         phX: 0, phY: -3.3, phZ: 0, phS: 1, phRX: 0.35, phRY: -2.9, phRZ: 0.2,
         monX: -0.4, monY: -4.6, monZ: -0.75, monRX: 0.35, monRY: 0.22,
@@ -182,33 +152,32 @@
         disc: 0, discX: -0.38, discY: 0.32, discS: 1,
       };
       const stl = gsap.timeline({ paused: true });
-      // Intro — the phone rises back-first and turns to face the lens; shapes pop in.
-      stl.to(S, { phY: 0, duration: 1.3, ease: "expo.out" }, 0.1);
-      stl.to(S, { phRY: -0.1, phRX: 0.04, phRZ: 0, duration: 1.8, ease: "power2.inOut" }, 0.1);
-      stl.to(S, { disc: 1, duration: 1.0, ease: "back.out(1.7)" }, 0.45);
-      stl.to(SHAPES, { s: 1, duration: 0.8, ease: "back.out(1.8)", stagger: 0.07 }, 0.6);
-      // Slow orbit and push while the designs cycle.
-      stl.to(S, { camAz: 0.26, duration: 7.1, ease: "sine.inOut" }, 0);
-      stl.to(S, { camD: 4.25, duration: 6.9, ease: "sine.inOut" }, 0.2);
-      // Pull back: the monitor rises in behind, the phone steps forward-right.
-      stl.to(S, { camD: 8.2, camAz: 0.1, camEl: 0.06, tgtX: 0.35, tgtY: 0.42, duration: 1.9, ease: "power3.inOut" }, 7.1);
-      stl.to(S, { phX: 1.02, phY: -0.62, phZ: 0.5, phS: 0.8, phRY: -0.38, phRX: 0.02, duration: 1.7, ease: "power3.inOut" }, 7.2);
-      stl.to(S, { monY: -0.28, monRX: 0.02, monRY: 0.1, duration: 1.5, ease: "power3.out" }, 7.55);
-      stl.to(S, { discX: 1.55, discY: -0.35, discS: 1.2, duration: 1.8, ease: "power3.inOut" }, 7.2);
-      // Line, dot, small disc and ring would crowd the end-card type.
-      stl.to([SHAPES[0], SHAPES[1], SHAPES[4], SHAPES[5]], { s: 0, duration: 0.45, ease: "back.in(1.6)" }, 7.3);
-      // Exit — back to the empty backdrop so the loop is seamless.
-      stl.to(S, { phY: -4.2, phRX: 0.4, duration: 0.6, ease: "power3.in" }, 11.3);
-      stl.to(S, { monY: -5.2, monRX: 0.3, duration: 0.62, ease: "power3.in" }, 11.28);
-      stl.to(S, { disc: 0, duration: 0.45, ease: "back.in(1.6)" }, 11.4);
-      stl.to([SHAPES[2], SHAPES[3]], { s: 0, duration: 0.4, ease: "back.in(1.8)", stagger: 0.03 }, 11.35);
-      stl.set({}, {}, DURATION);
-
-      const swapEase = gsap.parseEase("power2.inOut");
-      const clamp01 = (v) => Math.min(1, Math.max(0, v));
+      function buildStateTimeline(backdrop) {
+        const keep = backdrop.pieces.filter((p) => !backdrop.endHide.includes(p));
+        // Intro — the phone rises back-first and turns to face the lens; pieces pop in.
+        stl.to(S, { phY: 0, duration: 1.3, ease: "expo.out" }, 0.1);
+        stl.to(S, { phRY: -0.1, phRX: 0.04, phRZ: 0, duration: 1.8, ease: "power2.inOut" }, 0.1);
+        stl.to(S, { disc: 1, duration: 1.0, ease: "back.out(1.7)" }, 0.45);
+        stl.to(backdrop.pieces, { s: 1, duration: 0.8, ease: "back.out(1.8)", stagger: 0.07 }, 0.6);
+        // Slow orbit and push while the designs cycle.
+        stl.to(S, { camAz: 0.26, duration: 7.1, ease: "sine.inOut" }, 0);
+        stl.to(S, { camD: 4.25, duration: 6.9, ease: "sine.inOut" }, 0.2);
+        // Pull back: the monitor rises in behind, the phone steps forward-right.
+        stl.to(S, { camD: 8.2, camAz: 0.1, camEl: 0.06, tgtX: 0.35, tgtY: 0.42, duration: 1.9, ease: "power3.inOut" }, 7.1);
+        stl.to(S, { phX: 1.02, phY: -0.62, phZ: 0.5, phS: 0.8, phRY: -0.38, phRX: 0.02, duration: 1.7, ease: "power3.inOut" }, 7.2);
+        stl.to(S, { monY: -0.28, monRX: 0.02, monRY: 0.1, duration: 1.5, ease: "power3.out" }, 7.55);
+        stl.to(S, { discX: 1.55, discY: -0.35, discS: 1.2, duration: 1.8, ease: "power3.inOut" }, 7.2);
+        stl.to(backdrop.endHide, { s: 0, duration: 0.45, ease: "back.in(1.6)" }, 7.3);
+        // Exit — back to the empty backdrop so the loop is seamless.
+        stl.to(S, { phY: -4.2, phRX: 0.4, duration: 0.6, ease: "power3.in" }, 11.3);
+        stl.to(S, { monY: -5.2, monRX: 0.3, duration: 0.62, ease: "power3.in" }, 11.28);
+        stl.to(S, { disc: 0, duration: 0.45, ease: "back.in(1.6)" }, 11.4);
+        stl.to(keep, { s: 0, duration: 0.4, ease: "back.in(1.8)", stagger: 0.03 }, 11.35);
+        stl.set({}, {}, DURATION);
+      }
 
       // ── Draw ─────────────────────────────────────────────────────────────────
-      let tex = null, ready = false, lastTime = 0;
+      let tex = null, backdrop = null, ready = false, lastTime = 0;
 
       function drawClock() {
         const c = clockCanvas.getContext("2d");
@@ -242,32 +211,22 @@
         monitor.group.position.set(S.monX, S.monY, S.monZ);
         monitor.group.rotation.set(S.monRX, S.monRY + S.camAz * 0.3, 0);
 
-        const ps = screenAt(t, 0, PHONE_SWAPS, swapEase);
+        const ps = screenAt(t, PHONE_FIRST, PHONE_SWAPS, swapEase);
         applyScreen(phone.screen.material, ps, tex.phone);
         const lastSwap = PHONE_SWAPS.filter((s) => s.t <= t).pop();
         phone.screen.material.uniforms.sheen.value = -0.9 + ((t - (lastSwap?.t ?? 0.4)) / 1.1) * 2.0;
         const shown = ps.p >= 0.5 ? ps.b : ps.a;
-        clockMat.color.set(DARK_CLOCK[shown] ? "#161616" : "#ffffff");
+        clockMat.color.set(PACK.darkClock.includes(shown) ? "#161616" : "#ffffff");
 
-        const ms = screenAt(t, 5, DUO, swapEase);
+        const ms = screenAt(t, MONITOR_FIRST, PACK.duo, swapEase);
         applyScreen(monitor.screen.material, ms, tex.desk);
         monitor.screen.material.uniforms.sheen.value = -1.2 + clamp01((t - 8.2) / 1.6) * 2.6;
 
-        // Disc: hard colour switch (a blend of two primaries turns muddy), masked
-        // by a pulse; it settles on vermilion once the end card is up.
-        disc.material.color.set(t > 8.5 ? DISC[5] : DISC[shown]);
-        const pulse = ps.swap && t < 8.5 ? Math.sin(ps.p * Math.PI) * 0.09 : 0;
-        disc.scale.setScalar(Math.max(0.0001, S.disc * S.discS * (1 + pulse)));
-        disc.position.set(S.discX, S.discY, -0.95);
-
-        for (const sh of SHAPES) {
-          sh.mesh.scale.setScalar(Math.max(0.0001, sh.s));
-          sh.mesh.rotation.z = sh.rot + sh.spin * t;
-        }
+        backdrop.update(t, shown, ps, S);
         renderer.render(scene, camera);
       }
 
-      // ── Build: textures + clock font, then first frame ───────────────────────
+      // ── Build: textures + clock font, then backdrop, state and first frame ───
       const loader = new THREE.TextureLoader();
       const loadTex = (url) =>
         loader.loadAsync(url).then((t) => {
@@ -277,14 +236,18 @@
         });
       window.__hf = window.__hf || {};
       window.__hf.buildReady = window.__hf.buildReady || {};
-      window.__hf.buildReady["dessau-scene"] = (async () => {
+      window.__hf.buildReady["listing-scene"] = (async () => {
         const font = new FontFace("Barlow", 'url("assets/fonts/barlow-500.woff2")', { weight: "500" });
         const [phoneTex, deskTex] = await Promise.all([
-          Promise.all(IDS.map((n) => loadTex(`assets/dessau/phone-${n}.jpg`))),
-          Promise.all(IDS.map((n) => loadTex(`assets/dessau/desk-${n}.jpg`))),
+          Promise.all(PACK.ids.map((n) => loadTex(`assets/${SLUG}/phone-${n}.jpg`))),
+          Promise.all(PACK.ids.map((n) => loadTex(`assets/${SLUG}/desk-${n}.jpg`))),
           font.load().then((f) => document.fonts.add(f)),
         ]);
         tex = { phone: phoneTex, desk: deskTex };
+        backdrop = PACK.backdrop === "painting"
+          ? paintingBackdrop(scene, PACK, tex, swapEase)
+          : bauhausBackdrop(scene, PACK);
+        buildStateTimeline(backdrop);
         drawClock();
         renderer.compile(scene, camera);
         ready = true;
@@ -297,7 +260,7 @@
       const tl = gsap.timeline({ paused: true, onUpdate: () => renderAt(tl.time()) });
       const items = gsap.utils.toArray(".count-item");
       // Counter: each name appears at the midpoint of the swap that brings its design.
-      const shows = [1.35, ...TOUR.map((s) => s.t + s.dur / 2)];
+      const shows = [1.35, ...PACK.tour.map((s) => s.t + s.dur / 2)];
       items.forEach((el, i) => {
         tl.fromTo(el, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" }, shows[i]);
         const end = i < items.length - 1 ? shows[i + 1] - 0.12 : 7.2;
