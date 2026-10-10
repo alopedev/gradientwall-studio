@@ -5,20 +5,21 @@ import {
   ALL_ACTIVE,
   DEFAULT_CONTRAST,
   DEFAULT_DENSITY,
-  DEFAULT_LIGHT_ANGLE,
   MIN_ACTIVE_COLORS,
   PALETTES,
   STYLES,
   type ActiveMask,
   type Colors4,
   type Device,
+  type Engine,
   type GradientConfig,
   type RenderParams,
   type Style,
 } from "@/lib/palettes";
 import { randomColors } from "@/lib/gradient";
 import { generateRemix } from "@/lib/gradient/remix";
-import { CURATED_GRAIN, CURATED_VIBRANCE, generateSurprise } from "@/lib/gradient/surprise";
+import { CURATED_VIBRANCE, generateSurprise } from "@/lib/gradient/surprise";
+import { V2_DEFAULT_GRAIN, V2_DEFAULT_LIGHT_ANGLE } from "@/lib/gradient-v2/params";
 import { makeRafBatcher } from "@/lib/raf-batcher";
 
 /**
@@ -30,8 +31,14 @@ import { makeRafBatcher } from "@/lib/raf-batcher";
  * concrete value, so we narrow it to required here.
  */
 export interface ConfigState
-  extends Omit<GradientConfig, "lightAngle" | "density" | "contrast" | "vibrance"> {
+  extends Omit<GradientConfig, "lightAngle" | "density" | "contrast" | "vibrance" | "engine"> {
   device: Device;
+  /**
+   * Engine that renders the current wallpaper. New wallpapers (start, shuffle,
+   * remix) are v2; loading a favorite saved with v1 switches back to v1 so it
+   * looks the way it was saved.
+   */
+  engine: Engine;
   lightAngle: number;
   density: number;
   contrast: number;
@@ -106,6 +113,7 @@ export const useConfigStore = create<ConfigState>()((set) => {
   const rafSet = makeRafBatcher<RafPatch>(set);
   return {
     device: "mobile",
+    engine: "v2",
     colors: [...PALETTES[0].colors] as Colors4,
     active: freshMask(),
     style: "liquid",
@@ -113,9 +121,10 @@ export const useConfigStore = create<ConfigState>()((set) => {
     // Curated finish (same values `generateSurprise` used to force on every
     // roll). Grain / contrast / vibrance are now the user's to set in the
     // Adjust panel, so surprise and remix leave them alone.
-    grain: CURATED_GRAIN,
+    // v2 starting look: approved grain and light from the top-left (compass 315).
+    grain: V2_DEFAULT_GRAIN,
     seed: randomSeed(),
-    lightAngle: DEFAULT_LIGHT_ANGLE,
+    lightAngle: V2_DEFAULT_LIGHT_ANGLE,
     density: DEFAULT_DENSITY,
     contrast: DEFAULT_CONTRAST,
     vibrance: CURATED_VIBRANCE,
@@ -162,6 +171,7 @@ export const useConfigStore = create<ConfigState>()((set) => {
       set((s) => {
         const next = generateSurprise(s.seed);
         return {
+          engine: "v2",
           colors: next.colors,
           active: freshMask(),
           // The style is the user's choice (segmented control), not part of the surprise.
@@ -187,6 +197,7 @@ export const useConfigStore = create<ConfigState>()((set) => {
         };
         const next = generateRemix(current);
         return {
+          engine: "v2",
           colors: next.colors,
           // active no se toca — el remix mantiene la misma paleta
           style: next.style,
@@ -208,6 +219,7 @@ export const useConfigStore = create<ConfigState>()((set) => {
  * that needs a one-shot extraction without subscribing.
  */
 export const selectRenderParams = (s: ConfigState): RenderParams => ({
+  engine: s.engine,
   colors: activeColors(s.colors, s.active),
   style: s.style,
   blur: s.blur,
@@ -234,6 +246,7 @@ export const selectRenderParams = (s: ConfigState): RenderParams => ({
  * `RenderParams` directly — the type lives in `palettes.ts`, not here.
  */
 export function useRenderParams(): RenderParams {
+  const engine = useConfigStore((s) => s.engine);
   const colors = useConfigStore((s) => s.colors);
   const active = useConfigStore((s) => s.active);
   const style = useConfigStore((s) => s.style);
@@ -246,6 +259,7 @@ export function useRenderParams(): RenderParams {
   const vibrance = useConfigStore((s) => s.vibrance);
   return useMemo(
     () => ({
+      engine,
       colors: activeColors(colors, active),
       style,
       blur,
@@ -256,6 +270,6 @@ export function useRenderParams(): RenderParams {
       contrast,
       vibrance,
     }),
-    [colors, active, style, blur, grain, seed, lightAngle, density, contrast, vibrance],
+    [engine, colors, active, style, blur, grain, seed, lightAngle, density, contrast, vibrance],
   );
 }

@@ -1,10 +1,10 @@
 import { createContext, type ReactNode, useContext } from "react";
-import { canvas2DEngine } from "./canvas2d-engine";
+import { webglEngine } from "./webgl-engine";
 import type { WallpaperEngine } from "./types";
 
-const EngineContext = createContext<WallpaperEngine>(canvas2DEngine);
+const EngineContext = createContext<WallpaperEngine>(webglEngine);
 
-/** Swap the engine for a subtree (tests, or the WebGL v2 engine once it lands). */
+/** Swap the engine for a subtree (tests). The default is the WebGL v2 engine, which falls back to Canvas2D. */
 export function EngineProvider({
   engine,
   children,
