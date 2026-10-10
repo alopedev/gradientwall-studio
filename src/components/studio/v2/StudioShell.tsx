@@ -1,143 +1,100 @@
-import { AnimatePresence, m } from "motion/react";
-import { useEffect, useState } from "react";
-import { useIsMobile } from "@/lib/useIsMobile";
-import { Preview } from "../Preview";
+import { m, useInView } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 import { Reveal } from "../../ui/Reveal";
 import { SplitWords } from "../../ui/SplitWords";
-import { ActionRow } from "./ActionRow";
-import { CustomizePanel } from "./CustomizePanel";
+import { useConfigStore } from "@/store";
+import { DeviceStage } from "./DeviceStage";
 import { FavoritesStrip } from "./FavoritesStrip";
-import { SurpriseCTA } from "./SurpriseCTA";
+import { type RevealRequest, RevealContext } from "./reveal";
+import { StageHalo } from "./StageHalo";
+import { StudioDock } from "./StudioDock";
+import { StudioTopBar } from "./StudioTopBar";
+
+const enter = (delay: number) => ({
+  initial: { opacity: 0, y: 18 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, amount: 0.15 },
+  transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] as const, delay },
+});
 
 /**
- * StudioShell — orquestador del Studio v2 (surprise-first).
- *
- * Composición:
- * - **Canvas Preview** (intocable, v1) ocupa el espacio principal. Sus
- *   gestos (Alt+scroll, drag-drop de imagen, listeners propios) siguen
- *   viviendo en `Preview.tsx` original — aquí lo montamos tal cual.
- * - **CustomizePanel** (Fase 3) aparece como columna lateral derecha cuando
- *   el usuario aprieta el botón Customize del ActionRow. NO es un overlay:
- *   el shell anima el layout reduciendo la columna del canvas y abriendo
- *   espacio a la derecha — el feedback visual de cada control sigue siendo
- *   inmediato sobre el wallpaper porque ambos viven en el mismo viewport.
- * - **SurpriseCTA** debajo del canvas: el botón hero magnético con
- *   fresh-state ring. Bind global `Space`.
- * - **ActionRow** debajo: Save (Fase 4) · Remix · Download+DevicePicker ·
- *   Customize. Bind global `R` para Remix.
- * - **FavoritesStrip** llegará en Fase 4 al pie del shell.
- *
- * El estado `customizeOpen` se mantiene aquí (no en `ActionRow` ni en
- * `CustomizePanel`) porque coreografía cambios de layout que afectan al
- * canvas. Subirlo a este nivel es lo que permite la animación de
- * "el canvas se encoge y aparece el panel".
- *
- * Feature flag: `?v2=1` o `localStorage.gw_studio_v2 === "true"` controla
- * el switch entre v1 y v2 desde `App.tsx`.
+ * Studio: the wallpaper inside a phone, tablet or monitor frame, one glass dock
+ * with every control, and the saved wallpapers underneath. Shuffle (or Space)
+ * is the main gesture; everything finer sits behind Adjust.
  */
-
-/**
- * Ancho fijo del panel cuando está abierto. Ajustado a 420px tras feedback v4:
- * el wheel circular + palette cards stack vertical + sliders fullwidth caben
- * cómodos sin reducir el Preview a un thumbnail. Mobile fallback: stacked.
- */
-const PANEL_WIDTH = 420;
-
-/** Easing común con el resto del proyecto — coincide con `--magnetic-ease`. */
-const LAYOUT_EASE = [0.22, 1, 0.36, 1] as const;
-const LAYOUT_DURATION = 0.45;
-
 export function StudioShell() {
-  const [customizeOpen, setCustomizeOpen] = useState(false);
-  const isMobile = useIsMobile();
+  const [adjustOpen, setAdjustOpen] = useState(false);
+  const device = useConfigStore((s) => s.device);
+  const sectionRef = useRef<HTMLElement>(null);
+  const revealRef = useRef<RevealRequest | null>(null);
+  const inView = useInView(sectionRef, { amount: 0.35 });
 
-  // Escape global cierra el panel. Bail en inputs / contenteditable para no
-  // colisionar con SeedBadge u otros editores de texto si reaparecen.
+  // Escape closes Adjust (unless the key is going to a text field).
   useEffect(() => {
-    if (!customizeOpen) return;
+    if (!adjustOpen) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
       const t = e.target as HTMLElement | null;
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
-      setCustomizeOpen(false);
+      setAdjustOpen(false);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [customizeOpen]);
+  }, [adjustOpen]);
 
   return (
-    <section
-      id="studio"
-      className="relative mx-auto max-w-[1600px] px-[clamp(24px,5vw,80px)] py-[clamp(60px,9vw,120px)]"
-    >
-      {/* Section head — se conserva la voz brutalist de la home. */}
-      <Reveal className="mb-10 grid items-end gap-12 md:grid-cols-2">
-        <div>
-          <span className="mb-4 block font-sans text-[11px] uppercase tracking-[0.22em] text-white/40">
-            02 — The studio
-          </span>
-          <h2 className="m-0 font-sans text-[clamp(40px,5.5vw,76px)] font-bold uppercase leading-[0.95] tracking-[-0.03em] text-white">
-            <SplitWords text="One tap. Done." kinetic />
-          </h2>
-        </div>
-        <p className="max-w-[42ch] font-sans text-[15px] font-light text-white/75">
-          Hit Surprise me — or press Space — and a wallpaper appears. Don&rsquo;t love it? Remix the
-          same palette in a different mood, or open Customize to take control. Export sized for your
-          phone, tablet, or desktop.
-        </p>
-      </Reveal>
+    <RevealContext.Provider value={revealRef}>
+      <section
+        ref={sectionRef}
+        id="studio"
+        className="relative mx-auto max-w-[1600px] px-[clamp(16px,5vw,80px)] py-[clamp(60px,9vw,120px)]"
+      >
+        <Reveal className="mb-8 grid items-end gap-6 md:mb-10 md:grid-cols-2 md:gap-12">
+          <div>
+            <span className="mb-4 block font-sans text-[11px] uppercase tracking-[0.22em] text-white/40">
+              02 — The studio
+            </span>
+            <h2 className="m-0 font-sans text-[clamp(40px,5.5vw,76px)] font-bold uppercase leading-[0.95] tracking-[-0.03em] text-white">
+              <SplitWords text="One tap. Done." kinetic />
+            </h2>
+          </div>
+          <p className="max-w-[42ch] font-sans text-[15px] font-light text-white/75">
+            Hit Shuffle, or press Space, and a wallpaper appears. Pick a style or a palette, open
+            Adjust for the fine controls, and download it sized for your phone, tablet or desktop.
+          </p>
+        </Reveal>
 
-      <div className="mx-auto flex max-w-[1500px] flex-col items-stretch">
-        {/* Canvas + Panel — animados con motion layout.
-            • Desktop (≥640px): row side-by-side; panel anima width 0→340.
-            • Mobile (<640px): column stacked; panel anima height 0→auto.
-            En ambos casos, useFittedGradientCanvas detecta el resize del
-            container y re-pinta a la resolución correcta. */}
-        <m.div
-          layout
-          transition={{ duration: LAYOUT_DURATION, ease: LAYOUT_EASE }}
-          className="flex flex-col items-stretch gap-5 sm:flex-row sm:items-start"
-        >
-          <m.div
-            layout
-            transition={{ duration: LAYOUT_DURATION, ease: LAYOUT_EASE }}
-            className="min-w-0 sm:flex-1"
+        <div className="@container mx-auto max-w-[1500px]">
+          <div
+            data-device={device}
+            className="relative isolate grid h-[clamp(700px,92vh,860px)] grid-rows-[auto_minmax(0,1fr)_auto_auto] overflow-hidden rounded-[20px] border border-white/10 bg-[radial-gradient(120%_90%_at_50%_40%,#0d0d11_0%,#060607_70%)] @max-[760px]:h-auto @max-[760px]:grid-rows-[auto_520px_auto_auto] @max-[760px]:rounded-2xl @max-[760px]:data-[device=desktop]:grid-rows-[auto_330px_auto_auto]"
           >
-            <Preview framed={false} />
-          </m.div>
-          <AnimatePresence initial={false}>
-            {customizeOpen && (
-              <m.aside
-                key="customize-panel"
-                initial={isMobile ? { height: 0, opacity: 0 } : { width: 0, opacity: 0 }}
-                animate={
-                  isMobile ? { height: "auto", opacity: 1 } : { width: PANEL_WIDTH, opacity: 1 }
-                }
-                exit={isMobile ? { height: 0, opacity: 0 } : { width: 0, opacity: 0 }}
-                transition={{ duration: LAYOUT_DURATION, ease: LAYOUT_EASE }}
-                className="w-full shrink-0 self-stretch overflow-hidden sm:w-auto"
-              >
-                {/* Mobile: el panel ocupa todo el ancho disponible (apilado
-                    debajo del canvas). Desktop: width interno fijo 340 con
-                    overflow-hidden recortando durante la animación. */}
-                <div
-                  style={isMobile ? undefined : { width: PANEL_WIDTH }}
-                  className="h-full w-full sm:w-auto"
-                >
-                  <CustomizePanel onClose={() => setCustomizeOpen(false)} />
-                </div>
-              </m.aside>
-            )}
-          </AnimatePresence>
-        </m.div>
-
-        <SurpriseCTA />
-        <ActionRow
-          customizeOpen={customizeOpen}
-          onToggleCustomize={() => setCustomizeOpen((o) => !o)}
-        />
-        <FavoritesStrip />
-      </div>
-    </section>
+            <StageHalo />
+            <m.div {...enter(0)}>
+              <StudioTopBar />
+            </m.div>
+            <m.div
+              {...enter(0.05)}
+              className="relative z-[1] grid min-h-0 place-items-center px-6 pb-11 pt-2 [container-type:size] @max-[760px]:px-4 @max-[760px]:pb-[34px]"
+            >
+              <DeviceStage />
+            </m.div>
+            <m.div
+              {...enter(0.18)}
+              className="relative z-[4] -mt-[26px] grid @max-[760px]:-mt-[22px]"
+            >
+              <StudioDock
+                adjustOpen={adjustOpen}
+                onToggleAdjust={() => setAdjustOpen((o) => !o)}
+                keysActive={inView}
+              />
+            </m.div>
+            <m.div {...enter(0.3)}>
+              <FavoritesStrip />
+            </m.div>
+          </div>
+        </div>
+      </section>
+    </RevealContext.Provider>
   );
 }

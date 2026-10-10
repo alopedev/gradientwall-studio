@@ -10,13 +10,13 @@ const INITIAL = useConfigStore.getState();
 describe("useConfigStore", () => {
   beforeEach(() => useConfigStore.setState(INITIAL, true));
 
-  it("initializes with Dusk palette, mesh style, blur 48, grain 18", () => {
+  it("initializes with Dusk palette, liquid style, blur 48, curated grain", () => {
     const s = useConfigStore.getState();
-    expect(s.device).toBe("desktop");
+    expect(s.device).toBe("mobile");
     expect(s.colors).toEqual(PALETTES[0].colors);
-    expect(s.style).toBe("mesh");
+    expect(s.style).toBe("liquid");
     expect(s.blur).toBe(48);
-    expect(s.grain).toBe(18);
+    expect(s.grain).toBe(32);
   });
 
   it("setDevice / setStyle / setBlur / setGrain are single-key mutations", async () => {
@@ -101,23 +101,24 @@ describe("useConfigStore", () => {
   });
 
   describe("Studio v2 — applySurprise", () => {
-    it("replaces colors, style, seed, blur, lightAngle and density atomically", () => {
+    it("replaces colors, seed, blur, lightAngle and density atomically", () => {
       const before = useConfigStore.getState();
       useConfigStore.getState().applySurprise();
       const after = useConfigStore.getState();
       // seed always changes — applySurprise excludes the previous one.
       expect(after.seed).not.toBe(before.seed);
-      expect(STYLES).toContain(after.style);
       // colors come from randomHarmonicColors → 4 hex strings.
       for (const c of after.colors) expect(c).toMatch(/^#[0-9a-f]{6}$/i);
     });
 
-    it("freezes grain / contrast / vibrance at curated defaults", () => {
+    it("keeps the user's style, grain, contrast and vibrance", () => {
+      useConfigStore.setState({ style: "aurora", grain: 77, contrast: 1.2, vibrance: 0.8 });
       useConfigStore.getState().applySurprise();
       const s = useConfigStore.getState();
-      expect(s.grain).toBe(32);
-      expect(s.contrast).toBe(1);
-      expect(s.vibrance).toBe(1.05);
+      expect(s.style).toBe("aurora");
+      expect(s.grain).toBe(77);
+      expect(s.contrast).toBe(1.2);
+      expect(s.vibrance).toBe(0.8);
     });
 
     it("resets the active mask to ALL_ACTIVE", () => {
