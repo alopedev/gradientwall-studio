@@ -4,77 +4,46 @@ import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { FavoriteThumbnail } from "./FavoriteThumbnail";
 
 /**
- * FavoritesStrip — galería persistente en horizontal, siempre visible al pie
- * del StudioShell. Filosofía Studio v2: invitar a guardar y volver. El usuario
- * pinea wallpapers que le gustan, vuelve a la página después y los encuentra
- * tal cual los dejó.
- *
- * Comportamiento:
- * - Vacía → "empty state" suave: icono ♥ + copy "Save your favorites" centrado
- *   con opacity baja. Sin animaciones, no se promueve hasta que tenga sentido.
- * - Con items → tira horizontal scrollable (overflow-x-auto). Cada chip es
- *   un FavoriteThumbnail con:
- *     · mini canvas 64×112 renderizado con la config persistida
- *     · click → carga la config al canvas principal
- *     · X hover → unpin
- *     · drag → reorder (motion Reorder.Group)
- *
- * Persistencia gestionada por useFavoritesStore (zustand persist en
- * localStorage `gw:favorites:v1`).
+ * Saved wallpapers, always under the dock. Tap one to go back to it, drag to
+ * reorder, hover and press ✕ to remove. Persisted by `useFavoritesStore`.
  */
-
 export function FavoritesStrip() {
   const items = useFavoritesStore((s) => s.items);
   const reorder = useFavoritesStore((s) => s.reorder);
 
-  if (items.length === 0) {
-    return (
-      <section
-        aria-label="Favorites — empty"
-        className="mt-6 flex h-[var(--strip-height)] items-center justify-center rounded-[10px] border border-dashed border-white/8"
-      >
-        <span className="inline-flex items-center gap-2 font-sans text-[11px] uppercase tracking-[0.18em] text-white/35">
-          <Heart className="size-3.5" aria-hidden />
-          Save your favorites
-        </span>
-      </section>
-    );
-  }
-
   return (
     <section
-      aria-label="Favorites"
-      className="glass-modern mt-6 rounded-[10px] p-3"
-      style={{ height: "var(--strip-height)" }}
+      aria-label={items.length === 0 ? "Favorites — empty" : "Favorites"}
+      className="relative z-[3] flex min-h-[108px] min-w-0 items-center justify-center gap-3.5 px-[18px] pb-[18px] pt-3.5 @max-[760px]:min-h-0 @max-[760px]:flex-col @max-[760px]:gap-2 @max-[760px]:px-3.5 @max-[760px]:pb-4"
     >
-      {/* axis="x" hace que motion gestione el drag-reorder en horizontal.
-          values + onReorder cierran el ciclo: el orden visual del DOM es la
-          fuente de verdad del store tras un drop. */}
-      <Reorder.Group
-        axis="x"
-        values={items}
-        onReorder={(reordered) => reorder(reordered.map((it) => it.id))}
-        // justify-center: cuando los favoritos no llenan el contenedor, se
-        // centran horizontalmente (look más equilibrado, esp. con 1-3 items).
-        // Cuando hay overflow, el flex prefiere mantenerlos en sequence
-        // y el overflow-x-auto activa el scroll horizontal — el usuario ve
-        // los primeros centrados y descubre los demás scrolleando.
-        className="flex h-full items-center justify-center gap-2 overflow-x-auto overflow-y-hidden"
-        // scroll-snap proximity da feedback táctil cuando arrastras la tira
-        // con el dedo en mobile (cada thumbnail "engancha" pero no es
-        // mandatory — el usuario puede scroll libre). overscroll-contain
-        // evita que el scroll horizontal de la strip robe el scroll
-        // vertical de la página cuando llega al borde.
-        style={{
-          scrollSnapType: "x proximity",
-          overscrollBehaviorX: "contain",
-          WebkitOverflowScrolling: "touch",
-        }}
-      >
-        {items.map((item) => (
-          <FavoriteThumbnail key={item.id} item={item} />
-        ))}
-      </Reorder.Group>
+      <span className="inline-flex flex-none items-center gap-2 font-sans text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-white/60">
+        Saved
+        <span className="inline-grid h-5 min-w-5 place-items-center rounded-full bg-white/[0.08] px-1.5 tracking-normal text-white tabular-nums">
+          {items.length}
+        </span>
+      </span>
+      {items.length === 0 ? (
+        <p className="m-0 text-balance text-center font-sans text-[0.85rem] text-white/60">
+          <Heart className="mr-1.5 inline size-3.5 -translate-y-px text-rose" aria-hidden />
+          Save the ones you like and come back to them with one tap
+        </p>
+      ) : (
+        <Reorder.Group
+          axis="x"
+          values={items}
+          onReorder={(reordered) => reorder(reordered.map((it) => it.id))}
+          className="m-0 flex min-w-0 items-center gap-2.5 overflow-x-auto overflow-y-hidden p-1.5 [scrollbar-width:none] @max-[760px]:max-w-full"
+          style={{
+            scrollSnapType: "x proximity",
+            overscrollBehaviorX: "contain",
+            WebkitOverflowScrolling: "touch",
+          }}
+        >
+          {items.map((item) => (
+            <FavoriteThumbnail key={item.id} item={item} />
+          ))}
+        </Reorder.Group>
+      )}
     </section>
   );
 }

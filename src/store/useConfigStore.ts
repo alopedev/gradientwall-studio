@@ -6,7 +6,6 @@ import {
   DEFAULT_CONTRAST,
   DEFAULT_DENSITY,
   DEFAULT_LIGHT_ANGLE,
-  DEFAULT_VIBRANCE,
   MIN_ACTIVE_COLORS,
   PALETTES,
   STYLES,
@@ -19,7 +18,7 @@ import {
 } from "@/lib/palettes";
 import { randomColors } from "@/lib/gradient";
 import { generateRemix } from "@/lib/gradient/remix";
-import { generateSurprise } from "@/lib/gradient/surprise";
+import { CURATED_GRAIN, CURATED_VIBRANCE, generateSurprise } from "@/lib/gradient/surprise";
 import { makeRafBatcher } from "@/lib/raf-batcher";
 
 /**
@@ -106,21 +105,20 @@ type RafPatch = Partial<
 export const useConfigStore = create<ConfigState>()((set) => {
   const rafSet = makeRafBatcher<RafPatch>(set);
   return {
-    device: "desktop",
+    device: "mobile",
     colors: [...PALETTES[0].colors] as Colors4,
     active: freshMask(),
-    style: "mesh",
+    style: "liquid",
     blur: 48,
-    // Lower the default from 45 → 18 so the preview canvas reads as a clean
-    // gradient with subtle texture, not a noisy/dirty image. The Grain slider
-    // in the RightRail still spans 0–100 and the alpha cap (0.85) stays in
-    // place — this only resets where new sessions land.
-    grain: 18,
+    // Curated finish (same values `generateSurprise` used to force on every
+    // roll). Grain / contrast / vibrance are now the user's to set in the
+    // Adjust panel, so surprise and remix leave them alone.
+    grain: CURATED_GRAIN,
     seed: randomSeed(),
     lightAngle: DEFAULT_LIGHT_ANGLE,
     density: DEFAULT_DENSITY,
     contrast: DEFAULT_CONTRAST,
-    vibrance: DEFAULT_VIBRANCE,
+    vibrance: CURATED_VIBRANCE,
 
     setDevice: (d) => set({ device: d }),
     // A fresh palette invalidates any per-slot deactivation — reset the mask.
@@ -166,14 +164,12 @@ export const useConfigStore = create<ConfigState>()((set) => {
         return {
           colors: next.colors,
           active: freshMask(),
-          style: next.style,
+          // The style is the user's choice (segmented control), not part of the surprise.
+          style: s.style,
           blur: next.blur,
-          grain: next.grain ?? s.grain,
           seed: next.seed,
           lightAngle: next.lightAngle ?? s.lightAngle,
           density: next.density ?? s.density,
-          contrast: next.contrast ?? s.contrast,
-          vibrance: next.vibrance ?? s.vibrance,
         };
       }),
     applyRemix: () =>

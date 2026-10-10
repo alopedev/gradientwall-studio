@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from "vitest";
-import type { Colors4, GradientConfig } from "@/lib/palettes";
+import { engineOf, type Colors4, type GradientConfig } from "@/lib/palettes";
 import {
   FAVORITES_STORAGE_KEY,
   MAX_FAVORITES,
@@ -38,6 +38,15 @@ describe("useFavoritesStore — pin / unpin / reorder / clear / FIFO cap", () =>
     expect(items).toHaveLength(2);
     expect(items[0].config.seed).toBe(2);
     expect(items[1].config.seed).toBe(1);
+  });
+
+  it("pin keeps the engine flag; items saved without one read as v1", () => {
+    useFavoritesStore.getState().pin(baseConfig({ seed: 1 }));
+    useFavoritesStore.getState().pin(baseConfig({ seed: 2, engine: "v2" }));
+    const [v2, legacy] = useFavoritesStore.getState().items;
+    expect(v2.config.engine).toBe("v2");
+    expect(legacy.config.engine).toBeUndefined();
+    expect(engineOf(legacy.config)).toBe("v1");
   });
 
   it("pin assigns a unique id and a createdAt timestamp", () => {

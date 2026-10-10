@@ -1,0 +1,108 @@
+import { composeWallpaper, paintWallpaper } from "@/lib/download/compose";
+import { encodeWithFallback, type EncodeFormat } from "@/lib/download/encode";
+import { browserDownloadSink, type Sink } from "@/lib/download/sink";
+import { seedToHex } from "@/lib/gradient";
+import { DEVICE_SIZES } from "@/lib/palettes";
+import { useFittedGradientCanvas } from "@/lib/useGradientCanvas";
+import type { EngineCanvasProps, WallpaperEngine } from "./types";
+
+const FORMATS: EncodeFormat[] = [
+  { type: "image/webp", quality: 0.95 },
+  { type: "image/jpeg", quality: 0.95 },
+];
+
+/** Let the browser paint the progress bar before the next heavy synchronous step. */
+const nextFrame = () => new Promise<void>((r) => requestAnimationFrame(() => r()));
+
+function Canvas2DCanvas({ params, device, className, onBeforePaint }: EngineCanvasProps) {
+  const size = DEVICE_SIZES[device];
+  const ref = useFittedGradientCanvas(
+    { nativeW: size.w, nativeH: size.h, ...params, beforePaint: onBeforePaint },
+    [device, params],
+  );
+  return <canvas ref={ref} className={className} />;
+}
+
+/**
+ * Current engine: the Canvas2D mesh/liquid/aurora pipeline. Thin adapter over
+ * `src/lib/gradient` and `src/lib/download`, which stay untouched.
+ */
+export function createCanvas2DEngine(sink: Sink = browserDownloadSink): WallpaperEngine {
+  return {
+    id: "canvas2d",
+    styles: [
+      { id: "liquid", label: "Liquid" },
+      { id: "aurora", label: "Aurora" },
+      { id: "mesh", label: "Mesh" },
+    ],
+    adjustments: [
+      {
+        key: "blur",
+        label: "Softness",
+        min: 10,
+        max: 120,
+        step: 1,
+        default: 48,
+        format: (v) => `${Math.round(v)}`,
+      },
+      {
+        key: "grain",
+        label: "Grain",
+        min: 0,
+        max: 100,
+        step: 1,
+        default: 32,
+        format: (v) => `${Math.round(v)}%`,
+      },
+      {
+        key: "lightAngle",
+        label: "Light",
+        min: 0,
+        max: 360,
+        step: 1,
+        default: 135,
+        format: (v) => `${Math.round(v)}°`,
+      },
+      {
+        key: "contrast",
+        label: "Contrast",
+        min: 0.5,
+        max: 1.5,
+        step: 0.01,
+        default: 1,
+        format: (v) => v.toFixed(2),
+      },
+      {
+        key: "vibrance",
+        label: "Vibrance",
+        min: 0.5,
+        max: 1.5,
+        step: 0.01,
+        default: 1.05,
+        format: (v) => v.toFixed(2),
+      },
+    ],
+    Canvas: Canvas2DCanvas,
+    paintThumbnail(canvas, params, { w, h }) {
+      paintWallpaper(canvas, { ...params, w, h });
+    },
+    async exportWallpaper(params, device, onProgress) {
+      const size = DEVICE_SIZES[device];
+      onProgress?.(0.05);
+      await nextFrame();
+      // Rendering is one synchronous call, so progress moves by stage rather
+      // than by pixel: render ≈ 60 %, encode ≈ 35 %, hand-off the rest.
+      const canvas = composeWallpaper({ ...params, w: size.w, h: size.h });
+      onProgress?.(0.65);
+      await nextFrame();
+      const { blob, ext } = await encodeWithFallback(canvas, FORMATS);
+      onProgress?.(0.95);
+      const filename = `gradientwall-${device}-${seedToHex(params.seed)}.${ext}`;
+      await sink(blob, filename);
+      onProgress?.(1);
+      return { filename, bytes: blob.size };
+    },
+  };
+}
+
+export const canvas2DEngine = createCanvas2DEngine();
