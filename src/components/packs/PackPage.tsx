@@ -1,55 +1,21 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { m } from "motion/react";
-import { getPackBySlug, type Pack } from "@/lib/packs";
+import { getPackBySlug } from "@/lib/packs";
 import { canPurchasePack, openCheckout } from "@/lib/store";
 import { Nav } from "../Nav";
 import { Footer } from "../Footer";
 import { Framed } from "../ui/Framed";
 import { MagneticButton } from "../ui/MagneticButton";
 import { PageMeta } from "../PageMeta";
+import { buildPackPage } from "@/lib/seo/pages";
 import { PackCover } from "./PackCover";
-
-const SITE_ORIGIN = "https://gradientwall.com";
-
-/**
- * Build Product + BreadcrumbList JSON-LD. Google reads these and shows
- * price/breadcrumbs as rich results in search. The Product needs `offers`
- * with currency and availability for the pricing snippet to show up.
- */
-function buildPackJsonLd(pack: Pack): Record<string, unknown>[] {
-  const url = `${SITE_ORIGIN}/packs/${pack.slug}`;
-  return [
-    {
-      "@context": "https://schema.org",
-      "@type": "Product",
-      name: pack.name,
-      description: pack.description,
-      url,
-      brand: { "@type": "Brand", name: "GradientWall" },
-      offers: {
-        "@type": "Offer",
-        url,
-        priceCurrency: "EUR",
-        price: pack.priceEur.toFixed(2),
-        availability: "https://schema.org/InStock",
-      },
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "GradientWall", item: SITE_ORIGIN },
-        { "@type": "ListItem", position: 2, name: "Packs", item: `${SITE_ORIGIN}/#packs` },
-        { "@type": "ListItem", position: 3, name: pack.name, item: url },
-      ],
-    },
-  ];
-}
 
 export function PackPage() {
   const { slug = "" } = useParams<{ slug: string }>();
   const pack = getPackBySlug(slug);
+  // Memoized: PageMeta re-applies its tags whenever `jsonLd` changes identity.
+  const seo = useMemo(() => (pack ? buildPackPage(pack) : null), [pack]);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const eligibility = pack ? canPurchasePack(pack) : { kind: "missing-variant" as const };
   const buyEnabled = eligibility.kind === "buyable";
@@ -88,14 +54,7 @@ export function PackPage() {
 
   return (
     <>
-      <PageMeta
-        title={`${pack.name} — pack of ${pack.previews.length} wallpapers`}
-        description={pack.description}
-        path={`/packs/${pack.slug}`}
-        ogType="product"
-        ogImageAlt={`${pack.name} — ${pack.tagline}`}
-        jsonLd={buildPackJsonLd(pack)}
-      />
+      {seo && <PageMeta {...seo} />}
       <Nav />
       <main className="pt-[100px]">
         {/* Hero */}

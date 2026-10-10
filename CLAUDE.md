@@ -108,7 +108,15 @@ The 3 handlers:
 - `/recover` — `RecoverForm`.
 - `*` — `<Navigate to="/" replace />`.
 
-SPA fallback: `public/_redirects` (`/*  /index.html  200`) and a mirror block in `netlify.toml`.
+Hosting: every public route is prerendered (see "SEO / prerender" below), so Netlify serves real files and unknown paths get a real 404 (`404.html`, whose React app redirects home). Only `/packs/:slug/success` has no file and uses the SPA fallback. `public/_redirects` and the `[[redirects]]` block in `netlify.toml` must stay in sync.
+
+## SEO / prerender
+
+The app is still a client-rendered SPA (`createRoot`, no SSR). `seoPlugin` in `vite.config.ts` post-processes the build: it takes the built `index.html` as a template and writes `dist/<route>/index.html` for the home, each pack in `src/data/packs.json`, `/recover`, plus `404.html` and `sitemap.xml`. Each file has its own title, description, canonical, robots, Open Graph/Twitter and JSON-LD, plus a visually hidden h1/intro inside `#root` that React replaces on mount.
+
+- Source of truth: `src/lib/seo/pages.ts` (pure; used by the plugin **and** by `PageMeta` at runtime) and `render.ts` (HTML/sitemap rendering). Change copy there, not in `index.html`: the block between `<!--seo:start-->` and `<!--seo:end-->` is generated.
+- Pack pages are `noindex` and out of the sitemap until the pack has a `lemonSqueezyVariantId` (store opens in Phase 2).
+- Per-page copy is English. `public/og-default.jpg` (1200×630) is the default share image.
 
 ## Design system — non-obvious rules
 

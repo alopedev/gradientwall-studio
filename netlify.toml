@@ -2,10 +2,12 @@
   command = "npm run build"
   publish = "dist"
 
-# SPA fallback: every unknown path resolves to index.html so client-side
-# routing (react-router) can take over. The `public/_redirects` file is the
-# canonical source — this block is mirrored here for visibility.
+# Routing. Every public page is prerendered at build time (see the seo plugin
+# in vite.config.ts), so Netlify serves real files and anything else is a real
+# 404 (served from the prerendered 404.html, whose React app then redirects
+# the visitor home). Only the post-checkout page has no prerendered file and
+# needs the SPA fallback. `public/_redirects` mirrors this block.
 [[redirects]]
-  from = "/*"
+  from = "/packs/:slug/success"
   to = "/index.html"
   status = 200

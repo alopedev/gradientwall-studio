@@ -2,51 +2,62 @@ import { defineConfig, type Plugin } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { fileURLToPath, URL } from "node:url";
-import { readFileSync } from "node:fs";
-
-const SITE_ORIGIN = "https://gradientwall.com";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { buildHomePage, buildSeoPages, NOT_FOUND_PAGE, type SeoPack } from "./src/lib/seo/pages";
+import {
+  outputFile,
+  renderHeadTags,
+  renderPage,
+  renderSitemap,
+  replaceHeadBlock,
+} from "./src/lib/seo/render";
 
 /**
- * Build-time sitemap generator. Reads `src/data/packs.json` and writes
- * `dist/sitemap.xml` covering the static routes plus one entry per pack.
- * Regenerates automatically on every `npm run build`, so adding a pack to
- * the manifest is the only step needed to keep search engines in sync.
+ * SEO build step. The app is a client-rendered SPA, so crawlers and link
+ * unfurlers (which often don't run JS) would see the same `index.html` for
+ * every URL. After the bundle is written we reuse the built `index.html` as a
+ * template and emit one file per route with its own title, description,
+ * canonical, robots, Open Graph and JSON-LD (plus a visually hidden h1/intro
+ * that React replaces on mount), a `404.html` and `sitemap.xml`.
+ *
+ * The data comes from `src/lib/seo/pages.ts`, the same module `PageMeta` uses
+ * at runtime, and the pack list from `src/data/packs.json`, so adding a pack to
+ * the manifest is the only step needed to get its page prerendered.
  */
-function sitemapPlugin(): Plugin {
+function seoPlugin(): Plugin {
+  const readPacks = () =>
+    JSON.parse(
+      readFileSync(fileURLToPath(new URL("./src/data/packs.json", import.meta.url)), "utf8"),
+    ) as SeoPack[];
+  let outDir = "dist";
+
   return {
-    name: "gradientwall-sitemap",
-    apply: "build",
-    generateBundle() {
-      type Pack = { slug: string };
-      const manifestPath = fileURLToPath(new URL("./src/data/packs.json", import.meta.url));
-      const packs = JSON.parse(readFileSync(manifestPath, "utf8")) as Pack[];
-
-      const today = new Date().toISOString().slice(0, 10);
-      const urls = [
-        { loc: "/", changefreq: "weekly", priority: "1.0" },
-        ...packs.map((p) => ({ loc: `/packs/${p.slug}`, changefreq: "monthly", priority: "0.8" })),
-        { loc: "/legal/terms", changefreq: "yearly", priority: "0.3" },
-        { loc: "/legal/privacy", changefreq: "yearly", priority: "0.3" },
-      ];
-
-      const xml =
-        `<?xml version="1.0" encoding="UTF-8"?>\n` +
-        `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
-        urls
-          .map(
-            ({ loc, changefreq, priority }) =>
-              `  <url>\n    <loc>${SITE_ORIGIN}${loc}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`,
-          )
-          .join("\n") +
-        `\n</urlset>\n`;
-
-      this.emitFile({ type: "asset", fileName: "sitemap.xml", source: xml });
+    name: "gradientwall-seo",
+    configResolved(config) {
+      outDir = fileURLToPath(new URL(config.build.outDir, `file://${config.root}/`));
+    },
+    // Dev server + build: fill the marker block with the home page tags.
+    transformIndexHtml(html) {
+      return replaceHeadBlock(html, renderHeadTags(buildHomePage()));
+    },
+    closeBundle() {
+      // Runs for `vite build` only (vitest has no bundle to post-process).
+      if (!existsSync(join(outDir, "index.html"))) return;
+      const template = readFileSync(join(outDir, "index.html"), "utf8");
+      const pages = buildSeoPages(readPacks());
+      for (const page of [...pages, NOT_FOUND_PAGE]) {
+        const file = join(outDir, outputFile(page));
+        mkdirSync(dirname(file), { recursive: true });
+        writeFileSync(file, renderPage(template, page));
+      }
+      writeFileSync(join(outDir, "sitemap.xml"), renderSitemap(pages));
     },
   };
 }
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), sitemapPlugin()],
+  plugins: [react(), tailwindcss(), seoPlugin()],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
