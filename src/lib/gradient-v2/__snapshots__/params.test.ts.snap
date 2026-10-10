@@ -1,0 +1,30 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`resolveV2Uniforms > is stable for a fixed input (regression guard) 1`] = `
+{
+  "colors": [
+    0.0392156862745098,
+    0.0392156862745098,
+    0.06274509803921569,
+    0.23137254901960785,
+    0.10196078431372549,
+    0.38823529411764707,
+    0.8862745098039215,
+    0.3333333333333333,
+    0.22745098039215686,
+    0.9686274509803922,
+    0.7843137254901961,
+    0.5647058823529412,
+  ],
+  "dither": 1,
+  "grain": 0.45,
+  "light": 0.55,
+  "lightAngleRad": 5.497787143782138,
+  "scale": 0.45,
+  "seed": 4821,
+  "style": 0,
+  "warp": 2,
+}
+`;
+
+exports[`shader sources > matches the approved prototype source 1`] = `"c4bf6010c9cf27397d8c82879fc38359c8ca905183be1addad66da6325f98f13"`;

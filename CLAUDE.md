@@ -44,6 +44,11 @@ Four concentric layers: **pure render → state → React views → backend func
   - `spec.ts` — pure, deterministic, no DOM. `buildGradientSpec(opts)` returns a `GradientSpec` (data-only). Also exports `mulberry32`, `hslToHex`, `seedToHex`, `randomColors`. **Core product math** — snapshot-tested.
   - `canvas2d.ts` — `paintSpecToCanvas(canvas, spec)`. Only file under `gradient/` that touches Canvas API.
   - `index.ts` — re-exports + `renderGradient(canvas, opts)` convenience facade.
+- `gradient-v2/` — the v2 engine (WebGL2 shader, ported pixel-for-pixel from the approved prototype in `/mnt/project-files/web-plan/prototipo/`). Lives beside v1; `GradientConfig.engine` (`"v1" | "v2"`, absent = v1 via `engineOf`) picks the renderer per favorite, so items saved before v2 keep rendering as saved.
+  - `shader.ts` — GLSL sources. Signed-off math like `spec.ts`; a sha256 snapshot guards it.
+  - `params.ts` — pure mapping from `RenderParams` vocabulary to uniforms (compass light angle → math radians, grain 0..100 → 0..1, 2–4 colour ramp → 4 stops, v1 style names → `liquid | aurora | grain-mesh`).
+  - `renderer.ts` — the only file here that touches the GPU. One shared WebGL2 context (`getSharedRendererV2`), `paintV2` blits into any 2D canvas, large sizes render in 512-row strips.
+  - `export.ts` — `renderWallpaperV2(params, w, h)` → canvas for `encodeWithFallback`, or `null` when the GPU path can't run (caller falls back to v1 `composeWallpaper`).
 - `download/`
   - `compose.ts` — **single source of truth for "render a wallpaper onto a canvas"**. Exposes `paintWallpaper(canvas, opts)` for callers that already hold a canvas (Preview, gradient hooks, PackCover) and `composeWallpaper(opts, factory?)` for callers that need a fresh off-screen canvas (download flow, mockup shared canvas). Both internally call `paintWallpaper` so the gradient + grain pipeline is defined exactly once. If you ever need a watermark / blend mode tweak, this is the only file to touch.
   - `encode.ts` + `sink.ts` + `index.ts` — encode-with-fallback + browser blob download wiring used by the Studio's Download button.

@@ -50,6 +50,17 @@ export const DEVICE_SIZES: Record<Device, DeviceSize> = {
   desktop: { w: 5120, h: 2880, label: "5120 × 2880" },
 };
 
+/**
+ * Which renderer draws a wallpaper. `v1` = Canvas2D layers (`lib/gradient`),
+ * `v2` = WebGL2 shader (`lib/gradient-v2`). Stored per favorite so items
+ * saved before v2 keep rendering exactly as they were saved.
+ */
+export const ENGINES = ["v1", "v2"] as const;
+export type Engine = (typeof ENGINES)[number];
+
+/** `undefined` engine (every config saved before v2 existed) means v1. */
+export const engineOf = (c: { engine?: Engine }): Engine => c.engine ?? "v1";
+
 // Shared shape describing a wallpaper's rendering parameters.
 // `RenderOpts` (gradient.ts) adds raster dimensions; `HistoryItem` (store) persists it;
 // `DownloadOpts` (download.ts) adds the device target.
@@ -95,6 +106,8 @@ export interface GradientConfig {
    * don't blow out. Resolved at render time as `saturate(1 + (v - 1) * 0.6)`.
    */
   vibrance?: number;
+  /** Renderer that made this config. Optional: absent = v1 (see `engineOf`). */
+  engine?: Engine;
 }
 
 /** Default light angle: top-right painterly convention. */
@@ -139,6 +152,8 @@ export interface RenderParams {
   /** Color-grading multipliers, identity = 1. See `GradientConfig`. */
   contrast?: number;
   vibrance?: number;
+  /** Renderer to use. Absent = v1. */
+  engine?: Engine;
 }
 
 /** Default density: midpoint reproduces the pre-density layer counts. */
