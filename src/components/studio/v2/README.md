@@ -1,27 +1,17 @@
-# Studio v2 — surprise-first shell
+# Studio — interfaz
 
-Componentes del Studio activo. Tras el cutover de Fase 5 (commit `604b7f2`) v1 se eliminó y estos son el Studio único.
-
-| Componente | Responsabilidad |
-|---|---|
-| `StudioShell.tsx` | Orquestador layout. Maneja `customizeOpen` y monta `<Preview>` (de `studio/`) tal cual sin tocar gestos. |
-| `SurpriseCTA.tsx` | `ShimmerButton` magnético (shimmer-slide + spin-around conic incorporados). Bind global `Space`. |
-| `ActionRow.tsx` | Save · Remix · Download (con `DevicePicker` integrado) · Customize. Bind global `R` para Remix. |
-| `DevicePicker.tsx` | Popover Radix con iPhone / iPad / Desktop + labels de resolución. |
-| `CustomizePanel.tsx` | Panel inline lateral (420 px desktop, stacked en mobile). Contiene `HarmonicWheel` + `PaletteCards` + sliders Softness y Grain. |
-| `FavoritesStrip.tsx` + `FavoriteThumbnail.tsx` | Tira persistente abajo, `motion.Reorder`, thumbnails 64×112, scroll-snap en mobile. |
-
-Hojas que viven en `studio/` (no en `v2/`) y consume el panel:
+Wallpaper dentro de un marco de móvil, tablet o monitor, un dock de cristal con todos los controles y la tira de guardados debajo. Detalle y reglas en `CLAUDE.md`.
 
 | Componente | Responsabilidad |
 |---|---|
-| `HarmonicWheel.tsx` | Arc-like color picker circular con 4 bullets sincronizados + anillo de luz exterior. Edita los 4 slots a la vez vía `computeHarmonicColors`. |
-| `PaletteCards.tsx` | 4 paletas featured (Dusk / Tokyo / Forest / Mocha) con hover-expand reveal hex. |
-| `UseMyPhotoButton.tsx` | Popover con `ImageSource` para extraer paleta de una foto subida. |
-| `Preview.tsx` | Canvas + gestos (Alt+scroll, drag-drop). |
-| `useColorEditing.ts` | Hook compartido (eyedropper) usado por `HarmonicWheel`. |
+| `StudioShell.tsx` | Layout, estado de "Adjust", entrada con scroll. Space/R solo con el Studio en pantalla. |
+| `StudioTopBar.tsx` | Nombre de la paleta (serif) + estilo, y el selector de dispositivo. |
+| `DeviceStage.tsx` | Marco, pantalla de bloqueo / barra de menú, reveal circular, drop de foto. |
+| `StageHalo.tsx` | Resplandor con los colores de la paleta detrás del dispositivo. |
+| `StudioDock.tsx` | Shuffle, estilo, paletas, guardar, Adjust, Download, toast. |
+| `AdjustPanel.tsx` | Sliders del motor + Reset, Remix y el popover Colors (HarmonicWheel). |
+| `SaveButton.tsx`, `ExportButton.tsx`, `PaletteSwatches.tsx` | Piezas del dock. |
+| `FavoritesStrip.tsx`, `FavoriteThumbnail.tsx` | Guardados persistentes (drag para ordenar). |
+| `reveal.ts` | `useRequestReveal`: un botón indica de dónde nace el reveal del siguiente cuadro. |
 
-Documentos de proceso:
-- `/PRD.md` — tesis del rediseño.
-- `/PLANNING.md` — estado vivo por fase.
-- `/TASKS.md` — checklist granular + Fase 6 (lint debt).
+El dibujo y la exportación pasan por `../engine` (`WallpaperEngine`); nada aquí importa `lib/gradient` ni `lib/download`.

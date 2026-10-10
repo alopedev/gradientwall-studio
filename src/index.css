@@ -35,6 +35,13 @@
   --radius-sharp: 2px;
   --radius-glass: 14px;
 
+  /* Studio stage palette: gold for the primary action and slider fills,
+     rose for "saved". Gold-ink is the text color on top of gold. */
+  --color-gold: #e9b949;
+  --color-gold-ink: #17130a;
+  --color-rose: #ff6b81;
+  --color-good: #7fc79b;
+
   /* Magic UI ShimmerButton animations. See keyframes in the Animations
      section below. `--speed` is set per-instance via inline style by the
      ShimmerButton component. */
@@ -532,6 +539,88 @@ body::before {
 }
 .wallpaper-grain {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* =================== Studio stage =================== */
+/* Radius of the circular reveal that opens from the button that was pressed.
+   Registered so WAAPI can interpolate it as a length. */
+@property --r {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+.gws-reveal {
+  -webkit-mask-image: radial-gradient(
+    circle at var(--ox) var(--oy),
+    #000 calc(var(--r) - 44px),
+    transparent var(--r)
+  );
+  mask-image: radial-gradient(
+    circle at var(--ox) var(--oy),
+    #000 calc(var(--r) - 44px),
+    transparent var(--r)
+  );
+}
+/* Tooltip for icon-only controls: [data-tip="Label"], optional data-tip-pos="bottom". */
+.gws-tip {
+  position: relative;
+}
+.gws-tip::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  z-index: 30;
+  translate: -50% 0;
+  transform: translateY(4px) scale(0.95);
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  padding: 6px 9px;
+  border-radius: 7px;
+  background: #f3f1eb;
+  color: #141414;
+  font: 500 0.75rem/1 var(--font-sans);
+  letter-spacing: 0;
+  text-transform: none;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+  transition: opacity 0.12s, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.gws-tip[data-tip-pos="bottom"]::after {
+  bottom: auto;
+  top: calc(100% + 8px);
+  transform: translateY(-4px) scale(0.95);
+}
+@media (hover: hover) {
+  .gws-tip:hover::after {
+    opacity: 1;
+    transform: none;
+    transition-delay: 0.35s;
+  }
+}
+.gws-tip:focus-visible::after {
+  opacity: 1;
+  transform: none;
+}
+
+/* One-shot light sweep across a gold button on hover (pointer devices only). */
+.gws-sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.6) 48%, transparent 66%);
+  transform: translateX(-110%);
+  pointer-events: none;
+}
+@media (hover: hover) {
+  .gws-sheen:hover::after {
+    animation: gws-sheen 1s cubic-bezier(0.25, 0.8, 0.3, 1) forwards;
+  }
+}
+@keyframes gws-sheen {
+  to {
+    transform: translateX(110%);
+  }
 }
 
 /* =================== Reduced motion =================== */

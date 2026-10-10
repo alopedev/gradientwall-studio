@@ -27,7 +27,15 @@ describe("FavoritesStrip", () => {
   it("renders empty state when no items are pinned", () => {
     render(<FavoritesStrip />);
     expect(screen.getByLabelText(/favorites — empty/i)).toBeTruthy();
-    expect(screen.getByText(/save your favorites/i)).toBeTruthy();
+    expect(screen.getByText(/save the ones you like/i)).toBeTruthy();
+  });
+
+  it("shows how many wallpapers are saved", () => {
+    act(() => {
+      useFavoritesStore.getState().pin(baseConfig(1, ["#001122", "#334455", "#667788", "#aabbcc"]));
+    });
+    render(<FavoritesStrip />);
+    expect(screen.getByLabelText("Favorites").textContent).toMatch(/Saved\s*1/);
   });
 
   it("renders one thumbnail per pinned item", () => {

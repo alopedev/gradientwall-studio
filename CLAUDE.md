@@ -50,7 +50,7 @@ Four concentric layers: **pure render → state → React views → backend func
   - `renderer.ts` — the only file here that touches the GPU. One shared WebGL2 context (`getSharedRendererV2`), `paintV2` blits into any 2D canvas, large sizes render in 512-row strips.
   - `export.ts` — `renderWallpaperV2(params, w, h)` → canvas for `encodeWithFallback`, or `null` when the GPU path can't run (caller falls back to v1 `composeWallpaper`).
 - `download/`
-  - `compose.ts` — **single source of truth for "render a wallpaper onto a canvas"**. Exposes `paintWallpaper(canvas, opts)` for callers that already hold a canvas (Preview, gradient hooks, PackCover) and `composeWallpaper(opts, factory?)` for callers that need a fresh off-screen canvas (download flow, mockup shared canvas). Both internally call `paintWallpaper` so the gradient + grain pipeline is defined exactly once. If you ever need a watermark / blend mode tweak, this is the only file to touch.
+  - `compose.ts` — **single source of truth for "render a wallpaper onto a canvas"**. Exposes `paintWallpaper(canvas, opts)` for callers that already hold a canvas (gradient hooks, PackCover) and `composeWallpaper(opts, factory?)` for callers that need a fresh off-screen canvas (download flow, mockup shared canvas). Both internally call `paintWallpaper` so the gradient + grain pipeline is defined exactly once. If you ever need a watermark / blend mode tweak, this is the only file to touch.
   - `encode.ts` + `sink.ts` + `index.ts` — encode-with-fallback + browser blob download wiring used by the Studio's Download button.
 - `palettes.ts` — `DEVICE_SIZES`, `PALETTES` (10 free curated decks), `GradientConfig` shape, `Device | Style | Colors4 | DEVICES | STYLES | ActiveMask` types and `activeColors` selector.
 - `packs/` — pure data layer for the store. Types (`Pack`, `PackStyle`, `PackCover` discriminated union), `getPacks()`, `getPackBySlug(slug)`, `filterPacks(style)`, `availableStyles()`. Source of truth: build-time JSON manifest at `src/data/packs.json` (10 previews per pack, all `kind: "gradient"` until real R2 assets land — the discriminator lets us migrate pack-by-pack without touching callers).
@@ -79,8 +79,9 @@ useEffect(() => { paintWallpaper(canvasRef.current!, { colors, ... }); }, [color
 
 Component layout:
 - `Nav.tsx`, `Hero.tsx`, `Marquee.tsx`, `Footer.tsx` — the editorial chrome.
-- `studio/v2/` (Fase 5 cutover) — el Studio activo: `StudioShell` (orquestador), `SurpriseCTA` (ShimmerButton magnético + spin-around conic en fresh-state), `ActionRow` (Save/Remix/Download+DevicePicker/Customize), `CustomizePanel` (inline lateral 420 px con `HarmonicWheel` circular + `PaletteCards` + Softness + Grain), `FavoritesStrip` + `FavoriteThumbnail` (galería persistente con motion Reorder + scroll-driven reveal CSS nativo), `DevicePicker`.
-- `studio/` (hojas reutilizadas por v2) — `Preview` (canvas con prop `framed`), `HarmonicWheel` (color picker armónico + anillo de luz), `PaletteCards` (4 paletas featured con hover-expand), `useColorEditing` (subset eyedropper para HarmonicWheel), `ImageSource`, `UseMyPhotoButton`.
+- `studio/engine/` — the seam between the Studio UI and whatever draws wallpapers. `WallpaperEngine` (`types.ts`) declares styles, adjustment sliders (with defaults), a live `Canvas` component, `paintThumbnail` and `exportWallpaper(params, device, onProgress)`. `canvas2d-engine.tsx` wraps `lib/gradient` + `lib/download` (the current engine); `EngineProvider` / `useWallpaperEngine` swap it. The UI never imports `lib/gradient` or `lib/download` directly, so a WebGL engine plugs in by implementing this interface.
+- `studio/v2/` — el Studio activo: `StudioShell` (orquestador: marco, dock y tira), `StudioTopBar` (nombre de la paleta + selector de dispositivo), `DeviceStage` (marco de móvil/tablet/monitor con pantalla de bloqueo y reveal circular desde el botón pulsado), `StageHalo`, `StudioDock` (Shuffle/Space, estilo, 10 paletas, guardar, Ajustar, Descargar, toast), `AdjustPanel` (sliders declarados por el motor + Reset / Remix / Colors), `SaveButton`, `ExportButton` (progreso por fases), `PaletteSwatches`, `FavoritesStrip` + `FavoriteThumbnail`, `reveal.ts` (`useRequestReveal`: los botones avisan al marco de dónde nace el reveal).
+- `studio/` (hojas reutilizadas) — `HarmonicWheel` (color picker armónico, ahora dentro del popover "Colors" del panel Ajustar), `ImageSource`, `UseMyPhotoButton`, `useColorEditing`.
 - `packs/` — store components: `PacksSection` (home), `PackCard`, `PackFilters`, `PackPage` (route `/packs/:slug`), `PackPurchaseSuccess` (route `/packs/:slug/success`), `PackCover` (renders gradient-kind via `paintWallpaper`, image-kind via `<img>`).
 - `RecoverForm.tsx` — route `/recover`; POSTs `{email, orderId}` to the recover-link Function.
 - `ui/` — design-system primitives: `Framed`, `Reveal`, `Stagger`, `GrainOverlay`, `MagneticButton`.
@@ -124,13 +125,15 @@ Custom utilities are declared with `@utility liquid { ... }` etc. The three tier
 **Critical Tailwind v4 gotcha**: base resets (e.g. `a { color: inherit; }`) **must** be wrapped in `@layer base { ... }`. Otherwise they end up in the implicit layer that comes *after* utilities, and things like `text-[#171717]` silently lose the cascade war. This bit us during the initial migration.
 
 Typography:
-- `font-sans` → Barlow (300/400/500/600/700)
+- `font-sans` → Space Grotesk (see `src/index.css`)
 - `font-serif` → Instrument Serif (italic 400) — accents only (second line of two-line headlines, "calmer screens" emphasis). Never body copy.
-- Mono-styled labels use Barlow 500 with wide tracking (`tracking-[0.18em]` or `tracking-[0.22em]` uppercase).
+- Mono-styled labels use Space Grotesk 500 with wide tracking (`tracking-[0.18em]` or `tracking-[0.22em]` uppercase).
 
-Buttons:
-- **Sharp 2px rect** (`rounded-[2px]`) for CTAs and primary actions.
-- **Pill rounded-full** for toggles (tabs, mode switchers). Don't unify them — they're intentionally different.
+Buttons (decision 2026-10-10: rounded everywhere; the old sharp 2px rule is retired):
+- **Glass 14px** (`rounded-glass`) for buttons — `GlassButton` in `components/ui/` (variants `primary` gold, `ghost`, `icon` round, `quiet`).
+- **Pill rounded-full** for toggles and segmented controls (`SegmentedControl`).
+- Gold (`--color-gold`) marks the primary action and slider fills; rose (`--color-rose`) marks "saved".
+- Older sections (Hero, packs, nav) may still use 2px corners until they are redesigned.
 
 Site-wide grain: `body::before` (fixed, z-index 100, `mix-blend-mode: overlay`). The hero has its own second grain layer (`.hero-grain`).
 
@@ -179,18 +182,7 @@ El Studio v2 es ahora el único Studio (cutover Fase 5 completado). Mini-framewo
 
 **Tesis**: surprise-first + remix + galería persistente. Tres clicks máximo del primer load a wallpaper instalado. Potencia detrás de "Customize". Lenguaje visual: liquid glass moderno (iOS 26 / macOS Tahoe inspired) + brutalist tipográfico.
 
-**Arquitectura de componentes en `src/components/studio/v2/`**:
-- `StudioShell` — orquestador layout. Maneja `customizeOpen` state. Anima canvas/panel con motion `layout` (desktop side-by-side, mobile stacked).
-- `SurpriseCTA` — `ShimmerButton` magnético (shimmer-slide + spin-around conic incorporados) + bind Space.
-- `ActionRow` — Save (heart-burst particles) · Remix (R) · Download+DevicePicker · Customize (toggle inline panel).
-- `CustomizePanel` — panel inline 420 px con `HarmonicWheel` (colores + luz absorbida en el anillo perimetral) + `PaletteCards` + sliders de Softness y Grain. Glass-modern. Sin Style picker ni Density slider.
-- `FavoritesStrip` + `FavoriteThumbnail` — galería persistente, motion Reorder, scroll-driven CSS reveal.
-- `DevicePicker` — primitivo (iPhone / iPad / Desktop).
-
-Hojas reutilizadas en `src/components/studio/`:
-- `HarmonicWheel` (500 LOC) — Arc-like color picker circular con 4 bullets (focal + 3 satélites) sincronizados por `computeHarmonicColors`. Anillo concéntrico exterior con handle dorado absorbe `lightAngle`. Eyedropper Pipette + ColorSelector dots para cambiar slot focal.
-- `PaletteCards` — 4 paletas featured (Dusk / Tokyo / Forest / Mocha) en stack vertical estilo ravikatiyar hover-expand.
-- `Preview`, `ImageSource`, `UseMyPhotoButton`, `useColorEditing` — primitivos compartidos.
+**Interfaz (Fase 1 de la web, 2026-10-10)** — fondo dentro del marco del dispositivo, un dock de cristal con todos los controles y la tira de guardados debajo. Shuffle (o Space) es el gesto principal; lo fino vive en "Adjust". Space y R solo actúan mientras el Studio está en pantalla y el foco no está en un botón o campo. Los controles llevan `aria-pressed` / `aria-expanded`; la animación respeta `prefers-reduced-motion` (`MotionConfig` + el reveal se omite). Detalle de componentes arriba (sección 3).
 
 **Stores**:
 - `useConfigStore` — `applySurprise()`, `applyRemix()`, setters atómicos.
@@ -199,13 +191,13 @@ Hojas reutilizadas en `src/components/studio/`:
 **Motor de generación (capa nueva, Fase 1)** en `src/lib/gradient/`:
 - `curated-seeds.ts` — 80 seeds aprobados. `pickCuratedSeed(rng?)`, `pickCuratedSeedExcluding(prev, rng?)`.
 - `palette-constraints.ts` — `randomHarmonicColors(rng)` con 4 esquemas armónicos + constraints HSL.
-- `surprise.ts` — `generateSurprise(prevSeed?)`. Style hardcoded a `"liquid"` tras el rediseño del CustomizePanel; el motor sigue soportando los 4 styles para favoritos guardados antes del cambio.
+- `surprise.ts` — `generateSurprise(prevSeed?)`. Devuelve style `"liquid"`, pero `applySurprise` del store lo ignora y conserva el estilo elegido por el usuario; el motor sigue soportando los 4 styles para favoritos guardados.
 - `remix.ts` — `generateRemix(current)` paleta intacta, varía seed/light/density.
 - `harmonic-edit.ts` — capa pura (sin React) para el `HarmonicWheel`: spread angular, derivación de 4 colores armónicos desde `(anchorHue, anchorLight, spread, focalSlot)`, inversión (`inferAnchor`) para reposicionar el wheel cuando una palette card sobrescribe colores.
 
 **Intocables** (matemática firmada, snapshots blindan): `src/lib/gradient/spec.ts`, `canvas2d.ts`, `compose.ts`, `mulberry32`, `palettes.ts:activeColors`. Si un snapshot del motor falla tras un cambio, **revertir, no regenerar**.
 
-**Controles eliminados** (decisión consciente): sliders de contrast/vibrance (defaults curados en motor), Style picker (style siempre `liquid`), Density slider (no producía cambio visual en Canvas2D), SeedBadge visible, StudioHints one-shot, Swatches grid + ColorHUD popover (reemplazados por HarmonicWheel), Palettes chip list (reemplazado por PaletteCards), LightDial standalone (absorbido por el anillo del HarmonicWheel). Grain sí se expone (slider en el footer del panel).
+**Controles**: Style picker (Liquid / Aurora / Mesh), sliders Softness / Grain / Light / Contrast / Vibrance en Adjust, y el HarmonicWheel en el popover Colors. `applySurprise` y `applyRemix` respetan estilo, grain, contrast y vibrance del usuario. Siguen eliminados: Density (sin efecto visible en Canvas2D), SeedBadge, StudioHints, Swatches grid + ColorHUD, PaletteCards y LightDial standalone (la luz es el slider Light).
 
 **Tendencias 2026 aplicadas (Fase 5)**:
 - Liquid glass refinement: backdrop-filter `blur+saturate+brightness`, double-inset highlight, gradient background, `contain: paint`.

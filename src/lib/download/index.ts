@@ -34,16 +34,10 @@ export async function downloadWallpaper(
   sink: Sink = browserDownloadSink,
 ): Promise<void> {
   const d = DEVICE_SIZES[opts.device];
-  const canvas = composeWallpaper({
-    w: d.w,
-    h: d.h,
-    colors: opts.colors,
-    style: opts.style,
-    blur: opts.blur,
-    grain: opts.grain,
-    seed: opts.seed,
-    lightAngle: opts.lightAngle,
-  });
+  // Forward every render param (density, contrast, vibrance included) so the
+  // file matches what the preview shows.
+  const { device: _device, ...params } = opts;
+  const canvas = composeWallpaper({ ...params, w: d.w, h: d.h });
   const { blob, ext } = await encodeWithFallback(canvas, DEFAULT_FORMATS);
   await sink(blob, `gradientwall-${opts.device}-${seedToHex(opts.seed)}.${ext}`);
 }
