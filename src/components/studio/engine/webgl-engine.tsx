@@ -14,7 +14,7 @@ import {
 } from "@/lib/gradient-v2";
 import { DEVICE_SIZES, engineOf, type RenderParams } from "@/lib/palettes";
 import { canvas2DEngine } from "./canvas2d-engine";
-import type { EngineCanvasProps, WallpaperEngine } from "./types";
+import type { AdjustmentSpec, EngineCanvasProps, WallpaperEngine } from "./types";
 
 const FORMATS: EncodeFormat[] = [
   { type: "image/webp", quality: 0.95 },
@@ -34,6 +34,28 @@ const toV2 = (p: RenderParams): V2Params => ({
   lightAngle: p.lightAngle,
   grain: p.grain,
 });
+
+/** The shader has no softness / contrast / vibrance: its look is calibrated. */
+const ADJUSTMENTS: readonly AdjustmentSpec[] = [
+  {
+    key: "grain",
+    label: "Grain",
+    min: 0,
+    max: 100,
+    step: 1,
+    default: V2_DEFAULT_GRAIN,
+    format: (v) => `${Math.round(v)}%`,
+  },
+  {
+    key: "lightAngle",
+    label: "Light",
+    min: 0,
+    max: 360,
+    step: 1,
+    default: V2_DEFAULT_LIGHT_ANGLE,
+    format: (v) => `${Math.round(v)}°`,
+  },
+];
 
 export interface WebGLEngineDeps {
   sink?: Sink;
@@ -142,27 +164,9 @@ export function createWebGLEngine(deps: WebGLEngineDeps = {}): WallpaperEngine {
       // Rendered as v2 "grain-mesh" (see toV2Style).
       { id: "mesh", label: "Mesh" },
     ],
-    // The shader has no softness / contrast / vibrance: its look is calibrated.
-    adjustments: [
-      {
-        key: "grain",
-        label: "Grain",
-        min: 0,
-        max: 100,
-        step: 1,
-        default: V2_DEFAULT_GRAIN,
-        format: (v) => `${Math.round(v)}%`,
-      },
-      {
-        key: "lightAngle",
-        label: "Light",
-        min: 0,
-        max: 360,
-        step: 1,
-        default: V2_DEFAULT_LIGHT_ANGLE,
-        format: (v) => `${Math.round(v)}°`,
-      },
-    ],
+    // Favorites saved with v1 keep the v1 sliders: that is the renderer drawing them.
+    adjustmentsFor: (params) =>
+      engineOf(params) === "v1" ? fallback.adjustmentsFor(params) : ADJUSTMENTS,
     Canvas: EngineCanvas,
     paintThumbnail(canvas, params, size) {
       if (engineOf(params) === "v1" || !tryPaint(canvas, params, size.w, size.h)) {

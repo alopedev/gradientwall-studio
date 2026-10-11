@@ -54,8 +54,12 @@ export interface WallpaperEngine {
   id: string;
   /** Styles offered by the segmented control, in display order. */
   styles: readonly StyleOption[];
-  /** Sliders offered by the Adjust panel, in display order. */
-  adjustments: readonly AdjustmentSpec[];
+  /**
+   * Sliders the Adjust panel offers for this wallpaper, in display order. They
+   * depend on the params because a favorite saved with another renderer keeps
+   * the sliders (and Reset defaults) of the renderer that draws it.
+   */
+  adjustmentsFor: (params: RenderParams) => readonly AdjustmentSpec[];
   /** Live preview. Fills its parent box, keeping the device aspect ratio. */
   Canvas: ComponentType<EngineCanvasProps>;
   /** Synchronous small render for the favorites strip. */

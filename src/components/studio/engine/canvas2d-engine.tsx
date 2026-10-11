@@ -4,7 +4,7 @@ import { browserDownloadSink, type Sink } from "@/lib/download/sink";
 import { seedToHex } from "@/lib/gradient";
 import { DEVICE_SIZES } from "@/lib/palettes";
 import { useFittedGradientCanvas } from "@/lib/useGradientCanvas";
-import type { EngineCanvasProps, WallpaperEngine } from "./types";
+import type { AdjustmentSpec, EngineCanvasProps, WallpaperEngine } from "./types";
 
 const FORMATS: EncodeFormat[] = [
   { type: "image/webp", quality: 0.95 },
@@ -13,6 +13,55 @@ const FORMATS: EncodeFormat[] = [
 
 /** Let the browser paint the progress bar before the next heavy synchronous step. */
 const nextFrame = () => new Promise<void>((r) => requestAnimationFrame(() => r()));
+
+/** Sliders of the Canvas2D pipeline: the full set, since v1 renders every one of them. */
+const ADJUSTMENTS: readonly AdjustmentSpec[] = [
+  {
+    key: "blur",
+    label: "Softness",
+    min: 10,
+    max: 120,
+    step: 1,
+    default: 48,
+    format: (v) => `${Math.round(v)}`,
+  },
+  {
+    key: "grain",
+    label: "Grain",
+    min: 0,
+    max: 100,
+    step: 1,
+    default: 32,
+    format: (v) => `${Math.round(v)}%`,
+  },
+  {
+    key: "lightAngle",
+    label: "Light",
+    min: 0,
+    max: 360,
+    step: 1,
+    default: 135,
+    format: (v) => `${Math.round(v)}°`,
+  },
+  {
+    key: "contrast",
+    label: "Contrast",
+    min: 0.5,
+    max: 1.5,
+    step: 0.01,
+    default: 1,
+    format: (v) => v.toFixed(2),
+  },
+  {
+    key: "vibrance",
+    label: "Vibrance",
+    min: 0.5,
+    max: 1.5,
+    step: 0.01,
+    default: 1.05,
+    format: (v) => v.toFixed(2),
+  },
+];
 
 function Canvas2DCanvas({ params, device, className, onBeforePaint }: EngineCanvasProps) {
   const size = DEVICE_SIZES[device];
@@ -35,53 +84,7 @@ export function createCanvas2DEngine(sink: Sink = browserDownloadSink): Wallpape
       { id: "aurora", label: "Aurora" },
       { id: "mesh", label: "Mesh" },
     ],
-    adjustments: [
-      {
-        key: "blur",
-        label: "Softness",
-        min: 10,
-        max: 120,
-        step: 1,
-        default: 48,
-        format: (v) => `${Math.round(v)}`,
-      },
-      {
-        key: "grain",
-        label: "Grain",
-        min: 0,
-        max: 100,
-        step: 1,
-        default: 32,
-        format: (v) => `${Math.round(v)}%`,
-      },
-      {
-        key: "lightAngle",
-        label: "Light",
-        min: 0,
-        max: 360,
-        step: 1,
-        default: 135,
-        format: (v) => `${Math.round(v)}°`,
-      },
-      {
-        key: "contrast",
-        label: "Contrast",
-        min: 0.5,
-        max: 1.5,
-        step: 0.01,
-        default: 1,
-        format: (v) => v.toFixed(2),
-      },
-      {
-        key: "vibrance",
-        label: "Vibrance",
-        min: 0.5,
-        max: 1.5,
-        step: 0.01,
-        default: 1.05,
-        format: (v) => v.toFixed(2),
-      },
-    ],
+    adjustmentsFor: () => ADJUSTMENTS,
     Canvas: Canvas2DCanvas,
     paintThumbnail(canvas, params, { w, h }) {
       paintWallpaper(canvas, { ...params, w, h });
