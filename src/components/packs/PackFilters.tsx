@@ -41,7 +41,7 @@ function FilterPill({
       role="tab"
       aria-selected={selected}
       onClick={onClick}
-      className={`relative rounded-full px-3 py-1.5 text-[11px] tracking-[0.14em] uppercase font-sans transition-colors duration-200 border ${
+      className={`relative inline-flex min-h-11 items-center rounded-full px-4 text-[11px] tracking-[0.14em] uppercase font-sans transition-colors duration-200 border ${
         selected
           ? "text-[#07070a] border-white"
           : "text-white/65 border-white/14 hover:text-white hover:border-white/30"

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PALETTES } from "@/lib/palettes";
 import { useConfigStore } from "@/store";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
@@ -32,6 +32,63 @@ describe("StudioDock", () => {
       useConfigStore.setState(INITIAL, true);
       useFavoritesStore.getState().clear();
     });
+    localStorage.clear();
+  });
+
+  it("opens Adjust as a bottom sheet on a narrow frame, with a way to close it", async () => {
+    class Narrow {
+      constructor(private cb: ResizeObserverCallback) {}
+      observe() {
+        this.cb([{ contentRect: { width: 390 } } as ResizeObserverEntry], this as never);
+      }
+      disconnect() {}
+      unobserve() {}
+    }
+    vi.stubGlobal("ResizeObserver", Narrow);
+    try {
+      const user = userEvent.setup();
+      render(
+        <div data-device="mobile">
+          <Harness />
+        </div>,
+      );
+      await user.click(screen.getByRole("button", { name: /^adjust$/i }));
+      const sheet = screen.getByRole("dialog", { name: "Adjust" });
+      expect(sheet.parentElement).toBe(document.body);
+      expect(screen.getAllByRole("slider").length).toBeGreaterThan(0);
+      await user.click(screen.getByRole("button", { name: /close adjust/i }));
+      expect(screen.queryByRole("dialog", { name: "Adjust" })).toBeNull();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("cues Shuffle with a sweep until the first shuffle", async () => {
+    const user = userEvent.setup();
+    render(<Harness />);
+    const shuffle = screen.getByLabelText(/shuffle: generate another wallpaper/i);
+    expect(shuffle.className).toContain("gws-nudge");
+    await user.click(shuffle);
+    expect(shuffle.className).not.toContain("gws-nudge");
+  });
+
+  it("does not cue Shuffle while the studio is off screen", () => {
+    render(<Harness keysActive={false} />);
+    expect(screen.getByLabelText(/shuffle: generate another wallpaper/i).className).not.toContain(
+      "gws-nudge",
+    );
+  });
+
+  it("points at the heart after three shuffles, once", async () => {
+    const user = userEvent.setup();
+    render(<Harness />);
+    const shuffle = screen.getByLabelText(/shuffle: generate another wallpaper/i);
+    await user.click(shuffle);
+    await user.click(shuffle);
+    expect(screen.queryByText(/tap the heart to keep it/i)).toBeNull();
+    await user.click(shuffle);
+    expect(screen.getByText(/tap the heart to keep it/i)).toBeTruthy();
+    expect(localStorage.getItem("gw:hint:heart")).toBe("1");
   });
 
   it("Shuffle changes the seed and keeps the chosen style", async () => {

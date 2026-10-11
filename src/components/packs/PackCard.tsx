@@ -54,7 +54,7 @@ export function PackCard({ pack, variant = "small" }: PackCardProps) {
       to={`/packs/${pack.slug}`}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
-      className="group relative block h-full rounded-[2px] overflow-hidden bg-[#0a0a0d] border border-white/8 transition-[border-color,box-shadow] duration-300 hover:border-white/20 hover:shadow-[0_24px_60px_rgba(0,0,0,0.55)]"
+      className="group relative block h-full rounded-[20px] overflow-hidden bg-[#0a0a0d] border border-white/8 transition-[border-color,box-shadow] duration-300 hover:border-white/20 hover:shadow-[0_24px_60px_rgba(0,0,0,0.55)]"
       style={{ perspective: isHero ? undefined : "900px" }}
       data-variant={variant}
     >
@@ -84,7 +84,7 @@ export function PackCard({ pack, variant = "small" }: PackCardProps) {
           <div className="absolute top-3.5 left-3.5 z-10 rounded-full bg-black/55 border border-white/14 px-2.5 py-1 font-sans text-[10px] tracking-[0.18em] uppercase text-white/85 backdrop-blur-md">
             {pack.style}
           </div>
-          <div className="absolute top-3.5 right-3.5 z-10 rounded-[2px] bg-white/95 text-[#0a0a0d] px-2.5 py-1 font-sans text-[11px] font-medium tracking-tight">
+          <div className="absolute top-3.5 right-3.5 z-10 rounded-full bg-white/95 text-[#0a0a0d] px-2.5 py-1 font-sans text-[11px] font-medium tracking-tight">
             €{pack.priceEur.toFixed(2)}
           </div>
 
@@ -172,7 +172,7 @@ function BorderBeam() {
   return (
     <span
       aria-hidden
-      className="pointer-events-none absolute inset-0 rounded-[2px] overflow-hidden opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+      className="pointer-events-none absolute inset-0 rounded-[20px] overflow-hidden opacity-0 transition-opacity duration-300 group-hover:opacity-100"
       style={{
         padding: "1.5px",
         WebkitMask: maskLayers,
