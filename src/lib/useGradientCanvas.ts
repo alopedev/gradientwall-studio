@@ -1,4 +1,5 @@
 import { useEffect, useRef, type DependencyList, type RefObject } from "react";
+import { DEFAULT_CONTRAST, DEFAULT_VIBRANCE } from "./defaults";
 import type { RenderOpts } from "./gradient";
 import { paintWallpaper, paintWallpaperPreview, gradingCssFilter } from "./download/compose";
 import type { RenderParams } from "./palettes";
@@ -140,8 +141,8 @@ export function useFittedGradientCanvas(
           lightAngle: cur.lightAngle,
           density: cur.density,
           // Grading is applied via style.filter below, not by the painter.
-          contrast: 1,
-          vibrance: 1,
+          contrast: DEFAULT_CONTRAST,
+          vibrance: DEFAULT_VIBRANCE,
         });
       }
       if (c.style.filter !== cssFilter) c.style.filter = cssFilter;

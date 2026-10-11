@@ -1,4 +1,5 @@
-import { type Colors4, DEFAULT_CONTRAST, type GradientConfig, type Style } from "../palettes";
+import { DEFAULT_CONTRAST, STUDIO_VIBRANCE, V2_DEFAULT_GRAIN } from "../defaults";
+import type { Colors4, GradientConfig, Style } from "../palettes";
 import { pickCuratedSeed, pickCuratedSeedExcluding } from "./curated-seeds";
 import { randomHarmonicColors } from "./palette-constraints";
 import { mulberry32 } from "./spec";
@@ -27,10 +28,15 @@ import { mulberry32 } from "./spec";
  * Acepta un `rng` inyectable para tests deterministas.
  */
 
-/** Defaults curados — congelan los sliders eliminados de la UI v2. */
-export const CURATED_GRAIN = 32;
+/**
+ * Acabado curado de un surprise: el mismo look de arranque del Studio
+ * (`lib/defaults.ts`). `applySurprise` no lo aplica —grano, contraste y
+ * vibrance son del usuario—, pero `generateSurprise` sigue devolviendo una
+ * config completa.
+ */
+export const CURATED_GRAIN = V2_DEFAULT_GRAIN;
 export const CURATED_CONTRAST = DEFAULT_CONTRAST; // 1.0 — identity
-export const CURATED_VIBRANCE = 1.05; // sutil pop, sin sobreprocesado
+export const CURATED_VIBRANCE = STUDIO_VIBRANCE;
 
 /** Rango operativo de blur. El motor acepta más, pero >120 lava la composición. */
 export const SURPRISE_BLUR_MIN = 30;
