@@ -1,9 +1,11 @@
-import { Shuffle, SlidersHorizontal } from "lucide-react";
+import { Shuffle, SlidersHorizontal, X } from "lucide-react";
 import { AnimatePresence, m } from "motion/react";
-import { useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { GlassButton } from "@/components/ui/GlassButton";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { useConfigStore } from "@/store";
+import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { useWallpaperEngine } from "../engine";
 import { AdjustPanel } from "./AdjustPanel";
 import { ExportButton } from "./ExportButton";
@@ -18,6 +20,50 @@ interface Props {
   /** Space and R only act while the Studio is on screen. */
   keysActive: boolean;
 }
+
+/** Same breakpoint as the dock's `@max-[760px]` layout, measured on the studio frame. */
+const NARROW_PX = 760;
+
+/** True while the studio frame is narrow (phones): Adjust then opens as a bottom sheet. */
+function useNarrowStudio(ref: React.RefObject<HTMLElement>): boolean {
+  const [narrow, setNarrow] = useState(false);
+  useEffect(() => {
+    const frame = ref.current?.closest("[data-device]");
+    if (!frame || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(([entry]) => setNarrow(entry.contentRect.width <= NARROW_PX));
+    ro.observe(frame);
+    return () => ro.disconnect();
+  }, [ref]);
+  return narrow;
+}
+
+/** Adjust on phones: pinned to the bottom of the screen so the wallpaper stays in view above it. */
+function AdjustSheet({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
+  return createPortal(
+    <m.div
+      role="dialog"
+      aria-label="Adjust"
+      initial={{ y: 48, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: 48, opacity: 0 }}
+      transition={{ type: "spring", stiffness: 300, damping: 32 }}
+      className="@container fixed inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))] z-[45] rounded-[20px] bg-[rgba(14,14,18,0.94)] p-2 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12),0_24px_60px_-12px_rgba(0,0,0,0.8)] backdrop-blur-[26px]"
+    >
+      <div className="flex items-center justify-between pl-2.5">
+        <span className="font-sans text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-white/60">
+          Adjust
+        </span>
+        <GlassButton variant="icon" onClick={onClose} aria-label="Close adjust">
+          <X className="size-[18px]" aria-hidden />
+        </GlassButton>
+      </div>
+      {children}
+    </m.div>,
+    document.body,
+  );
+}
+
+const HEART_HINT_KEY = "gw:hint:heart";
 
 const isTypingTarget = (t: EventTarget | null): boolean => {
   const el = t as HTMLElement | null;
@@ -40,17 +86,35 @@ export function StudioDock({ adjustOpen, onToggleAdjust, keysActive }: Props) {
   const requestReveal = useRequestReveal();
   const panelId = useId();
   const shuffleRef = useRef<HTMLButtonElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const narrow = useNarrowStudio(rootRef);
   const [spins, setSpins] = useState(0);
   const [toast, setToast] = useState<{ message: string; action?: ToastAction } | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout>>();
 
-  const say = (message: string, action?: ToastAction) => {
+  const say = useCallback((message: string, action?: ToastAction) => {
     clearTimeout(toastTimer.current);
     setToast({ message, action });
     // A toast with a link stays long enough to read and reach it.
     toastTimer.current = setTimeout(() => setToast(null), action ? 7000 : 3200);
-  };
+  }, []);
   useEffect(() => () => clearTimeout(toastTimer.current), []);
+
+  // After a few shuffles, point at the heart once (never to someone who already saves).
+  const heartHinted = useRef(false);
+  useEffect(() => {
+    if (spins < 3 || heartHinted.current) return;
+    heartHinted.current = true;
+    try {
+      if (localStorage.getItem(HEART_HINT_KEY) || useFavoritesStore.getState().items.length > 0) {
+        return;
+      }
+      localStorage.setItem(HEART_HINT_KEY, "1");
+    } catch {
+      // Storage blocked: show the hint this once per visit.
+    }
+    say("Found one you like? Tap the heart to keep it.");
+  }, [spins, say]);
 
   const shuffle = () => {
     requestReveal(shuffleRef.current);
@@ -79,7 +143,10 @@ export function StudioDock({ adjustOpen, onToggleAdjust, keysActive }: Props) {
   }, [keysActive, applySurprise, applyRemix, requestReveal]);
 
   return (
-    <div className="relative w-fit max-w-[calc(100%-32px)] justify-self-center rounded-[22px] bg-gradient-to-b from-white/10 to-white/[0.035] p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.16),inset_0_0_0_1px_rgba(255,255,255,0.08),0_24px_60px_-18px_rgba(0,0,0,0.75),0_2px_10px_rgba(0,0,0,0.25)] backdrop-blur-[26px] backdrop-saturate-[1.7] backdrop-brightness-105 @max-[760px]:mx-2.5 @max-[760px]:w-auto @max-[760px]:max-w-none @max-[760px]:justify-self-stretch @max-[760px]:rounded-[20px]">
+    <div
+      ref={rootRef}
+      className="relative w-fit max-w-[calc(100%-32px)] justify-self-center rounded-[22px] bg-gradient-to-b from-white/10 to-white/[0.035] p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.16),inset_0_0_0_1px_rgba(255,255,255,0.08),0_24px_60px_-18px_rgba(0,0,0,0.75),0_2px_10px_rgba(0,0,0,0.25)] backdrop-blur-[26px] backdrop-saturate-[1.7] backdrop-brightness-105 @max-[760px]:mx-2.5 @max-[760px]:w-auto @max-[760px]:max-w-none @max-[760px]:justify-self-stretch @max-[760px]:rounded-[20px]"
+    >
       <div
         role="toolbar"
         aria-label="Wallpaper controls"
@@ -91,7 +158,7 @@ export function StudioDock({ adjustOpen, onToggleAdjust, keysActive }: Props) {
           onClick={shuffle}
           aria-keyshortcuts="Space"
           aria-label="Shuffle: generate another wallpaper"
-          className="pr-2.5 @max-[760px]:[grid-area:shuffle]"
+          className={`pr-2.5 @max-[760px]:[grid-area:shuffle] ${keysActive && spins === 0 ? "gws-nudge" : ""}`}
         >
           <m.span
             aria-hidden
@@ -140,8 +207,16 @@ export function StudioDock({ adjustOpen, onToggleAdjust, keysActive }: Props) {
         </div>
       </div>
 
+      <AnimatePresence>
+        {adjustOpen && narrow && (
+          <AdjustSheet key="sheet" onClose={onToggleAdjust}>
+            <AdjustPanel id={panelId} />
+          </AdjustSheet>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence initial={false}>
-        {adjustOpen && (
+        {adjustOpen && !narrow && (
           <m.div
             key="adjust"
             initial={{ height: 0, opacity: 0 }}
