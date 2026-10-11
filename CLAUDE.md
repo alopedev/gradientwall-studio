@@ -91,16 +91,16 @@ Netlify Functions v2 (Web Request/Response). Handlers are intentionally thin —
 
 - `_lib/signed-token.ts` — JWT HS256 with `jose` v5. Token payload = `{orderId, packSlug, email}`. `iat` is injectable so the JWT exp aligns with `expiresAt` written to the order store (using deps' clock instead of `Date.now()` directly — important for testability and for keeping JWT vs. store consistent on retry).
 - `_lib/lemon-squeezy.ts` — timing-safe HMAC verification of `X-Signature` + parser for `order_created` events (filters out non-paid + non-our event types).
-- `_lib/orders-store.ts` — `KVBackend` interface (`get`/`set`) with two implementations: `netlifyBlobsBackend()` for prod, `inMemoryBackend()` for tests. `consumeDownload` does read-check-write; not transactional, but acceptable for the 5-allowance budget. Order record = `{orderId, packSlug, email, downloadsRemaining, expiresAt, createdAt}`.
+- `_lib/orders-store.ts` — `KVBackend` interface (`get`/`set` plus `getVersioned`/`setIf` compare-and-set) with two implementations: `netlifyBlobsBackend()` for prod (strong consistency, ETag via `onlyIfMatch`/`onlyIfNew`), `inMemoryBackend()` for tests. `consumeDownload` and `extendDeadline` are atomic: they retry read-decide-write on a lost race, so N parallel downloads never grant more than the allowance (`conflict` after repeated contention → download answers 503). `isExpired` is the one deadline check (`expiresAt <= now`, same as JWT `exp`). Order record = `{orderId, packSlug, email, downloadsRemaining, expiresAt, createdAt}`.
 - `_lib/loops.ts` — minimal fetch client (`sendTransactional` only — newsletter / contact list removed, see ADR-0004).
 - `_lib/r2.ts` — Cloudflare R2 presigned GET URL via `@aws-sdk/client-s3`. `packZipKey(slug)` = `packs/{slug}/{slug}.zip`.
 - `_lib/ls-api.ts` — `fetchOrderEmail(orderId, apiKey)` for /recover validation.
-- `_lib/process-order.ts`, `_lib/process-download.ts` — pure orchestration with deps inject. The handlers compose the prod deps and call these.
+- `_lib/order.ts` — the whole order lifecycle in one module, pure orchestration with deps inject: `createOrder` (webhook, 30d, resets allowance), `recoverOrder` (7d, never shortens the deadline, keeps allowance), `redeemDownload`. Shares the policy constants, the rule "JWT `exp` = stored `expiresAt`" and the link-building/email step. The handlers compose the prod deps and call these.
 - `_lib/env.ts` — boundary for env vars; throws on missing vars at import time.
 
 The 3 handlers:
-- `lemon-squeezy-webhook.ts` POST → verify HMAC → parse → `processOrderCreated` → 200.
-- `download.ts` GET → `processDownload(token)` → 302 to presigned R2 URL or 401/403 with `reason`.
+- `lemon-squeezy-webhook.ts` POST → verify HMAC → parse → `createOrder` → 200.
+- `download.ts` GET → `redeemDownload(token)` → 302 to presigned R2 URL or 401/403 with `reason`.
 - `recover-link.ts` POST → validates against LS API + store → re-issues 7d token + email. Returns generic 200 regardless to prevent enumeration.
 
 `netlify/functions/_lib/**` is conventionally not exposed as Functions because the directory starts with underscore.

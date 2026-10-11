@@ -17,7 +17,7 @@ export interface IssueTokenOpts {
   secret: string;
   /**
    * Issued-at, in epoch seconds. Defaults to Date.now/1000. Callers that
-   * inject a clock (e.g. process-order with `deps.now()`) should pass it
+   * inject a clock (e.g. order.ts with `deps.now()`) should pass it
    * here so the JWT exp matches what they wrote to the store.
    */
   iat?: number;

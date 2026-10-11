@@ -2,7 +2,7 @@ import type { Context } from "@netlify/functions";
 import { readEnv } from "./_lib/env";
 import { netlifyBlobsBackend } from "./_lib/orders-store";
 import { packZipKey, presignDownloadUrl } from "./_lib/r2";
-import { processDownload } from "./_lib/process-download";
+import { redeemDownload } from "./_lib/order";
 
 const PRESIGN_TTL_SECONDS = 60 * 5; // 5 minutes — enough to start the download
 
@@ -15,7 +15,7 @@ export default async (req: Request, _ctx: Context): Promise<Response> => {
   const url = new URL(req.url);
   const token = url.searchParams.get("token");
 
-  const result = await processDownload(
+  const result = await redeemDownload(
     {
       store: netlifyBlobsBackend(),
       jwtSecret: env.jwtSecret,
@@ -38,7 +38,11 @@ export default async (req: Request, _ctx: Context): Promise<Response> => {
   if (!result.ok) {
     return new Response(JSON.stringify({ ok: false, reason: result.reason }), {
       status: result.status,
-      headers: { "content-type": "application/json" },
+      headers: {
+        "content-type": "application/json",
+        // Contention on the order record is transient: tell clients to retry.
+        ...(result.status === 503 ? { "retry-after": "1" } : {}),
+      },
     });
   }
 

@@ -3,7 +3,7 @@ import { readEnv } from "./_lib/env";
 import { netlifyBlobsBackend } from "./_lib/orders-store";
 import { createLoopsClient } from "./_lib/loops";
 import { fetchOrderEmail } from "./_lib/ls-api";
-import { processRecover } from "./_lib/process-recover";
+import { recoverOrder } from "./_lib/order";
 
 /**
  * POST /recover-link — re-issues the download email for a known paid order.
@@ -23,7 +23,7 @@ export default async (req: Request, _ctx: Context): Promise<Response> => {
   }
 
   const env = readEnv();
-  const outcome = await processRecover(
+  const outcome = await recoverOrder(
     {
       store: netlifyBlobsBackend(),
       loops: createLoopsClient(env.loopsApiKey),
