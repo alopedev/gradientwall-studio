@@ -5,6 +5,7 @@ import {
   readDownloadEnv,
   readOrdersStoreEnv,
   readRecoverEnv,
+  readSubscribeEnv,
   readWebhookEnv,
   type EnvSource,
 } from "./env";
@@ -115,5 +116,12 @@ describe("readOrdersStoreEnv", () => {
     expect(() => readOrdersStoreEnv({ SUPABASE_URL: "https://abcd.supabase.co" })).toThrow(
       new MissingEnvError("SUPABASE_SECRET_KEY"),
     );
+  });
+});
+
+describe("readSubscribeEnv", () => {
+  it("needs only LOOPS_FORM_ID", () => {
+    expect(readSubscribeEnv({ LOOPS_FORM_ID: "form_1" })).toEqual({ loopsFormId: "form_1" });
+    expect(() => readSubscribeEnv({})).toThrow(new MissingEnvError("LOOPS_FORM_ID"));
   });
 });

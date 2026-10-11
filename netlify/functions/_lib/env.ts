@@ -68,6 +68,14 @@ export function readRecoverEnv(source: EnvSource = process.env): RecoverEnv {
   };
 }
 
+export interface SubscribeEnv {
+  loopsFormId: string;
+}
+
+export function readSubscribeEnv(source: EnvSource = process.env): SubscribeEnv {
+  return { loopsFormId: required(source, "LOOPS_FORM_ID") };
+}
+
 export interface SupabaseEnv {
   url: string;
   secretKey: string;

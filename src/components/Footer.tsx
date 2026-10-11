@@ -1,4 +1,5 @@
 import { AI_DISCLOSURE, ETSY_SHOP_URL } from "@/lib/copy";
+import { EmailCapture } from "./EmailCapture";
 import { Reveal } from "./ui/Reveal";
 
 export function Footer() {
@@ -27,6 +28,12 @@ export function Footer() {
           ]}
         />
       </Reveal>
+
+      <EmailCapture
+        source="footer"
+        heading="New packs and Studio features, in your inbox."
+        className="relative md:col-span-2 max-w-[520px]"
+      />
 
       <Reveal delay={0.2} className="md:col-span-2 pt-10 mt-5 border-t border-white/8">
         <div className="flex flex-wrap justify-between gap-4 font-sans text-[11px] tracking-[0.14em] uppercase text-white/40">
