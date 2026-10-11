@@ -31,7 +31,7 @@ The active channel is the **Etsy shop `gradientwall.etsy.com`**, not the web sto
 
 GradientWall — an interactive wallpaper studio plus a digital store for curated wallpaper packs. Free Studio + paid packs (5.99€ each for the real ones, same as Etsy, VAT included; single payment, no account, email-delivered).
 
-Architecture of information: **Nav → Hero → Marquee → Studio → Packs → Footer** on the home, with separate routes for `/packs/:slug`, `/packs/:slug/success`, `/recover`. The old "Gallery" of community-made wallpapers was removed in the Semana 1 refactor — its slot is now the Packs catalog.
+Architecture of information: **Nav → Studio (it is the hero: pitch + live Studio on the first screen) → Marquee → Packs → Footer** on the home, with separate routes for `/packs/:slug`, `/packs/:slug/success`, `/recover`. The old "Gallery" of community-made wallpapers was removed in the Semana 1 refactor — its slot is now the Packs catalog.
 
 The rendering math (mesh / blobs / liquid gradients, seeded PRNG, grain tile) was ported 1:1 from a vanilla prototype into `src/lib/gradient/` (pure) and `src/lib/download/` (composes the painted canvas + grain into a downloadable WebP/JPEG). Don't "clean up" that math unless you have a specific visual regression to fix — it's calibrated to output the designer already signed off on.
 
@@ -81,7 +81,7 @@ useEffect(() => { paintWallpaper(canvasRef.current!, { colors, ... }); }, [color
 ```
 
 Component layout:
-- `Nav.tsx`, `Hero.tsx`, `Marquee.tsx`, `Footer.tsx` — the editorial chrome.
+- `Nav.tsx` (floating glass pill), `Marquee.tsx`, `Footer.tsx` (ends with a wordmark filled with the Studio palette) — the editorial chrome. There is no separate Hero: `studio/v2/StudioShell` carries the H1 and the pitch, and `HeroAmbient` tints the first screen with the current palette.
 - `studio/engine/` — the seam between the Studio UI and whatever draws wallpapers. `WallpaperEngine` (`types.ts`) declares styles, adjustment sliders (with defaults), a live `Canvas` component, `paintThumbnail` and `exportWallpaper(params, device, onProgress)`. `webgl-engine.tsx` is the default engine (v2 shader); it hands favorites saved with v1 and browsers without WebGL2 to `canvas2d-engine.tsx`, which wraps `lib/gradient` + `lib/download`. `EngineProvider` / `useWallpaperEngine` swap it. The UI never imports `lib/gradient` or `lib/download` directly, so a WebGL engine plugs in by implementing this interface.
 - `studio/v2/` — el Studio activo: `StudioShell` (orquestador: marco, dock y tira), `StudioTopBar` (nombre de la paleta + selector de dispositivo), `DeviceStage` (marco de móvil/tablet/monitor con pantalla de bloqueo y reveal circular desde el botón pulsado), `StageHalo`, `StudioDock` (Shuffle/Space, estilo, 10 paletas, guardar, Ajustar, Descargar, toast), `AdjustPanel` (sliders declarados por el motor + Reset / Remix / Colors), `SaveButton`, `ExportButton` (progreso por fases), `PaletteSwatches`, `FavoritesStrip` + `FavoriteThumbnail`, `reveal.ts` (`useRequestReveal`: los botones avisan al marco de dónde nace el reveal).
 - `studio/` (hojas reutilizadas) — `HarmonicWheel` (color picker armónico, ahora dentro del popover "Colors" del panel Ajustar), `ImageSource`, `UseMyPhotoButton`, `useColorEditing`.
@@ -146,9 +146,9 @@ Buttons (decision 2026-10-10: rounded everywhere; the old sharp 2px rule is reti
 - **Glass 14px** (`rounded-glass`) for buttons — `GlassButton` in `components/ui/` (variants `primary` gold, `ghost`, `icon` round, `quiet`).
 - **Pill rounded-full** for toggles and segmented controls (`SegmentedControl`).
 - Gold (`--color-gold`) marks the primary action and slider fills; rose (`--color-rose`) marks "saved".
-- Older sections (Hero, packs, nav) may still use 2px corners until they are redesigned.
+- Older sections (packs) may still use 2px corners until they are redesigned.
 
-Site-wide grain: `body::before` (fixed, z-index 100, `mix-blend-mode: overlay`). The hero has its own second grain layer (`.hero-grain`).
+Site-wide grain: `body::before` (fixed, z-index 100, `mix-blend-mode: overlay`). 
 
 ## Path alias `@/*`
 
@@ -170,11 +170,11 @@ If imports resolve in the editor but Vite fails to build, suspect this.
 
 ## Video asset
 
-`public/assets/backgroundVideos/gradientBackground2.mp4` (≈42 MB). Vite serves `public/` at root, so the runtime URL is `/assets/backgroundVideos/gradientBackground2.mp4`. Don't import it from `src/` — it won't be hashed/bundled correctly and the big file would inline.
+The home no longer ships a background video (the 41 MB hero loop was removed when the hero and the Studio were merged); the first screen is the live Studio over `HeroAmbient`. `specimenGem*.mp4` in `public/assets/backgroundVideos/` are unused leftovers.
 
 ## Accessibility and motion
 
-`src/index.css` includes a `@media (prefers-reduced-motion: reduce)` block that kills the hero video and caps animation durations. New animations inherit this — opt out explicitly only if there's a strong reason.
+`src/index.css` includes a `@media (prefers-reduced-motion: reduce)` block that caps animation durations. New animations inherit this — opt out explicitly only if there's a strong reason.
 
 ## Backend operations
 
