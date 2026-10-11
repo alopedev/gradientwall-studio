@@ -1,4 +1,5 @@
 import { composeWallpaper, paintWallpaper } from "@/lib/download/compose";
+import { wallpaperFilename } from "@/lib/download/filename";
 import { encodeWithFallback, type EncodeFormat } from "@/lib/download/encode";
 import { browserDownloadSink, type Sink } from "@/lib/download/sink";
 import {
@@ -8,7 +9,6 @@ import {
   STUDIO_VIBRANCE,
   V1_DEFAULT_GRAIN,
 } from "@/lib/defaults";
-import { seedToHex } from "@/lib/gradient";
 import { DEVICE_SIZES } from "@/lib/palettes";
 import { useFittedGradientCanvas } from "@/lib/useGradientCanvas";
 import type { AdjustmentSpec, EngineCanvasProps, WallpaperEngine } from "./types";
@@ -107,7 +107,7 @@ export function createCanvas2DEngine(sink: Sink = browserDownloadSink): Wallpape
       await nextFrame();
       const { blob, ext } = await encodeWithFallback(canvas, FORMATS);
       onProgress?.(0.95);
-      const filename = `gradientwall-${device}-${seedToHex(params.seed)}.${ext}`;
+      const filename = wallpaperFilename(device, params.seed, ext);
       await sink(blob, filename);
       onProgress?.(1);
       return { filename, bytes: blob.size };

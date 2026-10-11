@@ -1,8 +1,8 @@
 import { paintWallpaper } from "@/lib/download/compose";
+import { wallpaperFilename } from "@/lib/download/filename";
 import { encodeWithFallback, type EncodeFormat } from "@/lib/download/encode";
 import { browserDownloadSink, type Sink } from "@/lib/download/sink";
 import { DEFAULT_MAX_DIM, DEFAULT_MAX_DPR, pixelKey } from "@/lib/fitted-canvas";
-import { seedToHex } from "@/lib/gradient";
 import {
   isWebGL2Supported,
   paintV2,
@@ -145,7 +145,7 @@ export function createWebGLEngine(deps: WebGLEngineDeps = {}): WallpaperEngine {
       await nextFrame();
       const { blob, ext } = await encodeWithFallback(canvas, FORMATS);
       onProgress?.(0.95);
-      const filename = `gradientwall-${device}-${seedToHex(params.seed)}.${ext}`;
+      const filename = wallpaperFilename(device, params.seed, ext);
       await sink(blob, filename);
       onProgress?.(1);
       return { filename, bytes: blob.size };

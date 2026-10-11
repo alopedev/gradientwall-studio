@@ -30,7 +30,7 @@ describe("downloadWallpaper (facade)", () => {
     );
 
     expect(sink).toHaveBeenCalledOnce();
-    expect(sinkCalls[0].filename).toBe("gradientwall-mobile-#A47B.webp");
+    expect(sinkCalls[0].filename).toBe("gradientwall-mobile-A47B.webp");
     expect(sinkCalls[0].blob.type).toBe("image/webp");
 
     vi.restoreAllMocks();

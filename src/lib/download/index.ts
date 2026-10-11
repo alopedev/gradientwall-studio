@@ -1,6 +1,6 @@
-import { seedToHex } from "../gradient";
 import { DEVICE_SIZES, type Device, type RenderParams } from "../palettes";
 import { composeWallpaper } from "./compose";
+import { wallpaperFilename } from "./filename";
 import { encodeWithFallback, type EncodeFormat } from "./encode";
 import { browserDownloadSink, type Sink } from "./sink";
 
@@ -39,5 +39,5 @@ export async function downloadWallpaper(
   const { device: _device, ...params } = opts;
   const canvas = composeWallpaper({ ...params, w: d.w, h: d.h });
   const { blob, ext } = await encodeWithFallback(canvas, DEFAULT_FORMATS);
-  await sink(blob, `gradientwall-${opts.device}-${seedToHex(opts.seed)}.${ext}`);
+  await sink(blob, wallpaperFilename(opts.device, opts.seed, ext));
 }
