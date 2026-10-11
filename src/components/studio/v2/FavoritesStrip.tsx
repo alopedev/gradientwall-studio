@@ -25,7 +25,7 @@ export function FavoritesStrip() {
       {items.length === 0 ? (
         <p className="m-0 text-balance text-center font-sans text-[0.85rem] text-white/60">
           <Heart className="mr-1.5 inline size-3.5 -translate-y-px text-rose" aria-hidden />
-          Save the ones you like and come back to them with one tap
+          Tap the heart to keep a wallpaper. Saved in this browser only.
         </p>
       ) : (
         <Reorder.Group

@@ -19,6 +19,8 @@ export interface SeoPack {
   description: string;
   priceEur: number;
   previews: unknown[];
+  seoTitle?: string;
+  seoDescription?: string;
   cover: { kind: string; url?: string; alt?: string };
   lemonSqueezyVariantId?: string;
 }
@@ -150,8 +152,8 @@ export function buildPackPage(pack: SeoPack): SeoPage {
   const cover = pack.cover.kind === "image" ? pack.cover : undefined;
   return {
     path: `/packs/${pack.slug}`,
-    title: `${pack.name} — pack of ${pack.previews.length} wallpapers`,
-    description: pack.description,
+    title: pack.seoTitle ?? `${pack.name} — pack of ${pack.previews.length} wallpapers`,
+    description: pack.seoDescription ?? pack.description,
     ogType: "product",
     ogImage: cover?.url,
     ogImageAlt: cover?.alt ?? `${pack.name} — ${pack.tagline}`,

@@ -69,8 +69,8 @@ export function Nav() {
         href="/#studio"
         className="relative z-10 font-sans font-medium uppercase tracking-[0.14em] text-[11px] md:text-[12px] text-white/90 hover:text-white transition-colors duration-150 whitespace-nowrap"
       >
-        <span className="md:hidden">Studio →</span>
-        <span className="hidden md:inline">Open studio →</span>
+        <span className="md:hidden">Make one →</span>
+        <span className="hidden md:inline">Make a wallpaper →</span>
       </a>
     </m.nav>
   );

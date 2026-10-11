@@ -1,3 +1,4 @@
+import { STUDIO_NOT_AI } from "@/lib/copy";
 import { m, useInView } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { Reveal } from "../../ui/Reveal";
@@ -52,15 +53,15 @@ export function StudioShell() {
         <Reveal className="mb-8 grid items-end gap-6 md:mb-10 md:grid-cols-2 md:gap-12">
           <div>
             <span className="mb-4 block font-sans text-[11px] uppercase tracking-[0.22em] text-white/40">
-              02 — The studio
+              The studio
             </span>
             <h2 className="m-0 font-sans text-[clamp(40px,5.5vw,76px)] font-bold uppercase leading-[0.95] tracking-[-0.03em] text-white">
               <SplitWords text="One tap. Done." kinetic />
             </h2>
           </div>
           <p className="max-w-[42ch] font-sans text-[15px] font-light text-white/75">
-            Hit Shuffle, or press Space, and a wallpaper appears. Pick a style or a palette, open
-            Adjust for the fine controls, and download it sized for your phone, tablet or desktop.
+            Press Shuffle (or Space) until one feels right. Change the style or the colors, then
+            download it sharp, up to 5120 × 2880. Free, no account, no watermark.
           </p>
         </Reveal>
 
@@ -93,6 +94,9 @@ export function StudioShell() {
               <FavoritesStrip />
             </m.div>
           </div>
+          <p className="m-0 mt-5 text-center font-sans text-[11px] tracking-[0.04em] text-white/40">
+            {STUDIO_NOT_AI}
+          </p>
         </div>
       </section>
     </RevealContext.Provider>

@@ -9,8 +9,8 @@ describe("<Nav />", () => {
     expect(screen.getByText(/gradientwall/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /^studio$/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /^packs$/i })).toBeInTheDocument();
-    // CTA has both mobile ("Studio →") + desktop ("Open studio →") children; at least one renders
-    expect(screen.getByText(/open studio/i)).toBeInTheDocument();
+    // CTA has both mobile ("Make one →") + desktop ("Make a wallpaper →") children; at least one renders
+    expect(screen.getByText(/make a wallpaper/i)).toBeInTheDocument();
   });
 
   it("renders the cinematic top-fade-to-transparent overlay (seen at the top of the page)", () => {

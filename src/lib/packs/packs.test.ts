@@ -76,9 +76,15 @@ describe("describeContents", () => {
     expect(describeContents({ previews: [img] })).toBe("1 wallpaper");
   });
 
-  it("says phone + desktop when pieces ship both renders", () => {
+  it("counts designs and files when pieces ship both renders", () => {
     const pair = { ...img, desktop: { url: "/b.png", alt: "b" } };
-    expect(describeContents({ previews: [pair, pair] })).toBe("2 wallpapers · phone + desktop");
+    expect(describeContents({ previews: [pair, pair] })).toBe("2 designs · 4 wallpapers");
+  });
+
+  it("counts both files per design when the pack is flagged phone + desktop", () => {
+    expect(describeContents({ previews: [img, img, img], phoneAndDesktop: true })).toBe(
+      "3 designs · 6 wallpapers",
+    );
   });
 });
 
@@ -118,9 +124,9 @@ describe("filterPacks", () => {
   });
 
   it("returns only packs of the requested style", () => {
-    const filtered = filterPacks("gradient");
+    const filtered = filterPacks("bauhaus");
     expect(filtered.length).toBeGreaterThan(0);
-    for (const p of filtered) expect(p.style).toBe("gradient");
+    for (const p of filtered) expect(p.style).toBe("bauhaus");
   });
 
   it("returns an empty array for a style not present in the catalog", () => {

@@ -16,9 +16,24 @@ function renderPack(slug: string) {
 describe("PackPage", () => {
   it("shows all six Dessau pieces with their phone and desktop renders", () => {
     const { container } = renderPack("dessau");
-    expect(screen.getByRole("heading", { name: "All 6 wallpapers." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "All 6 designs." })).toBeInTheDocument();
     const srcs = [...container.querySelectorAll("img")].map((i) => i.getAttribute("src"));
     expect(srcs).toContain("/assets/packs/dessau/06_halbkreise.png");
     expect(srcs).toContain("/assets/packs/dessau/06_halbkreise-desktop.png");
+  });
+});
+
+describe("PackPage buying", () => {
+  it("sends buyers to the Etsy listing while there is no checkout of its own", () => {
+    renderPack("dessau");
+    const link = screen.getByRole("link", { name: /get it on etsy/i });
+    expect(link.getAttribute("href")).toMatch(/^https:\/\/www\.etsy\.com\/listing\/\d+$/);
+    expect(link.getAttribute("rel")).toContain("noopener");
+  });
+
+  it("declares that the artwork is AI-assisted", () => {
+    renderPack("acrylic");
+    expect(screen.getByText(/how it was made/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/AI-assisted image generation/i).length).toBeGreaterThan(0);
   });
 });

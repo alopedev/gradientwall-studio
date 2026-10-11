@@ -1,3 +1,4 @@
+import { AI_DISCLOSURE, ETSY_SHOP_URL } from "@/lib/copy";
 import { Reveal } from "./ui/Reveal";
 
 export function Footer() {
@@ -11,7 +12,7 @@ export function Footer() {
           </span>
         </div>
         <div className="mt-6 font-sans text-[11px] tracking-[0.12em] uppercase text-white/40">
-          GRADIENTWALL · EST. 2026
+          GradientWall · Made in Tarragona
         </div>
       </Reveal>
 
@@ -21,6 +22,7 @@ export function Footer() {
           links={[
             { label: "Studio", href: "/#studio" },
             { label: "Packs", href: "/#packs" },
+            { label: "Etsy shop", href: ETSY_SHOP_URL },
             { label: "Recover download", href: "/recover" },
           ]}
         />
@@ -29,7 +31,9 @@ export function Footer() {
       <Reveal delay={0.2} className="md:col-span-2 pt-10 mt-5 border-t border-white/8">
         <div className="flex flex-wrap justify-between gap-4 font-sans text-[11px] tracking-[0.14em] uppercase text-white/40">
           <span>© 2026 GradientWall</span>
-          <span>Terms · Privacy · Cookies</span>
+          <span className="max-w-[56ch] normal-case tracking-normal text-[12px] sm:text-right">
+            Pack artwork: {AI_DISCLOSURE.charAt(0).toLowerCase() + AI_DISCLOSURE.slice(1)}
+          </span>
         </div>
       </Reveal>
     </footer>
