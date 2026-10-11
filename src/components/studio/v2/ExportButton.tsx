@@ -5,12 +5,13 @@ import { GlassButton } from "@/components/ui/GlassButton";
 import { DEVICE_SIZES } from "@/lib/palettes";
 import { useConfigStore, useRenderParams } from "@/store";
 import { useWallpaperEngine } from "../engine";
+import type { ToastAction } from "./toast";
 
 type Phase = "idle" | "busy" | "done";
 
 interface Props {
-  /** Short messages shown in the dock toast. */
-  onMessage: (message: string) => void;
+  /** Short messages shown in the dock toast, with an optional link. */
+  onMessage: (message: string, action?: ToastAction) => void;
 }
 
 /** Download button: the label fills with a gold bar while the file is rendered and encoded. */
@@ -27,11 +28,15 @@ export function ExportButton({ onMessage }: Props) {
     clearTimeout(resetTimer.current);
     setPhase("busy");
     setProgress(0);
-    const started = performance.now();
     try {
       const { filename, bytes } = await engine.exportWallpaper(params, device, setProgress);
-      const seconds = ((performance.now() - started) / 1000).toFixed(1);
-      onMessage(`Saved ${filename} · ${(bytes / 1048576).toFixed(1)} MB · ${seconds} s`);
+      onMessage(
+        `Downloaded ${filename} (${(bytes / 1048576).toFixed(1)} MB). Look in your Downloads.`,
+        {
+          label: "Want more? Browse the packs",
+          href: "#packs",
+        },
+      );
       setPhase("done");
       resetTimer.current = setTimeout(() => setPhase("idle"), 1800);
     } catch {
@@ -71,7 +76,7 @@ export function ExportButton({ onMessage }: Props) {
         <span>
           {phase === "idle" && "Download"}
           {phase === "busy" && `Rendering ${Math.round(progress * 100)}%`}
-          {phase === "done" && "Saved"}
+          {phase === "done" && "Downloaded"}
         </span>
       </span>
     </GlassButton>

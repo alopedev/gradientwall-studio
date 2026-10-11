@@ -10,14 +10,14 @@ function engineWith(exportWallpaper: WallpaperEngine["exportWallpaper"]): Wallpa
 }
 
 describe("ExportButton", () => {
-  it("shows progress while exporting, then Saved, and reports the file", async () => {
+  it("shows progress while exporting, then Downloaded, and reports the file with a link to the packs", async () => {
     const user = userEvent.setup();
     let finish!: () => void;
     const exportWallpaper = vi.fn(
       (_params, _device, onProgress) =>
         new Promise<{ filename: string; bytes: number }>((resolve) => {
           onProgress?.(0.4);
-          finish = () => resolve({ filename: "gradientwall-mobile-#A47B.webp", bytes: 2_097_152 });
+          finish = () => resolve({ filename: "gradientwall-mobile-A47B.webp", bytes: 2_097_152 });
         }),
     );
     const onMessage = vi.fn();
@@ -35,11 +35,12 @@ describe("ExportButton", () => {
     ).toBe("true");
 
     await act(async () => finish());
-    expect(screen.getByText("Saved")).toBeTruthy();
+    expect(screen.getByText("Downloaded")).toBeTruthy();
     expect(onMessage).toHaveBeenCalledWith(
-      expect.stringContaining("gradientwall-mobile-#A47B.webp"),
+      expect.stringContaining("gradientwall-mobile-A47B.webp"),
+      { label: expect.stringMatching(/packs/i), href: "#packs" },
     );
-    expect(onMessage).toHaveBeenCalledWith(expect.stringContaining("2.0 MB"));
+    expect(onMessage).toHaveBeenCalledWith(expect.stringContaining("2.0 MB"), expect.anything());
   });
 
   it("ignores a second click while busy", async () => {

@@ -48,7 +48,6 @@ export function StudioShell() {
     <RevealContext.Provider value={revealRef}>
       <section
         ref={sectionRef}
-        id="studio"
         className="relative mx-auto max-w-[1600px] px-[clamp(16px,5vw,80px)] py-[clamp(60px,9vw,120px)]"
       >
         <Reveal className="mb-8 grid items-end gap-6 md:mb-10 md:grid-cols-2 md:gap-12">
@@ -66,10 +65,12 @@ export function StudioShell() {
           </p>
         </Reveal>
 
-        <div className="@container mx-auto max-w-[1500px]">
+        {/* Anchor target: "Make a wallpaper" lands on the frame (just under the nav) so
+            the dock, Shuffle included, is on the first screen. */}
+        <div id="studio" className="@container mx-auto max-w-[1500px] scroll-mt-[76px]">
           <div
             data-device={device}
-            className="relative isolate grid h-[clamp(700px,92vh,860px)] grid-rows-[auto_minmax(0,1fr)_auto_auto] overflow-hidden rounded-[20px] border border-white/10 bg-[radial-gradient(120%_90%_at_50%_40%,#0d0d11_0%,#060607_70%)] @max-[760px]:h-auto @max-[760px]:grid-rows-[auto_520px_auto_auto] @max-[760px]:rounded-2xl @max-[760px]:data-[device=desktop]:grid-rows-[auto_330px_auto_auto]"
+            className="relative isolate grid h-[clamp(700px,92vh,860px)] grid-rows-[auto_minmax(0,1fr)_auto_auto] overflow-hidden rounded-[20px] border border-white/10 bg-[radial-gradient(120%_90%_at_50%_40%,#0d0d11_0%,#060607_70%)] @max-[760px]:h-auto @max-[760px]:grid-rows-[auto_clamp(300px,calc(100svh_-_380px),520px)_auto_auto] @max-[760px]:rounded-2xl @max-[760px]:data-[device=desktop]:grid-rows-[auto_330px_auto_auto]"
           >
             <StageHalo />
             <m.div {...enter(0)}>

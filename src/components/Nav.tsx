@@ -1,7 +1,25 @@
 import { m } from "motion/react";
 import { useMotionTemplate, useScroll, useTransform } from "motion/react";
+import { useEffect, useState } from "react";
+import { glassButton } from "./ui/GlassButton";
+
+/** True while the packs section is the main thing on screen. */
+function usePacksInView(): boolean {
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = document.getElementById("packs");
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), {
+      rootMargin: "-40% 0px -40% 0px",
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return inView;
+}
 
 export function Nav() {
+  const packsInView = usePacksInView();
   const { scrollY } = useScroll();
   // Smoothly interpolate between the two nav moods across a 0→80px range
   // instead of a binary flip at 24px. Continuous change reads as craftsmanship;
@@ -60,37 +78,46 @@ export function Nav() {
         </span>
       </a>
 
-      <div className="relative z-10 hidden md:flex gap-7 text-[11px] font-medium uppercase tracking-[0.14em] text-white/70">
-        <NavLink href="/#studio">Studio</NavLink>
-        <NavLink href="/#packs">Packs</NavLink>
+      <div className="relative z-10 flex items-center gap-2 md:gap-4">
+        <NavLink href="/#packs" active={packsInView}>
+          Packs
+        </NavLink>
+        <a
+          href="/#studio"
+          className={`${glassButton({ variant: "primary" })} min-h-10 px-4 text-[0.82rem]`}
+        >
+          <span className="md:hidden">Make one →</span>
+          <span className="hidden md:inline">Make a wallpaper →</span>
+        </a>
       </div>
-
-      <a
-        href="/#studio"
-        className="relative z-10 font-sans font-medium uppercase tracking-[0.14em] text-[11px] md:text-[12px] text-white/90 hover:text-white transition-colors duration-150 whitespace-nowrap"
-      >
-        <span className="md:hidden">Make one →</span>
-        <span className="hidden md:inline">Make a wallpaper →</span>
-      </a>
     </m.nav>
   );
 }
 
 /**
- * Nav link — underline slides in on hover with the accent colour. The
- * static accent-on-white would clash with the hero video underneath at the
- * top of the page; the hover-underline keeps the default state clean.
+ * Nav link — underline slides in on hover with the accent colour and stays
+ * while its section is on screen. The 44 px hit area comes from padding, so
+ * the label keeps its small size.
  */
-function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+function NavLink({
+  href,
+  active = false,
+  children,
+}: {
+  href: string;
+  active?: boolean;
+  children: React.ReactNode;
+}) {
   return (
     <a
       href={href}
-      className="group relative px-1 py-1 transition-colors duration-150 hover:text-white"
+      aria-current={active ? "location" : undefined}
+      className="group relative inline-flex min-h-11 items-center px-3 font-sans text-[11px] font-medium uppercase tracking-[0.14em] text-white/70 transition-colors duration-150 hover:text-white aria-[current=location]:text-white focus-ring"
     >
       {children}
       <span
         aria-hidden
-        className="absolute left-1 right-1 bottom-0 h-px origin-left scale-x-0 bg-[color:var(--color-accent)] transition-transform duration-200 ease-out group-hover:scale-x-100"
+        className={`absolute left-3 right-3 bottom-2 h-px origin-left bg-[color:var(--color-accent)] transition-transform duration-200 ease-out group-hover:scale-x-100 ${active ? "scale-x-100" : "scale-x-0"}`}
       />
     </a>
   );
