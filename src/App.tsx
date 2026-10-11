@@ -9,6 +9,7 @@ import { PacksSection } from "./components/packs/PacksSection";
 import { PackPage } from "./components/packs/PackPage";
 import { PackPurchaseSuccess } from "./components/packs/PackPurchaseSuccess";
 import { RecoverForm } from "./components/RecoverForm";
+import { PrivacyPage } from "./components/PrivacyPage";
 import { Footer } from "./components/Footer";
 import { PageMeta } from "./components/PageMeta";
 import { buildHomePage } from "./lib/seo/pages";
@@ -53,6 +54,7 @@ function RoutesShell() {
           <Route path="/packs/:slug" element={<PackPage />} />
           <Route path="/packs/:slug/success" element={<PackPurchaseSuccess />} />
           <Route path="/recover" element={<RecoverForm />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AnimatePresence>

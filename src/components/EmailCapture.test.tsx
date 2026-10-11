@@ -37,6 +37,12 @@ describe("EmailCapture", () => {
     expect((await screen.findByRole("status")).textContent).toMatch(/on the list/);
   });
 
+  it("links the privacy page from the consent line", () => {
+    render(<EmailCapture source="footer" heading="Hi" />);
+    const link = screen.getByRole("link", { name: /privacy/i });
+    expect(link.getAttribute("href")).toBe("/privacy");
+  });
+
   it("shows the reason and keeps the form when the server refuses", async () => {
     fetchSpy.mockResolvedValue(
       new Response('{"ok":false,"reason":"invalid_email"}', { status: 400 }),

@@ -26,6 +26,7 @@ export function Footer() {
             { label: "Packs", href: "/#packs" },
             { label: "Etsy shop", href: ETSY_SHOP_URL },
             { label: "Recover download", href: "/recover" },
+            { label: "Privacy", href: "/privacy" },
           ]}
         />
       </Reveal>

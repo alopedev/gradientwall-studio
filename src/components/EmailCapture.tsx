@@ -100,7 +100,10 @@ export function EmailCapture({ source, heading, className }: Props) {
             </GlassButton>
           </div>
           <p id={`${id}-note`} className="m-0 mt-2.5 font-sans text-[12px] text-white/50">
-            {CONSENT_TEXT}
+            {CONSENT_TEXT}{" "}
+            <a href="/privacy" className="underline underline-offset-2 hover:text-white">
+              Privacy
+            </a>
           </p>
           {state.kind === "error" && (
             <p role="alert" className="m-0 mt-2 font-sans text-[13px] text-red-300">
