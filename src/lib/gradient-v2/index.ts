@@ -20,6 +20,16 @@ export {
   isWebGL2Supported,
   paintV2,
   type DrawOptions,
+  type RendererOptions,
   type V2Renderer,
 } from "./renderer";
 export { renderWallpaperV2, type ExportV2Deps } from "./export";
+export { FRAG_ANIMATED } from "./shader-animated";
+export {
+  BACKDROP_GRAIN,
+  BACKDROP_MIN_FRAME_MS,
+  BACKDROP_SEED,
+  backdropSize,
+  shouldRunBackdrop,
+  stepPalette,
+} from "./backdrop";

@@ -8,6 +8,7 @@ import { DeviceStage } from "./DeviceStage";
 import { FavoritesStrip } from "./FavoritesStrip";
 import { type RevealRequest, RevealContext } from "./reveal";
 import { HeroAmbient } from "./HeroAmbient";
+import { HeroBackdrop } from "./HeroBackdrop";
 import { StageHalo } from "./StageHalo";
 import { StudioDock } from "./StudioDock";
 import { StudioTopBar } from "./StudioTopBar";
@@ -55,6 +56,7 @@ export function StudioShell() {
     <RevealContext.Provider value={revealRef}>
       <section ref={sectionRef} className="relative isolate overflow-hidden">
         <HeroAmbient />
+        <HeroBackdrop />
         <div className="mx-auto grid max-w-[1600px] gap-8 px-[clamp(16px,4vw,64px)] pb-[clamp(32px,5vw,72px)] pt-[88px] lg:min-h-[100svh] lg:grid-cols-[minmax(300px,0.72fr)_minmax(0,1.6fr)] lg:items-center lg:gap-10 lg:pt-[96px]">
           <Reveal className="relative z-[1]">
             <span className="mb-5 hidden rounded-full border border-white/12 bg-white/[0.04] px-3 py-1.5 font-sans text-[11px] font-medium uppercase tracking-[0.14em] text-white/75 md:inline-flex">
