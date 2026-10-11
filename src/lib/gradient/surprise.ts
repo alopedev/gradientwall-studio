@@ -1,3 +1,4 @@
+import { lerp } from "../color";
 import { DEFAULT_CONTRAST, STUDIO_VIBRANCE, V2_DEFAULT_GRAIN } from "../defaults";
 import type { Colors4, GradientConfig, Style } from "../palettes";
 import { pickCuratedSeed, pickCuratedSeedExcluding } from "./curated-seeds";
@@ -49,8 +50,6 @@ export const SURPRISE_LIGHT_MAX = 330;
 /** Rango operativo de density. Evita canvas vacío / saturado. */
 export const SURPRISE_DENSITY_MIN = 0.35;
 export const SURPRISE_DENSITY_MAX = 0.85;
-
-const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
 
 /**
  * Genera un `GradientConfig` completo. Para tests deterministas, pasar `rng`

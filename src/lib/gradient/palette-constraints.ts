@@ -1,5 +1,5 @@
+import { hslToHex, lerp } from "../color";
 import type { Colors4 } from "../palettes";
-import { hslToHex } from "./spec";
 
 /**
  * Generador de paletas armónicas para `generateSurprise` (Studio v2).
@@ -40,8 +40,6 @@ export const SAT_MAX = 92;
 export const LIGHT_MIN = 42;
 export const LIGHT_MAX = 78;
 export const MIN_HUE_DISTANCE = 25;
-
-const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
 
 /**
  * Distancia mínima de hue entre dos ángulos sobre el círculo de color

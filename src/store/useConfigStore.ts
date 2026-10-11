@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { create } from "zustand";
+import { clamp } from "@/lib/color";
 import { useShallow } from "zustand/react/shallow";
 import {
   ALL_ACTIVE,
@@ -95,8 +96,8 @@ export interface ConfigState extends Look {
 const randomSeed = () => Math.floor(Math.random() * 65535);
 const freshMask = (): ActiveMask => [...ALL_ACTIVE] as ActiveMask;
 
-const clamp01 = (n: number) => (n < 0 ? 0 : n > 1 ? 1 : n);
-const clampGrade = (n: number) => (n < 0.5 ? 0.5 : n > 1.5 ? 1.5 : n);
+const clamp01 = (n: number) => clamp(n, 0, 1);
+const clampGrade = (n: number) => clamp(n, 0.5, 1.5);
 
 /** Numeric fields that are mutated repeatedly by slider/dial drags. */
 type RafPatch = Partial<

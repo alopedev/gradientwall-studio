@@ -1,17 +1,27 @@
 import { Pipette } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  bulletPosition,
+  lightAngleFromPointer,
+  lightHandlePosition,
+  offsetFromRectCenter,
+  RING_THICKNESS,
+  type Slot,
+  slotHueFromState,
+  WHEEL_SIZE,
+  wheelStateFromPointer,
+} from "@/lib/colorEditing/wheel-geometry";
+import {
   clampLight,
   computeHarmonicColors,
   inferAnchor,
   LIGHT_OFFSETS,
-  MAX_LIGHT,
-  spreadFromRadius,
   type WheelState,
 } from "@/lib/gradient/harmonic-edit";
-import type { ActiveMask, Colors4 } from "@/lib/palettes";
-import { MIN_ACTIVE_COLORS } from "@/lib/palettes";
 import { useConfigStore } from "@/store";
+import { ColorBullet } from "./wheel/ColorBullet";
+import { ColorDots } from "./wheel/ColorDots";
+import { LightHandle } from "./wheel/LightHandle";
 import { useColorEditing } from "./useColorEditing";
 
 /**
@@ -34,65 +44,6 @@ import { useColorEditing } from "./useColorEditing";
  */
 
 // ──────────────────────────────────────────────────────────────────────────
-// Geometría del componente
-// ──────────────────────────────────────────────────────────────────────────
-
-const WHEEL_SIZE = 256;
-const RING_THICKNESS = 20;
-const WHEEL_AREA_SIZE = WHEEL_SIZE - RING_THICKNESS * 2;
-const WHEEL_PADDING = 24; // margen interior para que los bullets no se salgan
-const RADIUS_MAX = WHEEL_AREA_SIZE / 2 - WHEEL_PADDING;
-const FOCAL_BULLET_SIZE = 48;
-const SAT_BULLET_SIZE = 28;
-const LIGHT_HANDLE_SIZE = 18;
-// Radio del círculo por el que se desliza el handle de luz — centro del anillo.
-const LIGHT_PERIMETER_RADIUS = (WHEEL_SIZE - RING_THICKNESS) / 2;
-
-// ──────────────────────────────────────────────────────────────────────────
-// Helpers de geometría
-// ──────────────────────────────────────────────────────────────────────────
-
-interface BulletPos {
-  /** x, y en pixels relativos al centro del wheel area. */
-  x: number;
-  y: number;
-}
-
-function bulletPosition(hue: number, light: number): BulletPos {
-  const radiusN = Math.max(0, Math.min(1, light / MAX_LIGHT));
-  const r = radiusN * RADIUS_MAX;
-  const angleRad = (hue * Math.PI) / 180;
-  return { x: Math.cos(angleRad) * r, y: Math.sin(angleRad) * r };
-}
-
-/**
- * Dada la posición del cursor (relativa al centro del wheel area) y el slot
- * focal actual, deriva el nuevo WheelState. Reproduce la matemática del
- * componente original: hue desde atan2, light desde radio normalizado, spread
- * desde la curva del original. anchorHue/Light se desplazan para que el slot
- * focal acabe en la posición exacta del cursor.
- */
-function wheelStateFromPointer(
-  offsetX: number,
-  offsetY: number,
-  focalSlot: 0 | 1 | 2 | 3,
-): WheelState {
-  let r = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
-  if (r > RADIUS_MAX) r = RADIUS_MAX;
-  const angleRad = Math.atan2(offsetY, offsetX);
-  const hueFocal = ((angleRad * 180) / Math.PI + 360) % 360;
-  const lightFocal = MAX_LIGHT * (r / RADIUS_MAX);
-  const normalizedRadius = r / RADIUS_MAX;
-  const spread = spreadFromRadius(normalizedRadius);
-
-  const slotMultipliers = [-1.5, -0.5, 0.5, 1.5] as const;
-  const anchorHue = (hueFocal - slotMultipliers[focalSlot] * spread * (180 / Math.PI) + 360) % 360;
-  const anchorLight = lightFocal - LIGHT_OFFSETS[focalSlot];
-
-  return { anchorHue, anchorLight, spread, focalSlot };
-}
-
-// ──────────────────────────────────────────────────────────────────────────
 // Componente principal
 // ──────────────────────────────────────────────────────────────────────────
 
@@ -105,7 +56,7 @@ export function HarmonicWheel() {
   const setLightAngle = useConfigStore((s) => s.setLightAngle);
   const toggleColor = useConfigStore((s) => s.toggleColor);
 
-  const [focalSlot, setFocalSlot] = useState<0 | 1 | 2 | 3>(0);
+  const [focalSlot, setFocalSlot] = useState<Slot>(0);
   const [wheelState, setWheelState] = useState<WheelState>(() => ({
     ...inferAnchor(colors),
     focalSlot: 0,
@@ -136,15 +87,11 @@ export function HarmonicWheel() {
   const areaRef = useRef<HTMLDivElement>(null);
 
   const handleBulletDrag = useCallback(
-    (slot: 0 | 1 | 2 | 3, clientX: number, clientY: number) => {
+    (slot: Slot, clientX: number, clientY: number) => {
       const area = areaRef.current;
       if (!area) return;
-      const rect = area.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const offsetX = clientX - cx;
-      const offsetY = clientY - cy;
-      const next = wheelStateFromPointer(offsetX, offsetY, slot);
+      const { x, y } = offsetFromRectCenter(area.getBoundingClientRect(), clientX, clientY);
+      const next = wheelStateFromPointer(x, y, slot);
       setWheelState(next);
       const newColors = computeHarmonicColors(next);
       lastEmittedRef.current = newColors.join(",");
@@ -154,7 +101,7 @@ export function HarmonicWheel() {
   );
 
   // ────────────────────────────────────────────────────────────────────────
-  // Drag del handle de luz — desliza por perímetro cuadrado
+  // Drag del handle de luz — desliza por el anillo exterior
   // ────────────────────────────────────────────────────────────────────────
 
   const wheelRef = useRef<HTMLDivElement>(null);
@@ -162,15 +109,8 @@ export function HarmonicWheel() {
     (clientX: number, clientY: number) => {
       const wheelEl = wheelRef.current;
       if (!wheelEl) return;
-      const rect = wheelEl.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const dx = clientX - cx;
-      const dy = clientY - cy;
-      // Convertir a compass: 0=top, 90=right
-      let deg = (Math.atan2(dx, -dy) * 180) / Math.PI;
-      if (deg < 0) deg += 360;
-      setLightAngle(Math.round(deg));
+      const { x, y } = offsetFromRectCenter(wheelEl.getBoundingClientRect(), clientX, clientY);
+      setLightAngle(lightAngleFromPointer(x, y));
     },
     [setLightAngle],
   );
@@ -179,13 +119,7 @@ export function HarmonicWheel() {
   // Render
   // ────────────────────────────────────────────────────────────────────────
 
-  // Handle de luz: posición circular sobre el anillo perimetral.
-  // Convención compass (0 = top, 90 = right) → matemática (0 = right, 90 = bottom).
-  const lightRad = ((lightAngle - 90) * Math.PI) / 180;
-  const lightPos = {
-    x: Math.cos(lightRad) * LIGHT_PERIMETER_RADIUS,
-    y: Math.sin(lightRad) * LIGHT_PERIMETER_RADIUS,
-  };
+  const lightPos = lightHandlePosition(lightAngle);
   const activeCount = active.filter(Boolean).length;
 
   return (
@@ -293,209 +227,6 @@ export function HarmonicWheel() {
         onSelectFocal={(slot) => setFocalSlot(slot)}
         onToggleActive={(slot) => toggleColor(slot)}
       />
-    </div>
-  );
-}
-
-// ──────────────────────────────────────────────────────────────────────────
-// Subcomponentes
-// ──────────────────────────────────────────────────────────────────────────
-
-function slotHueFromState(state: WheelState, slot: 0 | 1 | 2 | 3): number {
-  const slotMultipliers = [-1.5, -0.5, 0.5, 1.5] as const;
-  const h = state.anchorHue + slotMultipliers[slot] * state.spread * (180 / Math.PI);
-  return ((h % 360) + 360) % 360;
-}
-
-interface ColorBulletProps {
-  slot: 0 | 1 | 2 | 3;
-  color: string;
-  isActive: boolean;
-  isFocal: boolean;
-  centerX: number;
-  centerY: number;
-  onDrag: (clientX: number, clientY: number) => void;
-}
-
-function ColorBullet({
-  slot,
-  color,
-  isActive,
-  isFocal,
-  centerX,
-  centerY,
-  onDrag,
-}: ColorBulletProps) {
-  const size = isFocal ? FOCAL_BULLET_SIZE : SAT_BULLET_SIZE;
-  const [dragging, setDragging] = useState(false);
-
-  const onPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragging(true);
-    try {
-      (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
-    } catch {
-      // jsdom / older browsers
-    }
-    onDrag(e.clientX, e.clientY);
-  };
-  const onPointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
-    if (!dragging) return;
-    onDrag(e.clientX, e.clientY);
-  };
-  const onPointerUp = (e: React.PointerEvent<HTMLButtonElement>) => {
-    setDragging(false);
-    try {
-      (e.target as HTMLElement).releasePointerCapture?.(e.pointerId);
-    } catch {
-      // ignore
-    }
-  };
-
-  return (
-    <button
-      type="button"
-      aria-label={`Slot ${slot + 1} color${isFocal ? " (focal)" : ""}`}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
-      onPointerCancel={onPointerUp}
-      className={`absolute rounded-full transition-transform duration-150 ${
-        dragging ? "cursor-grabbing" : "cursor-grab"
-      } ${isFocal ? "z-30" : "z-20"} ${isActive ? "" : "opacity-40"}`}
-      style={{
-        width: size,
-        height: size,
-        left: centerX - size / 2,
-        top: centerY - size / 2,
-        background: color,
-        border: `${isFocal ? 3 : 2}px solid rgba(255,255,255,${isFocal ? 0.95 : 0.85})`,
-        boxShadow: `0 ${isFocal ? 6 : 4}px ${isFocal ? 16 : 10}px rgba(0,0,0,${isFocal ? 0.5 : 0.45})`,
-        touchAction: "none",
-      }}
-    />
-  );
-}
-
-interface LightHandleProps {
-  /** x, y en píxels relativos al centro del wheel container. */
-  x: number;
-  y: number;
-  angleDeg: number;
-  onDrag: (clientX: number, clientY: number) => void;
-}
-
-function LightHandle({ x, y, angleDeg, onDrag }: LightHandleProps) {
-  const [dragging, setDragging] = useState(false);
-
-  const onPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    setDragging(true);
-    try {
-      (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
-    } catch {
-      // jsdom / older browsers
-    }
-  };
-  const onPointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
-    if (!dragging) return;
-    onDrag(e.clientX, e.clientY);
-  };
-  const onPointerUp = (e: React.PointerEvent<HTMLButtonElement>) => {
-    setDragging(false);
-    try {
-      (e.target as HTMLElement).releasePointerCapture?.(e.pointerId);
-    } catch {
-      // ignore
-    }
-  };
-
-  return (
-    <button
-      type="button"
-      role="slider"
-      aria-label="Light direction"
-      aria-valuemin={0}
-      aria-valuemax={359}
-      aria-valuenow={angleDeg}
-      aria-valuetext={`${angleDeg} degrees`}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
-      onPointerCancel={onPointerUp}
-      className={`absolute z-40 rounded-full border-2 border-white/95 ${
-        dragging ? "cursor-grabbing" : "cursor-grab"
-      }`}
-      style={{
-        width: LIGHT_HANDLE_SIZE,
-        height: LIGHT_HANDLE_SIZE,
-        left: `calc(50% + ${x}px - ${LIGHT_HANDLE_SIZE / 2}px)`,
-        top: `calc(50% + ${y}px - ${LIGHT_HANDLE_SIZE / 2}px)`,
-        background: "radial-gradient(circle at 35% 35%, #fff 0%, #f0e9c8 60%, #e8c97a 100%)",
-        boxShadow: "0 0 14px rgba(255, 220, 130, 0.5), 0 2px 6px rgba(0,0,0,0.4)",
-        touchAction: "none",
-      }}
-    />
-  );
-}
-
-interface ColorDotsProps {
-  colors: Colors4;
-  active: ActiveMask;
-  focalSlot: number;
-  activeCount: number;
-  onSelectFocal: (slot: 0 | 1 | 2 | 3) => void;
-  onToggleActive: (slot: 0 | 1 | 2 | 3) => void;
-}
-
-function ColorDots({
-  colors,
-  active,
-  focalSlot,
-  activeCount,
-  onSelectFocal,
-  onToggleActive,
-}: ColorDotsProps) {
-  return (
-    <div className="flex items-center gap-2.5" role="radiogroup" aria-label="Pick focal color slot">
-      {colors.map((c, i) => {
-        const slot = i as 0 | 1 | 2 | 3;
-        const isFocal = slot === focalSlot;
-        const isActive = active[slot];
-        const toggleDisabled = isActive && activeCount <= MIN_ACTIVE_COLORS;
-        return (
-          <div key={slot} className="flex flex-col items-center gap-1">
-            {/* biome-ignore lint/a11y/useSemanticElements: custom-styled color swatch — native radio cannot render the swatch fill */}
-            <button
-              type="button"
-              role="radio"
-              aria-checked={isFocal}
-              aria-label={`Slot ${slot + 1} focal`}
-              onClick={() => onSelectFocal(slot)}
-              className={`focus-ring size-[22px] rounded-full transition-transform duration-150 hover:scale-110 active:scale-90 ${
-                isActive ? "" : "opacity-40"
-              }`}
-              style={{
-                background: c,
-                boxShadow: isFocal
-                  ? `inset 0 0 0 2px rgba(15,15,18,0.92), 0 0 0 2px rgba(255,255,255,0.85)`
-                  : `inset 0 0 0 1px rgba(255,255,255,0.18)`,
-              }}
-            />
-            <button
-              type="button"
-              onClick={() => onToggleActive(slot)}
-              disabled={toggleDisabled}
-              aria-label={isActive ? `Disable slot ${slot + 1}` : `Enable slot ${slot + 1}`}
-              title={toggleDisabled ? `Minimum ${MIN_ACTIVE_COLORS} colors required` : undefined}
-              className="font-sans text-[9px] tracking-[0.12em] uppercase text-white/45 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
-            >
-              {isActive ? "on" : "off"}
-            </button>
-          </div>
-        );
-      })}
     </div>
   );
 }

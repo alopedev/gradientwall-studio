@@ -1,3 +1,4 @@
+import { rgbToHex } from "./color";
 import type { Colors4 } from "./palettes";
 
 /**
@@ -131,14 +132,6 @@ function byLuminance(a: RGB, b: RGB): number {
 function luminance([r, g, b]: RGB): number {
   // ITU-R BT.709 weights — good enough for clustering-order decisions
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-}
-
-function rgbToHex([r, g, b]: RGB): string {
-  const toHex = (n: number) =>
-    Math.max(0, Math.min(255, Math.round(n)))
-      .toString(16)
-      .padStart(2, "0");
-  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
 function sqDist(a: RGB, b: RGB): number {

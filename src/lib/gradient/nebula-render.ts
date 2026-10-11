@@ -12,6 +12,7 @@
  * canvas — same separation as `spec.ts` ↔ `canvas2d.ts`.
  */
 
+import { hexToRgb } from "../color";
 import { mulberry32 } from "./spec";
 
 export interface NebulaParams {
@@ -37,13 +38,6 @@ export interface NebulaParams {
 }
 
 type RGB = readonly [number, number, number];
-
-function hexToRgb(hex: string): RGB {
-  const m = hex.replace(/^#/, "");
-  const v =
-    m.length === 3 ? parseInt(m[0] + m[0] + m[1] + m[1] + m[2] + m[2], 16) : parseInt(m, 16);
-  return [(v >> 16) & 0xff, (v >> 8) & 0xff, v & 0xff];
-}
 
 function paletteLerp(palette: readonly RGB[], t: number): RGB {
   const n = palette.length;

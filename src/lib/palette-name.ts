@@ -1,3 +1,4 @@
+import { hexToHsl } from "./color";
 import { type Colors4, PALETTES } from "./palettes";
 
 /** [upper bound of the hue range in degrees, name]. First match wins. */
@@ -14,24 +15,6 @@ const HUE_NAMES: readonly (readonly [number, string])[] = [
   [360, "Rose"],
 ];
 
-function hexToHsl(hex: string): { h: number; s: number; l: number } {
-  const n = Number.parseInt(hex.replace("#", "").slice(0, 6), 16);
-  const r = ((n >> 16) & 255) / 255;
-  const g = ((n >> 8) & 255) / 255;
-  const b = (n & 255) / 255;
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  const l = (max + min) / 2;
-  const d = max - min;
-  if (d === 0) return { h: 0, s: 0, l };
-  const s = d / (1 - Math.abs(2 * l - 1));
-  let h: number;
-  if (max === r) h = ((g - b) / d) % 6;
-  else if (max === g) h = (b - r) / d + 2;
-  else h = (r - g) / d + 4;
-  return { h: (h * 60 + 360) % 360, s, l };
-}
-
 /**
  * Display name for a palette: the curated name when the colors match one,
  * otherwise a name taken from the hue of the most vivid color. Stable for the
@@ -44,7 +27,8 @@ export function paletteName(colors: readonly string[]): string {
 
   let best = { h: 0, s: 0, l: 0, score: -1 };
   for (const c of colors) {
-    const hsl = hexToHsl(c);
+    const [h, sPct, lPct] = hexToHsl(c);
+    const hsl = { h, s: sPct / 100, l: lPct / 100 };
     // Favor saturated colors that aren't near-black or near-white.
     const score = hsl.s * (1 - Math.abs(hsl.l - 0.5) * 1.6);
     if (score > best.score) best = { ...hsl, score };

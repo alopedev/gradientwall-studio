@@ -1,7 +1,7 @@
-import { useEffect, useRef } from "react";
 import { paintWallpaper } from "@/lib/download/compose";
 import { encodeWithFallback, type EncodeFormat } from "@/lib/download/encode";
 import { browserDownloadSink, type Sink } from "@/lib/download/sink";
+import { DEFAULT_MAX_DIM, DEFAULT_MAX_DPR, pixelKey } from "@/lib/fitted-canvas";
 import { seedToHex } from "@/lib/gradient";
 import {
   isWebGL2Supported,
@@ -13,6 +13,7 @@ import {
   type V2Renderer,
 } from "@/lib/gradient-v2";
 import { DEVICE_SIZES, engineOf, type RenderParams } from "@/lib/palettes";
+import { useFittedCanvas } from "@/lib/useFittedCanvas";
 import { canvas2DEngine } from "./canvas2d-engine";
 import type { AdjustmentSpec, EngineCanvasProps, WallpaperEngine } from "./types";
 
@@ -22,8 +23,8 @@ const FORMATS: EncodeFormat[] = [
 ];
 
 /** Longest preview side and DPR cap, same budget as the Canvas2D preview. */
-const MAX_DIM = 2400;
-const MAX_DPR = 2;
+const MAX_DIM = DEFAULT_MAX_DIM;
+const MAX_DPR = DEFAULT_MAX_DPR;
 
 const nextFrame = () => new Promise<void>((r) => requestAnimationFrame(() => r()));
 
@@ -89,64 +90,21 @@ export function createWebGLEngine(deps: WebGLEngineDeps = {}): WallpaperEngine {
   };
 
   function WebGLCanvas({ params, device, className, onBeforePaint }: EngineCanvasProps) {
-    const ref = useRef<HTMLCanvasElement>(null);
-    const paramsRef = useRef(params);
-    paramsRef.current = params;
-    const beforeRef = useRef(onBeforePaint);
-    beforeRef.current = onBeforePaint;
-    const scheduleRef = useRef<() => void>(() => {});
     const size = DEVICE_SIZES[device];
-
-    useEffect(() => {
-      const canvas = ref.current;
-      const host = canvas?.parentElement;
-      if (!canvas || !host) return;
-      let raf = 0;
-      let lastKey = "";
-
-      const paint = () => {
-        const cssW = host.clientWidth;
-        const cssH = host.clientHeight;
-        if (cssW <= 0 || cssH <= 0) return;
-        const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
-        const ratio = size.w / size.h;
-        let w = Math.min(cssW, cssH * ratio) * dpr;
-        const longest = Math.max(w, w / ratio);
-        if (longest > MAX_DIM) w *= MAX_DIM / longest;
-        if (w > size.w) w = size.w;
-        const wInt = Math.round(w);
-        const hInt = Math.round(w / ratio);
-
-        const p = paramsRef.current;
-        const key = `${wInt}x${hInt}|${p.style}|${p.colors.join(",")}|${p.seed}|${p.lightAngle}|${p.grain}`;
-        if (key === lastKey) return;
-        if (lastKey !== "") beforeRef.current?.(canvas);
-        lastKey = key;
-        if (!tryPaint(canvas, p, wInt, hInt)) paintWallpaper(canvas, { ...p, w: wInt, h: hInt });
-      };
-
-      const schedule = () => {
-        if (raf) return;
-        raf = requestAnimationFrame(() => {
-          raf = 0;
-          paint();
-        });
-      };
-      scheduleRef.current = schedule;
-      paint();
-      const ro = new ResizeObserver(schedule);
-      ro.observe(host);
-      return () => {
-        if (raf) cancelAnimationFrame(raf);
-        ro.disconnect();
-        scheduleRef.current = () => {};
-      };
-    }, [size.w, size.h]);
-
-    // biome-ignore lint/correctness/useExhaustiveDependencies: repaint when the params object changes.
-    useEffect(() => {
-      scheduleRef.current();
-    }, [params]);
+    const ref = useFittedCanvas(
+      {
+        nativeW: size.w,
+        nativeH: size.h,
+        maxDim: MAX_DIM,
+        maxDpr: MAX_DPR,
+        contentKey: pixelKey(params, "v2"),
+        beforePaint: onBeforePaint,
+        paint: (canvas, { w, h }) => {
+          if (!tryPaint(canvas, params, w, h)) paintWallpaper(canvas, { ...params, w, h });
+        },
+      },
+      [params],
+    );
 
     return <canvas ref={ref} className={className} />;
   }

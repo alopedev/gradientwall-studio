@@ -1,5 +1,5 @@
+import { hexToHsl, hslToHex, wrapAngle } from "../color";
 import type { Colors4 } from "../palettes";
-import { hexToHsl, hslToHex } from "./spec";
 
 /**
  * Capa pura para el HarmonicWheel del Studio v2. Sin React, sin DOM.
@@ -83,7 +83,8 @@ export function clampLight(l: number): number {
 // Slot hues + colores
 // ──────────────────────────────────────────────────────────────────────────
 
-const SLOT_MULTIPLIERS: readonly number[] = [-1.5, -0.5, 0.5, 1.5];
+/** Position of each slot around the anchor hue, in units of `spread`. */
+export const SLOT_MULTIPLIERS = [-1.5, -0.5, 0.5, 1.5] as const;
 
 /**
  * Devuelve los 4 hues absolutos (0..360) de los 4 slots dado un WheelState.
@@ -94,7 +95,7 @@ export function slotHues(state: WheelState): [number, number, number, number] {
   const degPerRad = 180 / Math.PI;
   return SLOT_MULTIPLIERS.map((m) => {
     const h = state.anchorHue + m * state.spread * degPerRad;
-    return ((h % 360) + 360) % 360;
+    return wrapAngle(h);
   }) as [number, number, number, number];
 }
 
@@ -185,7 +186,7 @@ export function inferAnchor(colors: Colors4): WheelState {
  * las diagonales caen en las esquinas.
  */
 export function anglesToSquarePerimeter(deg: number, L: number): Point2D {
-  const normalized = ((deg % 360) + 360) % 360;
+  const normalized = wrapAngle(deg);
   // Compass → matemático: compass=0 (top) ↔ math=90; compass=90 (right) ↔ math=0
   const theta = ((90 - normalized) * Math.PI) / 180;
   const dx = Math.cos(theta);

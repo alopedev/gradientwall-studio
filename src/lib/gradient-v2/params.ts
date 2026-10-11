@@ -4,6 +4,7 @@
  * names) onto the shader's uniforms. No DOM, no WebGL — fully testable.
  */
 
+import { parseHex, wrapAngle } from "../color";
 import { V2_DEFAULT_GRAIN, V2_DEFAULT_LIGHT_ANGLE } from "../defaults";
 import type { ColorRamp, Style } from "../palettes";
 
@@ -76,11 +77,9 @@ export { V2_DEFAULT_GRAIN, V2_DEFAULT_LIGHT_ANGLE };
 const DEFAULT_COMPASS = V2_DEFAULT_LIGHT_ANGLE;
 
 export function hexToRgb01(hex: string): [number, number, number] {
-  const m = hex.replace(/^#/, "");
-  const full = m.length === 3 ? m[0] + m[0] + m[1] + m[1] + m[2] + m[2] : m;
-  const v = Number.parseInt(full, 16);
-  if (full.length !== 6 || Number.isNaN(v)) throw new Error(`Invalid hex colour: ${hex}`);
-  return [((v >> 16) & 0xff) / 255, ((v >> 8) & 0xff) / 255, (v & 0xff) / 255];
+  const rgb = parseHex(hex);
+  if (!rgb) throw new Error(`Invalid hex colour: ${hex}`);
+  return [rgb[0] / 255, rgb[1] / 255, rgb[2] / 255];
 }
 
 /**
@@ -96,7 +95,7 @@ export function rampToFour(colors: ColorRamp): [string, string, string, string] 
 
 /** Compass degrees (0 = top, clockwise) → math radians (0 = right, counter-clockwise, y up). */
 export function compassToRadians(deg: number): number {
-  const math = (((90 - deg) % 360) + 360) % 360;
+  const math = wrapAngle(90 - deg);
   return (math * Math.PI) / 180;
 }
 
