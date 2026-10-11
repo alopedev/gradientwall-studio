@@ -2,6 +2,7 @@ import { Check } from "lucide-react";
 import { type FormEvent, useId, useState } from "react";
 import { GlassButton } from "@/components/ui/GlassButton";
 import {
+  CONSENT_TEXT,
   isNewsletterEnabled,
   type SubscribeResult,
   type SubscribeSource,
@@ -29,9 +30,8 @@ interface Props {
 
 /**
  * One field, no account. Never blocks anything: it sits beside the free
- * download, not in front of it. The person confirms from the email Loops sends
- * (double opt-in), and the line under the field says so up front.
- * Renders nothing until the newsletter is switched on.
+ * download, not in front of it, and the line under the field says what the
+ * address is for. Renders nothing until the newsletter is switched on.
  */
 export function EmailCapture({ source, heading, className }: Props) {
   const id = useId();
@@ -62,7 +62,7 @@ export function EmailCapture({ source, heading, className }: Props) {
           className="m-0 inline-flex items-center gap-2 font-sans text-[14px] text-white/80"
         >
           <Check className="size-[18px] text-good" strokeWidth={2.4} aria-hidden />
-          Almost there: open the email we just sent and confirm.
+          You're on the list. Thanks!
         </p>
       ) : (
         <form onSubmit={onSubmit} aria-labelledby={`${id}-h`}>
@@ -100,8 +100,7 @@ export function EmailCapture({ source, heading, className }: Props) {
             </GlassButton>
           </div>
           <p id={`${id}-note`} className="m-0 mt-2.5 font-sans text-[12px] text-white/50">
-            Now and then: new packs and Studio features. We'll ask you to confirm by email first.
-            Unsubscribe in one click.
+            {CONSENT_TEXT}
           </p>
           {state.kind === "error" && (
             <p role="alert" className="m-0 mt-2 font-sans text-[13px] text-red-300">

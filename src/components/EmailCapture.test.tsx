@@ -2,6 +2,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { CONSENT_TEXT } from "@/lib/newsletter/subscribe";
 import { EmailCapture } from "./EmailCapture";
 
 describe("EmailCapture", () => {
@@ -21,7 +22,7 @@ describe("EmailCapture", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("sends the email with its source and asks the person to confirm", async () => {
+  it("sends the email with its source and the consent wording, then thanks the person", async () => {
     fetchSpy.mockResolvedValue(new Response('{"ok":true}', { status: 200 }));
     const user = userEvent.setup();
     render(<EmailCapture source="studio" heading="Hi" />);
@@ -31,8 +32,9 @@ describe("EmailCapture", () => {
       email: "ana@example.com",
       source: "studio",
       website: "",
+      consentText: CONSENT_TEXT,
     });
-    expect((await screen.findByRole("status")).textContent).toMatch(/confirm/);
+    expect((await screen.findByRole("status")).textContent).toMatch(/on the list/);
   });
 
   it("shows the reason and keeps the form when the server refuses", async () => {

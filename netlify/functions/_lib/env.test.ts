@@ -120,8 +120,18 @@ describe("readOrdersStoreEnv", () => {
 });
 
 describe("readSubscribeEnv", () => {
-  it("needs only LOOPS_FORM_ID", () => {
-    expect(readSubscribeEnv({ LOOPS_FORM_ID: "form_1" })).toEqual({ loopsFormId: "form_1" });
-    expect(() => readSubscribeEnv({})).toThrow(new MissingEnvError("LOOPS_FORM_ID"));
+  it("needs both Supabase variables and nothing else", () => {
+    expect(
+      readSubscribeEnv({
+        SUPABASE_URL: "https://abcd.supabase.co",
+        SUPABASE_SECRET_KEY: "sb_secret_x",
+      }),
+    ).toEqual({ url: "https://abcd.supabase.co", secretKey: "sb_secret_x" });
+    expect(() => readSubscribeEnv({ SUPABASE_SECRET_KEY: "k" })).toThrow(
+      new MissingEnvError("SUPABASE_URL"),
+    );
+    expect(() => readSubscribeEnv({ SUPABASE_URL: "https://abcd.supabase.co" })).toThrow(
+      new MissingEnvError("SUPABASE_SECRET_KEY"),
+    );
   });
 });

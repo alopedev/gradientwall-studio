@@ -68,14 +68,6 @@ export function readRecoverEnv(source: EnvSource = process.env): RecoverEnv {
   };
 }
 
-export interface SubscribeEnv {
-  loopsFormId: string;
-}
-
-export function readSubscribeEnv(source: EnvSource = process.env): SubscribeEnv {
-  return { loopsFormId: required(source, "LOOPS_FORM_ID") };
-}
-
 export interface SupabaseEnv {
   url: string;
   secretKey: string;
@@ -90,6 +82,17 @@ export function readOrdersStoreEnv(source: EnvSource = process.env): SupabaseEnv
   const url = source.SUPABASE_URL;
   if (!url || url.trim() === "") return null;
   return { url, secretKey: required(source, "SUPABASE_SECRET_KEY") };
+}
+
+/**
+ * Where the email list lives. Unlike orders (Blobs fallback), the list has no
+ * other home: both Supabase variables are required.
+ */
+export function readSubscribeEnv(source: EnvSource = process.env): SupabaseEnv {
+  return {
+    url: required(source, "SUPABASE_URL"),
+    secretKey: required(source, "SUPABASE_SECRET_KEY"),
+  };
 }
 
 function required(source: EnvSource, key: string): string {

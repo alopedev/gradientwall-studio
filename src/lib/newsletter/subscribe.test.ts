@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { isNewsletterEnabled, subscribeEmail } from "./subscribe";
+import { CONSENT_TEXT, isNewsletterEnabled, subscribeEmail } from "./subscribe";
 
 describe("subscribeEmail", () => {
   let fetchSpy: ReturnType<typeof vi.spyOn>;
@@ -19,7 +19,12 @@ describe("subscribeEmail", () => {
       "/.netlify/functions/subscribe",
       expect.objectContaining({
         method: "POST",
-        body: JSON.stringify({ email: "a@b.co", source: "footer", website: "" }),
+        body: JSON.stringify({
+          email: "a@b.co",
+          source: "footer",
+          website: "",
+          consentText: CONSENT_TEXT,
+        }),
       }),
     );
   });

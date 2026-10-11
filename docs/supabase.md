@@ -36,3 +36,17 @@ first order, or copy them first.
   the free plan for a store that takes payments.
 - Viewing sales: Table Editor → `orders`, or SQL such as
   `select pack_slug, count(*) from orders group by 1;`.
+
+## Email list
+
+The same project holds the list of people who asked for news (`subscribers`,
+migration `supabase/migrations/20261011080000_subscribers.sql`; see
+ADR-0005). Same access model as orders: browser keys have no access, only
+`subscribe_email` called with the secret key. `/subscribe` requires
+`SUPABASE_URL` and `SUPABASE_SECRET_KEY` (no Blobs fallback).
+
+- See the list: Table Editor → `subscribers`, or
+  `select email, source, created_at from subscribers where unsubscribed_at is null;`
+- Unsubscribe someone: `update subscribers set unsubscribed_at = now() where lower(email) = lower('x@y.com');`
+- Supabase does not send email. Sending needs another tool, and a decision on
+  confirming existing addresses first (ADR-0005).

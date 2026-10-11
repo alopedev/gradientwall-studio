@@ -13,17 +13,23 @@ export interface SubscribeOptions {
 const DEFAULT_ENDPOINT = "/.netlify/functions/subscribe";
 
 /**
- * The capture form is built behind this flag: until the Loops form exists and
- * the privacy page is live, the site shows nothing and the Function is unused.
+ * The wording shown next to the button. It is also sent with the address and
+ * stored with it, as a record of what the person agreed to.
+ */
+export const CONSENT_TEXT =
+  "Now and then: new packs and Studio features. You can unsubscribe at any time.";
+
+/**
+ * The capture form is built behind this flag: until the privacy page is live,
+ * the site shows nothing and the Function is unused.
  */
 export function isNewsletterEnabled(): boolean {
   return import.meta.env.VITE_NEWSLETTER_ENABLED === "true";
 }
 
 /**
- * Asks the backend to add the address to the audience. A 200 means "accepted":
- * the person still has to confirm from the email Loops sends (double opt-in),
- * and the answer is the same for a new and a known address.
+ * Asks the backend to add the address to the list. The answer is the same for
+ * a new and a known address.
  */
 export async function subscribeEmail(
   input: { email: string; source: SubscribeSource; website?: string },
@@ -37,6 +43,7 @@ export async function subscribeEmail(
         email: input.email.trim(),
         source: input.source,
         website: input.website ?? "",
+        consentText: CONSENT_TEXT,
       }),
       signal: opts.signal,
     });
