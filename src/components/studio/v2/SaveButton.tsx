@@ -2,40 +2,9 @@ import { Heart } from "lucide-react";
 import { m } from "motion/react";
 import { useState } from "react";
 import { GlassButton } from "@/components/ui/GlassButton";
-import type { ActiveMask, Colors4 } from "@/lib/palettes";
-import { useConfigStore } from "@/store";
-import { type FavoriteItem, useFavoritesStore } from "@/store/useFavoritesStore";
-
-/** Two favorites are "the same wallpaper" when everything that draws it matches. */
-function sameLook(a: FavoriteItem["config"], b: FavoriteItem["config"]): boolean {
-  return (
-    a.colors.join(",").toLowerCase() === b.colors.join(",").toLowerCase() &&
-    a.style === b.style &&
-    a.seed === b.seed &&
-    a.blur === b.blur &&
-    a.grain === b.grain &&
-    (a.lightAngle ?? 135) === (b.lightAngle ?? 135) &&
-    (a.contrast ?? 1) === (b.contrast ?? 1) &&
-    (a.vibrance ?? 1) === (b.vibrance ?? 1)
-  );
-}
-
-function snapshot(): FavoriteItem["config"] {
-  const s = useConfigStore.getState();
-  return {
-    engine: s.engine,
-    colors: [...s.colors] as Colors4,
-    active: [...s.active] as ActiveMask,
-    style: s.style,
-    blur: s.blur,
-    grain: s.grain,
-    seed: s.seed,
-    lightAngle: s.lightAngle,
-    density: s.density,
-    contrast: s.contrast,
-    vibrance: s.vibrance,
-  };
-}
+import { fromFavorite, isSameLook, toFavoriteConfig } from "@/lib/look";
+import { useLook } from "@/store";
+import { useFavoritesStore } from "@/store/useFavoritesStore";
 
 interface Props {
   onMessage: (message: string) => void;
@@ -44,19 +13,11 @@ interface Props {
 /** Heart that saves the current wallpaper to the strip, and removes it again if tapped twice. */
 export function SaveButton({ onMessage }: Props) {
   const items = useFavoritesStore((s) => s.items);
-  // Subscribing to the look fields makes `saved` follow every change.
-  const colors = useConfigStore((s) => s.colors);
-  const seed = useConfigStore((s) => s.seed);
-  const style = useConfigStore((s) => s.style);
-  const blur = useConfigStore((s) => s.blur);
-  const grain = useConfigStore((s) => s.grain);
-  const lightAngle = useConfigStore((s) => s.lightAngle);
-  const contrast = useConfigStore((s) => s.contrast);
-  const vibrance = useConfigStore((s) => s.vibrance);
+  // Subscribing to the whole look makes `saved` follow every change.
+  const look = useLook();
   const [burst, setBurst] = useState(0);
 
-  const here = { colors, style, seed, blur, grain, lightAngle, contrast, vibrance };
-  const saved = items.find((it) => sameLook(it.config, here as FavoriteItem["config"]));
+  const saved = items.find((it) => isSameLook(fromFavorite(it.config), look));
 
   const toggle = () => {
     if (saved) {
@@ -64,7 +25,7 @@ export function SaveButton({ onMessage }: Props) {
       onMessage("Removed from saved");
       return;
     }
-    useFavoritesStore.getState().pin(snapshot());
+    useFavoritesStore.getState().pin(toFavoriteConfig(look));
     setBurst((n) => n + 1);
     onMessage("Saved. Tap it below to come back to it.");
   };
