@@ -3,6 +3,7 @@ import { readEnv } from "./_lib/env";
 import { netlifyBlobsBackend } from "./_lib/orders-store";
 import { createLoopsClient } from "./_lib/loops";
 import { fetchOrderEmail } from "./_lib/ls-api";
+import { getCatalog } from "./_lib/catalog";
 import { recoverOrder } from "./_lib/order";
 
 /**
@@ -31,6 +32,7 @@ export default async (req: Request, _ctx: Context): Promise<Response> => {
       jwtSecret: env.jwtSecret,
       loopsTransactionalId: env.loopsTransactionalId,
       publicSiteUrl: env.publicSiteUrl,
+      packNameOf: (slug) => getCatalog().bySlug(slug)?.name,
       now: () => Math.floor(Date.now() / 1000),
     },
     { email: body.email ?? "", orderId: body.orderId ?? "" },

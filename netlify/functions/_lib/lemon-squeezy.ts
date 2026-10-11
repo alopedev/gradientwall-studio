@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import type { Catalog } from "./catalog";
 
 /**
  * Verify the X-Signature header against the raw request body using the
@@ -40,31 +41,67 @@ export interface LSOrderCreated {
     attributes: {
       user_email: string;
       status: string;
+      /** What was paid for. `variant_id` is a number in LS payloads. */
+      first_order_item?: { variant_id?: number | string };
     };
   };
 }
 
+/**
+ * A paid order as the webhook reports it. `variantId` is what was actually
+ * bought; `claimedSlug` is the buyer-editable `custom_data.pack_slug` and must
+ * never be used to decide what to deliver (see `resolveOrderPack`).
+ */
 export interface ParsedOrder {
   orderId: string;
   email: string;
-  packSlug: string;
+  variantId: string | null;
+  claimedSlug: string | null;
+}
+
+export type ResolvedOrder =
+  | { ok: true; order: { orderId: string; email: string; packSlug: string } }
+  | { ok: false; reason: "missing_variant" | "unknown_variant"; orderId: string };
+
+/**
+ * Decide which pack a paid order entitles the buyer to, from the purchased
+ * variant alone. A paid order that can't be mapped is an error, not an
+ * "ignored" event: the buyer has paid and must not be dropped silently.
+ */
+export function resolveOrderPack(catalog: Catalog, parsed: ParsedOrder): ResolvedOrder {
+  if (!parsed.variantId) {
+    return { ok: false, reason: "missing_variant", orderId: parsed.orderId };
+  }
+  const pack = catalog.byVariant(parsed.variantId);
+  if (!pack) return { ok: false, reason: "unknown_variant", orderId: parsed.orderId };
+  return {
+    ok: true,
+    order: {
+      orderId: parsed.orderId,
+      email: parsed.email,
+      packSlug: pack.slug,
+    },
+  };
 }
 
 /**
  * Pull the fields we need from a parsed webhook body. Returns null if the
  * shape is wrong or this isn't an event we care about (LS sends many event
- * types — we only act on completed orders).
+ * types — we only act on completed orders). A paid order is always returned,
+ * even without a variant or slug: deciding what to do with it is
+ * `resolveOrderPack`'s job.
  */
 export function parseOrderCreatedEvent(body: unknown): ParsedOrder | null {
   if (!isOrderCreatedEvent(body)) return null;
   if (body.meta.event_name !== "order_created") return null;
   if (body.data.attributes.status !== "paid") return null;
-  const packSlug = body.meta.custom_data?.pack_slug;
-  if (!packSlug) return null;
+  const variant = body.data.attributes.first_order_item?.variant_id;
+  const claimed = body.meta.custom_data?.pack_slug;
   return {
     orderId: body.data.id,
     email: body.data.attributes.user_email,
-    packSlug,
+    variantId: variant == null || variant === "" ? null : String(variant),
+    claimedSlug: typeof claimed === "string" && claimed !== "" ? claimed : null,
   };
 }
 

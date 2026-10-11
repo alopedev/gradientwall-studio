@@ -91,6 +91,17 @@ describe("createOrder", () => {
     );
   });
 
+  it("emails the pack's display name when the catalog knows it", async () => {
+    await createOrder(
+      {
+        ...baseDeps(),
+        packNameOf: (slug) => (slug === "midnight-velvet" ? "Midnight Velvet" : undefined),
+      },
+      baseInput,
+    );
+    expect(loops.sent[0].dataVariables.packName).toBe("Midnight Velvet");
+  });
+
   it("re-issues a fresh token when the same order is processed twice (LS retry)", async () => {
     await createOrder(baseDeps(), baseInput);
     const firstUrl = loops.sent[0].dataVariables.downloadUrl;

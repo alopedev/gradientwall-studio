@@ -1,7 +1,8 @@
 // @vitest-environment node
 import { describe, it, expect } from "vitest";
 import { createHmac } from "node:crypto";
-import { parseOrderCreatedEvent, verifyWebhookSignature } from "./lemon-squeezy";
+import { buildCatalog } from "./catalog";
+import { parseOrderCreatedEvent, resolveOrderPack, verifyWebhookSignature } from "./lemon-squeezy";
 
 const SECRET = "ls-test-secret";
 
@@ -42,15 +43,20 @@ describe("parseOrderCreatedEvent", () => {
     data: {
       id: "order_abc",
       type: "orders",
-      attributes: { user_email: "buyer@example.com", status: "paid" },
+      attributes: {
+        user_email: "buyer@example.com",
+        status: "paid",
+        first_order_item: { variant_id: 777 },
+      },
     },
   };
 
-  it("extracts order/email/packSlug from a valid order_created paid event", () => {
+  it("extracts order, email, variant and claimed slug from a paid order_created event", () => {
     expect(parseOrderCreatedEvent(validEvent)).toEqual({
       orderId: "order_abc",
       email: "buyer@example.com",
-      packSlug: "midnight-velvet",
+      variantId: "777",
+      claimedSlug: "midnight-velvet",
     });
   });
 
@@ -75,18 +81,69 @@ describe("parseOrderCreatedEvent", () => {
     ).toBeNull();
   });
 
-  it("returns null when custom_data.pack_slug is missing", () => {
+  it("still returns a paid order that has no custom_data.pack_slug", () => {
     expect(
       parseOrderCreatedEvent({
         ...validEvent,
         meta: { event_name: "order_created", custom_data: {} },
       }),
-    ).toBeNull();
+    ).toMatchObject({ orderId: "order_abc", variantId: "777", claimedSlug: null });
+  });
+
+  it("still returns a paid order that has no variant", () => {
+    const { first_order_item: _drop, ...attributes } = validEvent.data.attributes;
+    expect(
+      parseOrderCreatedEvent({ ...validEvent, data: { ...validEvent.data, attributes } }),
+    ).toMatchObject({ orderId: "order_abc", variantId: null });
   });
 
   it("returns null for malformed bodies", () => {
     expect(parseOrderCreatedEvent(null)).toBeNull();
     expect(parseOrderCreatedEvent({})).toBeNull();
     expect(parseOrderCreatedEvent("string")).toBeNull();
+  });
+});
+
+describe("resolveOrderPack", () => {
+  const catalog = buildCatalog([
+    { slug: "midnight-velvet", name: "Midnight Velvet", lemonSqueezyVariantId: "777" },
+    { slug: "solar-drift", name: "Solar Drift", lemonSqueezyVariantId: "888" },
+  ]);
+  const base = { orderId: "order_abc", email: "buyer@example.com" };
+
+  it("delivers the pack of the purchased variant", () => {
+    expect(
+      resolveOrderPack(catalog, { ...base, variantId: "777", claimedSlug: "midnight-velvet" }),
+    ).toEqual({
+      ok: true,
+      order: { ...base, packSlug: "midnight-velvet" },
+    });
+  });
+
+  it("ignores a claimed slug that disagrees with the variant (tampered checkout URL)", () => {
+    const result = resolveOrderPack(catalog, {
+      ...base,
+      variantId: "777",
+      claimedSlug: "solar-drift",
+    });
+    expect(result).toMatchObject({ ok: true, order: { packSlug: "midnight-velvet" } });
+  });
+
+  it("delivers a paid order that carries no claimed slug", () => {
+    expect(
+      resolveOrderPack(catalog, { ...base, variantId: "888", claimedSlug: null }),
+    ).toMatchObject({ ok: true, order: { packSlug: "solar-drift" } });
+  });
+
+  it("fails an unknown variant even when the claimed slug is a real pack", () => {
+    expect(
+      resolveOrderPack(catalog, { ...base, variantId: "999", claimedSlug: "solar-drift" }),
+    ).toEqual({ ok: false, reason: "unknown_variant", orderId: "order_abc" });
+  });
+
+  it("fails a paid order without a variant", () => {
+    expect(
+      resolveOrderPack(catalog, { ...base, variantId: null, claimedSlug: "solar-drift" }),
+    ).toEqual({ ok: false, reason: "missing_variant", orderId: "order_abc" });
   });
 });
