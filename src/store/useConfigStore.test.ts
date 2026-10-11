@@ -149,6 +149,15 @@ describe("useConfigStore", () => {
       expect(useConfigStore.getState().seed).not.toBe(before);
     });
 
+    it("keeps the user's grain, contrast and vibrance", () => {
+      useConfigStore.setState({ grain: 77, contrast: 0.8, vibrance: 1.3 });
+      useConfigStore.getState().applyRemix();
+      const after = useConfigStore.getState();
+      expect(after.grain).toBe(77);
+      expect(after.contrast).toBe(0.8);
+      expect(after.vibrance).toBe(1.3);
+    });
+
     it("keeps the active mask intact (remix mantiene la paleta)", () => {
       const mask: [boolean, boolean, boolean, boolean] = [true, false, true, true];
       useConfigStore.setState({ active: mask });

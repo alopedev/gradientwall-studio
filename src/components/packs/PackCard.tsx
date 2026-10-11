@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { m, useMotionValue, useSpring, useTransform, type MotionValue } from "motion/react";
-import type { Pack } from "@/lib/packs";
+import { describeContents, type Pack } from "@/lib/packs";
 import { PackCover } from "./PackCover";
 
 interface PackCardProps {
@@ -113,7 +113,7 @@ export function PackCard({ pack, variant = "small" }: PackCardProps) {
                 isHero ? "mt-5 text-[10px]" : "mt-2.5 text-[10px]"
               }`}
             >
-              {pack.previews.length} wallpapers · max resolution
+              {describeContents(pack)} · max resolution
               {isHero && <span className="ml-2 text-white/30">·</span>}
               {isHero && <span className="ml-2 text-white/65">view pack →</span>}
             </div>

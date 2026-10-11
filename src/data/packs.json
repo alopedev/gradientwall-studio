@@ -10,58 +10,175 @@
     "cover": {
       "kind": "image",
       "url": "/assets/packs/acrylic/cover.jpg",
-      "alt": "Acrylic Collection — pigment-pulled wallpaper preview"
+      "alt": "Acrylic Collection — pigment-pulled wallpaper preview",
+      "width": 1600,
+      "height": 900
     },
     "previews": [
       {
         "kind": "image",
         "url": "/assets/packs/acrylic/01.jpg",
-        "alt": "Acrylic Collection wallpaper 01"
+        "alt": "Acrylic Collection wallpaper 01",
+        "width": 1600,
+        "height": 900
       },
       {
         "kind": "image",
         "url": "/assets/packs/acrylic/02.jpg",
-        "alt": "Acrylic Collection wallpaper 02"
+        "alt": "Acrylic Collection wallpaper 02",
+        "width": 1600,
+        "height": 900
       },
       {
         "kind": "image",
         "url": "/assets/packs/acrylic/03.jpg",
-        "alt": "Acrylic Collection wallpaper 03"
+        "alt": "Acrylic Collection wallpaper 03",
+        "width": 1600,
+        "height": 900
       },
       {
         "kind": "image",
         "url": "/assets/packs/acrylic/04.jpg",
-        "alt": "Acrylic Collection wallpaper 04"
+        "alt": "Acrylic Collection wallpaper 04",
+        "width": 1600,
+        "height": 900
       },
       {
         "kind": "image",
         "url": "/assets/packs/acrylic/05.jpg",
-        "alt": "Acrylic Collection wallpaper 05"
+        "alt": "Acrylic Collection wallpaper 05",
+        "width": 1600,
+        "height": 900
       },
       {
         "kind": "image",
         "url": "/assets/packs/acrylic/06.jpg",
-        "alt": "Acrylic Collection wallpaper 06"
+        "alt": "Acrylic Collection wallpaper 06",
+        "width": 1600,
+        "height": 900
       },
       {
         "kind": "image",
         "url": "/assets/packs/acrylic/07.jpg",
-        "alt": "Acrylic Collection wallpaper 07"
+        "alt": "Acrylic Collection wallpaper 07",
+        "width": 1600,
+        "height": 900
       },
       {
         "kind": "image",
         "url": "/assets/packs/acrylic/08.jpg",
-        "alt": "Acrylic Collection wallpaper 08"
+        "alt": "Acrylic Collection wallpaper 08",
+        "width": 1600,
+        "height": 900
       },
       {
         "kind": "image",
         "url": "/assets/packs/acrylic/09.jpg",
-        "alt": "Acrylic Collection wallpaper 09"
+        "alt": "Acrylic Collection wallpaper 09",
+        "width": 1600,
+        "height": 900
       },
       {
         "kind": "image",
         "url": "/assets/packs/acrylic/10.jpg",
-        "alt": "Acrylic Collection wallpaper 10"
+        "alt": "Acrylic Collection wallpaper 10",
+        "width": 1600,
+        "height": 900
+      }
+    ]
+  },
+  {
+    "slug": "dessau",
+    "name": "Dessau",
+    "style": "bauhaus",
+    "tagline": "Bold shapes, flat colour, nothing extra.",
+    "description": "Six Bauhaus-inspired designs, each composed separately for phone and for desktop — never cropped. Bold circles, clean lines and flat colour fields in cobalt, vermilion, mustard and black, with plenty of calm space so your clock and icons stay easy to read.",
+    "priceEur": 5.99,
+    "cover": {
+      "kind": "image",
+      "url": "/assets/packs/dessau/01_kreise-desktop.png",
+      "alt": "Dessau — Bauhaus wallpaper pack",
+      "width": 2080,
+      "height": 1170
+    },
+    "previews": [
+      {
+        "kind": "image",
+        "url": "/assets/packs/dessau/01_kreise.png",
+        "alt": "Dessau 01 Kreise — phone wallpaper",
+        "width": 1170,
+        "height": 2080,
+        "desktop": {
+          "url": "/assets/packs/dessau/01_kreise-desktop.png",
+          "alt": "Dessau 01 Kreise — desktop wallpaper",
+          "width": 2080,
+          "height": 1170
+        }
+      },
+      {
+        "kind": "image",
+        "url": "/assets/packs/dessau/02_rot.png",
+        "alt": "Dessau 02 Rot — phone wallpaper",
+        "width": 1170,
+        "height": 2080,
+        "desktop": {
+          "url": "/assets/packs/dessau/02_rot-desktop.png",
+          "alt": "Dessau 02 Rot — desktop wallpaper",
+          "width": 2080,
+          "height": 1170
+        }
+      },
+      {
+        "kind": "image",
+        "url": "/assets/packs/dessau/03_schwarz.png",
+        "alt": "Dessau 03 Schwarz — phone wallpaper",
+        "width": 1170,
+        "height": 2080,
+        "desktop": {
+          "url": "/assets/packs/dessau/03_schwarz-desktop.png",
+          "alt": "Dessau 03 Schwarz — desktop wallpaper",
+          "width": 2080,
+          "height": 1170
+        }
+      },
+      {
+        "kind": "image",
+        "url": "/assets/packs/dessau/04_gelb.png",
+        "alt": "Dessau 04 Gelb — phone wallpaper",
+        "width": 1170,
+        "height": 2080,
+        "desktop": {
+          "url": "/assets/packs/dessau/04_gelb-desktop.png",
+          "alt": "Dessau 04 Gelb — desktop wallpaper",
+          "width": 2080,
+          "height": 1170
+        }
+      },
+      {
+        "kind": "image",
+        "url": "/assets/packs/dessau/05_sonne.png",
+        "alt": "Dessau 05 Sonne — phone wallpaper",
+        "width": 1170,
+        "height": 2080,
+        "desktop": {
+          "url": "/assets/packs/dessau/05_sonne-desktop.png",
+          "alt": "Dessau 05 Sonne — desktop wallpaper",
+          "width": 2080,
+          "height": 1170
+        }
+      },
+      {
+        "kind": "image",
+        "url": "/assets/packs/dessau/06_halbkreise.png",
+        "alt": "Dessau 06 Halbkreise — phone wallpaper",
+        "width": 1170,
+        "height": 2080,
+        "desktop": {
+          "url": "/assets/packs/dessau/06_halbkreise-desktop.png",
+          "alt": "Dessau 06 Halbkreise — desktop wallpaper",
+          "width": 2080,
+          "height": 1170
+        }
       }
     ]
   },
