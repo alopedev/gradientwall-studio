@@ -1,7 +1,7 @@
 import { X } from "lucide-react";
 import { Reorder, useDragControls } from "motion/react";
 import { useEffect, useRef } from "react";
-import { activeColors, ALL_ACTIVE, DEFAULT_LIGHT_ANGLE } from "@/lib/palettes";
+import { activeColors, ALL_ACTIVE, DEFAULT_LIGHT_ANGLE, engineOf } from "@/lib/palettes";
 import { useConfigStore } from "@/store/useConfigStore";
 import { type FavoriteItem, useFavoritesStore } from "@/store/useFavoritesStore";
 import { useWallpaperEngine } from "../engine";
@@ -41,6 +41,7 @@ export function FavoriteThumbnail({ item }: Props) {
     engine.paintThumbnail(
       canvas,
       {
+        engine: engineOf(config),
         colors: activeColors(config.colors, config.active ?? ALL_ACTIVE),
         style: config.style,
         blur: config.blur,
@@ -58,6 +59,7 @@ export function FavoriteThumbnail({ item }: Props) {
   const load = (from: Element) => {
     requestReveal(from);
     useConfigStore.setState({
+      engine: engineOf(config),
       colors: [...config.colors] as FavoriteItem["config"]["colors"],
       active: [...active] as NonNullable<FavoriteItem["config"]["active"]>,
       style: config.style,

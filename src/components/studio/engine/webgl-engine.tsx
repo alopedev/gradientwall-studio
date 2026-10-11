@@ -1,0 +1,194 @@
+import { useEffect, useRef } from "react";
+import { paintWallpaper } from "@/lib/download/compose";
+import { encodeWithFallback, type EncodeFormat } from "@/lib/download/encode";
+import { browserDownloadSink, type Sink } from "@/lib/download/sink";
+import { seedToHex } from "@/lib/gradient";
+import {
+  isWebGL2Supported,
+  paintV2,
+  V2_DEFAULT_GRAIN,
+  V2_DEFAULT_LIGHT_ANGLE,
+  renderWallpaperV2,
+  type V2Params,
+  type V2Renderer,
+} from "@/lib/gradient-v2";
+import { DEVICE_SIZES, engineOf, type RenderParams } from "@/lib/palettes";
+import { canvas2DEngine } from "./canvas2d-engine";
+import type { EngineCanvasProps, WallpaperEngine } from "./types";
+
+const FORMATS: EncodeFormat[] = [
+  { type: "image/webp", quality: 0.95 },
+  { type: "image/jpeg", quality: 0.95 },
+];
+
+/** Longest preview side and DPR cap, same budget as the Canvas2D preview. */
+const MAX_DIM = 2400;
+const MAX_DPR = 2;
+
+const nextFrame = () => new Promise<void>((r) => requestAnimationFrame(() => r()));
+
+const toV2 = (p: RenderParams): V2Params => ({
+  colors: p.colors,
+  style: p.style,
+  seed: p.seed,
+  lightAngle: p.lightAngle,
+  grain: p.grain,
+});
+
+export interface WebGLEngineDeps {
+  sink?: Sink;
+  /** Engine for favorites saved before v2 and for browsers without WebGL2. */
+  fallback?: WallpaperEngine;
+  supported?: () => boolean;
+  renderer?: () => V2Renderer;
+}
+
+/**
+ * The v2 engine (WebGL2 shader in `src/lib/gradient-v2`). Favorites saved
+ * with v1 (`engine` absent or "v1") and browsers where the GPU path can't run
+ * go through `fallback`, so a saved wallpaper always looks the way it was saved.
+ */
+export function createWebGLEngine(deps: WebGLEngineDeps = {}): WallpaperEngine {
+  const sink = deps.sink ?? browserDownloadSink;
+  const fallback = deps.fallback ?? canvas2DEngine;
+  const supported = deps.supported ?? isWebGL2Supported;
+  const renderer = () => deps.renderer?.();
+
+  /** Paint v2 into `canvas`; false when the GPU path failed and v1 should paint instead. */
+  const tryPaint = (canvas: HTMLCanvasElement, p: RenderParams, w: number, h: number) => {
+    if (!supported()) return false;
+    try {
+      paintV2(canvas, toV2(p), w, h, {}, renderer());
+      return true;
+    } catch (err) {
+      console.warn("[gradient-v2] preview failed, using v1", err);
+      return false;
+    }
+  };
+
+  function WebGLCanvas({ params, device, className, onBeforePaint }: EngineCanvasProps) {
+    const ref = useRef<HTMLCanvasElement>(null);
+    const paramsRef = useRef(params);
+    paramsRef.current = params;
+    const beforeRef = useRef(onBeforePaint);
+    beforeRef.current = onBeforePaint;
+    const scheduleRef = useRef<() => void>(() => {});
+    const size = DEVICE_SIZES[device];
+
+    useEffect(() => {
+      const canvas = ref.current;
+      const host = canvas?.parentElement;
+      if (!canvas || !host) return;
+      let raf = 0;
+      let lastKey = "";
+
+      const paint = () => {
+        const cssW = host.clientWidth;
+        const cssH = host.clientHeight;
+        if (cssW <= 0 || cssH <= 0) return;
+        const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+        const ratio = size.w / size.h;
+        let w = Math.min(cssW, cssH * ratio) * dpr;
+        const longest = Math.max(w, w / ratio);
+        if (longest > MAX_DIM) w *= MAX_DIM / longest;
+        if (w > size.w) w = size.w;
+        const wInt = Math.round(w);
+        const hInt = Math.round(w / ratio);
+
+        const p = paramsRef.current;
+        const key = `${wInt}x${hInt}|${p.style}|${p.colors.join(",")}|${p.seed}|${p.lightAngle}|${p.grain}`;
+        if (key === lastKey) return;
+        if (lastKey !== "") beforeRef.current?.(canvas);
+        lastKey = key;
+        if (!tryPaint(canvas, p, wInt, hInt)) paintWallpaper(canvas, { ...p, w: wInt, h: hInt });
+      };
+
+      const schedule = () => {
+        if (raf) return;
+        raf = requestAnimationFrame(() => {
+          raf = 0;
+          paint();
+        });
+      };
+      scheduleRef.current = schedule;
+      paint();
+      const ro = new ResizeObserver(schedule);
+      ro.observe(host);
+      return () => {
+        if (raf) cancelAnimationFrame(raf);
+        ro.disconnect();
+        scheduleRef.current = () => {};
+      };
+    }, [size.w, size.h]);
+
+    // biome-ignore lint/correctness/useExhaustiveDependencies: repaint when the params object changes.
+    useEffect(() => {
+      scheduleRef.current();
+    }, [params]);
+
+    return <canvas ref={ref} className={className} />;
+  }
+
+  function EngineCanvas(props: EngineCanvasProps) {
+    if (engineOf(props.params) === "v1") return <fallback.Canvas {...props} />;
+    return <WebGLCanvas {...props} />;
+  }
+
+  return {
+    id: "webgl-v2",
+    styles: [
+      { id: "liquid", label: "Liquid" },
+      { id: "aurora", label: "Aurora" },
+      // Rendered as v2 "grain-mesh" (see toV2Style).
+      { id: "mesh", label: "Mesh" },
+    ],
+    // The shader has no softness / contrast / vibrance: its look is calibrated.
+    adjustments: [
+      {
+        key: "grain",
+        label: "Grain",
+        min: 0,
+        max: 100,
+        step: 1,
+        default: V2_DEFAULT_GRAIN,
+        format: (v) => `${Math.round(v)}%`,
+      },
+      {
+        key: "lightAngle",
+        label: "Light",
+        min: 0,
+        max: 360,
+        step: 1,
+        default: V2_DEFAULT_LIGHT_ANGLE,
+        format: (v) => `${Math.round(v)}°`,
+      },
+    ],
+    Canvas: EngineCanvas,
+    paintThumbnail(canvas, params, size) {
+      if (engineOf(params) === "v1" || !tryPaint(canvas, params, size.w, size.h)) {
+        fallback.paintThumbnail(canvas, params, size);
+      }
+    },
+    async exportWallpaper(params, device, onProgress) {
+      if (engineOf(params) === "v1") return fallback.exportWallpaper(params, device, onProgress);
+      const size = DEVICE_SIZES[device];
+      onProgress?.(0.05);
+      await nextFrame();
+      const canvas = renderWallpaperV2(toV2(params), size.w, size.h, {
+        supported,
+        renderer: deps.renderer,
+      });
+      if (!canvas) return fallback.exportWallpaper(params, device, onProgress);
+      onProgress?.(0.65);
+      await nextFrame();
+      const { blob, ext } = await encodeWithFallback(canvas, FORMATS);
+      onProgress?.(0.95);
+      const filename = `gradientwall-${device}-${seedToHex(params.seed)}.${ext}`;
+      await sink(blob, filename);
+      onProgress?.(1);
+      return { filename, bytes: blob.size };
+    },
+  };
+}
+
+export const webglEngine = createWebGLEngine();

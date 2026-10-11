@@ -23,6 +23,7 @@ function sameLook(a: FavoriteItem["config"], b: FavoriteItem["config"]): boolean
 function snapshot(): FavoriteItem["config"] {
   const s = useConfigStore.getState();
   return {
+    engine: s.engine,
     colors: [...s.colors] as Colors4,
     active: [...s.active] as ActiveMask,
     style: s.style,

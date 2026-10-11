@@ -10,13 +10,15 @@ const INITIAL = useConfigStore.getState();
 describe("useConfigStore", () => {
   beforeEach(() => useConfigStore.setState(INITIAL, true));
 
-  it("initializes with Dusk palette, liquid style, blur 48, curated grain", () => {
+  it("initializes on v2 with Dusk palette, liquid style and the approved grain and light", () => {
     const s = useConfigStore.getState();
     expect(s.device).toBe("mobile");
     expect(s.colors).toEqual(PALETTES[0].colors);
     expect(s.style).toBe("liquid");
     expect(s.blur).toBe(48);
-    expect(s.grain).toBe(32);
+    expect(s.engine).toBe("v2");
+    expect(s.grain).toBe(45);
+    expect(s.lightAngle).toBe(315);
   });
 
   it("setDevice / setStyle / setBlur / setGrain are single-key mutations", async () => {
