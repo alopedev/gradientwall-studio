@@ -41,8 +41,8 @@ export function PacksSection() {
           </h2>
         </div>
         <p className="max-w-[42ch] text-[15px] text-white/75 font-sans font-light">
-          Ten wallpapers per pack, at maximum resolution. Personal use, no watermarks, no account.
-          Pay once, download forever.
+          Every wallpaper at maximum resolution. Personal use, no watermarks, no account. Pay once,
+          download forever.
         </p>
       </Reveal>
 
@@ -84,9 +84,10 @@ function BentoGrid({
   hero: Parameters<typeof PackCard>[0]["pack"];
   satellites: Parameters<typeof PackCard>[0]["pack"][];
 }) {
-  // 4-column grid on desktop. Hero spans 2×2, four satellites fill the
-  // remaining 4 cells (two on the right of the hero, two below). Mobile
-  // stacks single-column with the hero first.
+  // 4-column grid on desktop. Hero spans 2×2 and the first four satellites
+  // fill the cells beside it (two on the right of the hero, two below); any
+  // further pack flows onto the rows after. Mobile stacks single-column with
+  // the hero first.
   return (
     <m.div
       className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 lg:auto-rows-[clamp(220px,22vw,300px)]"
@@ -101,7 +102,7 @@ function BentoGrid({
       >
         <PackCard pack={hero} variant="hero" />
       </m.div>
-      {satellites.slice(0, 4).map((p) => (
+      {satellites.map((p) => (
         <m.div key={p.slug} variants={GRID_CELL} className="h-full min-h-[260px] lg:min-h-0">
           <PackCard pack={p} variant="small" />
         </m.div>
