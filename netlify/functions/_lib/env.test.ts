@@ -5,6 +5,7 @@ import {
   readDownloadEnv,
   readOrdersStoreEnv,
   readRecoverEnv,
+  readSubscribeEnv,
   readWebhookEnv,
   type EnvSource,
 } from "./env";
@@ -113,6 +114,23 @@ describe("readOrdersStoreEnv", () => {
 
   it("refuses a Supabase URL without its secret key instead of falling back to Blobs", () => {
     expect(() => readOrdersStoreEnv({ SUPABASE_URL: "https://abcd.supabase.co" })).toThrow(
+      new MissingEnvError("SUPABASE_SECRET_KEY"),
+    );
+  });
+});
+
+describe("readSubscribeEnv", () => {
+  it("needs both Supabase variables and nothing else", () => {
+    expect(
+      readSubscribeEnv({
+        SUPABASE_URL: "https://abcd.supabase.co",
+        SUPABASE_SECRET_KEY: "sb_secret_x",
+      }),
+    ).toEqual({ url: "https://abcd.supabase.co", secretKey: "sb_secret_x" });
+    expect(() => readSubscribeEnv({ SUPABASE_SECRET_KEY: "k" })).toThrow(
+      new MissingEnvError("SUPABASE_URL"),
+    );
+    expect(() => readSubscribeEnv({ SUPABASE_URL: "https://abcd.supabase.co" })).toThrow(
       new MissingEnvError("SUPABASE_SECRET_KEY"),
     );
   });

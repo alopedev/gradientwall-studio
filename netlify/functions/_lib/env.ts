@@ -84,6 +84,17 @@ export function readOrdersStoreEnv(source: EnvSource = process.env): SupabaseEnv
   return { url, secretKey: required(source, "SUPABASE_SECRET_KEY") };
 }
 
+/**
+ * Where the email list lives. Unlike orders (Blobs fallback), the list has no
+ * other home: both Supabase variables are required.
+ */
+export function readSubscribeEnv(source: EnvSource = process.env): SupabaseEnv {
+  return {
+    url: required(source, "SUPABASE_URL"),
+    secretKey: required(source, "SUPABASE_SECRET_KEY"),
+  };
+}
+
 function required(source: EnvSource, key: string): string {
   const v = source[key];
   if (!v || v.trim() === "") {

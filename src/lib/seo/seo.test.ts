@@ -45,6 +45,14 @@ describe("seo pages", () => {
     expect(buildPackPage({ ...pack, lemonSqueezyVariantId: "123" }).noindex).toBe(false);
   });
 
+  it("prerenders the privacy page, indexable and with its own h1", () => {
+    const page = buildSeoPages(packs).find((p) => p.path === "/privacy");
+    expect(page).toBeDefined();
+    expect(page?.noindex).toBe(false);
+    expect(page?.shell.h1).toBe("Privacy");
+    expect(renderSitemap(buildSeoPages(packs))).toContain("/privacy</loc>");
+  });
+
   it("produces one unique path per page", () => {
     const paths = buildSeoPages(packs).map((p) => p.path);
     expect(new Set(paths).size).toBe(paths.length);

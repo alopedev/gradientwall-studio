@@ -117,6 +117,19 @@ export const RECOVER_PAGE: SeoPage = {
   },
 };
 
+export const PRIVACY_PAGE: SeoPage = {
+  path: "/privacy",
+  title: "Privacy",
+  description:
+    "What GradientWall does with your email and order data, who handles it, and how to exercise your rights.",
+  ogType: "website",
+  noindex: false,
+  shell: {
+    h1: "Privacy",
+    text: "What GradientWall does with your email and order data, who handles it, and how to exercise your rights.",
+  },
+};
+
 /** Product + BreadcrumbList JSON-LD for a pack page. */
 export function buildPackJsonLd(pack: SeoPack): Record<string, unknown>[] {
   const url = `${SITE_ORIGIN}/packs/${pack.slug}`;
@@ -186,5 +199,5 @@ export function buildHomePage(): SeoPage {
 
 /** Every page that gets its own prerendered HTML file (excluding the 404). */
 export function buildSeoPages(packs: SeoPack[]): SeoPage[] {
-  return [buildHomePage(), ...packs.map(buildPackPage), RECOVER_PAGE];
+  return [buildHomePage(), ...packs.map(buildPackPage), RECOVER_PAGE, PRIVACY_PAGE];
 }
