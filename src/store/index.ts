@@ -1,5 +1,6 @@
 export {
   useConfigStore,
+  useLook,
   useRenderParams,
   selectRenderParams,
   type ConfigState,

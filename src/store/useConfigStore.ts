@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { create } from "zustand";
+import { useShallow } from "zustand/react/shallow";
 import {
-  activeColors,
   ALL_ACTIVE,
   DEFAULT_CONTRAST,
   DEFAULT_DENSITY,
@@ -11,11 +11,10 @@ import {
   type ActiveMask,
   type Colors4,
   type Device,
-  type Engine,
-  type GradientConfig,
   type RenderParams,
   type Style,
 } from "@/lib/palettes";
+import { type Look, pickLook, toFavoriteConfig, toRenderParams } from "@/lib/look";
 import { randomColors } from "@/lib/gradient";
 import { generateRemix } from "@/lib/gradient/remix";
 import { CURATED_VIBRANCE, generateSurprise } from "@/lib/gradient/surprise";
@@ -26,30 +25,20 @@ import { makeRafBatcher } from "@/lib/raf-batcher";
  * Current wallpaper configuration — the "what the studio is showing right now".
  * Ephemeral (not persisted). Direct mutations from UI sliders / device pills.
  *
- * `lightAngle` is optional on `GradientConfig` for back-compat (saved history
- * items predating lighting omit it), but the live store always carries a
- * concrete value, so we narrow it to required here.
+ * The wallpaper fields are a `Look` (see `lib/look.ts`): the live store always
+ * carries a concrete value for each, and translating to render params or to a
+ * favorite goes through that module.
+ *
+ * - `engine`: renders the current wallpaper. New wallpapers (start, shuffle,
+ *   remix) are v2; loading a favorite saved with v1 switches back to v1 so it
+ *   looks the way it was saved.
+ * - `active`: per-slot on/off over the four colors. A `false` entry removes
+ *   that slot from the rendered ramp so the wallpaper uses 2 or 3 colors
+ *   instead of 4. Replacing the palette (setColors, randomize, applyPalette,
+ *   gallery load) snaps the mask back to all-true.
  */
-export interface ConfigState
-  extends Omit<GradientConfig, "lightAngle" | "density" | "contrast" | "vibrance" | "engine"> {
+export interface ConfigState extends Look {
   device: Device;
-  /**
-   * Engine that renders the current wallpaper. New wallpapers (start, shuffle,
-   * remix) are v2; loading a favorite saved with v1 switches back to v1 so it
-   * looks the way it was saved.
-   */
-  engine: Engine;
-  lightAngle: number;
-  density: number;
-  contrast: number;
-  vibrance: number;
-  /**
-   * Per-slot on/off over the four colors. A `false` entry removes that slot
-   * from the rendered ramp so the wallpaper uses 2 or 3 colors instead of 4.
-   * Always kept in sync with `colors`: replacing the palette (setColors,
-   * randomize, applyPalette, gallery load) snaps the mask back to all-true.
-   */
-  active: ActiveMask;
   setDevice: (d: Device) => void;
   setColors: (colors: Colors4) => void;
   setColor: (i: number, hex: string) => void;
@@ -184,17 +173,7 @@ export const useConfigStore = create<ConfigState>()((set) => {
       }),
     applyRemix: () =>
       set((s) => {
-        const current: GradientConfig = {
-          colors: s.colors,
-          style: s.style,
-          blur: s.blur,
-          grain: s.grain,
-          seed: s.seed,
-          lightAngle: s.lightAngle,
-          density: s.density,
-          contrast: s.contrast,
-          vibrance: s.vibrance,
-        };
+        const current = toFavoriteConfig(s);
         const next = generateRemix(current);
         return {
           engine: "v2",
@@ -215,61 +194,28 @@ export const useConfigStore = create<ConfigState>()((set) => {
 
 /**
  * Pure resolver — builds a renderer-ready `RenderParams` from the config
- * snapshot. Used by `useRenderParams` (live) and by tests/coordinator code
- * that needs a one-shot extraction without subscribing.
+ * snapshot. Used by tests/coordinator code that needs a one-shot extraction
+ * without subscribing.
  */
-export const selectRenderParams = (s: ConfigState): RenderParams => ({
-  engine: s.engine,
-  colors: activeColors(s.colors, s.active),
-  style: s.style,
-  blur: s.blur,
-  grain: s.grain,
-  seed: s.seed,
-  lightAngle: s.lightAngle,
-  density: s.density,
-  contrast: s.contrast,
-  vibrance: s.vibrance,
-});
+export const selectRenderParams = (s: ConfigState): RenderParams => toRenderParams(s);
 
 /**
- * Subscribe to the renderer-ready params. Replaces 7 individual selectors
- * + `activeColors(colors, active)` reconstruction at every render call site.
- *
- * Implementation note: scalar selectors only — `useShallow` over the full
- * `RenderParams` doesn't work here because `activeColors` allocates a new
- * array each call (zustand sees a different reference and returns a new
- * object every render → infinite useEffect loop in consumers). The
- * `useMemo` collapses primitive deps into a stable object reference until
- * one of them actually changes.
+ * Subscribe to the current look (every field that draws the wallpaper).
+ * `useShallow` keeps the object reference stable until one field changes.
+ */
+export function useLook(): Look {
+  return useConfigStore(useShallow(pickLook));
+}
+
+/**
+ * Subscribe to the renderer-ready params. Memoized on the look so consumers
+ * that put it in an effect dependency list don't loop: `toRenderParams`
+ * allocates a new color ramp on every call.
  *
  * Stateless callers (snapshot tests, server-side render) construct a literal
  * `RenderParams` directly — the type lives in `palettes.ts`, not here.
  */
 export function useRenderParams(): RenderParams {
-  const engine = useConfigStore((s) => s.engine);
-  const colors = useConfigStore((s) => s.colors);
-  const active = useConfigStore((s) => s.active);
-  const style = useConfigStore((s) => s.style);
-  const blur = useConfigStore((s) => s.blur);
-  const grain = useConfigStore((s) => s.grain);
-  const seed = useConfigStore((s) => s.seed);
-  const lightAngle = useConfigStore((s) => s.lightAngle);
-  const density = useConfigStore((s) => s.density);
-  const contrast = useConfigStore((s) => s.contrast);
-  const vibrance = useConfigStore((s) => s.vibrance);
-  return useMemo(
-    () => ({
-      engine,
-      colors: activeColors(colors, active),
-      style,
-      blur,
-      grain,
-      seed,
-      lightAngle,
-      density,
-      contrast,
-      vibrance,
-    }),
-    [engine, colors, active, style, blur, grain, seed, lightAngle, density, contrast, vibrance],
-  );
+  const look = useLook();
+  return useMemo(() => toRenderParams(look), [look]);
 }
