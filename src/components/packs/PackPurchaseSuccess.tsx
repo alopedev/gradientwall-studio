@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { getPackBySlug } from "@/lib/packs";
 import { Nav } from "../Nav";
 import { Footer } from "../Footer";
+import { glassButton } from "../ui/GlassButton";
 import { PageMeta } from "../PageMeta";
 
 /**
@@ -24,7 +25,7 @@ export function PackPurchaseSuccess() {
       <Nav />
       <main className="min-h-screen pt-[120px] pb-[clamp(60px,9vw,120px)]">
         <section className="mx-auto max-w-[680px] px-[clamp(24px,5vw,80px)] text-center">
-          <span className="block mb-6 font-sans text-[11px] tracking-[0.22em] uppercase text-white/40">
+          <span className="block mb-6 font-sans text-[11px] tracking-[0.22em] uppercase text-white/55">
             Order confirmed
           </span>
           <h1 className="display-head text-[clamp(40px,5.5vw,68px)] text-white leading-[1] mb-5">
@@ -45,21 +46,15 @@ export function PackPurchaseSuccess() {
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3 mb-12">
-            <Link
-              to="/#packs"
-              className="inline-flex items-center gap-2 rounded-[2px] bg-white/95 text-[#0a0a0d] px-4 py-2.5 text-[11px] tracking-[0.14em] uppercase font-sans font-medium hover:bg-white"
-            >
+            <Link to="/#packs" className={`${glassButton({ variant: "primary" })} px-6`}>
               ← Browse more packs
             </Link>
-            <Link
-              to="/recover"
-              className="inline-flex items-center gap-2 rounded-[2px] border border-white/20 text-white/85 px-4 py-2.5 text-[11px] tracking-[0.14em] uppercase font-sans font-medium hover:border-white/40 hover:text-white"
-            >
+            <Link to="/recover" className={`${glassButton({ variant: "ghost" })} px-6`}>
               Email didn't arrive?
             </Link>
           </div>
 
-          <div className="font-sans text-[11px] text-white/40 leading-relaxed">
+          <div className="font-sans text-[11px] text-white/55 leading-relaxed">
             The download link is valid for 30 days and works up to 5 times. Personal use only — no
             reselling, no redistribution.
           </div>

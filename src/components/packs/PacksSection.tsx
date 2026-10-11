@@ -30,7 +30,7 @@ export function PacksSection() {
     >
       <Reveal className="grid md:grid-cols-2 gap-12 items-end mb-10">
         <div>
-          <span className="block mb-4 font-sans text-[11px] tracking-[0.22em] uppercase text-white/40">
+          <span className="block mb-4 font-sans text-[11px] tracking-[0.22em] uppercase text-white/55">
             From 5.99€ · VAT included
           </span>
           <h2 className="display-head text-[clamp(40px,5.5vw,76px)]">
