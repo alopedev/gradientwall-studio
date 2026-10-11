@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { encodeWithFallback, type EncodeFormat } from "./encode";
+import { browserEncodes, encodeWithFallback, exportFormatLabel, type EncodeFormat } from "./encode";
 
 type ToBlobCallback = (blob: Blob | null) => void;
 type ToBlobStub = (cb: ToBlobCallback, type?: string, quality?: number) => void;
@@ -86,5 +86,43 @@ describe("encodeWithFallback", () => {
     });
     await encodeWithFallback(makeCanvasStub(toBlobSpy), [{ type: "image/webp", quality: 0.87 }]);
     expect(toBlobSpy).toHaveBeenCalledWith(expect.any(Function), "image/webp", 0.87);
+  });
+});
+
+describe("exportFormatLabel", () => {
+  const formats: EncodeFormat[] = [
+    { type: "image/webp", quality: 0.95 },
+    { type: "image/jpeg", quality: 0.95 },
+  ];
+
+  it("names the first format the browser can encode", () => {
+    expect(exportFormatLabel(formats, () => true)).toBe("WebP");
+    expect(exportFormatLabel(formats, (type) => type !== "image/webp")).toBe("JPEG");
+  });
+
+  it("names the last format when the probe finds none, the same one encodeWithFallback ends on", () => {
+    expect(exportFormatLabel(formats, () => false)).toBe("JPEG");
+  });
+});
+
+describe("browserEncodes", () => {
+  const stubToDataURL = (impl: (type?: string) => string) =>
+    vi.spyOn(HTMLCanvasElement.prototype, "toDataURL").mockImplementation(impl as never);
+
+  it("is true when the browser answers with the requested type", () => {
+    stubToDataURL((type) => `data:${type};base64,AAAA`);
+    expect(browserEncodes("image/webp")).toBe(true);
+  });
+
+  it("is false when the browser silently answers with PNG (no WebP encoder)", () => {
+    stubToDataURL(() => "data:image/png;base64,AAAA");
+    expect(browserEncodes("image/webp")).toBe(false);
+  });
+
+  it("is false when the probe throws", () => {
+    stubToDataURL(() => {
+      throw new Error("tainted");
+    });
+    expect(browserEncodes("image/webp")).toBe(false);
   });
 });

@@ -1,14 +1,16 @@
-import { Shuffle, SlidersHorizontal, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Shuffle, SlidersHorizontal, X } from "lucide-react";
 import { AnimatePresence, m } from "motion/react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { GlassButton } from "@/components/ui/GlassButton";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
-import { useConfigStore } from "@/store";
+import { remixWallpaper, shuffleWallpaper, useConfigStore } from "@/store";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
+import { useLookHistoryStore } from "@/store/useLookHistoryStore";
 import { useWallpaperEngine } from "../engine";
 import { AdjustPanel } from "./AdjustPanel";
 import { ExportButton } from "./ExportButton";
+import { PaletteHex } from "./PaletteHex";
 import { PaletteSwatches } from "./PaletteSwatches";
 import { useRequestReveal } from "./reveal";
 import { SaveButton } from "./SaveButton";
@@ -81,8 +83,8 @@ export function StudioDock({ adjustOpen, onToggleAdjust, keysActive }: Props) {
   const engine = useWallpaperEngine();
   const style = useConfigStore((s) => s.style);
   const setStyle = useConfigStore((s) => s.setStyle);
-  const applySurprise = useConfigStore((s) => s.applySurprise);
-  const applyRemix = useConfigStore((s) => s.applyRemix);
+  const canBack = useLookHistoryStore((s) => s.past.length > 0);
+  const canForward = useLookHistoryStore((s) => s.future.length > 0);
   const requestReveal = useRequestReveal();
   const panelId = useId();
   const shuffleRef = useRef<HTMLButtonElement>(null);
@@ -118,8 +120,15 @@ export function StudioDock({ adjustOpen, onToggleAdjust, keysActive }: Props) {
 
   const shuffle = () => {
     requestReveal(shuffleRef.current);
-    applySurprise();
+    shuffleWallpaper();
     setSpins((n) => n + 1);
+  };
+
+  // aria-disabled (not `disabled`) keeps focus on the arrow when its end of the list is reached.
+  const step = (e: React.MouseEvent<HTMLButtonElement>, dir: "back" | "forward") => {
+    if (e.currentTarget.getAttribute("aria-disabled") === "true") return;
+    requestReveal(e.currentTarget);
+    useLookHistoryStore.getState()[dir]();
   };
 
   // Space → shuffle, R → remix (not while typing or on a focused control).
@@ -130,17 +139,17 @@ export function StudioDock({ adjustOpen, onToggleAdjust, keysActive }: Props) {
       if (e.code === "Space") {
         e.preventDefault();
         requestReveal(shuffleRef.current);
-        applySurprise();
+        shuffleWallpaper();
         setSpins((n) => n + 1);
       } else if (e.key === "r" || e.key === "R") {
         e.preventDefault();
         requestReveal(shuffleRef.current);
-        applyRemix();
+        remixWallpaper();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [keysActive, applySurprise, applyRemix, requestReveal]);
+  }, [keysActive, requestReveal]);
 
   return (
     <div
@@ -150,8 +159,18 @@ export function StudioDock({ adjustOpen, onToggleAdjust, keysActive }: Props) {
       <div
         role="toolbar"
         aria-label="Wallpaper controls"
-        className="flex flex-wrap items-center justify-center gap-2 @max-[760px]:grid @max-[760px]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_44px] @max-[760px]:[grid-template-areas:'shuffle_shuffle_save''style_style_style''pal_pal_pal''adj_exp_exp']"
+        className="flex flex-wrap items-center justify-center gap-2 @max-[760px]:grid @max-[760px]:grid-cols-[44px_minmax(0,1fr)_minmax(0,1fr)_44px_44px] @max-[760px]:[grid-template-areas:'back_shuffle_shuffle_fwd_save''style_style_style_style_style''pal_pal_pal_pal_pal''adj_adj_exp_exp_exp']"
       >
+        <GlassButton
+          variant="icon"
+          onClick={(e) => step(e, "back")}
+          aria-disabled={!canBack}
+          aria-label="Previous wallpaper"
+          data-tip="Previous"
+          className="gws-tip aria-disabled:pointer-events-none aria-disabled:opacity-40 @max-[760px]:[grid-area:back]"
+        >
+          <ChevronLeft className="size-5" aria-hidden />
+        </GlassButton>
         <GlassButton
           ref={shuffleRef}
           variant="primary"
@@ -175,6 +194,16 @@ export function StudioDock({ adjustOpen, onToggleAdjust, keysActive }: Props) {
           >
             Space
           </kbd>
+        </GlassButton>
+        <GlassButton
+          variant="icon"
+          onClick={(e) => step(e, "forward")}
+          aria-disabled={!canForward}
+          aria-label="Next wallpaper"
+          data-tip="Next"
+          className="gws-tip aria-disabled:pointer-events-none aria-disabled:opacity-40 @max-[760px]:[grid-area:fwd]"
+        >
+          <ChevronRight className="size-5" aria-hidden />
         </GlassButton>
 
         <Sep />
@@ -206,6 +235,8 @@ export function StudioDock({ adjustOpen, onToggleAdjust, keysActive }: Props) {
           <ExportButton onMessage={say} />
         </div>
       </div>
+
+      <PaletteHex onMessage={say} />
 
       <AnimatePresence>
         {adjustOpen && narrow && (

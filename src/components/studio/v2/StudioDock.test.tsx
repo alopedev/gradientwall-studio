@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PALETTES } from "@/lib/palettes";
 import { useConfigStore } from "@/store";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
+import { useLookHistoryStore } from "@/store/useLookHistoryStore";
 import { StudioDock } from "./StudioDock";
 
 const INITIAL = useConfigStore.getState();
@@ -31,6 +32,7 @@ describe("StudioDock", () => {
     act(() => {
       useConfigStore.setState(INITIAL, true);
       useFavoritesStore.getState().clear();
+      useLookHistoryStore.getState().clear();
     });
     localStorage.clear();
   });
@@ -166,5 +168,76 @@ describe("StudioDock", () => {
     await user.click(screen.getByRole("button", { name: /reset/i }));
     const s = useConfigStore.getState();
     expect([s.grain, s.lightAngle]).toEqual([45, 315]);
+  });
+
+  describe("going back to a previous wallpaper", () => {
+    const back = () => screen.getByRole("button", { name: /previous wallpaper/i });
+    const forward = () => screen.getByRole("button", { name: /next wallpaper/i });
+    const isDisabled = (el: HTMLElement) => el.getAttribute("aria-disabled") === "true";
+
+    it("both arrows start disabled: there is nothing before the first wallpaper", () => {
+      render(<Harness />);
+      expect(isDisabled(back())).toBe(true);
+      expect(isDisabled(forward())).toBe(true);
+    });
+
+    it("an arrow at the end of the list does nothing and keeps keyboard focus", async () => {
+      const user = userEvent.setup();
+      render(<Harness />);
+      const seed = useConfigStore.getState().seed;
+      back().focus();
+      await user.keyboard("{Enter}");
+      expect(useConfigStore.getState().seed).toBe(seed);
+      expect(document.activeElement).toBe(back());
+    });
+
+    it("Shuffle then ‹ brings the wallpaper that was lost back, and › returns to the new one", async () => {
+      const user = userEvent.setup();
+      render(<Harness />);
+      const first = {
+        colors: useConfigStore.getState().colors,
+        seed: useConfigStore.getState().seed,
+      };
+
+      await user.click(screen.getByLabelText(/shuffle: generate another wallpaper/i));
+      const second = {
+        colors: useConfigStore.getState().colors,
+        seed: useConfigStore.getState().seed,
+      };
+      expect(second.seed).not.toBe(first.seed);
+      expect(isDisabled(back())).toBe(false);
+      expect(isDisabled(forward())).toBe(true);
+
+      await user.click(back());
+      expect(useConfigStore.getState().seed).toBe(first.seed);
+      expect(useConfigStore.getState().colors).toEqual(first.colors);
+      expect(isDisabled(back())).toBe(true);
+      expect(isDisabled(forward())).toBe(false);
+
+      await user.click(forward());
+      expect(useConfigStore.getState().seed).toBe(second.seed);
+      expect(useConfigStore.getState().colors).toEqual(second.colors);
+    });
+
+    it("Space, R and a palette swatch each leave a step to go back to", async () => {
+      const user = userEvent.setup();
+      render(<Harness />);
+      const steps = () => useLookHistoryStore.getState().past.length;
+
+      await user.keyboard(" ");
+      expect(steps()).toBe(1);
+      await user.keyboard("r");
+      expect(steps()).toBe(2);
+      await user.click(screen.getByLabelText("Palette Forest"));
+      expect(steps()).toBe(3);
+    });
+
+    it("sliders do not fill the history: only gestures that replace the wallpaper do", async () => {
+      const user = userEvent.setup();
+      render(<Harness />);
+      act(() => useConfigStore.setState({ grain: 80 }));
+      await user.click(screen.getByLabelText(/shuffle: generate another wallpaper/i));
+      expect(useLookHistoryStore.getState().past).toHaveLength(1);
+    });
   });
 });

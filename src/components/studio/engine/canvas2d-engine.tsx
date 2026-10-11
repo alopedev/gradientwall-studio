@@ -1,6 +1,6 @@
 import { composeWallpaper, paintWallpaper } from "@/lib/download/compose";
 import { wallpaperFilename } from "@/lib/download/filename";
-import { encodeWithFallback, type EncodeFormat } from "@/lib/download/encode";
+import { encodeWithFallback, exportFormatLabel, type EncodeFormat } from "@/lib/download/encode";
 import { browserDownloadSink, type Sink } from "@/lib/download/sink";
 import {
   DEFAULT_CONTRAST,
@@ -96,6 +96,7 @@ export function createCanvas2DEngine(sink: Sink = browserDownloadSink): Wallpape
     paintThumbnail(canvas, params, { w, h }) {
       paintWallpaper(canvas, { ...params, w, h });
     },
+    exportFormat: () => exportFormatLabel(FORMATS),
     async exportWallpaper(params, device, onProgress) {
       const size = DEVICE_SIZES[device];
       onProgress?.(0.05);

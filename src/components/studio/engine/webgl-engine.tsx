@@ -1,6 +1,6 @@
 import { paintWallpaper } from "@/lib/download/compose";
 import { wallpaperFilename } from "@/lib/download/filename";
-import { encodeWithFallback, type EncodeFormat } from "@/lib/download/encode";
+import { encodeWithFallback, exportFormatLabel, type EncodeFormat } from "@/lib/download/encode";
 import { browserDownloadSink, type Sink } from "@/lib/download/sink";
 import { DEFAULT_MAX_DIM, DEFAULT_MAX_DPR, pixelKey } from "@/lib/fitted-canvas";
 import {
@@ -131,6 +131,7 @@ export function createWebGLEngine(deps: WebGLEngineDeps = {}): WallpaperEngine {
         fallback.paintThumbnail(canvas, params, size);
       }
     },
+    exportFormat: () => exportFormatLabel(FORMATS),
     async exportWallpaper(params, device, onProgress) {
       if (engineOf(params) === "v1") return fallback.exportWallpaper(params, device, onProgress);
       const size = DEVICE_SIZES[device];

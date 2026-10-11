@@ -7,6 +7,7 @@ import type { WallpaperEngine } from "./types";
 
 vi.mock("@/lib/download/encode", () => ({
   encodeWithFallback: vi.fn(async () => ({ blob: new Blob(["x"]), ext: "webp" })),
+  exportFormatLabel: vi.fn(() => "WebP"),
 }));
 
 import { createWebGLEngine } from "./webgl-engine";
@@ -57,6 +58,11 @@ describe("webgl v2 engine", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     stubCanvas2D();
+  });
+
+  it("tells the Download button which format the file will have", () => {
+    const { engine } = setup();
+    expect(engine.exportFormat()).toBe("WebP");
   });
 
   it("declares grain and light only, with defaults matching the store's start", () => {

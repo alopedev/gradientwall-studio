@@ -47,3 +47,37 @@ export function encodeWithFallback(
     attempt(0);
   });
 }
+
+const FORMAT_LABEL: Record<EncodeFormat["type"], string> = {
+  "image/webp": "WebP",
+  "image/jpeg": "JPEG",
+  "image/png": "PNG",
+};
+
+/**
+ * True when this browser can encode `type` from a canvas. Browsers without an
+ * encoder answer `toDataURL` with PNG, so the answer is read from the data URL
+ * header rather than assumed.
+ */
+export function browserEncodes(type: EncodeFormat["type"]): boolean {
+  try {
+    const probe = document.createElement("canvas");
+    probe.width = probe.height = 1;
+    return probe.toDataURL(type).startsWith(`data:${type}`);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Name of the format `encodeWithFallback` will end up writing for `formats`
+ * in this browser ("WebP" or "JPEG"), so the UI can state it before the click.
+ * With no match it names the last one, where `encodeWithFallback` also ends.
+ */
+export function exportFormatLabel(
+  formats: EncodeFormat[],
+  supports: (type: EncodeFormat["type"]) => boolean = browserEncodes,
+): string {
+  const chosen = formats.find((f) => supports(f.type)) ?? formats[formats.length - 1];
+  return FORMAT_LABEL[chosen.type];
+}
