@@ -10,4 +10,4 @@ Disallow: /recover
 # Post-checkout page: per-order, nothing to index.
 Disallow: /packs/*/success
 
-Sitemap: https://gradientwall.com/sitemap.xml
+Sitemap: https://gradientwall-studio.netlify.app/sitemap.xml

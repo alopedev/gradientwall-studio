@@ -4,7 +4,9 @@
  * Vite build (prerender + sitemap in `vite.config.ts`) and tests.
  */
 
-export const SITE_ORIGIN = "https://gradientwall.com";
+// Temporary: gradientwall.com lapsed and was taken by a domain reseller. Switch
+// back here (and in public/robots.txt) once the site has its own domain.
+export const SITE_ORIGIN = "https://gradientwall-studio.netlify.app";
 export const SITE_NAME = "GradientWall";
 export const DEFAULT_OG_IMAGE = "/og-default.jpg";
 export const DEFAULT_OG_ALT = "GradientWall — pink, purple and amber gradient wallpaper";

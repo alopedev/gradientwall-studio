@@ -56,7 +56,7 @@ describe("renderPage", () => {
     const html = renderPage(TEMPLATE, buildPackPage(packs[0]));
     expect(html).toContain(`<title>${packs[0].name}`);
     expect(html).toContain(
-      `<link rel="canonical" href="https://gradientwall.com/packs/${packs[0].slug}" />`,
+      `<link rel="canonical" href="https://gradientwall-studio.netlify.app/packs/${packs[0].slug}" />`,
     );
     expect(html).toContain('<meta name="robots" content="noindex,nofollow" />');
     expect(html).toContain(`<h1>${packs[0].name}</h1>`);
@@ -83,14 +83,16 @@ describe("renderPage", () => {
   });
 
   it("canonicalises the 404 page to the home", () => {
-    expect(renderHeadTags(NOT_FOUND_PAGE)).toContain('href="https://gradientwall.com/"');
+    expect(renderHeadTags(NOT_FOUND_PAGE)).toContain(
+      'href="https://gradientwall-studio.netlify.app/"',
+    );
   });
 });
 
 describe("sitemap and output paths", () => {
   it("lists only indexable pages, with absolute URLs", () => {
     const xml = renderSitemap(buildSeoPages(packs));
-    expect(xml).toContain("<loc>https://gradientwall.com/</loc>");
+    expect(xml).toContain("<loc>https://gradientwall-studio.netlify.app/</loc>");
     expect(xml).not.toContain("/recover");
     expect(xml).not.toContain("/legal/");
   });
@@ -99,7 +101,7 @@ describe("sitemap and output paths", () => {
     expect(outputFile(buildHomePage())).toBe("index.html");
     expect(outputFile(NOT_FOUND_PAGE)).toBe("404.html");
     expect(outputFile(buildPackPage(packs[0]))).toBe(`packs/${packs[0].slug}/index.html`);
-    expect(absoluteUrl("/x")).toBe("https://gradientwall.com/x");
+    expect(absoluteUrl("/x")).toBe("https://gradientwall-studio.netlify.app/x");
     expect(absoluteUrl("https://a.b/c")).toBe("https://a.b/c");
   });
 });
