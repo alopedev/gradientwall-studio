@@ -39,6 +39,8 @@ export interface MailDeps {
   loops: LoopsClient;
   loopsTransactionalId: string;
   publicSiteUrl: string;
+  /** Display name for a pack slug (the catalog). Falls back to the slug itself. */
+  packNameOf?: (packSlug: string) => string | undefined;
 }
 
 // ---------------------------------------------------------------------------
@@ -69,7 +71,7 @@ async function mailDownloadLink(
     transactionalId: deps.loopsTransactionalId,
     email: order.email,
     dataVariables: {
-      packName: order.packSlug,
+      packName: deps.packNameOf?.(order.packSlug) ?? order.packSlug,
       downloadUrl,
     },
   });

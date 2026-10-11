@@ -22,10 +22,6 @@ Necesitarás:
    - Name: `Midnight Velvet`
    - Type: Single payment
    - Price: `4.99 EUR`
-   - **Custom Data** (importante): añadir
-     `pack_slug` = `midnight-velvet`
-     Este valor llega al webhook y le dice a nuestro backend qué pack ha
-     comprado el usuario.
 3. **Settings → Webhooks → New Webhook**:
    - URL: `https://<tu-dominio>/.netlify/functions/lemon-squeezy-webhook`
    - Events: marcar **Order created** únicamente
@@ -38,7 +34,11 @@ Necesitarás:
 6. **Variant ID del producto**: ve al producto creado → la URL del checkout
    tiene la forma `/buy/<variant-id>`. Anota ese ID y añádelo al manifest
    `src/data/packs.json` en el campo `lemonSqueezyVariantId` del pack
-   `midnight-velvet`.
+   `midnight-velvet`. **Es obligatorio**: el webhook decide qué pack entrega
+   a partir de la variante pagada, no del `pack_slug` de la URL (que el
+   comprador puede editar). Un pedido pagado con una variante que no está en
+   el manifest responde 422 y queda en el log de Lemon Squeezy y de la
+   función.
 
 ## 2 · Loops
 
