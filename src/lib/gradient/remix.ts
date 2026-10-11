@@ -1,9 +1,6 @@
 import type { GradientConfig } from "../palettes";
 import { pickCuratedSeedExcluding } from "./curated-seeds";
 import {
-  CURATED_CONTRAST,
-  CURATED_GRAIN,
-  CURATED_VIBRANCE,
   SURPRISE_DENSITY_MAX,
   SURPRISE_DENSITY_MIN,
   SURPRISE_LIGHT_MAX,
@@ -17,8 +14,8 @@ import {
  * el style) pero quiere ver otra cara de la misma idea. Mantenemos lo que
  * tiene sentido conservar y variamos solo lo que cambia la composición:
  *
- * - **Conservados**: `colors`, `style`, defaults curados de grain / contrast /
- *   vibrance. El feel mood no debe romperse.
+ * - **Conservados**: `colors`, `style`, `grain`, `contrast` y `vibrance`. Son
+ *   ajustes del usuario (panel Ajustar): remix no los toca.
  * - **Variado**: `seed` (cualquier curado distinto al actual),
  *   `lightAngle` ±30° (gira la luz pero no la voltea),
  *   `density` ±0.1 (más o menos capas, sin saltos bruscos),
@@ -83,11 +80,11 @@ export function generateRemix(
     colors: current.colors,
     style: current.style,
     blur,
-    grain: CURATED_GRAIN,
+    grain: current.grain,
     seed,
     lightAngle,
     density,
-    contrast: CURATED_CONTRAST,
-    vibrance: CURATED_VIBRANCE,
+    contrast: current.contrast,
+    vibrance: current.vibrance,
   };
 }
