@@ -108,12 +108,12 @@ export function StudioShell() {
             <p className="m-0 mt-5 text-center font-sans text-[11px] tracking-[0.04em] text-white/55">
               {STUDIO_NOT_AI}
             </p>
+            <EmailCapture
+              source="studio"
+              heading="Like these? Get new wallpapers and packs first."
+              className="relative mx-auto mt-10 max-w-[520px]"
+            />
           </div>
-          <EmailCapture
-            source="studio"
-            heading="Like these? Get new wallpapers and packs first."
-            className="relative mx-auto mt-10 max-w-[520px]"
-          />
         </div>
       </section>
     </RevealContext.Provider>
