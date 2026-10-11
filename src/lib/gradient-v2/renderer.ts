@@ -9,6 +9,7 @@
  */
 
 import { FRAG, VERT } from "./shader";
+import { FRAG_ANIMATED } from "./shader-animated";
 import { resolveV2Uniforms, type V2Params } from "./params";
 
 /** Rows per draw call when exporting large sizes; keeps each draw under the GPU watchdog. */
@@ -17,6 +18,13 @@ export const EXPORT_STRIP_ROWS = 512;
 export interface DrawOptions {
   /** Render in horizontal strips of this many rows (0 = one draw). */
   strip?: number;
+  /** Seconds, for a renderer created with `animated: true`; ignored by the still shader. */
+  time?: number;
+}
+
+export interface RendererOptions {
+  /** Use the drifting shader (`shader-animated.ts`): for backgrounds that move. */
+  animated?: boolean;
 }
 
 export interface V2Renderer {
@@ -36,6 +44,7 @@ const UNIFORMS = [
   "uLightAngle",
   "uStyle",
   "uDither",
+  "uTime",
 ] as const;
 type UniformName = (typeof UNIFORMS)[number];
 
@@ -59,7 +68,10 @@ function compile(gl: WebGL2RenderingContext, type: number, src: string): WebGLSh
   return sh;
 }
 
-export function createRendererV2(canvas: HTMLCanvasElement): V2Renderer {
+export function createRendererV2(
+  canvas: HTMLCanvasElement,
+  { animated = false }: RendererOptions = {},
+): V2Renderer {
   const maybeGl = canvas.getContext("webgl2", {
     antialias: false,
     depth: false,
@@ -76,7 +88,7 @@ export function createRendererV2(canvas: HTMLCanvasElement): V2Renderer {
   const prog = gl.createProgram();
   if (!prog) throw new WebGL2UnavailableError("Could not create program");
   gl.attachShader(prog, compile(gl, gl.VERTEX_SHADER, VERT));
-  gl.attachShader(prog, compile(gl, gl.FRAGMENT_SHADER, FRAG));
+  gl.attachShader(prog, compile(gl, gl.FRAGMENT_SHADER, animated ? FRAG_ANIMATED : FRAG));
   gl.bindAttribLocation(prog, 0, "aPos");
   gl.linkProgram(prog);
   if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
@@ -117,6 +129,7 @@ export function createRendererV2(canvas: HTMLCanvasElement): V2Renderer {
     gl.uniform1f(loc.uLightAngle, u.lightAngleRad);
     gl.uniform1i(loc.uStyle, u.style);
     gl.uniform1f(loc.uDither, u.dither);
+    if (animated) gl.uniform1f(loc.uTime, opts.time ?? 0);
 
     const strip = opts.strip ?? 0;
     if (strip > 0 && strip < h) {

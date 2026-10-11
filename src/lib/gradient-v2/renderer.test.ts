@@ -2,6 +2,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderWallpaperV2 } from "./export";
 import { createRendererV2, paintV2, WebGL2UnavailableError, type V2Renderer } from "./renderer";
+import { FRAG, VERT } from "./shader";
+import { FRAG_ANIMATED } from "./shader-animated";
 
 const RAMP = ["#0a0a10", "#3b1a63", "#e2553a", "#f7c890"];
 
@@ -114,6 +116,38 @@ describe("createRendererV2", () => {
     expect(() => r.draw({ colors: RAMP, style: "liquid", seed: 1 }, 5120, 2880)).toThrow(
       WebGL2UnavailableError,
     );
+  });
+});
+
+describe("createRendererV2 (animated)", () => {
+  const sources = (calls: { name: string; args: unknown[] }[]) =>
+    named(calls, "shaderSource").map((c) => c.args[1]);
+
+  it("compiles the signed-off shader by default and never sets a time", () => {
+    const { canvas, calls } = fakeGl();
+    createRendererV2(canvas).draw({ colors: RAMP, style: "liquid", seed: 1 }, 640, 360, {
+      time: 5,
+    });
+    expect(sources(calls)).toEqual([VERT, FRAG]);
+    expect(named(calls, "uniform1f").some((c) => c.args[0] === "uTime")).toBe(false);
+  });
+
+  it("compiles the drifting shader and passes the time to it", () => {
+    const { canvas, calls } = fakeGl();
+    const r = createRendererV2(canvas, { animated: true });
+    r.draw({ colors: RAMP, style: "liquid", seed: 1 }, 640, 360, { time: 12.5 });
+    expect(sources(calls)).toEqual([VERT, FRAG_ANIMATED]);
+    expect(named(calls, "uniform1f").find((c) => c.args[0] === "uTime")?.args[1]).toBe(12.5);
+  });
+
+  it("starts the drift at zero when no time is given", () => {
+    const { canvas, calls } = fakeGl();
+    createRendererV2(canvas, { animated: true }).draw(
+      { colors: RAMP, style: "liquid", seed: 1 },
+      640,
+      360,
+    );
+    expect(named(calls, "uniform1f").find((c) => c.args[0] === "uTime")?.args[1]).toBe(0);
   });
 });
 
