@@ -27,20 +27,19 @@ describe("SaveButton", () => {
     expect(useFavoritesStore.getState().items).toHaveLength(0);
   });
 
-  it.each([
+  const edits = [
     ["turning a color off", () => useConfigStore.getState().toggleColor(1)],
     ["density", () => useConfigStore.setState({ density: 0.9 })],
     ["engine", () => useConfigStore.setState({ engine: "v1" })],
-  ])(
-    "stops showing as saved after %s changes, and the next tap saves the variant",
-    async (_n, edit) => {
-      const user = userEvent.setup();
-      render(<SaveButton onMessage={vi.fn()} />);
-      await user.click(heart());
-      act(() => edit());
-      expect(heart().getAttribute("aria-pressed")).toBe("false");
-      await user.click(heart());
-      expect(useFavoritesStore.getState().items).toHaveLength(2);
-    },
-  );
+  ] as const;
+
+  it.each(edits)("un-saves when %s changes; the next tap saves the variant", async (_n, edit) => {
+    const user = userEvent.setup();
+    render(<SaveButton onMessage={vi.fn()} />);
+    await user.click(heart());
+    act(() => edit());
+    expect(heart().getAttribute("aria-pressed")).toBe("false");
+    await user.click(heart());
+    expect(useFavoritesStore.getState().items).toHaveLength(2);
+  });
 });
