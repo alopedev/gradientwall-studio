@@ -33,10 +33,7 @@ export function Hero() {
       <h1 className="absolute top-[clamp(80px,12vh,160px)] left-[clamp(24px,7vw,120px)] right-[clamp(24px,7vw,120px)] z-[3] m-0 font-sans font-bold uppercase tracking-[-0.045em] leading-[0.9] text-[color:var(--color-ink)] text-[clamp(56px,10vw,140px)]">
         <span className="block">Make your own</span>
         <span className="block">
-          gradient{" "}
-          <span className="font-serif italic font-normal normal-case tracking-tight">
-            wallpaper.
-          </span>
+          gradient <span className="serif-accent">wallpaper.</span>
         </span>
       </h1>
 

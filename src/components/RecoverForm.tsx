@@ -49,7 +49,7 @@ export function RecoverForm() {
             Recover download
           </span>
           <h1 className="display-head text-[clamp(36px,4.6vw,56px)] text-white leading-[1.05] mb-4">
-            Lost your <span className="font-serif italic text-white/70">link?</span>
+            Lost your <span className="serif-accent text-white/80">link?</span>
           </h1>
           <p className="font-sans text-[15px] text-white/70 leading-relaxed mb-8">
             Enter the email and order ID from your Lemon Squeezy receipt. If they match a real paid

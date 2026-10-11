@@ -12,20 +12,13 @@ describe("<Nav />", () => {
     expect(screen.getByText(/make a wallpaper/i)).toBeInTheDocument();
   });
 
-  it("renders the cinematic top-fade-to-transparent overlay (seen at the top of the page)", () => {
-    const { container } = render(<Nav />);
-    // The gradient overlay is a child div; assert it exists with the linear-gradient
-    const gradientLayer = container.querySelector('[style*="linear-gradient"]');
-    expect(gradientLayer).not.toBeNull();
-    expect(gradientLayer!.getAttribute("style")).toMatch(/rgba\(7\s*,\s*7\s*,\s*10\s*,\s*0\.85\)/);
-  });
-
-  it("applies backdrop-filter blur as a scroll-driven style (not a class toggle)", () => {
+  it("floats as a rounded glass pill with a scroll-driven backdrop blur (not a class toggle)", () => {
     const { container } = render(<Nav />);
     const nav = container.querySelector("nav")!;
+    const pill = nav.firstElementChild as HTMLElement;
+    expect(pill.className).toMatch(/rounded-full/);
     // Motion writes the MotionValue-backed style to the DOM inline. The initial
-    // value at scrollY=0 is blur(6px) — smoothly interpolating up to blur(18px)
-    // at scrollY=80.
-    expect(nav.style.backdropFilter).toMatch(/blur\(/);
+    // value at scrollY=0 is blur(14px), rising to blur(24px) at scrollY=80.
+    expect(pill.style.backdropFilter).toMatch(/blur\(/);
   });
 });

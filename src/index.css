@@ -369,6 +369,16 @@ body::before {
 
 /* Two-line brutalist display headline (Studio / Gallery / Footer).
    Callers set their own size via a `text-[clamp(...)]` utility. */
+/* The serif italic second voice of a headline. Headlines using display-head are
+   uppercase bold sans; this puts the accent back to normal-case regular serif. */
+@utility serif-accent {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: -0.02em;
+}
+
 @utility display-head {
   font-family: var(--font-sans);
   font-weight: 700;

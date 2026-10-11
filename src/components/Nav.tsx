@@ -21,76 +21,66 @@ function usePacksInView(): boolean {
 export function Nav() {
   const packsInView = usePacksInView();
   const { scrollY } = useScroll();
-  // Smoothly interpolate between the two nav moods across a 0→80px range
-  // instead of a binary flip at 24px. Continuous change reads as craftsmanship;
-  // a hard flip feels abrupt.
-  const bgOpacity = useTransform(scrollY, [0, 80], [0, 0.55], { clamp: true });
-  const blurPx = useTransform(scrollY, [0, 80], [6, 18], { clamp: true });
-  const borderOpacity = useTransform(scrollY, [0, 80], [0, 0.08], { clamp: true });
-  const shadowOpacity = useTransform(scrollY, [40, 120], [0, 0.25], { clamp: true });
-  // At the very top, layer the cinematic dark-to-transparent gradient on top
-  // of the glass so the hero video peeks through. Fades out as you scroll.
-  const gradientOpacity = useTransform(scrollY, [0, 40], [1, 0], { clamp: true });
+  // The bar is a floating glass pill: it keeps its shape and border at the top
+  // of the page and gets denser as you scroll, so the content passing under it
+  // stays legible. Interpolating across 0→80px reads as craftsmanship; a hard
+  // flip at one offset feels abrupt.
+  const bgOpacity = useTransform(scrollY, [0, 80], [0.38, 0.72], { clamp: true });
+  const blurPx = useTransform(scrollY, [0, 80], [14, 24], { clamp: true });
+  const shadowOpacity = useTransform(scrollY, [0, 120], [0.18, 0.4], { clamp: true });
 
-  const bg = useMotionTemplate`rgba(7, 7, 10, ${bgOpacity})`;
-  const backdrop = useMotionTemplate`blur(${blurPx}px) saturate(1.5)`;
-  const borderCol = useMotionTemplate`rgba(255, 255, 255, ${borderOpacity})`;
-  const shadow = useMotionTemplate`0 8px 24px rgba(0, 0, 0, ${shadowOpacity})`;
+  const bg = useMotionTemplate`rgba(14, 14, 18, ${bgOpacity})`;
+  const backdrop = useMotionTemplate`blur(${blurPx}px) saturate(1.6)`;
+  const shadow = useMotionTemplate`inset 0 0 0 1px rgba(255, 255, 255, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 12px 32px rgba(0, 0, 0, ${shadowOpacity})`;
 
   return (
-    <m.nav
-      style={{
-        paddingTop: "max(20px, calc(env(safe-area-inset-top) + 12px))",
-        backgroundColor: bg,
-        backdropFilter: backdrop,
-        WebkitBackdropFilter: backdrop,
-        borderBottomColor: borderCol,
-        boxShadow: shadow,
-      }}
-      className="fixed inset-x-0 top-0 z-50 flex items-center justify-between px-5 md:px-9 pb-5 border-b"
+    <nav
+      aria-label="Main"
+      style={{ paddingTop: "max(12px, env(safe-area-inset-top))" }}
+      className="pointer-events-none fixed inset-x-0 top-0 z-50 px-3 md:px-6"
     >
       <m.div
-        aria-hidden
         style={{
-          opacity: gradientOpacity,
-          background:
-            "linear-gradient(to bottom, rgba(7,7,10,0.85) 0%, rgba(7,7,10,0.35) 60%, rgba(7,7,10,0) 100%)",
+          backgroundColor: bg,
+          backdropFilter: backdrop,
+          WebkitBackdropFilter: backdrop,
+          boxShadow: shadow,
         }}
-        className="absolute inset-0 pointer-events-none"
-      />
-
-      <a
-        href="/"
-        className="relative z-10 flex min-h-11 items-center gap-2.5 font-sans font-medium uppercase tracking-[0.12em] text-[13px] text-white focus-ring"
+        className="pointer-events-auto mx-auto flex max-w-[1100px] items-center justify-between rounded-full py-1.5 pl-4 pr-1.5 md:pl-6"
       >
-        <span
-          className="h-[22px] w-[22px] rounded-full"
-          style={{
-            background:
-              "conic-gradient(from 210deg, #ff4d6d, #ffb14d, #ffe14d, #4dffb1, #4d7dff, #b14dff, #ff4d6d)",
-            filter: "blur(0.4px)",
-            boxShadow: "0 0 24px rgba(255, 180, 120, 0.35)",
-          }}
-          aria-hidden
-        />
-        <span>
-          GradientWall<span className="font-light text-white/60 ml-0.5">*</span>
-        </span>
-      </a>
-
-      <div className="relative z-10 flex items-center gap-2 md:gap-4">
-        <NavLink href="/#packs" active={packsInView}>
-          Packs
-        </NavLink>
         <a
-          href="/#studio"
-          className={`${glassButton({ variant: "primary" })} min-h-10 px-4 text-[0.82rem]`}
+          href="/"
+          className="relative z-10 flex min-h-11 items-center gap-2.5 font-sans font-medium uppercase tracking-[0.12em] text-[13px] text-white focus-ring"
         >
-          <span className="md:hidden">Make one →</span>
-          <span className="hidden md:inline">Make a wallpaper →</span>
+          <span
+            className="h-[22px] w-[22px] rounded-full"
+            style={{
+              background:
+                "conic-gradient(from 210deg, #ff4d6d, #ffb14d, #ffe14d, #4dffb1, #4d7dff, #b14dff, #ff4d6d)",
+              filter: "blur(0.4px)",
+              boxShadow: "0 0 24px rgba(255, 180, 120, 0.35)",
+            }}
+            aria-hidden
+          />
+          <span>
+            GradientWall<span className="font-light text-white/60 ml-0.5">*</span>
+          </span>
         </a>
-      </div>
-    </m.nav>
+
+        <div className="relative z-10 flex items-center gap-1 md:gap-3">
+          <NavLink href="/#packs" active={packsInView}>
+            Packs
+          </NavLink>
+          <a
+            href="/#studio"
+            className={`${glassButton({ variant: "primary" })} rounded-full! min-h-11 px-5 text-[0.82rem]`}
+          >
+            <span className="md:hidden">Make one →</span>
+            <span className="hidden md:inline">Make a wallpaper →</span>
+          </a>
+        </div>
+      </m.div>
+    </nav>
   );
 }
 
