@@ -13,3 +13,4 @@ export {
   type RecentColorsState,
 } from "./useRecentColorsStore";
 export * from "./coordinator";
+export { LOOK_HISTORY_LIMIT, useLookHistoryStore } from "./useLookHistoryStore";

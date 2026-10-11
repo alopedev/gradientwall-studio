@@ -3,7 +3,7 @@ import { useId } from "react";
 import { GlassButton } from "@/components/ui/GlassButton";
 import { GlassSlider } from "@/components/ui/shadcn/glass-slider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/shadcn/popover";
-import { useConfigStore, useRenderParams } from "@/store";
+import { remixWallpaper, useConfigStore, useRenderParams } from "@/store";
 import { useWallpaperEngine } from "../engine";
 import type { AdjustmentSpec } from "../engine";
 import { HarmonicWheel } from "../HarmonicWheel";
@@ -38,7 +38,6 @@ function AdjustSlider({ spec }: { spec: AdjustmentSpec }) {
 export function AdjustPanel({ id }: { id: string }) {
   const engine = useWallpaperEngine();
   const adjustments = engine.adjustmentsFor(useRenderParams());
-  const applyRemix = useConfigStore((s) => s.applyRemix);
   const requestReveal = useRequestReveal();
   const headingId = useId();
 
@@ -70,7 +69,7 @@ export function AdjustPanel({ id }: { id: string }) {
           aria-keyshortcuts="R"
           onClick={(e) => {
             requestReveal(e.currentTarget);
-            applyRemix();
+            remixWallpaper();
           }}
         >
           <ShuffleIcon className="size-[15px]" aria-hidden />

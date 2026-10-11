@@ -68,6 +68,8 @@ export interface WallpaperEngine {
     params: RenderParams,
     size: { w: number; h: number },
   ) => void;
+  /** File format a download will have in this browser ("WebP", or "JPEG" without a WebP encoder). */
+  exportFormat: () => string;
   /** Full-resolution render + encode + save. */
   exportWallpaper: (
     params: RenderParams,

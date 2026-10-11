@@ -25,6 +25,15 @@ const params: RenderParams = {
 describe("canvas2d engine", () => {
   beforeEach(() => composeWallpaper.mockClear());
 
+  it("tells the Download button which format the file will have (WebP, or JPEG without a WebP encoder)", () => {
+    const toDataURL = vi.spyOn(HTMLCanvasElement.prototype, "toDataURL");
+    toDataURL.mockImplementation(((type?: string) => `data:${type};base64,AA`) as never);
+    expect(createCanvas2DEngine(vi.fn()).exportFormat()).toBe("WebP");
+    toDataURL.mockImplementation((() => "data:image/png;base64,AA") as never);
+    expect(createCanvas2DEngine(vi.fn()).exportFormat()).toBe("JPEG");
+    toDataURL.mockRestore();
+  });
+
   it("offers the three styles the dock shows", () => {
     const { styles } = createCanvas2DEngine(vi.fn());
     expect(styles.map((s) => s.id)).toEqual(["liquid", "aurora", "mesh"]);

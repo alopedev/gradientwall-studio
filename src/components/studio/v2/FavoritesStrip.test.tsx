@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { Colors4 } from "@/lib/palettes";
 import { useConfigStore } from "@/store";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
+import { useLookHistoryStore } from "@/store/useLookHistoryStore";
 import { FavoritesStrip } from "./FavoritesStrip";
 
 const baseConfig = (seed: number, colors: Colors4) => ({
@@ -58,6 +59,20 @@ describe("FavoritesStrip", () => {
     await user.click(screen.getByLabelText(/load favorite wallpaper/i));
     expect(useConfigStore.getState().colors).toEqual(targetColors);
     expect(useConfigStore.getState().seed).toBe(999);
+  });
+
+  it("loading a saved wallpaper leaves the one on stage a step back, so ‹ can return to it", async () => {
+    act(() => {
+      useLookHistoryStore.getState().clear();
+      useFavoritesStore
+        .getState()
+        .pin(baseConfig(999, ["#abcdef", "#fedcba", "#012345", "#543210"]));
+    });
+    const onStage = useConfigStore.getState().seed;
+    const user = userEvent.setup();
+    render(<FavoritesStrip />);
+    await user.click(screen.getByLabelText(/load favorite wallpaper/i));
+    expect(useLookHistoryStore.getState().past.map((l) => l.seed)).toEqual([onStage]);
   });
 
   it("clicking the X removes the item from favorites", async () => {

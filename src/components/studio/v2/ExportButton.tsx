@@ -19,6 +19,9 @@ export function ExportButton({ onMessage }: Props) {
   const engine = useWallpaperEngine();
   const device = useConfigStore((s) => s.device);
   const params = useRenderParams();
+  const sizeLabel = DEVICE_SIZES[device].label;
+  const format = engine.exportFormat();
+  const spec = `${sizeLabel}, ${format}`;
   const [phase, setPhase] = useState<Phase>("idle");
   const [progress, setProgress] = useState(0);
   const resetTimer = useRef<ReturnType<typeof setTimeout>>();
@@ -49,9 +52,8 @@ export function ExportButton({ onMessage }: Props) {
     <GlassButton
       onClick={run}
       aria-busy={phase === "busy"}
-      aria-label={`Download wallpaper, ${DEVICE_SIZES[device].label}`}
-      data-tip={DEVICE_SIZES[device].label}
-      className="gws-tip relative min-w-[168px] overflow-hidden tabular-nums @max-[760px]:min-w-0"
+      aria-label={`Download wallpaper, ${spec}`}
+      className="relative min-w-[176px] overflow-hidden tabular-nums @max-[760px]:min-w-0"
     >
       {phase === "busy" && (
         <m.span
@@ -73,10 +75,15 @@ export function ExportButton({ onMessage }: Props) {
         {phase === "done" && (
           <Check className="size-[18px] text-good" strokeWidth={2.4} aria-hidden />
         )}
-        <span>
-          {phase === "idle" && "Download"}
-          {phase === "busy" && `Rendering ${Math.round(progress * 100)}%`}
-          {phase === "done" && "Downloaded"}
+        <span className="grid text-left leading-tight">
+          <span>
+            {phase === "idle" && "Download"}
+            {phase === "busy" && `Rendering ${Math.round(progress * 100)}%`}
+            {phase === "done" && "Downloaded"}
+          </span>
+          <span className="text-[0.64rem] font-normal tracking-[0.04em] text-white/60">
+            {`${sizeLabel} · ${format}`}
+          </span>
         </span>
       </span>
     </GlassButton>

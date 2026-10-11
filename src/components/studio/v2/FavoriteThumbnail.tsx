@@ -2,7 +2,8 @@ import { X } from "lucide-react";
 import { Reorder, useDragControls } from "motion/react";
 import { useEffect, useMemo, useRef } from "react";
 import { fromFavorite, isSameLook, toRenderParams } from "@/lib/look";
-import { useConfigStore, useLook } from "@/store/useConfigStore";
+import { loadLook } from "@/store/coordinator";
+import { useLook } from "@/store/useConfigStore";
 import { type FavoriteItem, useFavoritesStore } from "@/store/useFavoritesStore";
 import { useWallpaperEngine } from "../engine";
 import { useRequestReveal } from "./reveal";
@@ -39,7 +40,7 @@ export function FavoriteThumbnail({ item }: Props) {
 
   const load = (from: Element) => {
     requestReveal(from);
-    useConfigStore.setState(look);
+    loadLook(look);
   };
 
   return (
