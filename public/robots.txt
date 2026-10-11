@@ -7,4 +7,7 @@ Disallow: /.netlify/
 # /recover is a tool, not content — no value indexing it.
 Disallow: /recover
 
+# Post-checkout page: per-order, nothing to index.
+Disallow: /packs/*/success
+
 Sitemap: https://gradientwall.com/sitemap.xml

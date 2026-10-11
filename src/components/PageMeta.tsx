@@ -1,6 +1,5 @@
 import { useEffect } from "react";
-
-const SITE_ORIGIN = "https://gradientwall.com";
+import { absoluteUrl, DEFAULT_OG_IMAGE, fullTitle } from "@/lib/seo/pages";
 
 export interface PageMetaProps {
   /** Full page title (without site suffix; the suffix is appended automatically). */
@@ -41,16 +40,12 @@ export function PageMeta({
   noindex = false,
 }: PageMetaProps) {
   useEffect(() => {
-    const fullTitle = title.includes("GradientWall") ? title : `${title} — GradientWall`;
-    const canonical = `${SITE_ORIGIN}${path}`;
-    const image = ogImage
-      ? ogImage.startsWith("http")
-        ? ogImage
-        : `${SITE_ORIGIN}${ogImage}`
-      : `${SITE_ORIGIN}/og-default.jpg`;
+    const pageTitle = fullTitle(title);
+    const canonical = absoluteUrl(path);
+    const image = absoluteUrl(ogImage ?? DEFAULT_OG_IMAGE);
 
     const previousTitle = document.title;
-    document.title = fullTitle;
+    document.title = pageTitle;
 
     const apply: Array<() => void> = [];
 
@@ -58,17 +53,21 @@ export function PageMeta({
     apply.push(setLink("canonical", canonical));
     apply.push(setMeta("name", "robots", noindex ? "noindex,nofollow" : "index,follow"));
 
-    apply.push(setMeta("property", "og:title", fullTitle));
+    apply.push(setMeta("property", "og:title", pageTitle));
     apply.push(setMeta("property", "og:description", description));
     apply.push(setMeta("property", "og:url", canonical));
     apply.push(setMeta("property", "og:type", ogType));
     apply.push(setMeta("property", "og:image", image));
     if (ogImageAlt) apply.push(setMeta("property", "og:image:alt", ogImageAlt));
 
-    apply.push(setMeta("name", "twitter:title", fullTitle));
+    apply.push(setMeta("name", "twitter:title", pageTitle));
     apply.push(setMeta("name", "twitter:description", description));
     apply.push(setMeta("name", "twitter:image", image));
     if (ogImageAlt) apply.push(setMeta("name", "twitter:image:alt", ogImageAlt));
+
+    // The prerendered HTML already carries this page's JSON-LD; drop it so
+    // the runtime copy below is the only one once React has mounted.
+    for (const el of document.head.querySelectorAll("script[data-prerender]")) el.remove();
 
     let jsonLdEl: HTMLScriptElement | null = null;
     if (jsonLd) {
