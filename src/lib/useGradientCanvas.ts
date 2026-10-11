@@ -1,4 +1,5 @@
 import { useEffect, useRef, type DependencyList, type RefObject } from "react";
+import { DEFAULT_CONTRAST, DEFAULT_VIBRANCE } from "./defaults";
 import { pixelKey } from "./fitted-canvas";
 import { useFittedCanvas } from "./useFittedCanvas";
 import type { RenderOpts } from "./gradient";
@@ -86,8 +87,8 @@ export function useFittedGradientCanvas(
           lightAngle: opts.lightAngle,
           density: opts.density,
           // Grading is applied via style.filter in `sync`, not by the painter.
-          contrast: 1,
-          vibrance: 1,
+          contrast: DEFAULT_CONTRAST,
+          vibrance: DEFAULT_VIBRANCE,
         }),
       sync: (canvas) => {
         const filter = gradingCssFilter(opts.contrast, opts.vibrance);

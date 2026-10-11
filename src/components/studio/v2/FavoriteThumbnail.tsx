@@ -1,8 +1,8 @@
 import { X } from "lucide-react";
 import { Reorder, useDragControls } from "motion/react";
-import { useEffect, useRef } from "react";
-import { activeColors, ALL_ACTIVE, DEFAULT_LIGHT_ANGLE, engineOf } from "@/lib/palettes";
-import { useConfigStore } from "@/store/useConfigStore";
+import { useEffect, useMemo, useRef } from "react";
+import { fromFavorite, isSameLook, toRenderParams } from "@/lib/look";
+import { useConfigStore, useLook } from "@/store/useConfigStore";
 import { type FavoriteItem, useFavoritesStore } from "@/store/useFavoritesStore";
 import { useWallpaperEngine } from "../engine";
 import { useRequestReveal } from "./reveal";
@@ -28,49 +28,18 @@ export function FavoriteThumbnail({ item }: Props) {
   const requestReveal = useRequestReveal();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { config } = item;
-  const active = config.active ?? ALL_ACTIVE;
-
-  const currentSeed = useConfigStore((s) => s.seed);
-  const currentColors = useConfigStore((s) => s.colors);
-  const isCurrent =
-    currentSeed === config.seed && currentColors.join(",") === config.colors.join(",");
+  const look = useMemo(() => fromFavorite(config), [config]);
+  const isCurrent = isSameLook(useLook(), look);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    engine.paintThumbnail(
-      canvas,
-      {
-        engine: engineOf(config),
-        colors: activeColors(config.colors, config.active ?? ALL_ACTIVE),
-        style: config.style,
-        blur: config.blur,
-        grain: config.grain,
-        seed: config.seed,
-        lightAngle: config.lightAngle,
-        density: config.density,
-        contrast: config.contrast,
-        vibrance: config.vibrance,
-      },
-      { w: THUMB_W * SCALE, h: THUMB_H * SCALE },
-    );
-  }, [engine, config]);
+    engine.paintThumbnail(canvas, toRenderParams(look), { w: THUMB_W * SCALE, h: THUMB_H * SCALE });
+  }, [engine, look]);
 
   const load = (from: Element) => {
     requestReveal(from);
-    useConfigStore.setState({
-      engine: engineOf(config),
-      colors: [...config.colors] as FavoriteItem["config"]["colors"],
-      active: [...active] as NonNullable<FavoriteItem["config"]["active"]>,
-      style: config.style,
-      blur: config.blur,
-      grain: config.grain,
-      seed: config.seed,
-      lightAngle: config.lightAngle ?? DEFAULT_LIGHT_ANGLE,
-      density: config.density ?? 0.5,
-      contrast: config.contrast ?? 1,
-      vibrance: config.vibrance ?? 1,
-    });
+    useConfigStore.setState(look);
   };
 
   return (

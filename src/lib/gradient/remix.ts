@@ -1,10 +1,8 @@
 import { clamp, wrapAngle } from "../color";
+import { DEFAULT_DENSITY, DEFAULT_LIGHT_ANGLE } from "../defaults";
 import type { GradientConfig } from "../palettes";
 import { pickCuratedSeedExcluding } from "./curated-seeds";
 import {
-  CURATED_CONTRAST,
-  CURATED_GRAIN,
-  CURATED_VIBRANCE,
   SURPRISE_DENSITY_MAX,
   SURPRISE_DENSITY_MIN,
   SURPRISE_LIGHT_MAX,
@@ -18,8 +16,8 @@ import {
  * el style) pero quiere ver otra cara de la misma idea. Mantenemos lo que
  * tiene sentido conservar y variamos solo lo que cambia la composición:
  *
- * - **Conservados**: `colors`, `style`, defaults curados de grain / contrast /
- *   vibrance. El feel mood no debe romperse.
+ * - **Conservados**: `colors`, `style`, `grain`, `contrast` y `vibrance`. Son
+ *   ajustes del usuario (panel Ajustar): remix no los toca.
  * - **Variado**: `seed` (cualquier curado distinto al actual),
  *   `lightAngle` ±30° (gira la luz pero no la voltea),
  *   `density` ±0.1 (más o menos capas, sin saltos bruscos),
@@ -59,14 +57,14 @@ export function generateRemix(
 ): GradientConfig {
   const seed = pickCuratedSeedExcluding(current.seed, rng);
 
-  const baseLight = current.lightAngle ?? 135;
+  const baseLight = current.lightAngle ?? DEFAULT_LIGHT_ANGLE;
   const nextLight = wrapAngle(jitter(baseLight, REMIX_LIGHT_DELTA, rng));
   // Re-clampea al rango operativo (la suma puede dejar fuera si baseLight ya
   // estaba en el borde). Asegura que nunca devolvemos algo que generateSurprise
   // no produciría.
   const lightAngle = Math.round(clamp(nextLight, SURPRISE_LIGHT_MIN, SURPRISE_LIGHT_MAX));
 
-  const baseDensity = current.density ?? 0.5;
+  const baseDensity = current.density ?? DEFAULT_DENSITY;
   const density = clamp(
     jitter(baseDensity, REMIX_DENSITY_DELTA, rng),
     SURPRISE_DENSITY_MIN,
@@ -80,11 +78,11 @@ export function generateRemix(
     colors: current.colors,
     style: current.style,
     blur,
-    grain: CURATED_GRAIN,
+    grain: current.grain,
     seed,
     lightAngle,
     density,
-    contrast: CURATED_CONTRAST,
-    vibrance: CURATED_VIBRANCE,
+    contrast: current.contrast,
+    vibrance: current.vibrance,
   };
 }

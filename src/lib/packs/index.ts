@@ -1,7 +1,7 @@
 import packsData from "@/data/packs.json";
-import { PACK_STYLES, type Pack, type PackStyle } from "./types";
+import { PACK_STYLES, type Pack, type PackCover, type PackStyle } from "./types";
 
-export type { Pack, PackCover, PackStyle } from "./types";
+export type { Pack, PackCover, PackImage, PackStyle } from "./types";
 export { PACK_STYLES } from "./types";
 
 // JSON imports lose type-narrowness on the discriminated union — cast at the
@@ -42,4 +42,32 @@ export function filterPacks(style: PackStyle | null | undefined): Pack[] {
 export function availableStyles(): PackStyle[] {
   const present = new Set(PACKS.map((p) => p.style));
   return PACK_STYLES.filter((s) => present.has(s));
+}
+
+/** Box used for covers that don't declare a size (gradients, images without width/height). */
+const DEFAULT_ASPECT = 3 / 4;
+
+/** Width ÷ height of what the cover's primary file shows. */
+export function coverAspect(cover: PackCover): number {
+  if (cover.kind === "image" && cover.width && cover.height) return cover.width / cover.height;
+  return DEFAULT_ASPECT;
+}
+
+/**
+ * Width ÷ height to reserve for a piece in the pack page grid. A piece that
+ * ships a desktop render is shown by that landscape render.
+ */
+export function pieceAspect(piece: PackCover): number {
+  if (piece.kind === "image" && piece.desktop?.width && piece.desktop.height) {
+    return piece.desktop.width / piece.desktop.height;
+  }
+  return coverAspect(piece);
+}
+
+/** "6 wallpapers · phone + desktop" — what a buyer gets, derived from the manifest. */
+export function describeContents(pack: Pick<Pack, "previews">): string {
+  const n = pack.previews.length;
+  const noun = n === 1 ? "wallpaper" : "wallpapers";
+  const paired = pack.previews.some((p) => p.kind === "image" && p.desktop);
+  return paired ? `${n} ${noun} · phone + desktop` : `${n} ${noun}`;
 }

@@ -1,6 +1,13 @@
 import { composeWallpaper, paintWallpaper } from "@/lib/download/compose";
 import { encodeWithFallback, type EncodeFormat } from "@/lib/download/encode";
 import { browserDownloadSink, type Sink } from "@/lib/download/sink";
+import {
+  DEFAULT_CONTRAST,
+  DEFAULT_LIGHT_ANGLE,
+  STUDIO_BLUR,
+  STUDIO_VIBRANCE,
+  V1_DEFAULT_GRAIN,
+} from "@/lib/defaults";
 import { seedToHex } from "@/lib/gradient";
 import { DEVICE_SIZES } from "@/lib/palettes";
 import { useFittedGradientCanvas } from "@/lib/useGradientCanvas";
@@ -42,7 +49,7 @@ export function createCanvas2DEngine(sink: Sink = browserDownloadSink): Wallpape
         min: 10,
         max: 120,
         step: 1,
-        default: 48,
+        default: STUDIO_BLUR,
         format: (v) => `${Math.round(v)}`,
       },
       {
@@ -51,7 +58,7 @@ export function createCanvas2DEngine(sink: Sink = browserDownloadSink): Wallpape
         min: 0,
         max: 100,
         step: 1,
-        default: 32,
+        default: V1_DEFAULT_GRAIN,
         format: (v) => `${Math.round(v)}%`,
       },
       {
@@ -60,7 +67,7 @@ export function createCanvas2DEngine(sink: Sink = browserDownloadSink): Wallpape
         min: 0,
         max: 360,
         step: 1,
-        default: 135,
+        default: DEFAULT_LIGHT_ANGLE,
         format: (v) => `${Math.round(v)}°`,
       },
       {
@@ -69,7 +76,7 @@ export function createCanvas2DEngine(sink: Sink = browserDownloadSink): Wallpape
         min: 0.5,
         max: 1.5,
         step: 0.01,
-        default: 1,
+        default: DEFAULT_CONTRAST,
         format: (v) => v.toFixed(2),
       },
       {
@@ -78,7 +85,7 @@ export function createCanvas2DEngine(sink: Sink = browserDownloadSink): Wallpape
         min: 0.5,
         max: 1.5,
         step: 0.01,
-        default: 1.05,
+        default: STUDIO_VIBRANCE,
         format: (v) => v.toFixed(2),
       },
     ],

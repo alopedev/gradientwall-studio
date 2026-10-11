@@ -1,7 +1,16 @@
 import type { Colors4, Style } from "../palettes";
 
-export const PACK_STYLES = ["gradient", "acrylic", "fluted", "photo"] as const;
+export const PACK_STYLES = ["gradient", "acrylic", "fluted", "photo", "bauhaus"] as const;
 export type PackStyle = (typeof PACK_STYLES)[number];
+
+/** One image file. Sizes are optional, but give them whenever known: layouts use them to reserve the right box. */
+export interface PackImage {
+  url: string;
+  alt: string;
+  /** Pixel size of the file. Only the width ÷ height ratio matters to layout. */
+  width?: number;
+  height?: number;
+}
 
 /**
  * A pack cover or preview can be one of two kinds:
@@ -11,7 +20,10 @@ export type PackStyle = (typeof PACK_STYLES)[number];
  *    by switching the discriminator.
  *  - `image` — points at an external URL (R2 in production, /assets/ in dev).
  *    Used for non-gradient packs (acrylic, fluted, photo) and the eventual
- *    high-fidelity preview imagery.
+ *    high-fidelity preview imagery. The top-level file is the primary render
+ *    (a phone piece for composed packs like Dessau). `desktop`, when present,
+ *    is the landscape render of the same piece — composed separately, not a
+ *    crop.
  */
 export type PackCover =
   | {
@@ -22,11 +34,7 @@ export type PackCover =
       grain: number;
       seed: number;
     }
-  | {
-      kind: "image";
-      url: string;
-      alt: string;
-    };
+  | ({ kind: "image"; desktop?: PackImage } & PackImage);
 
 export interface Pack {
   /** URL slug, e.g. `midnight-velvet`. Stable identifier — never rename. */
@@ -41,9 +49,9 @@ export interface Pack {
   tagline: string;
   /** Cover used on cards and at the top of the pack page. */
   cover: PackCover;
-  /** Individual wallpaper previews. Target = 10 in production. */
+  /** Individual wallpaper pieces, in display order. Any count ≥ 1; a phone + desktop pair is one piece. */
   previews: PackCover[];
-  /** Price in EUR. Flat 4.99 for the launch catalog. */
+  /** Price in EUR. */
   priceEur: number;
   /**
    * Lemon Squeezy variant ID. Optional during pre-checkout phases — once

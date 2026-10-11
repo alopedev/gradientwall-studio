@@ -110,12 +110,14 @@ export interface GradientConfig {
   engine?: Engine;
 }
 
-/** Default light angle: top-right painterly convention. */
-export const DEFAULT_LIGHT_ANGLE = 135;
-
-/** Default color-grading values — identity (no visible effect). */
-export const DEFAULT_CONTRAST = 1;
-export const DEFAULT_VIBRANCE = 1;
+// Fallback values for absent fields live in `defaults.ts`; re-exported here
+// because `palettes.ts` is where render-input types are imported from.
+export {
+  DEFAULT_CONTRAST,
+  DEFAULT_DENSITY,
+  DEFAULT_LIGHT_ANGLE,
+  DEFAULT_VIBRANCE,
+} from "./defaults";
 
 /**
  * Variable-length color ramp — `Colors4` after the user's per-slot active
@@ -155,9 +157,6 @@ export interface RenderParams {
   /** Renderer to use. Absent = v1. */
   engine?: Engine;
 }
-
-/** Default density: midpoint reproduces the pre-density layer counts. */
-export const DEFAULT_DENSITY = 0.5;
 
 export interface Palette {
   name: string;

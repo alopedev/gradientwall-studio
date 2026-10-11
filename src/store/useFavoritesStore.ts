@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import type { FavoriteConfig } from "@/lib/look";
 import type { ActiveMask, GradientConfig } from "@/lib/palettes";
 
 /**
@@ -36,14 +37,14 @@ type LegacyHistoryItem = GradientConfig & { active?: ActiveMask };
  */
 export interface FavoriteItem {
   id: string;
-  config: GradientConfig & { active?: ActiveMask };
+  config: FavoriteConfig;
   createdAt: number;
 }
 
 export interface FavoritesState {
   items: FavoriteItem[];
   /** Pinea la config actual al inicio de la lista. Cap 24 con drop FIFO. */
-  pin: (config: GradientConfig & { active?: ActiveMask }) => void;
+  pin: (config: FavoriteConfig) => void;
   /** Elimina un item por id. No-op si el id no existe. */
   unpin: (id: string) => void;
   /** Reordena la lista al orden dado. Ignora ids desconocidos. */
