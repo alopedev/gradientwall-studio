@@ -28,7 +28,7 @@ export function PacksSection() {
             <SplitWords text="Wallpaper packs." className="block text-white" />
             <SplitWords
               text="Chosen by hand."
-              className="block text-white/75 font-serif italic"
+              className="block text-white serif-accent"
               delayChildren={0.2}
             />
           </h2>

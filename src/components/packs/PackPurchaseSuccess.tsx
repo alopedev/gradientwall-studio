@@ -29,7 +29,7 @@ export function PackPurchaseSuccess() {
             Order confirmed
           </span>
           <h1 className="display-head text-[clamp(40px,5.5vw,68px)] text-white leading-[1] mb-5">
-            Thanks. <span className="font-serif italic text-white/70">Check your inbox.</span>
+            Thanks. <span className="serif-accent text-white/80">Check your inbox.</span>
           </h1>
           <p className="font-sans text-[16px] text-white/70 leading-relaxed mb-8">
             {pack ? (
