@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { PackPage } from "./PackPage";
@@ -29,6 +29,27 @@ describe("PackPage buying", () => {
     const link = screen.getByRole("link", { name: /get it on etsy/i });
     expect(link.getAttribute("href")).toMatch(/^https:\/\/www\.etsy\.com\/listing\/\d+$/);
     expect(link.getAttribute("rel")).toContain("noopener");
+  });
+
+  it("keeps a second buy link in a bar once the main button is out of view", () => {
+    class OffScreen {
+      constructor(private cb: IntersectionObserverCallback) {}
+      observe() {
+        this.cb([{ isIntersecting: false } as IntersectionObserverEntry], this as never);
+      }
+      disconnect() {}
+      unobserve() {}
+      takeRecords() {
+        return [];
+      }
+    }
+    vi.stubGlobal("IntersectionObserver", OffScreen);
+    try {
+      renderPack("dessau");
+      expect(screen.getAllByRole("link", { name: /get it on etsy/i })).toHaveLength(2);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   it("declares that the artwork is AI-assisted", () => {

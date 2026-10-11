@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { m } from "motion/react";
 import {
@@ -14,6 +14,7 @@ import { AI_DISCLOSURE } from "@/lib/copy";
 import { Nav } from "../Nav";
 import { Footer } from "../Footer";
 import { Framed } from "../ui/Framed";
+import { glassButton } from "../ui/GlassButton";
 import { MagneticButton } from "../ui/MagneticButton";
 import { PageMeta } from "../PageMeta";
 import { buildPackPage } from "@/lib/seo/pages";
@@ -27,6 +28,8 @@ export function PackPage() {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const eligibility = pack ? canPurchasePack(pack) : { kind: "missing-variant" as const };
   const buyEnabled = eligibility.kind === "buyable";
+  const ctaRef = useRef<HTMLDivElement>(null);
+  const ctaVisible = useInView(ctaRef);
   const landscapeGrid = pack ? pack.previews.some((p) => pieceAspect(p) > 1) : false;
 
   if (!pack) {
@@ -128,7 +131,7 @@ export function PackPage() {
                 </div>
               </div>
 
-              <div className="mt-8 flex items-center gap-3">
+              <div ref={ctaRef} className="mt-8 flex items-center gap-3">
                 {buyEnabled ? (
                   <MagneticButton>
                     <button
@@ -147,7 +150,7 @@ export function PackPage() {
                           setCheckoutLoading(false);
                         }
                       }}
-                      className={`${BUY_BUTTON} hover:bg-white cursor-pointer ${
+                      className={`${BUY_BUTTON} cursor-pointer ${
                         checkoutLoading ? "opacity-80 cursor-wait" : ""
                       }`}
                     >
@@ -160,7 +163,7 @@ export function PackPage() {
                       href={pack.etsyUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`${BUY_BUTTON} hover:bg-white`}
+                      className={BUY_BUTTON}
                     >
                       Get it on Etsy · €{pack.priceEur.toFixed(2)} <span aria-hidden>↗</span>
                     </a>
@@ -206,14 +209,63 @@ export function PackPage() {
           </div>
         </section>
       </main>
+      {!ctaVisible && (buyEnabled || pack.etsyUrl) && (
+        <StickyBuyBar
+          price={pack.priceEur}
+          href={buyEnabled ? undefined : pack.etsyUrl}
+          onCheckout={
+            buyEnabled && eligibility.kind === "buyable"
+              ? () => openCheckout({ variantId: eligibility.variantId, packSlug: pack.slug })
+              : undefined
+          }
+        />
+      )}
       <Footer />
     </>
   );
 }
 
+/** True while the element is on screen. Starts true so the bar doesn't flash in on load. */
+function useInView(ref: React.RefObject<Element>): boolean {
+  const [visible, setVisible] = useState(true);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting));
+    io.observe(el);
+    return () => io.disconnect();
+  }, [ref]);
+  return visible;
+}
+
+/** Phone-only bar that keeps the price and the buy action in reach once the main button scrolls away. */
+function StickyBuyBar({
+  price,
+  href,
+  onCheckout,
+}: {
+  price: number;
+  href?: string;
+  onCheckout?: () => void;
+}) {
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-4 border-t border-white/10 bg-[rgba(10,10,13,0.88)] px-5 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl lg:hidden">
+      <span className="display-head text-[28px] leading-none text-white">€{price.toFixed(2)}</span>
+      {href ? (
+        <a href={href} target="_blank" rel="noopener noreferrer" className={BUY_BUTTON}>
+          Get it on Etsy <span aria-hidden>↗</span>
+        </a>
+      ) : (
+        <button type="button" onClick={onCheckout} className={BUY_BUTTON}>
+          Buy
+        </button>
+      )}
+    </div>
+  );
+}
+
 // Landscape pieces need wider cells than the 9:16-ish phone art the grid was first sized for.
-const BUY_BUTTON =
-  "inline-flex items-center gap-2 rounded-[2px] bg-white/95 text-[#0a0a0d] px-5 py-3 text-[11px] tracking-[0.14em] uppercase font-sans font-medium transition-colors focus-ring";
+const BUY_BUTTON = `${glassButton({ variant: "primary" })} px-6`;
 
 const LANDSCAPE_GRID = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3";
 const PORTRAIT_GRID = "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3";
