@@ -5,7 +5,6 @@ export {
   selectRenderParams,
   type ConfigState,
 } from "./useConfigStore";
-export { useUIStore, type UIState, type SourceTab } from "./useUIStore";
 export { useFavoritesStore, type FavoriteItem } from "./useFavoritesStore";
 export {
   useRecentColorsStore,

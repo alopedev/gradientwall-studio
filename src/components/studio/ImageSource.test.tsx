@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { ImageSource } from "./ImageSource";
 import { useConfigStore } from "@/store/useConfigStore";
-import { useUIStore } from "@/store/useUIStore";
 import { resetStores } from "@/test-utils";
 import * as extractModule from "@/lib/color-extract";
 import type { Colors4 } from "@/lib/palettes";
@@ -12,9 +11,6 @@ const EXTRACTED: Colors4 = ["#001122", "#334455", "#667788", "#99aabb"];
 describe("<ImageSource />", () => {
   beforeEach(() => {
     resetStores();
-    // Default ImageSource flow auto-switches to picker after success — start
-    // on palettes so we can observe the switch.
-    useUIStore.setState({ activeTab: "palettes" });
   });
 
   afterEach(() => vi.restoreAllMocks());
@@ -24,7 +20,7 @@ describe("<ImageSource />", () => {
     expect(screen.getByLabelText(/upload an image to extract/i)).toBeInTheDocument();
   });
 
-  it("on successful extract: writes the 4 colors + switches to the picker tab", async () => {
+  it("on successful extract: writes the 4 colors", async () => {
     vi.spyOn(extractModule, "extractColorsFromFile").mockResolvedValue(EXTRACTED);
 
     render(<ImageSource />);
@@ -36,10 +32,9 @@ describe("<ImageSource />", () => {
     await waitFor(() => {
       expect(useConfigStore.getState().colors).toEqual(EXTRACTED);
     });
-    expect(useUIStore.getState().activeTab).toBe("picker");
   });
 
-  it("on extract error: surfaces the message and leaves tab/colors untouched", async () => {
+  it("on extract error: surfaces the message and leaves the colors untouched", async () => {
     vi.spyOn(extractModule, "extractColorsFromFile").mockRejectedValue(new Error("bad pixels"));
     const initialColors = useConfigStore.getState().colors;
 
@@ -51,10 +46,9 @@ describe("<ImageSource />", () => {
 
     await waitFor(() => expect(screen.getByText(/bad pixels/i)).toBeInTheDocument());
     expect(useConfigStore.getState().colors).toBe(initialColors);
-    expect(useUIStore.getState().activeTab).toBe("palettes");
   });
 
-  it("when onComplete is provided: does not auto-switch tab, calls onComplete instead", async () => {
+  it("calls onComplete once the colors are applied", async () => {
     vi.spyOn(extractModule, "extractColorsFromFile").mockResolvedValue(EXTRACTED);
     const onComplete = vi.fn();
 
@@ -65,6 +59,6 @@ describe("<ImageSource />", () => {
     fireEvent.change(input, { target: { files: [file] } });
 
     await waitFor(() => expect(onComplete).toHaveBeenCalledTimes(1));
-    expect(useUIStore.getState().activeTab).toBe("palettes");
+    expect(useConfigStore.getState().colors).toEqual(EXTRACTED);
   });
 });
