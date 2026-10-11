@@ -8,8 +8,6 @@ interface Props {
   w?: number;
   h?: number;
   className?: string;
-  /** Forwarded to <img alt=""> when kind=image; ignored for gradients. */
-  imgAlt?: string;
 }
 
 /**
@@ -22,7 +20,15 @@ interface Props {
 export function PackCover({ cover, w = 720, h = 720, className }: Props) {
   if (cover.kind === "image") {
     return (
-      <img src={cover.url} alt={cover.alt} className={className} loading="lazy" decoding="async" />
+      <img
+        src={cover.url}
+        alt={cover.alt}
+        width={cover.width}
+        height={cover.height}
+        className={className}
+        loading="lazy"
+        decoding="async"
+      />
     );
   }
   return <GradientCover cover={cover} w={w} h={h} className={className} />;

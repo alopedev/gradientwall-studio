@@ -1,5 +1,14 @@
 import { describe, it, expect } from "vitest";
-import { getPacks, getPackBySlug, filterPacks, availableStyles, PACK_STYLES } from "./index";
+import {
+  getPacks,
+  getPackBySlug,
+  filterPacks,
+  availableStyles,
+  coverAspect,
+  describeContents,
+  pieceAspect,
+  PACK_STYLES,
+} from "./index";
 import type { Pack } from "./types";
 
 describe("packs catalog", () => {
@@ -22,12 +31,66 @@ describe("packs catalog", () => {
       expect(p.tagline.length).toBeGreaterThan(0);
       expect(p.description.length).toBeGreaterThan(0);
       expect(p.priceEur).toBeGreaterThan(0);
-      // The PRD targets 10 wallpapers per pack at launch.
-      expect(p.previews.length).toBe(10);
+      expect(p.previews.length).toBeGreaterThan(0);
       expect(p.cover).toBeDefined();
       assertCover(p.cover);
       for (const preview of p.previews) assertCover(preview);
     }
+  });
+});
+
+describe("Dessau (phone + desktop pieces)", () => {
+  const dessau = getPackBySlug("dessau");
+
+  it("is in the manifest with six pieces", () => {
+    expect(dessau?.previews).toHaveLength(6);
+  });
+
+  it("every piece pairs a portrait phone render with a landscape desktop render", () => {
+    for (const piece of dessau!.previews) {
+      if (piece.kind !== "image") throw new Error("expected image pieces");
+      expect(coverAspect(piece)).toBeLessThan(1);
+      expect(piece.desktop).toBeDefined();
+      expect(pieceAspect(piece)).toBeGreaterThan(1);
+      expect(piece.desktop!.alt.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("every referenced file exists in public/", async () => {
+    const { existsSync } = await import("node:fs");
+    const urls = [dessau!.cover, ...dessau!.previews].flatMap((c) =>
+      c.kind === "image" ? [c.url, ...(c.desktop ? [c.desktop.url] : [])] : [],
+    );
+    for (const url of urls) expect(existsSync(`public${url}`), url).toBe(true);
+  });
+});
+
+describe("describeContents", () => {
+  const img = { kind: "image", url: "/a.png", alt: "a" } as const;
+
+  it("counts pieces, not files", () => {
+    expect(describeContents({ previews: [img, img, img] })).toBe("3 wallpapers");
+  });
+
+  it("uses the singular for one piece", () => {
+    expect(describeContents({ previews: [img] })).toBe("1 wallpaper");
+  });
+
+  it("says phone + desktop when pieces ship both renders", () => {
+    const pair = { ...img, desktop: { url: "/b.png", alt: "b" } };
+    expect(describeContents({ previews: [pair, pair] })).toBe("2 wallpapers · phone + desktop");
+  });
+});
+
+describe("coverAspect / pieceAspect", () => {
+  it("falls back to 3:4 when the size is unknown", () => {
+    expect(coverAspect({ kind: "image", url: "/a.png", alt: "a" })).toBe(3 / 4);
+  });
+
+  it("reads the declared size", () => {
+    expect(coverAspect({ kind: "image", url: "/a.jpg", alt: "a", width: 1600, height: 900 })).toBe(
+      1600 / 900,
+    );
   });
 });
 

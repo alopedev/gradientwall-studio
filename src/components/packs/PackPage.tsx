@@ -1,7 +1,13 @@
 import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { m } from "motion/react";
-import { getPackBySlug } from "@/lib/packs";
+import {
+  coverAspect,
+  describeContents,
+  getPackBySlug,
+  pieceAspect,
+  type PackCover as PackCoverType,
+} from "@/lib/packs";
 import { canPurchasePack, openCheckout } from "@/lib/store";
 import { Nav } from "../Nav";
 import { Footer } from "../Footer";
@@ -19,6 +25,7 @@ export function PackPage() {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const eligibility = pack ? canPurchasePack(pack) : { kind: "missing-variant" as const };
   const buyEnabled = eligibility.kind === "buyable";
+  const landscapeGrid = pack ? pack.previews.some((p) => pieceAspect(p) > 1) : false;
 
   if (!pack) {
     return (
@@ -70,7 +77,8 @@ export function PackPage() {
             <m.div layoutId={`pack-${pack.slug}-cover`}>
               <Framed
                 offset={10}
-                className="rounded-[2px] bg-[#0a0a0d] border border-white/8 aspect-[3/4] overflow-hidden"
+                className="rounded-[2px] bg-[#0a0a0d] border border-white/8 overflow-hidden"
+                style={{ aspectRatio: coverAspect(pack.cover) }}
               >
                 <PackCover
                   cover={pack.cover}
@@ -113,7 +121,7 @@ export function PackPage() {
                     Includes
                   </div>
                   <div className="font-sans text-[14px] text-white/80 leading-tight">
-                    {pack.previews.length} wallpapers · max resolution · ZIP
+                    {describeContents(pack)} · max resolution · ZIP
                   </div>
                 </div>
               </div>
@@ -165,32 +173,53 @@ export function PackPage() {
               Inside the pack
             </span>
             <h2 className="display-head text-[clamp(28px,3.6vw,48px)] text-white">
-              All ten wallpapers.
+              {pack.previews.length === 1
+                ? "The wallpaper."
+                : `All ${pack.previews.length} wallpapers.`}
             </h2>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          <div className={landscapeGrid ? LANDSCAPE_GRID : PORTRAIT_GRID}>
             {pack.previews.map((preview, i) => (
-              <div
+              <PieceTile
                 key={preview.kind === "image" ? preview.url : `gradient-${preview.seed}`}
-                className="relative aspect-[3/4] rounded-[2px] overflow-hidden bg-black border border-white/8"
-              >
-                <PackCover
-                  cover={preview}
-                  w={480}
-                  h={640}
-                  imgAlt={`${pack.name} preview ${i + 1}`}
-                  className="block w-full h-full object-cover"
-                />
-                <div className="absolute bottom-2 left-2 z-10 rounded-full bg-black/55 border border-white/14 px-2 py-0.5 font-sans text-[9px] tracking-[0.18em] uppercase text-white/70 backdrop-blur-md">
-                  {String(i + 1).padStart(2, "0")}
-                </div>
-              </div>
+                piece={preview}
+                index={i}
+              />
             ))}
           </div>
         </section>
       </main>
       <Footer />
     </>
+  );
+}
+
+// Landscape pieces need wider cells than the 9:16-ish phone art the grid was first sized for.
+const LANDSCAPE_GRID = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3";
+const PORTRAIT_GRID = "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3";
+
+/**
+ * One wallpaper in the pack grid, boxed at its own aspect ratio. A piece that
+ * ships both renders shows the desktop one with the phone render inset.
+ */
+function PieceTile({ piece, index }: { piece: PackCoverType; index: number }) {
+  const shown = piece.kind === "image" && piece.desktop ? { ...piece, ...piece.desktop } : piece;
+  const phone = piece.kind === "image" && piece.desktop ? piece : null;
+  return (
+    <div
+      className="relative rounded-[2px] overflow-hidden bg-black border border-white/8"
+      style={{ aspectRatio: pieceAspect(piece) }}
+    >
+      <PackCover cover={shown} w={480} h={640} className="block w-full h-full object-cover" />
+      {phone && (
+        <div className="absolute right-3 bottom-3 z-10 h-[62%] aspect-[9/16] overflow-hidden rounded-[2px] border border-white/25 shadow-[0_12px_32px_rgba(0,0,0,0.5)]">
+          <PackCover cover={phone} className="block w-full h-full object-cover" />
+        </div>
+      )}
+      <div className="absolute bottom-2 left-2 z-10 rounded-full bg-black/55 border border-white/14 px-2 py-0.5 font-sans text-[9px] tracking-[0.18em] uppercase text-white/70 backdrop-blur-md">
+        {String(index + 1).padStart(2, "0")}
+      </div>
+    </div>
   );
 }
