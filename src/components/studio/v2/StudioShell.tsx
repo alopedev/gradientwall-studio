@@ -51,7 +51,7 @@ export function StudioShell() {
       >
         <Reveal className="mb-8 grid items-end gap-6 md:mb-10 md:grid-cols-2 md:gap-12">
           <div>
-            <span className="mb-4 block font-sans text-[11px] uppercase tracking-[0.22em] text-white/40">
+            <span className="mb-4 block font-sans text-[11px] uppercase tracking-[0.22em] text-white/55">
               The studio
             </span>
             <h2 className="m-0 font-sans text-[clamp(40px,5.5vw,76px)] font-bold uppercase leading-[0.95] tracking-[-0.03em] text-white">
@@ -95,7 +95,7 @@ export function StudioShell() {
               <FavoritesStrip />
             </m.div>
           </div>
-          <p className="m-0 mt-5 text-center font-sans text-[11px] tracking-[0.04em] text-white/40">
+          <p className="m-0 mt-5 text-center font-sans text-[11px] tracking-[0.04em] text-white/55">
             {STUDIO_NOT_AI}
           </p>
         </div>

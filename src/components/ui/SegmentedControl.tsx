@@ -50,7 +50,7 @@ export function SegmentedControl<T extends string>({
             aria-label={o.iconOnlyWhenNarrow ? o.label : undefined}
             onClick={() => onChange(o.value)}
             className={cn(
-              "relative inline-flex min-h-[38px] min-w-11 flex-1 items-center justify-center gap-[7px] rounded-full px-3.5 font-sans text-[0.86rem] font-medium outline-none transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold",
+              "relative inline-flex min-h-[38px] min-w-11 @max-[760px]:min-h-11 flex-1 items-center justify-center gap-[7px] rounded-full px-3.5 font-sans text-[0.86rem] font-medium outline-none transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold",
               selected ? "text-white" : "text-white/60 hover:text-white",
             )}
           >

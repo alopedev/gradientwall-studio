@@ -61,7 +61,7 @@ export function Nav() {
 
       <a
         href="/"
-        className="relative z-10 flex items-center gap-2.5 font-sans font-medium uppercase tracking-[0.12em] text-[13px] text-white"
+        className="relative z-10 flex min-h-11 items-center gap-2.5 font-sans font-medium uppercase tracking-[0.12em] text-[13px] text-white focus-ring"
       >
         <span
           className="h-[22px] w-[22px] rounded-full"

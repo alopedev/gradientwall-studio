@@ -40,7 +40,7 @@ export function ImageSource({ onComplete }: ImageSourceProps = {}) {
         type="button"
         onClick={() => fileRef.current?.click()}
         disabled={extracting}
-        className="relative w-full aspect-[4/1] rounded-[2px] border border-dashed border-white/20 flex items-center justify-center gap-2 font-sans text-[12px] tracking-[0.1em] uppercase text-white/60 hover:text-white hover:border-white/40 transition-colors duration-150 disabled:opacity-60 disabled:cursor-wait"
+        className="relative w-full aspect-[4/1] rounded-glass border border-dashed border-white/20 flex items-center justify-center gap-2 font-sans text-[12px] tracking-[0.1em] uppercase text-white/60 hover:text-white hover:border-white/40 transition-colors duration-150 disabled:opacity-60 disabled:cursor-wait"
       >
         {extracting ? (
           <>
@@ -64,7 +64,7 @@ export function ImageSource({ onComplete }: ImageSourceProps = {}) {
           {error}
         </p>
       )}
-      <p className="font-sans text-[11px] tracking-[0.02em] text-white/40 leading-[1.5]">
+      <p className="font-sans text-[11px] tracking-[0.02em] text-white/55 leading-[1.5]">
         Drops four dominant colors into the picker. Refine each one from there.
       </p>
     </div>
