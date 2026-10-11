@@ -7,7 +7,7 @@
 import { clamp, hexToRgb, rgbToHex } from "../color";
 
 /** Fraction of the CSS box the field is rendered at; the browser upscales it. */
-export const BACKDROP_SCALE = 0.4;
+export const BACKDROP_SCALE = 0.3;
 export const BACKDROP_MIN_SIZE = { width: 320, height: 240 } as const;
 /** Ceiling on pixels per frame, so a 5K screen costs no more than a laptop. */
 export const BACKDROP_MAX_PIXELS = 360_000;

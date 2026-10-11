@@ -14,7 +14,7 @@ import {
 
 describe("backdropSize", () => {
   it("renders at a fraction of the CSS box: the field is soft, the browser upscales it", () => {
-    expect(backdropSize(1440, 900)).toEqual({ width: 576, height: 360 });
+    expect(backdropSize(1440, 900)).toEqual({ width: 432, height: 270 });
   });
 
   it("never goes below a size where the field turns to noise", () => {
