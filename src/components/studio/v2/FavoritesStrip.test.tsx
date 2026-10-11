@@ -27,7 +27,7 @@ describe("FavoritesStrip", () => {
   it("renders empty state when no items are pinned", () => {
     render(<FavoritesStrip />);
     expect(screen.getByLabelText(/favorites — empty/i)).toBeTruthy();
-    expect(screen.getByText(/save the ones you like/i)).toBeTruthy();
+    expect(screen.getByText(/tap the heart to keep a wallpaper/i)).toBeTruthy();
   });
 
   it("shows how many wallpapers are saved", () => {

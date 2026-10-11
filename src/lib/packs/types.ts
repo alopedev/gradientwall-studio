@@ -65,4 +65,12 @@ export interface Pack {
    * shape — additional flags are ignored after the first match.
    */
   featured?: boolean;
+  /** Every design ships as both a phone and a desktop file, even when the previews show one render. */
+  phoneAndDesktop?: boolean;
+  /** Etsy listing the web sends buyers to while it has no checkout of its own. */
+  etsyUrl?: string;
+  /** Page `<title>` for the pack route (the brand is appended). Defaults to the name + count. */
+  seoTitle?: string;
+  /** Meta description, ≤155 characters. Defaults to `description`, which is too long for a snippet. */
+  seoDescription?: string;
 }

@@ -64,10 +64,17 @@ export function pieceAspect(piece: PackCover): number {
   return coverAspect(piece);
 }
 
-/** "6 wallpapers · phone + desktop" — what a buyer gets, derived from the manifest. */
-export function describeContents(pack: Pick<Pack, "previews">): string {
+/** True when every design ships as a phone file and a desktop file. */
+export function isPhoneAndDesktop(pack: Pick<Pack, "previews" | "phoneAndDesktop">): boolean {
+  return (
+    Boolean(pack.phoneAndDesktop) || pack.previews.some((p) => p.kind === "image" && p.desktop)
+  );
+}
+
+/** "6 designs · 12 wallpapers" — what a buyer gets, derived from the manifest. */
+export function describeContents(pack: Pick<Pack, "previews" | "phoneAndDesktop">): string {
   const n = pack.previews.length;
-  const noun = n === 1 ? "wallpaper" : "wallpapers";
-  const paired = pack.previews.some((p) => p.kind === "image" && p.desktop);
-  return paired ? `${n} ${noun} · phone + desktop` : `${n} ${noun}`;
+  if (isPhoneAndDesktop(pack))
+    return `${n} ${n === 1 ? "design" : "designs"} · ${n * 2} wallpapers`;
+  return `${n} ${n === 1 ? "wallpaper" : "wallpapers"}`;
 }

@@ -19,9 +19,6 @@ describe("PacksSection", () => {
       </MemoryRouter>,
     );
     const slugs = getPacks().map((p) => `/packs/${p.slug}`);
-    // The manifest must be large enough to overflow hero + 4 satellites,
-    // otherwise this test no longer guards the 6th pack.
-    expect(slugs.length).toBeGreaterThan(5);
     expect(packLinks().sort()).toEqual([...slugs].sort());
   });
 
@@ -34,12 +31,12 @@ describe("PacksSection", () => {
     expect(screen.queryByText(/\bten\b/i)).toBeNull();
   });
 
-  it("describes Dessau as 6 wallpapers, phone + desktop", () => {
+  it("describes Dessau as 6 designs, 12 wallpapers", () => {
     render(
       <MemoryRouter>
         <PacksSection />
       </MemoryRouter>,
     );
-    expect(screen.getByText(/6 wallpapers · phone \+ desktop/)).toBeInTheDocument();
+    expect(screen.getByText(/6 designs · 12 wallpapers/)).toBeInTheDocument();
   });
 });

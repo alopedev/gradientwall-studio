@@ -1,13 +1,13 @@
 import { Reveal } from "./ui/Reveal";
 
 const ITEMS = [
-  "Mesh gradients",
-  "Aurora curtains",
-  "Soft grain",
-  "Four colors",
-  "Zero limits",
-  "Mobile · Desktop · Tablet",
-  "Free studio · paid packs",
+  "Free studio",
+  "No account",
+  "No watermark",
+  "Up to 5K",
+  "Phone, tablet, desktop",
+  "Liquid, aurora, mesh",
+  "Packs from 5.99€, VAT included",
 ];
 
 /**

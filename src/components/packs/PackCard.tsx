@@ -113,7 +113,7 @@ export function PackCard({ pack, variant = "small" }: PackCardProps) {
                 isHero ? "mt-5 text-[10px]" : "mt-2.5 text-[10px]"
               }`}
             >
-              {describeContents(pack)} · max resolution
+              {describeContents(pack)} · up to 5K
               {isHero && <span className="ml-2 text-white/30">·</span>}
               {isHero && <span className="ml-2 text-white/65">view pack →</span>}
             </div>

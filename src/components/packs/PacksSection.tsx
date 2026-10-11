@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { m } from "motion/react";
-import { availableStyles, featuredPack, filterPacks, type PackStyle } from "@/lib/packs";
+import { availableStyles, featuredPack, filterPacks, getPacks, type PackStyle } from "@/lib/packs";
 import { EASE } from "@/lib/motion";
 import { Reveal } from "../ui/Reveal";
 import { SplitWords } from "../ui/SplitWords";
@@ -18,7 +18,9 @@ export function PacksSection() {
   // pack flagged. The moment the user scopes by style the layout collapses
   // back to a uniform grid — keeping the asymmetric flagship slot only for
   // the editorial "all packs" view.
-  const useBento = !isFiltered && hero !== undefined;
+  const useBento = !isFiltered && hero !== undefined && packs.length >= 3;
+  // Two packs don't need a filter bar; it comes back once the catalog has a few more.
+  const showFilters = getPacks().length >= 4;
   const satellites = useBento ? packs.filter((p) => p.slug !== hero!.slug) : packs;
 
   return (
@@ -29,26 +31,27 @@ export function PacksSection() {
       <Reveal className="grid md:grid-cols-2 gap-12 items-end mb-10">
         <div>
           <span className="block mb-4 font-sans text-[11px] tracking-[0.22em] uppercase text-white/40">
-            03 — Curated packs
+            From 5.99€ · VAT included
           </span>
           <h2 className="display-head text-[clamp(40px,5.5vw,76px)]">
-            <SplitWords text="Curated drops." className="block text-white" />
+            <SplitWords text="Wallpaper packs." className="block text-white" />
             <SplitWords
-              text="Made to last."
+              text="Chosen by hand."
               className="block text-white/75 font-serif italic"
               delayChildren={0.2}
             />
           </h2>
         </div>
         <p className="max-w-[42ch] text-[15px] text-white/75 font-sans font-light">
-          Every wallpaper at maximum resolution. Personal use, no watermarks, no account. Pay once,
-          download forever.
+          Pay once, no subscription. Instant download, phone and desktop, up to 5K. Personal use.
         </p>
       </Reveal>
 
-      <Reveal className="mb-8">
-        <PackFilters styles={styles} active={active} onChange={setActive} />
-      </Reveal>
+      {showFilters && (
+        <Reveal className="mb-8">
+          <PackFilters styles={styles} active={active} onChange={setActive} />
+        </Reveal>
+      )}
 
       {useBento ? (
         <BentoGrid hero={hero!} satellites={satellites} />
@@ -114,7 +117,9 @@ function BentoGrid({
 function UniformGrid({ packs }: { packs: Parameters<typeof PackCard>[0]["pack"][] }) {
   return (
     <m.div
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 auto-rows-[clamp(280px,30vw,400px)]"
+      className={`grid grid-cols-1 sm:grid-cols-2 gap-5 auto-rows-[clamp(280px,30vw,400px)] ${
+        packs.length === 2 ? "" : "lg:grid-cols-3"
+      }`}
       variants={GRID_CONTAINER}
       initial="hidden"
       whileInView="visible"

@@ -5,10 +5,12 @@ import {
   coverAspect,
   describeContents,
   getPackBySlug,
+  isPhoneAndDesktop,
   pieceAspect,
   type PackCover as PackCoverType,
 } from "@/lib/packs";
 import { canPurchasePack, openCheckout } from "@/lib/store";
+import { AI_DISCLOSURE } from "@/lib/copy";
 import { Nav } from "../Nav";
 import { Footer } from "../Footer";
 import { Framed } from "../ui/Framed";
@@ -121,47 +123,61 @@ export function PackPage() {
                     Includes
                   </div>
                   <div className="font-sans text-[14px] text-white/80 leading-tight">
-                    {describeContents(pack)} · max resolution · ZIP
+                    {describeContents(pack)} · up to 5K · ZIP
                   </div>
                 </div>
               </div>
 
               <div className="mt-8 flex items-center gap-3">
-                <MagneticButton>
-                  <button
-                    type="button"
-                    disabled={!buyEnabled || checkoutLoading}
-                    title={buyEnabled ? "Open checkout" : "Checkout coming soon"}
-                    onClick={async () => {
-                      if (eligibility.kind !== "buyable") return;
-                      setCheckoutLoading(true);
-                      try {
-                        await openCheckout({
-                          variantId: eligibility.variantId,
-                          packSlug: pack.slug,
-                        });
-                      } finally {
-                        setCheckoutLoading(false);
-                      }
-                    }}
-                    className={`inline-flex items-center gap-2 rounded-[2px] bg-white/95 text-[#0a0a0d] px-5 py-3 text-[11px] tracking-[0.14em] uppercase font-sans font-medium transition-colors focus-ring ${
-                      buyEnabled ? "hover:bg-white cursor-pointer" : "opacity-60 cursor-not-allowed"
-                    } ${checkoutLoading ? "opacity-80 cursor-wait" : ""}`}
-                  >
-                    {checkoutLoading ? "Loading…" : `↓ Buy €${pack.priceEur.toFixed(2)}`}
-                  </button>
-                </MagneticButton>
-                {!buyEnabled && (
-                  <span className="font-sans text-[11px] tracking-[0.14em] uppercase text-white/40">
-                    Checkout coming soon
-                  </span>
-                )}
+                {buyEnabled ? (
+                  <MagneticButton>
+                    <button
+                      type="button"
+                      disabled={checkoutLoading}
+                      title="Open checkout"
+                      onClick={async () => {
+                        if (eligibility.kind !== "buyable") return;
+                        setCheckoutLoading(true);
+                        try {
+                          await openCheckout({
+                            variantId: eligibility.variantId,
+                            packSlug: pack.slug,
+                          });
+                        } finally {
+                          setCheckoutLoading(false);
+                        }
+                      }}
+                      className={`${BUY_BUTTON} hover:bg-white cursor-pointer ${
+                        checkoutLoading ? "opacity-80 cursor-wait" : ""
+                      }`}
+                    >
+                      {checkoutLoading ? "Loading…" : `Buy · €${pack.priceEur.toFixed(2)}`}
+                    </button>
+                  </MagneticButton>
+                ) : pack.etsyUrl ? (
+                  <MagneticButton>
+                    <a
+                      href={pack.etsyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${BUY_BUTTON} hover:bg-white`}
+                    >
+                      Get it on Etsy · €{pack.priceEur.toFixed(2)} <span aria-hidden>↗</span>
+                    </a>
+                  </MagneticButton>
+                ) : null}
               </div>
 
               <div className="mt-10 font-sans text-[11px] text-white/40 leading-relaxed max-w-[44ch]">
-                Personal use across your devices. No reselling, no redistribution. Full terms on
-                checkout.
+                {buyEnabled
+                  ? "Instant download link by email, valid 30 days, up to 5 downloads. VAT included. Personal use only: no reselling, no sharing."
+                  : "Instant download from your Etsy account. VAT included. Personal use only: no reselling, no sharing."}
               </div>
+              <p className="mt-4 font-sans text-[11px] text-white/40 leading-relaxed max-w-[44ch]">
+                <span className="uppercase tracking-[0.18em] text-white/55">How it was made</span>
+                <br />
+                {AI_DISCLOSURE}
+              </p>
             </div>
           </div>
         </section>
@@ -175,7 +191,7 @@ export function PackPage() {
             <h2 className="display-head text-[clamp(28px,3.6vw,48px)] text-white">
               {pack.previews.length === 1
                 ? "The wallpaper."
-                : `All ${pack.previews.length} wallpapers.`}
+                : `All ${pack.previews.length} ${isPhoneAndDesktop(pack) ? "designs" : "wallpapers"}.`}
             </h2>
           </div>
 
@@ -196,6 +212,9 @@ export function PackPage() {
 }
 
 // Landscape pieces need wider cells than the 9:16-ish phone art the grid was first sized for.
+const BUY_BUTTON =
+  "inline-flex items-center gap-2 rounded-[2px] bg-white/95 text-[#0a0a0d] px-5 py-3 text-[11px] tracking-[0.14em] uppercase font-sans font-medium transition-colors focus-ring";
+
 const LANDSCAPE_GRID = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3";
 const PORTRAIT_GRID = "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3";
 
