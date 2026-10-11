@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { glassButton } from "./ui/GlassButton";
 import { MagneticButton } from "./ui/MagneticButton";
 
 export function Hero() {
@@ -39,23 +40,18 @@ export function Hero() {
         </span>
       </h1>
 
-      <Stamp className="bottom-[clamp(40px,8vh,96px)] left-[clamp(24px,7vw,120px)] z-[3]">
-        <span>Free · No account · No watermark</span>
-      </Stamp>
-
-      <MagneticButton className="absolute z-[3] bottom-[clamp(40px,8vh,96px)] right-[clamp(24px,7vw,120px)]">
-        <a
-          href="#studio"
-          className="group inline-flex items-center gap-3 font-sans text-[12px] md:text-[13px] font-medium uppercase tracking-[0.14em] text-[color:var(--color-ink)] transition-colors duration-150 focus-ring"
-        >
-          <span className="border-b border-transparent group-hover:border-[color:var(--color-accent)] pb-1 transition-colors duration-150">
+      {/* Stacked on narrow screens so the stamp never runs under the button. */}
+      <div className="absolute inset-x-[clamp(24px,7vw,120px)] bottom-[clamp(40px,8vh,96px)] z-[3] flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
+        <Stamp>
+          <span>Free · No account · No watermark</span>
+        </Stamp>
+        <MagneticButton>
+          <a href="#studio" className={`${glassButton({ variant: "primary" })} px-6`}>
             Make a wallpaper
-          </span>
-          <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-1">
-            →
-          </span>
-        </a>
-      </MagneticButton>
+            <span aria-hidden>→</span>
+          </a>
+        </MagneticButton>
+      </div>
     </section>
   );
 }
@@ -76,7 +72,7 @@ function Stamp({
 }) {
   return (
     <div
-      className={`stamp absolute inline-flex items-center gap-2 px-3 py-1.5 font-sans text-[10px] md:text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--color-ink-75)] whitespace-nowrap ${className}`}
+      className={`stamp inline-flex items-center gap-2 px-3 py-1.5 font-sans text-[10px] md:text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--color-ink-75)] whitespace-nowrap ${className}`}
       style={style}
     >
       {children}

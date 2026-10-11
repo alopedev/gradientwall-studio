@@ -124,7 +124,7 @@ describe("webgl v2 engine", () => {
     const result = await engine.exportWallpaper(v2, "desktop", (p) => progress.push(p));
     expect(draw).toHaveBeenCalledWith(expect.anything(), 5120, 2880, { strip: 512 });
     expect(sink).toHaveBeenCalledOnce();
-    expect(result.filename).toBe("gradientwall-desktop-#A47B.webp");
+    expect(result.filename).toBe("gradientwall-desktop-A47B.webp");
     expect(progress.at(-1)).toBe(1);
     vi.unstubAllGlobals();
   });

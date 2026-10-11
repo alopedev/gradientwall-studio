@@ -3,11 +3,10 @@ import { render, screen } from "@testing-library/react";
 import { Nav } from "./Nav";
 
 describe("<Nav />", () => {
-  it("renders brand + desktop links + CTA", () => {
+  it("renders brand + Packs link + CTA (both visible at every width)", () => {
     render(<Nav />);
     // Brand mark is aria-hidden; brand text is the whole link label
     expect(screen.getByText(/gradientwall/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /^studio$/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /^packs$/i })).toBeInTheDocument();
     // CTA has both mobile ("Make one →") + desktop ("Make a wallpaper →") children; at least one renders
     expect(screen.getByText(/make a wallpaper/i)).toBeInTheDocument();

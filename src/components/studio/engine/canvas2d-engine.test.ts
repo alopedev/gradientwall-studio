@@ -56,7 +56,7 @@ describe("canvas2d engine", () => {
       expect.objectContaining({ ...params, w: 1440, h: 3200 }),
     );
     expect(sink).toHaveBeenCalledOnce();
-    expect(result.filename).toBe("gradientwall-mobile-#A47B.webp");
+    expect(result.filename).toBe("gradientwall-mobile-A47B.webp");
     expect(progress.at(-1)).toBe(1);
     expect([...progress].sort((a, b) => a - b)).toEqual(progress);
   });

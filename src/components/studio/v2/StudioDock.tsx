@@ -10,6 +10,7 @@ import { ExportButton } from "./ExportButton";
 import { PaletteSwatches } from "./PaletteSwatches";
 import { useRequestReveal } from "./reveal";
 import { SaveButton } from "./SaveButton";
+import type { ToastAction } from "./toast";
 
 interface Props {
   adjustOpen: boolean;
@@ -40,13 +41,14 @@ export function StudioDock({ adjustOpen, onToggleAdjust, keysActive }: Props) {
   const panelId = useId();
   const shuffleRef = useRef<HTMLButtonElement>(null);
   const [spins, setSpins] = useState(0);
-  const [toast, setToast] = useState("");
+  const [toast, setToast] = useState<{ message: string; action?: ToastAction } | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout>>();
 
-  const say = (message: string) => {
+  const say = (message: string, action?: ToastAction) => {
     clearTimeout(toastTimer.current);
-    setToast(message);
-    toastTimer.current = setTimeout(() => setToast(""), 3200);
+    setToast({ message, action });
+    // A toast with a link stays long enough to read and reach it.
+    toastTimer.current = setTimeout(() => setToast(null), action ? 7000 : 3200);
   };
   useEffect(() => () => clearTimeout(toastTimer.current), []);
 
@@ -156,19 +158,30 @@ export function StudioDock({ adjustOpen, onToggleAdjust, keysActive }: Props) {
       <div
         role="status"
         aria-live="polite"
-        className="pointer-events-none absolute bottom-[calc(100%+12px)] left-1/2 w-max max-w-[min(560px,calc(100vw-48px))] -translate-x-1/2"
+        className="pointer-events-none absolute left-1/2 top-[calc(100%+12px)] w-max max-w-[min(560px,calc(100vw-48px))] -translate-x-1/2"
       >
         <AnimatePresence>
           {toast && (
             <m.p
-              key={toast}
-              initial={{ opacity: 0, y: -8, scale: 0.97 }}
+              key={toast.message}
+              initial={{ opacity: 0, y: 8, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -4, transition: { duration: 0.15 } }}
+              exit={{ opacity: 0, y: 4, transition: { duration: 0.15 } }}
               transition={{ type: "spring", stiffness: 360, damping: 26 }}
-              className="m-0 rounded-xl bg-[rgba(20,20,24,0.72)] px-3.5 py-2 text-center font-sans text-[0.82rem] tabular-nums text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1),0_12px_30px_-10px_rgba(0,0,0,0.7)] backdrop-blur-[18px] backdrop-saturate-[1.6]"
+              className="m-0 rounded-xl bg-[rgba(20,20,24,0.94)] px-3.5 py-2 text-center font-sans text-[0.82rem] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1),0_12px_30px_-10px_rgba(0,0,0,0.7)] backdrop-blur-[18px] backdrop-saturate-[1.6]"
             >
-              {toast}
+              {toast.message}
+              {toast.action && (
+                <>
+                  {" "}
+                  <a
+                    href={toast.action.href}
+                    className="pointer-events-auto font-medium text-gold underline underline-offset-2 hover:text-white focus-ring"
+                  >
+                    {toast.action.label}
+                  </a>
+                </>
+              )}
             </m.p>
           )}
         </AnimatePresence>
