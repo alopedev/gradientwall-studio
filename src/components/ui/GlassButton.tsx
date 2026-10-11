@@ -8,7 +8,7 @@ import { cn } from "./shadcn/utils";
  * action, round for icon-only. Press feedback is a short spring; the motion
  * config upstream turns it off for reduced-motion users.
  */
-const glassButton = cva(
+export const glassButton = cva(
   "relative inline-flex select-none items-center justify-center gap-2 whitespace-nowrap font-sans text-[0.9rem] font-medium outline-none transition-[background-color,box-shadow,color] duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold disabled:pointer-events-none disabled:opacity-60",
   {
     variants: {

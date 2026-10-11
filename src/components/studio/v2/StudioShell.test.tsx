@@ -7,7 +7,7 @@ describe("StudioShell", () => {
   it("renders the studio landmark with its controls and the saved strip", () => {
     const { container, getByLabelText, getByRole } = render(<StudioShell />);
 
-    expect(container.querySelector("section#studio")).not.toBeNull();
+    expect(container.querySelector("#studio")).not.toBeNull();
     expect(getByRole("toolbar", { name: /wallpaper controls/i })).toBeTruthy();
     expect(getByLabelText(/shuffle: generate another wallpaper/i)).toBeTruthy();
     expect(getByLabelText("Device")).toBeTruthy();
