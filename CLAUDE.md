@@ -29,7 +29,7 @@ The active channel is the **Etsy shop `gradientwall.etsy.com`**, not the web sto
 
 ## What this project is
 
-GradientWall — an interactive wallpaper studio plus a digital store for curated wallpaper packs. Free Studio + paid packs (4.99€ each, single payment, no account, email-delivered).
+GradientWall — an interactive wallpaper studio plus a digital store for curated wallpaper packs. Free Studio + paid packs (5.99€ each for the real ones, same as Etsy, VAT included; single payment, no account, email-delivered).
 
 Architecture of information: **Nav → Hero → Marquee → Studio → Packs → Footer** on the home, with separate routes for `/packs/:slug`, `/packs/:slug/success`, `/recover`. The old "Gallery" of community-made wallpapers was removed in the Semana 1 refactor — its slot is now the Packs catalog.
 
