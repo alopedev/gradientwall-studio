@@ -3,22 +3,23 @@ import { Link, useParams } from "react-router-dom";
 import { m } from "motion/react";
 import {
   coverAspect,
-  describeContents,
   getPackBySlug,
   isPhoneAndDesktop,
   pieceAspect,
   type PackCover as PackCoverType,
 } from "@/lib/packs";
+import { pieceRenders } from "@/lib/packs/showcase";
 import { canPurchasePack, openCheckout } from "@/lib/store";
 import { AI_DISCLOSURE } from "@/lib/copy";
 import { Nav } from "../Nav";
 import { Footer } from "../Footer";
-import { Framed } from "../ui/Framed";
 import { glassButton } from "../ui/GlassButton";
 import { MagneticButton } from "../ui/MagneticButton";
 import { PageMeta } from "../PageMeta";
 import { buildPackPage } from "@/lib/seo/pages";
 import { PackCover } from "./PackCover";
+import { PackShowcase } from "./PackShowcase";
+import { PackSpecs } from "./PackSpecs";
 
 export function PackPage() {
   const { slug = "" } = useParams<{ slug: string }>();
@@ -75,21 +76,8 @@ export function PackPage() {
             ← All packs
           </Link>
 
-          <div className="grid lg:grid-cols-[1.1fr_1fr] gap-[clamp(40px,5vw,80px)] items-center">
-            <m.div layoutId={`pack-${pack.slug}-cover`}>
-              <Framed
-                offset={10}
-                className="rounded-[20px] bg-[#0a0a0d] border border-white/8 overflow-hidden"
-                style={{ aspectRatio: coverAspect(pack.cover) }}
-              >
-                <PackCover
-                  cover={pack.cover}
-                  w={1080}
-                  h={1440}
-                  className="block w-full h-full object-cover"
-                />
-              </Framed>
-            </m.div>
+          <div className="grid lg:grid-cols-[1.1fr_1fr] gap-[clamp(40px,5vw,80px)] items-start">
+            <PackShowcase pack={pack} />
 
             <div>
               <span className="block mb-4 font-sans text-[11px] tracking-[0.22em] uppercase text-white/55">
@@ -109,7 +97,7 @@ export function PackPage() {
                 {pack.description}
               </p>
 
-              <div className="mt-10 flex flex-wrap items-end gap-6">
+              <div ref={ctaRef} className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4">
                 <div>
                   <div className="font-sans text-[10px] tracking-[0.22em] uppercase text-white/55 mb-1.5">
                     Price
@@ -118,17 +106,6 @@ export function PackPage() {
                     €{pack.priceEur.toFixed(2)}
                   </div>
                 </div>
-                <div>
-                  <div className="font-sans text-[10px] tracking-[0.22em] uppercase text-white/55 mb-1.5">
-                    Includes
-                  </div>
-                  <div className="font-sans text-[14px] text-white/80 leading-tight">
-                    {describeContents(pack)} · up to 5K · ZIP
-                  </div>
-                </div>
-              </div>
-
-              <div ref={ctaRef} className="mt-8 flex items-center gap-3">
                 {buyEnabled ? (
                   <MagneticButton>
                     <button
@@ -173,7 +150,10 @@ export function PackPage() {
                   ? "Instant download link by email, valid 30 days, up to 5 downloads. VAT included. Personal use only: no reselling, no sharing."
                   : "Instant download from your Etsy account. VAT included. Personal use only: no reselling, no sharing."}
               </div>
-              <p className="mt-4 font-sans text-[11px] text-white/55 leading-relaxed max-w-[44ch]">
+              <div className="mt-8 max-w-[52ch]">
+                <PackSpecs pack={pack} />
+              </div>
+              <p className="mt-6 font-sans text-[11px] text-white/55 leading-relaxed max-w-[44ch]">
                 <span className="uppercase tracking-[0.18em] text-white/55">How it was made</span>
                 <br />
                 {AI_DISCLOSURE}
@@ -186,7 +166,7 @@ export function PackPage() {
         <section className="mx-auto max-w-[1600px] px-[clamp(24px,5vw,80px)] py-[clamp(60px,8vw,120px)] border-t border-white/8">
           <div className="mb-10">
             <span className="block mb-3 font-sans text-[11px] tracking-[0.22em] uppercase text-white/55">
-              Inside the pack
+              What's inside
             </span>
             <h2 className="display-head text-[clamp(28px,3.6vw,48px)] text-white">
               {pack.previews.length === 1
@@ -269,25 +249,47 @@ const PORTRAIT_GRID = "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3";
 
 /**
  * One wallpaper in the pack grid, boxed at its own aspect ratio. A piece that
- * ships both renders shows the desktop one with the phone render inset.
+ * ships both renders shows desktop and phone side by side at the same height;
+ * anything else shows the single render it has.
  */
 function PieceTile({ piece, index }: { piece: PackCoverType; index: number }) {
-  const shown = piece.kind === "image" && piece.desktop ? { ...piece, ...piece.desktop } : piece;
-  const phone = piece.kind === "image" && piece.desktop ? piece : null;
+  const { phone, desktop, phoneIsCrop } = pieceRenders(piece);
+  const pair = phone !== null && desktop !== null && !phoneIsCrop;
+  const single = (desktop ?? phone)!;
+  const badge = (
+    <div className="absolute bottom-2 left-2 z-10 rounded-full bg-black/55 border border-white/14 px-2 py-0.5 font-sans text-[9px] tracking-[0.18em] uppercase text-white/70 backdrop-blur-md">
+      {String(index + 1).padStart(2, "0")}
+    </div>
+  );
+  if (pair) {
+    return (
+      <div
+        className="relative flex gap-1.5 rounded-2xl overflow-hidden bg-black border border-white/8 p-1.5"
+        style={{ aspectRatio: coverAspect(desktop) + coverAspect(phone) }}
+      >
+        <div
+          className="relative h-full overflow-hidden rounded-xl"
+          style={{ aspectRatio: coverAspect(desktop) }}
+        >
+          <PackCover cover={desktop} w={480} h={270} className="block w-full h-full object-cover" />
+        </div>
+        <div
+          className="relative h-full overflow-hidden rounded-xl"
+          style={{ aspectRatio: coverAspect(phone) }}
+        >
+          <PackCover cover={phone} w={270} h={480} className="block w-full h-full object-cover" />
+        </div>
+        {badge}
+      </div>
+    );
+  }
   return (
     <div
       className="relative rounded-2xl overflow-hidden bg-black border border-white/8"
-      style={{ aspectRatio: pieceAspect(piece) }}
+      style={{ aspectRatio: coverAspect(single) }}
     >
-      <PackCover cover={shown} w={480} h={640} className="block w-full h-full object-cover" />
-      {phone && (
-        <div className="absolute right-3 bottom-3 z-10 h-[62%] aspect-[9/16] overflow-hidden rounded-xl border border-white/25 shadow-[0_12px_32px_rgba(0,0,0,0.5)]">
-          <PackCover cover={phone} className="block w-full h-full object-cover" />
-        </div>
-      )}
-      <div className="absolute bottom-2 left-2 z-10 rounded-full bg-black/55 border border-white/14 px-2 py-0.5 font-sans text-[9px] tracking-[0.18em] uppercase text-white/70 backdrop-blur-md">
-        {String(index + 1).padStart(2, "0")}
-      </div>
+      <PackCover cover={single} w={480} h={640} className="block w-full h-full object-cover" />
+      {badge}
     </div>
   );
 }

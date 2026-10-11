@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { m } from "motion/react";
-import { availableStyles, featuredPack, filterPacks, getPacks, type PackStyle } from "@/lib/packs";
+import { availableStyles, filterPacks, getPacks, type Pack, type PackStyle } from "@/lib/packs";
 import { EASE } from "@/lib/motion";
 import { Reveal } from "../ui/Reveal";
 import { SplitWords } from "../ui/SplitWords";
@@ -11,17 +11,8 @@ export function PacksSection() {
   const [active, setActive] = useState<PackStyle | null>(null);
   const styles = useMemo(() => availableStyles(), []);
   const packs = useMemo(() => filterPacks(active), [active]);
-  const hero = useMemo(() => featuredPack(), []);
-  const isFiltered = active !== null;
-
-  // Bento layout only when (a) no filter is active AND (b) we have a hero
-  // pack flagged. The moment the user scopes by style the layout collapses
-  // back to a uniform grid — keeping the asymmetric flagship slot only for
-  // the editorial "all packs" view.
-  const useBento = !isFiltered && hero !== undefined && packs.length >= 3;
   // Two packs don't need a filter bar; it comes back once the catalog has a few more.
   const showFilters = getPacks().length >= 4;
-  const satellites = useBento ? packs.filter((p) => p.slug !== hero!.slug) : packs;
 
   return (
     <section
@@ -53,11 +44,7 @@ export function PacksSection() {
         </Reveal>
       )}
 
-      {useBento ? (
-        <BentoGrid hero={hero!} satellites={satellites} />
-      ) : (
-        <UniformGrid packs={packs} />
-      )}
+      <PackGrid packs={packs} />
 
       {packs.length === 0 && (
         <div className="font-sans text-[14px] text-white/50 mt-10 text-center">
@@ -80,46 +67,11 @@ const GRID_CELL = {
   visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.7, ease: EASE } },
 };
 
-function BentoGrid({
-  hero,
-  satellites,
-}: {
-  hero: Parameters<typeof PackCard>[0]["pack"];
-  satellites: Parameters<typeof PackCard>[0]["pack"][];
-}) {
-  // 4-column grid on desktop. Hero spans 2×2 and the first four satellites
-  // fill the cells beside it (two on the right of the hero, two below); any
-  // further pack flows onto the rows after. Mobile stacks single-column with
-  // the hero first.
+/** Two big cards side by side while the catalog is small; three across once it grows. */
+function PackGrid({ packs }: { packs: Pack[] }) {
   return (
     <m.div
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 lg:auto-rows-[clamp(220px,22vw,300px)]"
-      variants={GRID_CONTAINER}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.25 }}
-    >
-      <m.div
-        variants={GRID_CELL}
-        className="md:col-span-2 lg:row-span-2 lg:col-span-2 h-full min-h-[420px] lg:min-h-0"
-      >
-        <PackCard pack={hero} variant="hero" />
-      </m.div>
-      {satellites.map((p) => (
-        <m.div key={p.slug} variants={GRID_CELL} className="h-full min-h-[260px] lg:min-h-0">
-          <PackCard pack={p} variant="small" />
-        </m.div>
-      ))}
-    </m.div>
-  );
-}
-
-function UniformGrid({ packs }: { packs: Parameters<typeof PackCard>[0]["pack"][] }) {
-  return (
-    <m.div
-      className={`grid grid-cols-1 sm:grid-cols-2 gap-5 auto-rows-[clamp(280px,30vw,400px)] ${
-        packs.length === 2 ? "" : "lg:grid-cols-3"
-      }`}
+      className={`grid grid-cols-1 gap-5 md:grid-cols-2 ${packs.length > 2 ? "xl:grid-cols-3" : ""}`}
       variants={GRID_CONTAINER}
       initial="hidden"
       whileInView="visible"
@@ -127,7 +79,7 @@ function UniformGrid({ packs }: { packs: Parameters<typeof PackCard>[0]["pack"][
     >
       {packs.map((p) => (
         <m.div key={p.slug} variants={GRID_CELL} className="h-full">
-          <PackCard pack={p} variant="small" />
+          <PackCard pack={p} />
         </m.div>
       ))}
     </m.div>

@@ -8,6 +8,10 @@ interface Props {
   w?: number;
   h?: number;
   className?: string;
+  /** Load now instead of lazily: for the one image the page is built around. */
+  priority?: boolean;
+  /** Pure decoration (a blurred glow): hidden from assistive tech, so it adds no extra "image" of the pack. */
+  decorative?: boolean;
 }
 
 /**
@@ -17,21 +21,29 @@ interface Props {
  * gradient-spec to a real R2 image is a single manifest change with no
  * caller updates.
  */
-export function PackCover({ cover, w = 720, h = 720, className }: Props) {
+export function PackCover({
+  cover,
+  w = 720,
+  h = 720,
+  className,
+  priority = false,
+  decorative = false,
+}: Props) {
   if (cover.kind === "image") {
     return (
       <img
         src={cover.url}
-        alt={cover.alt}
+        alt={decorative ? "" : cover.alt}
+        aria-hidden={decorative || undefined}
         width={cover.width}
         height={cover.height}
         className={className}
-        loading="lazy"
+        loading={priority ? "eager" : "lazy"}
         decoding="async"
       />
     );
   }
-  return <GradientCover cover={cover} w={w} h={h} className={className} />;
+  return <GradientCover cover={cover} w={w} h={h} className={className} decorative={decorative} />;
 }
 
 function GradientCover({
@@ -39,11 +51,13 @@ function GradientCover({
   w,
   h,
   className,
+  decorative,
 }: {
   cover: Extract<PackCoverType, { kind: "gradient" }>;
   w: number;
   h: number;
   className?: string;
+  decorative?: boolean;
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
@@ -59,5 +73,5 @@ function GradientCover({
       seed: cover.seed,
     });
   }, [cover, w, h]);
-  return <canvas ref={ref} className={className} />;
+  return <canvas ref={ref} className={className} aria-hidden={decorative || undefined} />;
 }

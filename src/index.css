@@ -408,18 +408,6 @@ body::before {
     transform: translateX(-50%);
   }
 }
-/* Rotating conic-gradient beam that traces the perimeter of a Bento hero
-   pack card on hover. The beam itself is a 2×-scaled square spinning behind
-   a 1px-inset mask — the only thing the user sees is the moving slice of
-   gradient riding the border. */
-@keyframes gw-beam-spin {
-  from {
-    transform: translate(-50%, -50%) rotate(0deg);
-  }
-  to {
-    transform: translate(-50%, -50%) rotate(360deg);
-  }
-}
 /* Scroll-driven reveal Fase 5 — utility para items que aparecen cuando
    entran al viewport. CSS nativo (animation-timeline: view()), cero JS.
    El navegador corre la animación en el compositor thread, así que es

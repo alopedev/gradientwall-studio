@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { PackPage } from "./PackPage";
 
@@ -20,6 +20,35 @@ describe("PackPage", () => {
     const srcs = [...container.querySelectorAll("img")].map((i) => i.getAttribute("src"));
     expect(srcs).toContain("/assets/packs/dessau/06_halbkreise.png");
     expect(srcs).toContain("/assets/packs/dessau/06_halbkreise-desktop.png");
+  });
+});
+
+describe("PackPage showcase and specs", () => {
+  it("opens with a device carousel of the pack's pieces", () => {
+    renderPack("acrylic");
+    expect(screen.getByText("01 / 10")).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: /impasto wallpapers/i })).toBeInTheDocument();
+  });
+
+  it("lists exact files, sizes, format and licence in a spec block", () => {
+    renderPack("acrylic");
+    const specs = screen.getByRole("list", { name: /specifications/i });
+    expect(within(specs).getByText("10 × 4K and 5K")).toBeInTheDocument();
+    expect(within(specs).getByText("3840 × 2160 · 5120 × 2880")).toBeInTheDocument();
+    expect(within(specs).getByText("10 × iPhone & Android")).toBeInTheDocument();
+    expect(within(specs).getByText("1320 × 2868")).toBeInTheDocument();
+    expect(within(specs).getByText(/personal use/i)).toBeInTheDocument();
+  });
+
+  it("counts Dessau's files from its own six pieces", () => {
+    renderPack("dessau");
+    const specs = screen.getByRole("list", { name: /specifications/i });
+    expect(within(specs).getByText("6 × 4K and 5K")).toBeInTheDocument();
+  });
+
+  it("introduces the gallery as what's inside", () => {
+    renderPack("dessau");
+    expect(screen.getByText(/what's inside/i)).toBeInTheDocument();
   });
 });
 
