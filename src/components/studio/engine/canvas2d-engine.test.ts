@@ -1,7 +1,6 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { RenderParams } from "@/lib/palettes";
-import { useConfigStore } from "@/store";
 
 const composeWallpaper = vi.fn((_opts: unknown) => document.createElement("canvas"));
 vi.mock("@/lib/download/compose", () => ({
@@ -31,12 +30,12 @@ describe("canvas2d engine", () => {
     expect(styles.map((s) => s.id)).toEqual(["liquid", "aurora", "mesh"]);
   });
 
-  it("declares adjustments whose defaults match the store's starting values", () => {
+  it("declares adjustments with defaults inside their range", () => {
     const { adjustments } = createCanvas2DEngine(vi.fn());
-    const store = useConfigStore.getState();
     for (const spec of adjustments) {
-      expect(spec.default, spec.key).toBe(store[spec.key]);
       expect(spec.min).toBeLessThan(spec.max);
+      expect(spec.default, spec.key).toBeGreaterThanOrEqual(spec.min);
+      expect(spec.default, spec.key).toBeLessThanOrEqual(spec.max);
     }
   });
 

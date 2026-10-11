@@ -1,5 +1,7 @@
 export {
   V2_STYLES,
+  V2_DEFAULT_GRAIN,
+  V2_DEFAULT_LIGHT_ANGLE,
   V2_STYLE_DEFAULTS,
   compassToRadians,
   hexToRgb01,

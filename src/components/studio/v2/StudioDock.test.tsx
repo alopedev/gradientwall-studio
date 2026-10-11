@@ -101,13 +101,13 @@ describe("StudioDock", () => {
     await user.click(adjust);
     expect(adjust.getAttribute("aria-expanded")).toBe("true");
     expect(await screen.findByRole("slider", { name: "Grain" })).toBeTruthy();
-    for (const label of ["Softness", "Grain", "Light", "Contrast", "Vibrance"]) {
-      expect(screen.getByRole("slider", { name: label })).toBeTruthy();
-    }
+    // The v2 shader's look is calibrated: only grain and light are exposed.
+    expect(screen.getAllByRole("slider")).toHaveLength(2);
+    expect(screen.getByRole("slider", { name: "Light" })).toBeTruthy();
 
-    act(() => useConfigStore.setState({ grain: 80, blur: 100, contrast: 1.4 }));
+    act(() => useConfigStore.setState({ grain: 80, lightAngle: 90 }));
     await user.click(screen.getByRole("button", { name: /reset/i }));
     const s = useConfigStore.getState();
-    expect([s.grain, s.blur, s.contrast]).toEqual([32, 48, 1]);
+    expect([s.grain, s.lightAngle]).toEqual([45, 315]);
   });
 });

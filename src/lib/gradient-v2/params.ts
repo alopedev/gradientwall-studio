@@ -74,7 +74,11 @@ export interface V2Uniforms {
  * Compass 315 (top-left) = the prototype's math 135°, the direction its
  * signed-off renders were made with.
  */
-const DEFAULT_COMPASS = 315;
+export const V2_DEFAULT_LIGHT_ANGLE = 315;
+const DEFAULT_COMPASS = V2_DEFAULT_LIGHT_ANGLE;
+
+/** Studio grain slider value (0..100) for the approved look of liquid and aurora. */
+export const V2_DEFAULT_GRAIN = 45;
 
 export function hexToRgb01(hex: string): [number, number, number] {
   const m = hex.replace(/^#/, "");
