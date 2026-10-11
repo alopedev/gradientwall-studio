@@ -39,6 +39,7 @@ function setup(opts: { supported?: boolean; drawThrows?: boolean } = {}) {
     isContextLost: () => false,
   };
   const fallback = {
+    adjustmentsFor: vi.fn(),
     paintThumbnail: vi.fn(),
     exportWallpaper: vi.fn(async () => ({ filename: "v1.webp", bytes: 1 })),
   } as unknown as WallpaperEngine;
@@ -61,9 +62,19 @@ describe("webgl v2 engine", () => {
   it("declares grain and light only, with defaults matching the store's start", () => {
     const { engine } = setup();
     const store = useConfigStore.getState();
-    expect(engine.adjustments.map((a) => a.key)).toEqual(["grain", "lightAngle"]);
-    for (const spec of engine.adjustments) expect(spec.default, spec.key).toBe(store[spec.key]);
+    const adjustments = engine.adjustmentsFor(v2);
+    expect(adjustments.map((a) => a.key)).toEqual(["grain", "lightAngle"]);
+    for (const spec of adjustments) expect(spec.default, spec.key).toBe(store[spec.key]);
     expect(engine.styles.map((s) => s.id)).toEqual(["liquid", "aurora", "mesh"]);
+  });
+
+  it("hands the sliders of a v1 favorite to the v1 engine", () => {
+    const { engine, fallback } = setup();
+    const v1Sliders = [{ key: "blur" }] as never;
+    vi.mocked(fallback.adjustmentsFor).mockReturnValue(v1Sliders);
+    expect(engine.adjustmentsFor(v1)).toBe(v1Sliders);
+    expect(fallback.adjustmentsFor).toHaveBeenCalledWith(v1);
+    expect(engine.adjustmentsFor(v2).map((a) => a.key)).toEqual(["grain", "lightAngle"]);
   });
 
   it("paints v2 thumbnails with the shader", () => {

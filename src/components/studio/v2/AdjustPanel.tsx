@@ -3,7 +3,7 @@ import { useId } from "react";
 import { GlassButton } from "@/components/ui/GlassButton";
 import { GlassSlider } from "@/components/ui/shadcn/glass-slider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/shadcn/popover";
-import { useConfigStore } from "@/store";
+import { useConfigStore, useRenderParams } from "@/store";
 import { useWallpaperEngine } from "../engine";
 import type { AdjustmentSpec } from "../engine";
 import { HarmonicWheel } from "../HarmonicWheel";
@@ -37,13 +37,14 @@ function AdjustSlider({ spec }: { spec: AdjustmentSpec }) {
 /** Sliders and finer color tools that open under the dock. */
 export function AdjustPanel({ id }: { id: string }) {
   const engine = useWallpaperEngine();
+  const adjustments = engine.adjustmentsFor(useRenderParams());
   const applyRemix = useConfigStore((s) => s.applyRemix);
   const requestReveal = useRequestReveal();
   const headingId = useId();
 
   const reset = () => {
     const patch: Record<string, number> = {};
-    for (const spec of engine.adjustments) patch[spec.key] = spec.default;
+    for (const spec of adjustments) patch[spec.key] = spec.default;
     useConfigStore.setState(patch);
   };
 
@@ -56,7 +57,7 @@ export function AdjustPanel({ id }: { id: string }) {
       <h3 id={headingId} className="sr-only">
         Adjust the wallpaper
       </h3>
-      {engine.adjustments.map((spec) => (
+      {adjustments.map((spec) => (
         <AdjustSlider key={spec.key} spec={spec} />
       ))}
       <div className="col-span-full flex flex-wrap items-center justify-end gap-1">

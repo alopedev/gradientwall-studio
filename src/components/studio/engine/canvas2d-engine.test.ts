@@ -31,7 +31,14 @@ describe("canvas2d engine", () => {
   });
 
   it("declares adjustments with defaults inside their range", () => {
-    const { adjustments } = createCanvas2DEngine(vi.fn());
+    const adjustments = createCanvas2DEngine(vi.fn()).adjustmentsFor(params);
+    expect(adjustments.map((a) => a.key)).toEqual([
+      "blur",
+      "grain",
+      "lightAngle",
+      "contrast",
+      "vibrance",
+    ]);
     for (const spec of adjustments) {
       expect(spec.min).toBeLessThan(spec.max);
       expect(spec.default, spec.key).toBeGreaterThanOrEqual(spec.min);

@@ -4,7 +4,7 @@ import { canvas2DEngine } from "@/components/studio/engine/canvas2d-engine";
 import { webglEngine } from "@/components/studio/engine/webgl-engine";
 import { generateRemix } from "@/lib/gradient/remix";
 import { generateSurprise } from "@/lib/gradient/surprise";
-import { useConfigStore } from "@/store/useConfigStore";
+import { selectRenderParams, useConfigStore } from "@/store/useConfigStore";
 import {
   DEFAULT_CONTRAST,
   DEFAULT_DENSITY,
@@ -17,8 +17,10 @@ import {
   V2_DEFAULT_LIGHT_ANGLE,
 } from "./defaults";
 
+/** Reset target the engine declares for the wallpaper the Studio is showing now. */
 const defaultOf = (engine: typeof webglEngine, key: string) =>
-  engine.adjustments.find((a) => a.key === key)?.default;
+  engine.adjustmentsFor(selectRenderParams(useConfigStore.getState())).find((a) => a.key === key)
+    ?.default;
 
 describe("render defaults", () => {
   it("the Studio starts at the v2 engine's Reset values", () => {
