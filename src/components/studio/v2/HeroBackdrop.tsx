@@ -1,15 +1,16 @@
 import { useInView } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { type RefObject, useEffect, useRef, useState } from "react";
 import {
   BACKDROP_GRAIN,
-  BACKDROP_MIN_FRAME_MS,
   BACKDROP_SEED,
   backdropSize,
   createRendererV2,
+  frameDue,
   isWebGL2Supported,
   shouldRunBackdrop,
   stepPalette,
   type V2Renderer,
+  visibleRegions,
 } from "@/lib/gradient-v2";
 import { useConfigStore } from "@/store";
 
@@ -23,6 +24,28 @@ function readEnv() {
   };
 }
 
+/** CSS px of the occluder's edge still shaded: its rounded corners and border let the field through. */
+const OCCLUDER_INSET = 24;
+
+/** Run `cb` once the main thread is free (or after `timeout` ms at the latest). */
+function whenIdle(cb: () => void, timeout = 1500): () => void {
+  if (typeof requestIdleCallback === "function" && typeof cancelIdleCallback === "function") {
+    const cancel = cancelIdleCallback;
+    const id = requestIdleCallback(cb, { timeout });
+    return () => cancel(id);
+  }
+  const id = setTimeout(cb, 200);
+  return () => clearTimeout(id);
+}
+
+interface Props {
+  /**
+   * An opaque box drawn over the backdrop (the Studio frame). Pixels under it
+   * are never seen, so they are not shaded: about half the first screen.
+   */
+  occluderRef?: RefObject<HTMLElement | null>;
+}
+
 /**
  * The v2 shader moving slowly behind the first screen, tinted with the current
  * palette. A Shuffle eases its colours to the new ones. It sits on top of
@@ -31,9 +54,11 @@ function readEnv() {
  * renders nothing and the ambient is all there is.
  *
  * It owns its own small WebGL context (a fraction of the screen size, about
- * 30 fps) and only draws while it is on screen and the tab is visible.
+ * 30 fps) and only draws while it is on screen and the tab is visible. The
+ * context is created once the page is idle and the shader compiles in the
+ * background, so the Studio's first wallpaper never waits for it.
  */
-export function HeroBackdrop() {
+export function HeroBackdrop({ occluderRef }: Props = {}) {
   const [enabled] = useState(() => shouldRunBackdrop(readEnv()));
   const [failed, setFailed] = useState(false);
   const [ready, setReady] = useState(false);
@@ -41,7 +66,7 @@ export function HeroBackdrop() {
 
   const boxRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const rendererRef = useRef<V2Renderer | null>(null);
+  const [renderer, setRenderer] = useState<V2Renderer | null>(null);
   const inView = useInView(boxRef);
 
   const colors = useConfigStore((s) => s.colors);
@@ -58,30 +83,32 @@ export function HeroBackdrop() {
     return () => document.removeEventListener("visibilitychange", onVisibility);
   }, []);
 
-  // One renderer for the life of the component.
+  // One renderer for the life of the component, created once the page is idle.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!enabled || !canvas) return;
-    try {
-      rendererRef.current = createRendererV2(canvas, { animated: true });
-    } catch {
-      setFailed(true);
-    }
-    return () => {
-      rendererRef.current = null;
-    };
+    return whenIdle(() => {
+      try {
+        setRenderer(createRendererV2(canvas, { animated: true }));
+      } catch {
+        setFailed(true);
+      }
+    });
   }, [enabled]);
 
   const active = enabled && !failed && inView && !hidden;
   useEffect(() => {
-    const renderer = rendererRef.current;
     const box = boxRef.current;
-    if (!active || !renderer || !box) return;
+    const canvas = canvasRef.current;
+    if (!active || !renderer || !box || !canvas) return;
 
     let raf = 0;
     let last: number | null = null;
+    // Buffer size and visible regions of the last frame drawn.
+    let painted = "";
+    let shown = false;
     const frame = (now: number) => {
-      if (last !== null && now - last < BACKDROP_MIN_FRAME_MS) {
+      if ((last !== null && !frameDue(now - last)) || !renderer.isReady()) {
         raf = requestAnimationFrame(frame);
         return;
       }
@@ -95,23 +122,40 @@ export function HeroBackdrop() {
       clock.current += dt;
       palette.current = stepPalette(palette.current, target.current, dt);
       const { width, height } = backdropSize(box.clientWidth, box.clientHeight);
+      const occluder = occluderRef?.current;
+      const visible = occluder
+        ? visibleRegions(
+            canvas.getBoundingClientRect(),
+            occluder.getBoundingClientRect(),
+            { width, height },
+            OCCLUDER_INSET,
+          )
+        : null;
+      // Pixels outside `visible` keep an older frame. That is only safe while
+      // the size and the hole stay as they were; any change shades it all once.
+      const layout = `${width}x${height}|${JSON.stringify(visible)}`;
+      const regions = layout === painted && visible ? visible : undefined;
       try {
         renderer.draw(
           { colors: palette.current, style: "liquid", seed: BACKDROP_SEED, grain: BACKDROP_GRAIN },
           width,
           height,
-          { time: clock.current },
+          { time: clock.current, regions },
         );
       } catch {
         setFailed(true);
         return;
       }
-      setReady(true);
+      painted = layout;
+      if (!shown) {
+        shown = true;
+        setReady(true);
+      }
       raf = requestAnimationFrame(frame);
     };
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
-  }, [active]);
+  }, [active, renderer, occluderRef]);
 
   if (!enabled || failed) return null;
   return (

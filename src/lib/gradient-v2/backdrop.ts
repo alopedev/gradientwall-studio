@@ -80,3 +80,73 @@ export interface BackdropEnv {
 export function shouldRunBackdrop({ webgl2, reducedMotion, saveData }: BackdropEnv): boolean {
   return webgl2 && !reducedMotion && !saveData;
 }
+
+/**
+ * rAF timestamps are coarsened (Chrome: 0.1 ms), so two 60 Hz frames can read
+ * 33.3 ms, just under 1000 / 30. Without some slack every other drawn frame is
+ * skipped and the field stutters between 30 and 20 fps.
+ */
+const FRAME_SLACK_MS = 4;
+
+/** Whether enough time has passed since the last drawn frame to draw another. */
+export function frameDue(elapsedMs: number, minFrameMs = BACKDROP_MIN_FRAME_MS): boolean {
+  return elapsedMs >= minFrameMs - FRAME_SLACK_MS;
+}
+
+/** A box in CSS pixels (viewport space, as `getBoundingClientRect` gives it). */
+export interface CssRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/** A rectangle of drawing-buffer pixels, GL style: origin at the bottom left. */
+export interface PixelRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/**
+ * The parts of the backdrop's drawing buffer worth shading: all of it minus
+ * what sits under `occluder`, an opaque box drawn on top (the Studio frame).
+ * Up to four bands around the hole, no pixel twice. The hole is shrunk by
+ * `inset` CSS px (the box's rounded corners and border let the field through)
+ * and rounded inwards, so a pixel the box doesn't fully hide is always drawn.
+ */
+export function visibleRegions(
+  canvas: CssRect,
+  occluder: CssRect | null,
+  buffer: { width: number; height: number },
+  inset = 0,
+): PixelRect[] {
+  const bw = buffer.width;
+  const bh = buffer.height;
+  const whole = [{ x: 0, y: 0, width: bw, height: bh }];
+  if (!occluder || canvas.width <= 0 || canvas.height <= 0) return whole;
+
+  const sx = bw / canvas.width;
+  const sy = bh / canvas.height;
+  // Hole in buffer columns / rows counted from the top, rounded inwards.
+  const left = Math.max(0, Math.ceil((occluder.x + inset - canvas.x) * sx));
+  const right = Math.min(bw, Math.floor((occluder.x + occluder.width - inset - canvas.x) * sx));
+  const top = Math.max(0, Math.ceil((occluder.y + inset - canvas.y) * sy));
+  const bottom = Math.min(bh, Math.floor((occluder.y + occluder.height - inset - canvas.y) * sy));
+  if (right <= left || bottom <= top) return whole;
+
+  // Rows [r0, r1) from the top become GL rows from the bottom.
+  const band = (x: number, r0: number, width: number, r1: number): PixelRect => ({
+    x,
+    y: bh - r1,
+    width,
+    height: r1 - r0,
+  });
+  return [
+    band(0, 0, bw, top),
+    band(0, bottom, bw, bh),
+    band(0, top, left, bottom),
+    band(right, top, bw - right, bottom),
+  ].filter((r) => r.width > 0 && r.height > 0);
+}

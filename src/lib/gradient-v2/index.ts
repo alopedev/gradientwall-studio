@@ -30,6 +30,10 @@ export {
   BACKDROP_MIN_FRAME_MS,
   BACKDROP_SEED,
   backdropSize,
+  frameDue,
   shouldRunBackdrop,
   stepPalette,
+  visibleRegions,
+  type CssRect,
+  type PixelRect,
 } from "./backdrop";

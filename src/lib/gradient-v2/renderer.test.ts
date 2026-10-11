@@ -1,14 +1,29 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderWallpaperV2 } from "./export";
-import { createRendererV2, paintV2, WebGL2UnavailableError, type V2Renderer } from "./renderer";
+import {
+  __resetWebGL2ProbeForTests,
+  createRendererV2,
+  isWebGL2Supported,
+  paintV2,
+  WebGL2UnavailableError,
+  type V2Renderer,
+} from "./renderer";
 import { FRAG, VERT } from "./shader";
 import { FRAG_ANIMATED } from "./shader-animated";
 
 const RAMP = ["#0a0a10", "#3b1a63", "#e2553a", "#f7c890"];
+const COMPLETION_STATUS = 0x91b1;
 
 /** Minimal WebGL2 stand-in that records what the renderer asks of it. */
-function fakeGl(opts: { clampTo?: [number, number]; compileOk?: boolean } = {}) {
+function fakeGl(
+  opts: {
+    clampTo?: [number, number];
+    compileOk?: boolean;
+    /** Expose KHR_parallel_shader_compile; `done` says whether the link has finished. */
+    parallel?: { done: boolean };
+  } = {},
+) {
   const calls: { name: string; args: unknown[] }[] = [];
   const canvas = { width: 300, height: 150 } as HTMLCanvasElement;
   const rec =
@@ -36,21 +51,34 @@ function fakeGl(opts: { clampTo?: [number, number]; compileOk?: boolean } = {}) 
     createShader: rec("createShader", {}),
     shaderSource: rec("shaderSource"),
     compileShader: rec("compileShader"),
-    getShaderParameter: () => opts.compileOk ?? true,
+    getShaderParameter: (...args: unknown[]) => {
+      calls.push({ name: "getShaderParameter", args });
+      return opts.compileOk ?? true;
+    },
     getShaderInfoLog: () => "boom",
     deleteShader: rec("deleteShader"),
     createProgram: rec("createProgram", {}),
     attachShader: rec("attachShader"),
     bindAttribLocation: rec("bindAttribLocation"),
     linkProgram: rec("linkProgram"),
-    getProgramParameter: () => true,
+    getProgramParameter: (_p: unknown, pname: number) => {
+      calls.push({ name: "getProgramParameter", args: [pname] });
+      return pname === COMPLETION_STATUS ? (opts.parallel?.done ?? true) : true;
+    },
+    getExtension: (name: string) =>
+      name === "KHR_parallel_shader_compile" && opts.parallel
+        ? { COMPLETION_STATUS_KHR: COMPLETION_STATUS }
+        : null,
     getProgramInfoLog: () => "",
     createBuffer: rec("createBuffer", {}),
     bindBuffer: rec("bindBuffer"),
     bufferData: rec("bufferData"),
     enableVertexAttribArray: rec("enableVertexAttribArray"),
     vertexAttribPointer: rec("vertexAttribPointer"),
-    getUniformLocation: (_p: unknown, n: string) => n,
+    getUniformLocation: (_p: unknown, n: string) => {
+      calls.push({ name: "getUniformLocation", args: [n] });
+      return n;
+    },
     viewport: rec("viewport"),
     useProgram: rec("useProgram"),
     uniform2f: rec("uniform2f"),
@@ -110,6 +138,29 @@ describe("createRendererV2", () => {
     expect(named(calls, "disable")[0].args).toEqual([9]);
   });
 
+  it("shades only the given regions, one scissored draw each", () => {
+    const { canvas, calls } = fakeGl();
+    const r = createRendererV2(canvas, { animated: true });
+    const regions = [
+      { x: 0, y: 300, width: 576, height: 60 },
+      { x: 0, y: 0, width: 200, height: 300 },
+    ];
+    r.draw({ colors: RAMP, style: "liquid", seed: 1 }, 576, 360, { time: 2, regions });
+    expect(named(calls, "scissor").map((c) => c.args)).toEqual([
+      [0, 300, 576, 60],
+      [0, 0, 200, 300],
+    ]);
+    expect(named(calls, "drawArrays")).toHaveLength(2);
+    expect(named(calls, "disable")[0].args).toEqual([9]);
+  });
+
+  it("draws nothing for an empty region list", () => {
+    const { canvas, calls } = fakeGl();
+    const r = createRendererV2(canvas, { animated: true });
+    r.draw({ colors: RAMP, style: "liquid", seed: 1 }, 576, 360, { regions: [] });
+    expect(named(calls, "drawArrays")).toHaveLength(0);
+  });
+
   it("refuses a drawing buffer the browser clamped, so callers can fall back", () => {
     const { canvas } = fakeGl({ clampTo: [4096, 2304] });
     const r = createRendererV2(canvas);
@@ -160,7 +211,12 @@ describe("paintV2", () => {
       getContext: () => ({ drawImage }),
     } as unknown as HTMLCanvasElement;
     const draw = vi.fn();
-    const renderer = { canvas: {} as HTMLCanvasElement, draw, isContextLost: () => false };
+    const renderer = {
+      canvas: {} as HTMLCanvasElement,
+      draw,
+      isContextLost: () => false,
+      isReady: () => true,
+    };
     paintV2(target, { colors: RAMP, style: "liquid", seed: 3 }, 640, 360, {}, renderer);
     expect(draw).toHaveBeenCalledWith({ colors: RAMP, style: "liquid", seed: 3 }, 640, 360, {});
     expect([target.width, target.height]).toEqual([640, 360]);
@@ -190,6 +246,7 @@ describe("renderWallpaperV2", () => {
         throw new WebGL2UnavailableError("clamped");
       },
       isContextLost: () => false,
+      isReady: () => true,
     };
     const out = renderWallpaperV2(params, 5120, 2880, {
       supported: () => true,
@@ -207,6 +264,7 @@ describe("renderWallpaperV2", () => {
         throw new Error("driver says no");
       },
       isContextLost: () => false,
+      isReady: () => true,
     };
     const out = renderWallpaperV2(params, 100, 100, {
       supported: () => true,
@@ -223,6 +281,7 @@ describe("renderWallpaperV2", () => {
       canvas: {} as HTMLCanvasElement,
       draw,
       isContextLost: () => false,
+      isReady: () => true,
     };
     const out = renderWallpaperV2(params, 5120, 2880, {
       supported: () => true,
@@ -231,5 +290,65 @@ describe("renderWallpaperV2", () => {
     });
     expect(out?.width).toBe(5120);
     expect(draw).toHaveBeenCalledWith(params, 5120, 2880, { strip: 512 });
+  });
+});
+
+describe("parallel shader compile", () => {
+  it("is ready at once without KHR_parallel_shader_compile", () => {
+    const { canvas } = fakeGl();
+    expect(createRendererV2(canvas).isReady()).toBe(true);
+  });
+
+  it("doesn't wait on the GPU while the program is still linking", () => {
+    const parallel = { done: false };
+    const { canvas, calls } = fakeGl({ parallel });
+    const r = createRendererV2(canvas, { animated: true });
+    expect(r.isReady()).toBe(false);
+    // Any of these would block the main thread until the link is done.
+    expect(named(calls, "getShaderParameter")).toHaveLength(0);
+    expect(named(calls, "getUniformLocation")).toHaveLength(0);
+    expect(named(calls, "getProgramParameter").map((c) => c.args[0])).toEqual([COMPLETION_STATUS]);
+    parallel.done = true;
+    expect(r.isReady()).toBe(true);
+    r.draw({ colors: RAMP, style: "liquid", seed: 1 }, 320, 240, { time: 0 });
+    expect(named(calls, "drawArrays")).toHaveLength(1);
+  });
+
+  it("still draws if asked before the link finished (the driver waits)", () => {
+    const { canvas, calls } = fakeGl({ parallel: { done: false } });
+    const r = createRendererV2(canvas);
+    r.draw({ colors: RAMP, style: "liquid", seed: 1 }, 320, 240);
+    expect(named(calls, "drawArrays")).toHaveLength(1);
+  });
+
+  it("surfaces a compile error on the first draw instead", () => {
+    const { canvas } = fakeGl({ parallel: { done: true }, compileOk: false });
+    const r = createRendererV2(canvas, { animated: true });
+    expect(() => r.draw({ colors: RAMP, style: "liquid", seed: 1 }, 320, 240)).toThrow(/boom/);
+  });
+});
+
+describe("isWebGL2Supported", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    __resetWebGL2ProbeForTests();
+  });
+
+  it("gives the probe's context back instead of holding a spare one for the page's life", () => {
+    const loseContext = vi.fn();
+    const probe = {
+      getExtension: (n: string) => (n === "WEBGL_lose_context" ? { loseContext } : null),
+    };
+    const make = document.createElement.bind(document);
+    vi.spyOn(document, "createElement").mockImplementation((tag: string) => {
+      const el = make(tag);
+      if (tag === "canvas") {
+        (el as HTMLCanvasElement).getContext = (() =>
+          probe) as unknown as HTMLCanvasElement["getContext"];
+      }
+      return el;
+    });
+    expect(isWebGL2Supported()).toBe(true);
+    expect(loseContext).toHaveBeenCalledTimes(1);
   });
 });

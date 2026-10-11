@@ -3,6 +3,7 @@ import { act, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as v2 from "@/lib/gradient-v2";
 import { BACKDROP_MIN_FRAME_MS, BACKDROP_SEED } from "@/lib/gradient-v2";
+import { createRef } from "react";
 import type { Colors4 } from "@/lib/palettes";
 import { useConfigStore } from "@/store";
 import { HeroBackdrop } from "./HeroBackdrop";
@@ -38,6 +39,9 @@ const tick = (ms: number) => {
 
 let draw: ReturnType<typeof vi.fn>;
 let lost = false;
+let ready = true;
+/** When set, idle callbacks wait here instead of running at once. */
+let idleQueue: (() => void)[] | null = null;
 
 function setMotion(reduce: boolean) {
   (window.matchMedia as unknown as ReturnType<typeof vi.fn>).mockImplementation((q: string) => ({
@@ -54,6 +58,7 @@ beforeEach(() => {
   gpu.inView = true;
   gpu.supported = true;
   lost = false;
+  ready = true;
   frames = new Map();
   clock = 1000;
   draw = vi.fn();
@@ -62,12 +67,20 @@ beforeEach(() => {
     canvas: document.createElement("canvas"),
     draw,
     isContextLost: () => lost,
+    isReady: () => ready,
   }));
   vi.stubGlobal("requestAnimationFrame", (cb: FrameRequestCallback) => {
     frames.set(nextId, cb);
     return nextId++;
   });
   vi.stubGlobal("cancelAnimationFrame", (id: number) => void frames.delete(id));
+  idleQueue = null;
+  vi.stubGlobal("requestIdleCallback", (cb: () => void) => {
+    if (idleQueue) idleQueue.push(cb);
+    else cb();
+    return 1;
+  });
+  vi.stubGlobal("cancelIdleCallback", () => undefined);
   setMotion(false);
   Object.defineProperty(navigator, "connection", { value: undefined, configurable: true });
   Object.defineProperty(document, "hidden", { value: false, configurable: true });
@@ -213,5 +226,87 @@ describe("HeroBackdrop", () => {
     lost = true;
     tick(BACKDROP_MIN_FRAME_MS + 1);
     expect(container.firstElementChild).toBeNull();
+  });
+
+  it("keeps a steady 30 fps on a 60 Hz screen, whose rAF timestamps read 33.3 ms apart", () => {
+    render(<HeroBackdrop />);
+    tick(16);
+    for (let i = 0; i < 30; i++) {
+      tick(16.7);
+      tick(16.6);
+    }
+    expect(draw).toHaveBeenCalledTimes(31);
+  });
+
+  it("waits for the browser to be idle before creating its GPU context, so the Studio paints first", () => {
+    idleQueue = [];
+    render(<HeroBackdrop />);
+    expect(gpu.create).not.toHaveBeenCalled();
+    act(() => {
+      for (const cb of idleQueue ?? []) cb();
+    });
+    expect(gpu.create).toHaveBeenCalledTimes(1);
+    tick(16);
+    expect(draw).toHaveBeenCalledTimes(1);
+  });
+
+  it("doesn't draw (or block on the GPU) while the shader is still compiling", () => {
+    ready = false;
+    render(<HeroBackdrop />);
+    tick(16);
+    tick(BACKDROP_MIN_FRAME_MS);
+    expect(draw).not.toHaveBeenCalled();
+    expect(frames.size).toBe(1);
+    ready = true;
+    tick(16);
+    expect(draw).toHaveBeenCalledTimes(1);
+    expect(draw.mock.calls[0][3].time).toBe(0);
+  });
+
+  it("shades only what the Studio frame leaves visible, after one full first frame", () => {
+    const occluder = createRef<HTMLDivElement>();
+    const { container } = render(
+      <>
+        <HeroBackdrop occluderRef={occluder} />
+        <div ref={occluder} />
+      </>,
+    );
+    const canvas = container.querySelector("canvas") as HTMLCanvasElement;
+    const rect = (x: number, y: number, width: number, height: number) =>
+      ({ x, y, width, height, left: x, top: y, right: x + width, bottom: y + height }) as DOMRect;
+    canvas.getBoundingClientRect = () => rect(0, 0, 800, 600);
+    (occluder.current as HTMLDivElement).getBoundingClientRect = () => rect(400, 0, 400, 600);
+    tick(16);
+    expect(draw.mock.calls[0][3].regions).toBeUndefined();
+    tick(BACKDROP_MIN_FRAME_MS);
+    const regions = draw.mock.calls[1][3].regions as { width: number; height: number }[];
+    const shaded = regions.reduce((a, r) => a + r.width * r.height, 0);
+    const [, w, h] = draw.mock.calls[1];
+    expect(shaded).toBeLessThan(w * h * 0.6);
+    expect(shaded).toBeGreaterThan(w * h * 0.5);
+  });
+
+  it("shades everything again when the Studio frame changes shape, so no stale pixels show", () => {
+    const occluder = createRef<HTMLDivElement>();
+    const { container } = render(
+      <>
+        <HeroBackdrop occluderRef={occluder} />
+        <div ref={occluder} />
+      </>,
+    );
+    const canvas = container.querySelector("canvas") as HTMLCanvasElement;
+    const rect = (x: number, y: number, width: number, height: number) =>
+      ({ x, y, width, height, left: x, top: y, right: x + width, bottom: y + height }) as DOMRect;
+    let box = rect(400, 0, 400, 600);
+    canvas.getBoundingClientRect = () => rect(0, 0, 800, 600);
+    (occluder.current as HTMLDivElement).getBoundingClientRect = () => box;
+    tick(16);
+    tick(BACKDROP_MIN_FRAME_MS);
+    expect(draw.mock.calls[1][3].regions).toBeDefined();
+    box = rect(400, 100, 400, 300); // e.g. switching device on a phone
+    tick(BACKDROP_MIN_FRAME_MS);
+    expect(draw.mock.calls[2][3].regions).toBeUndefined();
+    tick(BACKDROP_MIN_FRAME_MS);
+    expect(draw.mock.calls[3][3].regions).toBeDefined();
   });
 });

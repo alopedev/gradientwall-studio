@@ -38,6 +38,7 @@ function setup(opts: { supported?: boolean; drawThrows?: boolean } = {}) {
     canvas: document.createElement("canvas"),
     draw,
     isContextLost: () => false,
+    isReady: () => true,
   };
   const fallback = {
     adjustmentsFor: vi.fn(),
