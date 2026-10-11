@@ -31,6 +31,7 @@ export function StudioShell() {
   const [adjustOpen, setAdjustOpen] = useState(false);
   const device = useConfigStore((s) => s.device);
   const sectionRef = useRef<HTMLElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
   const revealRef = useRef<RevealRequest | null>(null);
   const inView = useInView(sectionRef, { amount: 0.35 });
   // The Studio is now the first screen, so Space must keep scrolling the page
@@ -56,7 +57,7 @@ export function StudioShell() {
     <RevealContext.Provider value={revealRef}>
       <section ref={sectionRef} className="relative isolate overflow-hidden">
         <HeroAmbient />
-        <HeroBackdrop />
+        <HeroBackdrop occluderRef={frameRef} />
         <div className="mx-auto grid max-w-[1600px] gap-8 px-[clamp(16px,4vw,64px)] pb-[clamp(32px,5vw,72px)] pt-[88px] lg:min-h-[100svh] lg:grid-cols-[minmax(300px,0.72fr)_minmax(0,1.6fr)] lg:items-center lg:gap-10 lg:pt-[96px]">
           <Reveal className="relative z-[1]">
             <span className="mb-5 hidden rounded-full border border-white/12 bg-white/[0.04] px-3 py-1.5 font-sans text-[11px] font-medium uppercase tracking-[0.14em] text-white/75 md:inline-flex">
@@ -74,6 +75,7 @@ export function StudioShell() {
           {/* Anchor target: "Make a wallpaper" lands on the frame (just under the nav). */}
           <div id="studio" className="@container mx-auto w-full max-w-[1500px] scroll-mt-[76px]">
             <div
+              ref={frameRef}
               data-device={device}
               onPointerEnter={() => setHovered(true)}
               onPointerLeave={() => setHovered(false)}

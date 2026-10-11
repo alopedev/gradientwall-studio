@@ -10,6 +10,7 @@
 
 import { FRAG, VERT } from "./shader";
 import { FRAG_ANIMATED } from "./shader-animated";
+import type { PixelRect } from "./backdrop";
 import { resolveV2Uniforms, type V2Params } from "./params";
 
 /** Rows per draw call when exporting large sizes; keeps each draw under the GPU watchdog. */
@@ -20,6 +21,12 @@ export interface DrawOptions {
   strip?: number;
   /** Seconds, for a renderer created with `animated: true`; ignored by the still shader. */
   time?: number;
+  /**
+   * Shade only these rectangles (GL pixels, origin bottom left); the rest of
+   * the buffer keeps its previous frame. For a backdrop partly hidden under
+   * opaque boxes (see `visibleRegions`). Takes precedence over `strip`.
+   */
+  regions?: readonly PixelRect[];
 }
 
 export interface RendererOptions {
@@ -31,6 +38,12 @@ export interface V2Renderer {
   readonly canvas: HTMLCanvasElement;
   draw(params: V2Params, w: number, h: number, opts?: DrawOptions): void;
   isContextLost(): boolean;
+  /**
+   * False while the browser is still compiling the shader in the background
+   * (KHR_parallel_shader_compile). A draw before then still works, but waits
+   * on the GPU; a caller that can wait (the backdrop) checks this first.
+   */
+  isReady(): boolean;
 }
 
 const UNIFORMS = [
@@ -55,17 +68,20 @@ export class WebGL2UnavailableError extends Error {
   }
 }
 
-function compile(gl: WebGL2RenderingContext, type: number, src: string): WebGLShader {
+function createShader(gl: WebGL2RenderingContext, type: number, src: string): WebGLShader {
   const sh = gl.createShader(type);
   if (!sh) throw new WebGL2UnavailableError("Could not create shader");
   gl.shaderSource(sh, src);
   gl.compileShader(sh);
+  return sh;
+}
+
+function checkCompiled(gl: WebGL2RenderingContext, sh: WebGLShader): void {
   if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
     const log = gl.getShaderInfoLog(sh);
     gl.deleteShader(sh);
     throw new Error(`Shader compile failed: ${log}`);
   }
-  return sh;
 }
 
 export function createRendererV2(
@@ -85,15 +101,21 @@ export function createRendererV2(
   if (!maybeGl) throw new WebGL2UnavailableError();
   const gl = maybeGl;
 
+  // With KHR_parallel_shader_compile the driver compiles off the main thread,
+  // as long as nothing asks for the result early: status checks and uniform
+  // lookups wait for it. So they happen in `link()`, on the first draw.
+  const parallel = gl.getExtension("KHR_parallel_shader_compile") as {
+    COMPLETION_STATUS_KHR: number;
+  } | null;
+
   const prog = gl.createProgram();
   if (!prog) throw new WebGL2UnavailableError("Could not create program");
-  gl.attachShader(prog, compile(gl, gl.VERTEX_SHADER, VERT));
-  gl.attachShader(prog, compile(gl, gl.FRAGMENT_SHADER, animated ? FRAG_ANIMATED : FRAG));
+  const vs = createShader(gl, gl.VERTEX_SHADER, VERT);
+  const fs = createShader(gl, gl.FRAGMENT_SHADER, animated ? FRAG_ANIMATED : FRAG);
+  gl.attachShader(prog, vs);
+  gl.attachShader(prog, fs);
   gl.bindAttribLocation(prog, 0, "aPos");
   gl.linkProgram(prog);
-  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
-    throw new Error(`Program link failed: ${gl.getProgramInfoLog(prog)}`);
-  }
 
   // One oversized triangle covers the viewport.
   const buf = gl.createBuffer();
@@ -102,8 +124,26 @@ export function createRendererV2(
   gl.enableVertexAttribArray(0);
   gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 
-  const loc = {} as Record<UniformName, WebGLUniformLocation | null>;
-  for (const n of UNIFORMS) loc[n] = gl.getUniformLocation(prog, n);
+  let linked: Record<UniformName, WebGLUniformLocation | null> | null = null;
+  function link(): Record<UniformName, WebGLUniformLocation | null> {
+    if (linked) return linked;
+    checkCompiled(gl, vs);
+    checkCompiled(gl, fs);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+      throw new Error(`Program link failed: ${gl.getProgramInfoLog(prog)}`);
+    }
+    const found = {} as Record<UniformName, WebGLUniformLocation | null>;
+    for (const n of UNIFORMS) found[n] = gl.getUniformLocation(prog, n);
+    linked = found;
+    return found;
+  }
+  // Without the extension there is nothing to wait for: fail fast, as before.
+  if (!parallel) link();
+
+  const isReady = () =>
+    linked !== null ||
+    !parallel ||
+    gl.getProgramParameter(prog, parallel.COMPLETION_STATUS_KHR) === true;
 
   function draw(params: V2Params, w: number, h: number, opts: DrawOptions = {}): void {
     if (!(w > 0 && h > 0)) throw new RangeError(`Invalid size ${w}×${h}`);
@@ -115,6 +155,7 @@ export function createRendererV2(
         `Drawing buffer clamped to ${gl.drawingBufferWidth}×${gl.drawingBufferHeight} (wanted ${w}×${h})`,
       );
     }
+    const loc = link();
     const u = resolveV2Uniforms(params);
     gl.viewport(0, 0, w, h);
     // biome-ignore lint/correctness/useHookAtTopLevel: WebGL's useProgram, not a React hook.
@@ -132,7 +173,14 @@ export function createRendererV2(
     if (animated) gl.uniform1f(loc.uTime, opts.time ?? 0);
 
     const strip = opts.strip ?? 0;
-    if (strip > 0 && strip < h) {
+    if (opts.regions) {
+      gl.enable(gl.SCISSOR_TEST);
+      for (const r of opts.regions) {
+        gl.scissor(r.x, r.y, r.width, r.height);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+      }
+      gl.disable(gl.SCISSOR_TEST);
+    } else if (strip > 0 && strip < h) {
       gl.enable(gl.SCISSOR_TEST);
       for (let y = 0; y < h; y += strip) {
         gl.scissor(0, y, w, Math.min(strip, h - y));
@@ -145,7 +193,7 @@ export function createRendererV2(
     }
   }
 
-  return { canvas, draw, isContextLost: () => gl.isContextLost() };
+  return { canvas, draw, isContextLost: () => gl.isContextLost(), isReady };
 }
 
 let shared: V2Renderer | null = null;
@@ -165,12 +213,19 @@ export function __resetSharedRendererV2ForTests(): void {
 
 let supported: boolean | null = null;
 
+/** Test-only. */
+export function __resetWebGL2ProbeForTests(): void {
+  supported = null;
+}
+
 /** Cached WebGL2 probe. False in jsdom and on browsers without WebGL2. */
 export function isWebGL2Supported(): boolean {
   if (supported !== null) return supported;
   try {
-    const c = document.createElement("canvas");
-    supported = !!c.getContext("webgl2");
+    const gl = document.createElement("canvas").getContext("webgl2");
+    supported = !!gl;
+    // Give the probe's context back at once: browsers cap live contexts per page.
+    gl?.getExtension("WEBGL_lose_context")?.loseContext();
   } catch {
     supported = false;
   }

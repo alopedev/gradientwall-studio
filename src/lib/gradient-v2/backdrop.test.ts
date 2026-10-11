@@ -4,7 +4,10 @@ import {
   BACKDROP_MAX_PIXELS,
   BACKDROP_MIN_FRAME_MS,
   backdropSize,
+  frameDue,
   mixHex,
+  type PixelRect,
+  visibleRegions,
   shouldRunBackdrop,
   stepPalette,
 } from "./backdrop";
@@ -86,5 +89,89 @@ describe("BACKDROP_MIN_FRAME_MS", () => {
   it("caps the loop near 30 fps", () => {
     expect(1000 / BACKDROP_MIN_FRAME_MS).toBeLessThanOrEqual(31);
     expect(1000 / BACKDROP_MIN_FRAME_MS).toBeGreaterThanOrEqual(24);
+  });
+});
+
+describe("frameDue", () => {
+  it("draws every other frame on a 60 Hz screen, even with coarsened rAF timestamps", () => {
+    // Chrome rounds rAF timestamps to 0.1 ms: two 60 Hz frames read 33.3 ms, under 1000 / 30.
+    expect(frameDue(33.3, BACKDROP_MIN_FRAME_MS)).toBe(true);
+    expect(frameDue(16.7, BACKDROP_MIN_FRAME_MS)).toBe(false);
+  });
+
+  it("keeps about 30 fps on 120 and 144 Hz screens", () => {
+    expect(frameDue(25, BACKDROP_MIN_FRAME_MS)).toBe(false);
+    expect(frameDue(33.3, BACKDROP_MIN_FRAME_MS)).toBe(true);
+    expect(frameDue(27.8, BACKDROP_MIN_FRAME_MS)).toBe(false);
+    expect(frameDue(34.7, BACKDROP_MIN_FRAME_MS)).toBe(true);
+  });
+});
+
+const area = (rs: PixelRect[]) => rs.reduce((a, r) => a + r.width * r.height, 0);
+
+/** Every buffer pixel, marked by how many regions cover it. */
+function coverage(rs: PixelRect[], w: number, h: number): number[] {
+  const px = new Array(w * h).fill(0);
+  for (const r of rs) {
+    for (let y = r.y; y < r.y + r.height; y++) {
+      for (let x = r.x; x < r.x + r.width; x++) px[y * w + x]++;
+    }
+  }
+  return px;
+}
+
+describe("visibleRegions", () => {
+  const canvas = { x: 0, y: 0, width: 1440, height: 900 };
+  const buffer = { width: 576, height: 360 };
+
+  it("is the whole buffer when nothing covers the canvas", () => {
+    expect(visibleRegions(canvas, null, buffer)).toEqual([{ x: 0, y: 0, width: 576, height: 360 }]);
+    const outside = { x: 2000, y: 0, width: 100, height: 100 };
+    expect(visibleRegions(canvas, outside, buffer)).toEqual([
+      { x: 0, y: 0, width: 576, height: 360 },
+    ]);
+  });
+
+  it("skips the pixels under an opaque box: the Studio frame hides about half the first screen", () => {
+    const studio = { x: 496, y: 98, width: 886, height: 690 };
+    const rs = visibleRegions(canvas, studio, buffer, 20);
+    const skipped = 1 - area(rs) / (buffer.width * buffer.height);
+    expect(skipped).toBeGreaterThan(0.4);
+    // No pixel is drawn twice, so the cost is exactly the visible area.
+    expect(coverage(rs, buffer.width, buffer.height).every((n) => n <= 1)).toBe(true);
+  });
+
+  it("never skips a pixel the box doesn't fully cover (rounded corners, border, edges)", () => {
+    const studio = { x: 496.3, y: 98.5, width: 886.1, height: 690 };
+    const rs = visibleRegions(canvas, studio, buffer, 20);
+    const px = coverage(rs, buffer.width, buffer.height);
+    const sx = canvas.width / buffer.width;
+    const sy = canvas.height / buffer.height;
+    for (let row = 0; row < buffer.height; row++) {
+      for (let col = 0; col < buffer.width; col++) {
+        if (px[row * buffer.width + col] > 0) continue;
+        // GL rows count from the bottom; CSS from the top.
+        const cssTop = (buffer.height - row - 1) * sy;
+        const cssLeft = col * sx;
+        expect(cssLeft).toBeGreaterThanOrEqual(studio.x + 20);
+        expect(cssLeft + sx).toBeLessThanOrEqual(studio.x + studio.width - 20);
+        expect(cssTop).toBeGreaterThanOrEqual(studio.y + 20);
+        expect(cssTop + sy).toBeLessThanOrEqual(studio.y + studio.height - 20);
+      }
+    }
+  });
+
+  it("uses GL coordinates: a box at the top of the page skips rows at the top of the buffer", () => {
+    const top = { x: 0, y: 0, width: 1440, height: 450 };
+    const rs = visibleRegions(canvas, top, buffer, 0);
+    expect(rs).toEqual([{ x: 0, y: 0, width: 576, height: 180 }]);
+  });
+
+  it("follows the canvas when the page scrolls (both rects in viewport space)", () => {
+    const scrolled = { ...canvas, y: -300 };
+    const studio = { x: 496, y: 98 - 300, width: 886, height: 690 };
+    expect(visibleRegions(scrolled, studio, buffer, 20)).toEqual(
+      visibleRegions(canvas, { ...studio, y: 98 }, buffer, 20),
+    );
   });
 });
