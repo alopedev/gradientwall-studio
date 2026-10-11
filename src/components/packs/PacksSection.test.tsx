@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { getPacks } from "@/lib/packs";
 import { PacksSection } from "./PacksSection";
@@ -38,5 +38,33 @@ describe("PacksSection", () => {
       </MemoryRouter>,
     );
     expect(screen.getByText(/6 designs · 12 wallpapers/)).toBeInTheDocument();
+  });
+
+  it("shows each pack on a laptop and a phone, with its name over the art", () => {
+    render(
+      <MemoryRouter>
+        <PacksSection />
+      </MemoryRouter>,
+    );
+    for (const pack of getPacks()) {
+      const link = screen
+        .getAllByRole("link")
+        .find((a) => a.getAttribute("href") === `/packs/${pack.slug}`)!;
+      const shots = [...link.querySelectorAll("img[alt]:not([alt=''])")];
+      expect(shots).toHaveLength(2);
+      const heading = within(link).getByRole("heading", { name: new RegExp(pack.name) });
+      expect(heading.className).toMatch(/font-serif/);
+      expect(heading.className).toMatch(/italic/);
+    }
+  });
+
+  it("lays two packs out as two cards, with no featured slot left over", () => {
+    const { container } = render(
+      <MemoryRouter>
+        <PacksSection />
+      </MemoryRouter>,
+    );
+    expect(container.querySelector("[data-variant='hero']")).toBeNull();
+    expect(packLinks()).toHaveLength(getPacks().length);
   });
 });
