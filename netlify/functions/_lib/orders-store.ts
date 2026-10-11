@@ -1,7 +1,31 @@
 import { getStore } from "@netlify/blobs";
 
 /**
- * Storage backend abstraction. Functions in this module take a backend so
+ * Where orders live, as the order lifecycle (`order.ts`) sees it. Two
+ * implementations: `kvOrderStore` over a key/value backend (Netlify Blobs in
+ * prod, in-memory in tests) and `supabaseOrderStore` over Postgres
+ * (`supabase-orders.ts`). Both must give the same answers, including the
+ * atomicity of `consumeDownload` and `extendDeadline` under parallel calls.
+ */
+export interface OrderStore {
+  get(orderId: string): Promise<OrderRecord | null>;
+  /** Inserts or fully overwrites the order. */
+  put(order: OrderRecord): Promise<void>;
+  consumeDownload(orderId: string, nowSeconds: number): Promise<ConsumeResult>;
+  extendDeadline(orderId: string, nowSeconds: number, ttlSeconds: number): Promise<ExtendResult>;
+}
+
+export function kvOrderStore(b: KVBackend): OrderStore {
+  return {
+    get: (orderId) => getOrder(b, orderId),
+    put: (order) => putOrder(b, order),
+    consumeDownload: (orderId, now) => consumeDownload(b, orderId, now),
+    extendDeadline: (orderId, now, ttl) => extendDeadline(b, orderId, now, ttl),
+  };
+}
+
+/**
+ * Key/value backend abstraction. Functions in this module take a backend so
  * tests can swap a real Netlify Blobs store for an in-memory fake. Production
  * uses `netlifyBlobsBackend()`.
  */

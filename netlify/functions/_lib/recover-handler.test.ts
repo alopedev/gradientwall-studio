@@ -4,7 +4,7 @@ import { buildCatalog } from "./catalog";
 import { MissingEnvError, readRecoverEnv, type RecoverEnv } from "./env";
 import { brokenStore, captureLogs, failingLoops, fakeLoops } from "./handler-test-utils";
 import { createRecoverHandler, type RecoverHandlerDeps } from "./recover-handler";
-import { getOrder, inMemoryBackend, putOrder, type KVBackend } from "./orders-store";
+import { getOrder, inMemoryBackend, kvOrderStore, putOrder, type KVBackend } from "./orders-store";
 
 const NOW = Math.floor(Date.now() / 1000);
 const ENV: RecoverEnv = {
@@ -41,7 +41,7 @@ describe("recover handler", () => {
   const handler = (overrides: Partial<RecoverHandlerDeps> = {}) =>
     createRecoverHandler({
       readEnv: () => ENV,
-      store: () => store,
+      store: () => kvOrderStore(store),
       loops: () => loops,
       lookupOrderEmail,
       catalog: () => CATALOG,
@@ -166,5 +166,14 @@ describe("recover handler", () => {
     expect(res.status).toBe(500);
     expect(await res.json()).toEqual({ ok: false, reason: "misconfigured" });
     expect(loops.sent).toHaveLength(0);
+  });
+
+  it("answers 500 misconfigured when the order store is half configured", async () => {
+    const store = () => {
+      throw new MissingEnvError("SUPABASE_SECRET_KEY");
+    };
+    const res = await handler({ store })(post(real));
+    expect(res.status).toBe(500);
+    expect(await res.json()).toEqual({ ok: false, reason: "misconfigured" });
   });
 });

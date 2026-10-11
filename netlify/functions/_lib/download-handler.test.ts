@@ -2,7 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createDownloadHandler, type DownloadHandlerDeps } from "./download-handler";
 import { MissingEnvError, type DownloadEnv } from "./env";
-import { getOrder, inMemoryBackend, putOrder, type KVBackend } from "./orders-store";
+import { getOrder, inMemoryBackend, kvOrderStore, putOrder, type KVBackend } from "./orders-store";
 import { issueDownloadToken } from "./signed-token";
 import { brokenStore, captureLogs } from "./handler-test-utils";
 
@@ -40,7 +40,7 @@ describe("download handler", () => {
   const handler = (overrides: Partial<DownloadHandlerDeps> = {}) =>
     createDownloadHandler({
       readEnv: () => ENV,
-      store: () => store,
+      store: () => kvOrderStore(store),
       presign,
       now: () => NOW,
       ...overrides,
@@ -112,7 +112,7 @@ describe("download handler", () => {
 
   it("answers 503 with Retry-After when the order record stays contended", async () => {
     const contended: KVBackend = { ...store, setIf: async () => false };
-    const res = await handler({ store: () => contended })(request(await tokenFor()));
+    const res = await handler({ store: () => kvOrderStore(contended) })(request(await tokenFor()));
     expect(res.status).toBe(503);
     expect(res.headers.get("retry-after")).toBe("1");
     expect(await res.json()).toEqual({ ok: false, reason: "busy" });

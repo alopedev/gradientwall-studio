@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   MissingEnvError,
   readDownloadEnv,
+  readOrdersStoreEnv,
   readRecoverEnv,
   readWebhookEnv,
   type EnvSource,
@@ -92,5 +93,27 @@ describe("per-function env readers", () => {
   it("treats empty and whitespace-only values as missing", () => {
     expect(() => readRecoverEnv({ ...ALL, LS_API_KEY: "" })).toThrow(MissingEnvError);
     expect(() => readRecoverEnv({ ...ALL, LS_API_KEY: "   " })).toThrow(MissingEnvError);
+  });
+});
+
+describe("readOrdersStoreEnv", () => {
+  it("is null (Netlify Blobs) when SUPABASE_URL is not set", () => {
+    expect(readOrdersStoreEnv(ALL)).toBeNull();
+    expect(readOrdersStoreEnv({ ...ALL, SUPABASE_URL: " " })).toBeNull();
+  });
+
+  it("returns the Supabase config when both variables are set", () => {
+    expect(
+      readOrdersStoreEnv({
+        SUPABASE_URL: "https://abcd.supabase.co",
+        SUPABASE_SECRET_KEY: "sb_secret_x",
+      }),
+    ).toEqual({ url: "https://abcd.supabase.co", secretKey: "sb_secret_x" });
+  });
+
+  it("refuses a Supabase URL without its secret key instead of falling back to Blobs", () => {
+    expect(() => readOrdersStoreEnv({ SUPABASE_URL: "https://abcd.supabase.co" })).toThrow(
+      new MissingEnvError("SUPABASE_SECRET_KEY"),
+    );
   });
 });

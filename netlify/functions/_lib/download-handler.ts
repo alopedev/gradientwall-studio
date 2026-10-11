@@ -1,14 +1,15 @@
 import { type DownloadEnv, readDownloadEnv } from "./env";
 import { failureResponse, json, methodNotAllowed } from "./http";
 import { redeemDownload } from "./order";
-import { type KVBackend, netlifyBlobsBackend } from "./orders-store";
+import type { OrderStore } from "./orders-store";
+import { prodOrderStore } from "./prod-order-store";
 import { packZipKey, presignDownloadUrl } from "./r2";
 
 const PRESIGN_TTL_SECONDS = 60 * 5; // 5 minutes — enough to start the download
 
 export interface DownloadHandlerDeps {
   readEnv: () => DownloadEnv;
-  store: () => KVBackend;
+  store: () => OrderStore;
   presign: (env: DownloadEnv, packSlug: string) => Promise<string>;
   /** Seconds since epoch. */
   now: () => number;
@@ -16,7 +17,7 @@ export interface DownloadHandlerDeps {
 
 export const prodDownloadDeps: DownloadHandlerDeps = {
   readEnv: readDownloadEnv,
-  store: netlifyBlobsBackend,
+  store: () => prodOrderStore(),
   presign: (env, slug) =>
     presignDownloadUrl(
       {

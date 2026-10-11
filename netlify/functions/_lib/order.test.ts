@@ -5,6 +5,7 @@ import { createOrder, recoverOrder, redeemDownload, type RecoverOrderDeps } from
 import {
   getOrder,
   inMemoryBackend,
+  kvOrderStore,
   putOrder,
   type KVBackend,
   type OrderRecord,
@@ -46,7 +47,7 @@ describe("createOrder", () => {
     email: "buyer@example.com",
   };
   const baseDeps = () => ({
-    store,
+    store: kvOrderStore(store),
     loops,
     jwtSecret: SECRET,
     loopsTransactionalId: "tpl_123",
@@ -153,7 +154,7 @@ describe("recoverOrder", () => {
 
   function deps(over: Partial<RecoverOrderDeps> = {}): RecoverOrderDeps {
     return {
-      store,
+      store: kvOrderStore(store),
       loops,
       lookupOrderEmail: async (orderId) => {
         lookupCalls.push(orderId);
@@ -395,7 +396,7 @@ describe("expiry boundary (recover and download agree)", () => {
 
     const recovered = await recoverOrder(
       {
-        store,
+        store: kvOrderStore(store),
         loops,
         lookupOrderEmail: async () => ({ email: baseOrder.email }),
         jwtSecret: SECRET,
@@ -410,7 +411,12 @@ describe("expiry boundary (recover and download agree)", () => {
 
     const token = await issueDownloadToken({ payload: ORDER, ttlSeconds: 60, secret: SECRET });
     const redeemed = await redeemDownload(
-      { store, jwtSecret: SECRET, presign: async () => "https://r2.example.com/x", now: () => NOW },
+      {
+        store: kvOrderStore(store),
+        jwtSecret: SECRET,
+        presign: async () => "https://r2.example.com/x",
+        now: () => NOW,
+      },
       token,
     );
     expect(redeemed).toEqual({ ok: false, status: 403, reason: "expired_order" });
@@ -423,7 +429,7 @@ describe("expiry boundary (recover and download agree)", () => {
 
     const recovered = await recoverOrder(
       {
-        store,
+        store: kvOrderStore(store),
         loops,
         lookupOrderEmail: async () => ({ email: baseOrder.email }),
         jwtSecret: SECRET,
@@ -437,7 +443,12 @@ describe("expiry boundary (recover and download agree)", () => {
 
     const token = await issueDownloadToken({ payload: ORDER, ttlSeconds: 60, secret: SECRET });
     const redeemed = await redeemDownload(
-      { store, jwtSecret: SECRET, presign: async () => "https://r2.example.com/x", now: () => NOW },
+      {
+        store: kvOrderStore(store),
+        jwtSecret: SECRET,
+        presign: async () => "https://r2.example.com/x",
+        now: () => NOW,
+      },
       token,
     );
     expect(redeemed.ok).toBe(true);
@@ -458,7 +469,7 @@ describe("redeemDownload", () => {
     });
   });
 
-  const dlDeps = () => ({ store, jwtSecret: SECRET, presign, now: () => NOW });
+  const dlDeps = () => ({ store: kvOrderStore(store), jwtSecret: SECRET, presign, now: () => NOW });
 
   it("rejects a missing token with 401 invalid_token", async () => {
     expect(await redeemDownload(dlDeps(), null)).toEqual({
@@ -563,7 +574,7 @@ describe("redeemDownload", () => {
     const alwaysLoses: KVBackend = { ...store, setIf: async () => false };
     const token = await issueDownloadToken({ payload: ORDER, ttlSeconds: 60, secret: SECRET });
 
-    const result = await redeemDownload({ ...dlDeps(), store: alwaysLoses }, token);
+    const result = await redeemDownload({ ...dlDeps(), store: kvOrderStore(alwaysLoses) }, token);
 
     expect(result).toEqual({ ok: false, status: 503, reason: "busy" });
     expect(presignCalls).toEqual([]);
