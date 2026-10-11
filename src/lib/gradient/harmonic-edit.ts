@@ -83,7 +83,8 @@ export function clampLight(l: number): number {
 // Slot hues + colores
 // ──────────────────────────────────────────────────────────────────────────
 
-const SLOT_MULTIPLIERS: readonly number[] = [-1.5, -0.5, 0.5, 1.5];
+/** Position of each slot around the anchor hue, in units of `spread`. */
+export const SLOT_MULTIPLIERS = [-1.5, -0.5, 0.5, 1.5] as const;
 
 /**
  * Devuelve los 4 hues absolutos (0..360) de los 4 slots dado un WheelState.
