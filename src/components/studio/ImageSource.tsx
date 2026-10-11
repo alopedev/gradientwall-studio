@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useConfigStore, useUIStore } from "@/store";
+import { useConfigStore } from "@/store";
 import { extractColorsFromFile } from "@/lib/color-extract";
 
 interface ImageSourceProps {
@@ -8,14 +8,11 @@ interface ImageSourceProps {
 
 /**
  * Image-to-palette helper. Drops uploads through k-means to seed the four
- * color slots; does not persist the file. By default it auto-switches to the
- * picker tab so the user can refine. When `onComplete` is supplied (e.g.
- * inside the "Use my photo" popover), the caller drives what happens next
- * instead of the global tab switch.
+ * color slots; does not persist the file. `onComplete` (e.g. closing the
+ * "Use my photo" popover) runs once the colors have been applied.
  */
 export function ImageSource({ onComplete }: ImageSourceProps = {}) {
   const setColors = useConfigStore((s) => s.setColors);
-  const setActiveTab = useUIStore((s) => s.setActiveTab);
   const fileRef = useRef<HTMLInputElement>(null);
   const [extracting, setExtracting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,8 +25,7 @@ export function ImageSource({ onComplete }: ImageSourceProps = {}) {
     try {
       const extracted = await extractColorsFromFile(file);
       setColors(extracted);
-      if (onComplete) onComplete();
-      else setActiveTab("picker");
+      onComplete?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to read image");
     } finally {

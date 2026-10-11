@@ -1,6 +1,5 @@
 import { type ActiveMask, ALL_ACTIVE, type Colors4, PALETTES } from "@/lib/palettes";
 import { useConfigStore } from "./useConfigStore";
-import { useUIStore } from "./useUIStore";
 
 /**
  * Cross-slice operations that touch more than one store. Plain functions —
@@ -12,14 +11,13 @@ import { useUIStore } from "./useUIStore";
  * `useHistoryStore` — su rol lo asumió `useFavoritesStore` con su API
  * propia (pin/unpin/reorder/clear) directamente desde el ActionRow.
  *
- * `applyPalette()` se conserva porque `Palettes.tsx` (componente hoja
- * reusable) lo invoca para aplicar una palette curated.
+ * `applyPalette()` la usa `PaletteSwatches` para aplicar una palette curated.
  */
 
 /**
  * Apply a curated palette. No-op for out-of-range indices. On success, writes
- * colors to ConfigStore AND marks the palette as active in UIStore. The
- * active mask resets to all-four so the palette renders as designed.
+ * the colors to ConfigStore and resets the active mask to all-four so the
+ * palette renders as designed.
  */
 export function applyPalette(i: number): void {
   const p = PALETTES[i];
@@ -28,5 +26,4 @@ export function applyPalette(i: number): void {
     colors: [...p.colors] as Colors4,
     active: [...ALL_ACTIVE] as ActiveMask,
   });
-  useUIStore.getState()._setActivePalette(i);
 }

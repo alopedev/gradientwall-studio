@@ -1,10 +1,8 @@
 import { useConfigStore } from "@/store/useConfigStore";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { useRecentColorsStore } from "@/store/useRecentColorsStore";
-import { useUIStore } from "@/store/useUIStore";
 
 const CONFIG_INITIAL = useConfigStore.getState();
-const UI_INITIAL = useUIStore.getState();
 const RECENT_COLORS_INITIAL = useRecentColorsStore.getState();
 
 /**
@@ -17,7 +15,6 @@ const RECENT_COLORS_INITIAL = useRecentColorsStore.getState();
  */
 export function resetStores(): void {
   useConfigStore.setState(CONFIG_INITIAL);
-  useUIStore.setState(UI_INITIAL);
   useRecentColorsStore.setState(RECENT_COLORS_INITIAL);
   useFavoritesStore.getState().clear();
 }

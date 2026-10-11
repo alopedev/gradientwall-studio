@@ -66,10 +66,9 @@ Four concentric layers: **pure render → state → React views → backend func
 These files import nothing from React, Zustand, or components. Keep them that way.
 
 ### 2. State (`src/store/`)
-Cuatro Zustand stores + coordinator (Studio v2):
+Tres Zustand stores + coordinator (Studio v2):
 - `useConfigStore` — current Studio config (device, colors, active mask, style, blur, grain, seed, lightAngle, density, contrast, vibrance). Setters atómicos, `applySurprise()` (motor mejorado de Fase 1), `applyRemix()` (variación cercana), `randomize()` legacy `@deprecated`.
 - `useFavoritesStore` — persistido en `localStorage` key `gw:favorites:v1`. API `pin/unpin/reorder/clear`, cap 24 FIFO. `migrateLegacyHistory()` (one-time) importa cualquier `gw_history` antiguo automáticamente.
-- `useUIStore` — ephemeral UI state (active source tab, active palette index).
 - `useRecentColorsStore` — ring buffer de colores recientes para el ColorHUD picker.
 - `coordinator.ts` — `applyPalette(i)` (silent no-op para índices fuera de rango). Las operaciones legacy `save/loadHistoryItem/removeHistoryItem` se eliminaron en el cutover de Fase 5.
 
@@ -88,7 +87,7 @@ Component layout:
 - `studio/` (hojas reutilizadas) — `HarmonicWheel` (color picker armónico, ahora dentro del popover "Colors" del panel Ajustar), `ImageSource`, `UseMyPhotoButton`, `useColorEditing`.
 - `packs/` — store components: `PacksSection` (home), `PackCard`, `PackFilters`, `PackPage` (route `/packs/:slug`), `PackPurchaseSuccess` (route `/packs/:slug/success`), `PackCover` (renders gradient-kind via `paintWallpaper`, image-kind via `<img>`).
 - `RecoverForm.tsx` — route `/recover`; POSTs `{email, orderId}` to the recover-link Function.
-- `ui/` — design-system primitives: `Framed`, `Reveal`, `Stagger`, `GrainOverlay`, `MagneticButton`.
+- `ui/` — design-system primitives: `Framed`, `Reveal`, `Stagger`, `MagneticButton`.
 
 ### 4. Backend (`netlify/functions/`)
 Netlify Functions v2 (Web Request/Response). Handlers are intentionally thin — domain logic lives in pure `_lib/` modules with dependency injection so they're testable without spinning up Blobs/R2/Loops.
@@ -218,7 +217,7 @@ El Studio v2 es ahora el único Studio (cutover Fase 5 completado). Mini-framewo
 - Heart-burst particles con CSS custom property `--angle` inyectada inline (4 direcciones equiespaciadas).
 - Kinetic typography (`SplitWords kinetic` — scale spring por palabra al hover).
 - Scroll-driven CSS reveals (`animation-timeline: view()` nativo, dentro de `@supports + @media no-preference`).
-- Mobile responsive: stacked layout <640px vía `useIsMobile()` hook.
+- Mobile responsive: stacked layout <640px.
 
 **Tooling del proyecto**:
 - Linter: Biome (config en `biome.json`, indent 2 espacios, line width 100). CSS deshabilitado porque Tailwind v4 `@theme/@utility` no es CSS estándar aún soportado.
