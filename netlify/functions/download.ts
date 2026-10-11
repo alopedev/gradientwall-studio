@@ -1,50 +1,6 @@
 import type { Context } from "@netlify/functions";
-import { readEnv } from "./_lib/env";
-import { netlifyBlobsBackend } from "./_lib/orders-store";
-import { packZipKey, presignDownloadUrl } from "./_lib/r2";
-import { redeemDownload } from "./_lib/order";
+import { createDownloadHandler, prodDownloadDeps } from "./_lib/download-handler";
 
-const PRESIGN_TTL_SECONDS = 60 * 5; // 5 minutes — enough to start the download
+const handler = createDownloadHandler(prodDownloadDeps);
 
-export default async (req: Request, _ctx: Context): Promise<Response> => {
-  if (req.method !== "GET") {
-    return new Response("Method not allowed", { status: 405 });
-  }
-
-  const env = readEnv();
-  const url = new URL(req.url);
-  const token = url.searchParams.get("token");
-
-  const result = await redeemDownload(
-    {
-      store: netlifyBlobsBackend(),
-      jwtSecret: env.jwtSecret,
-      now: () => Math.floor(Date.now() / 1000),
-      presign: (slug) =>
-        presignDownloadUrl(
-          {
-            accountId: env.r2AccountId,
-            accessKeyId: env.r2AccessKeyId,
-            secretAccessKey: env.r2SecretAccessKey,
-            bucket: env.r2BucketPacks,
-          },
-          packZipKey(slug),
-          PRESIGN_TTL_SECONDS,
-        ),
-    },
-    token,
-  );
-
-  if (!result.ok) {
-    return new Response(JSON.stringify({ ok: false, reason: result.reason }), {
-      status: result.status,
-      headers: {
-        "content-type": "application/json",
-        // Contention on the order record is transient: tell clients to retry.
-        ...(result.status === 503 ? { "retry-after": "1" } : {}),
-      },
-    });
-  }
-
-  return Response.redirect(result.redirectUrl, 302);
-};
+export default async (req: Request, _ctx: Context): Promise<Response> => handler(req);

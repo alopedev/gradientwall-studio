@@ -100,12 +100,12 @@ Netlify Functions v2 (Web Request/Response). Handlers are intentionally thin —
 - `_lib/r2.ts` — Cloudflare R2 presigned GET URL via `@aws-sdk/client-s3`. `packZipKey(slug)` = `packs/{slug}/{slug}.zip`.
 - `_lib/ls-api.ts` — `fetchOrderEmail(orderId, apiKey)` for /recover validation.
 - `_lib/order.ts` — the whole order lifecycle in one module, pure orchestration with deps inject: `createOrder` (webhook, 30d, resets allowance), `recoverOrder` (7d, never shortens the deadline, keeps allowance), `redeemDownload`. Shares the policy constants, the rule "JWT `exp` = stored `expiresAt`" and the link-building/email step. The handlers compose the prod deps and call these.
-- `_lib/env.ts` — boundary for env vars; throws on missing vars at import time.
+- `_lib/env.ts` — boundary for env vars: one reader per function (`readDownloadEnv`, `readWebhookEnv`, `readRecoverEnv`), each throwing `MissingEnvError` for only the variables that function uses. Read per request, not at import time.
 
-The 3 handlers:
-- `lemon-squeezy-webhook.ts` POST → verify HMAC → parse → `createOrder` → 200.
+The 3 handlers are tiny files that wire prod deps into a factory in `_lib/` (`download-handler.ts`, `webhook-handler.ts`, `recover-handler.ts`; `createXHandler(deps)` with env, store, Loops, LS and presign injected, so each has handler-level tests with fakes). Unexpected failures answer `500 {ok:false, reason:"misconfigured" | "internal_error"}` via `_lib/http.ts` (cause only in logs).
+- `lemon-squeezy-webhook.ts` POST → verify HMAC → parse → `createOrder` → 200. A failure after the signature check is a 500 so LS retries.
 - `download.ts` GET → `redeemDownload(token)` → 302 to presigned R2 URL or 401/403 with `reason`.
-- `recover-link.ts` POST → validates against LS API + store → re-issues 7d token + email. Returns generic 200 regardless to prevent enumeration.
+- `recover-link.ts` POST → validates against LS API + store → re-issues 7d token + email. Returns generic 200 regardless to prevent enumeration, including when Loops/Blobs fail (logged, not leaked); only missing config is a 500.
 
 `netlify/functions/_lib/**` is conventionally not exposed as Functions because the directory starts with underscore.
 
