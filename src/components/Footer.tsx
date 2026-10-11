@@ -1,4 +1,5 @@
 import { AI_DISCLOSURE, ETSY_SHOP_URL } from "@/lib/copy";
+import { useConfigStore } from "@/store/useConfigStore";
 import { Reveal } from "./ui/Reveal";
 
 export function Footer() {
@@ -36,7 +37,34 @@ export function Footer() {
           </span>
         </div>
       </Reveal>
+
+      <Wordmark />
     </footer>
+  );
+}
+
+/**
+ * The brand name, huge, filled with the Studio's current palette: shuffle a
+ * wallpaper and the footer picks up its colours. Decorative (the brand text
+ * is already in the nav and the copyright line), so it is hidden from
+ * assistive tech.
+ */
+function Wordmark() {
+  const colors = useConfigStore((s) => s.colors);
+  const [c0, c1, c2, c3] = colors;
+  return (
+    <Reveal className="md:col-span-2 -mb-2 select-none overflow-hidden">
+      <div
+        aria-hidden
+        className="font-sans font-bold uppercase leading-[0.82] tracking-[-0.055em] text-center text-transparent bg-clip-text text-[clamp(40px,12.4vw,200px)]"
+        style={{
+          backgroundImage: `radial-gradient(70% 130% at 12% 15%, ${c0}, transparent 62%), radial-gradient(70% 130% at 88% 5%, ${c1}, transparent 62%), radial-gradient(80% 150% at 50% 115%, ${c2}, transparent 62%)`,
+          backgroundColor: c3,
+        }}
+      >
+        GradientWall
+      </div>
+    </Reveal>
   );
 }
 
