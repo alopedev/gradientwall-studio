@@ -3,9 +3,6 @@ import type { Colors4, GradientConfig } from "../palettes";
 import { CURATED_SEEDS } from "./curated-seeds";
 import { generateRemix } from "./remix";
 import {
-  CURATED_CONTRAST,
-  CURATED_GRAIN,
-  CURATED_VIBRANCE,
   SURPRISE_DENSITY_MAX,
   SURPRISE_DENSITY_MIN,
   SURPRISE_LIGHT_MAX,
@@ -78,12 +75,19 @@ describe("generateRemix", () => {
     }
   });
 
-  it("freezes grain / contrast / vibrance at curated defaults", () => {
+  it("keeps the user's grain / contrast / vibrance", () => {
     const current = baseConfig({ grain: 99, contrast: 0.5, vibrance: 1.4 });
     const remix = generateRemix(current);
-    expect(remix.grain).toBe(CURATED_GRAIN);
-    expect(remix.contrast).toBe(CURATED_CONTRAST);
-    expect(remix.vibrance).toBe(CURATED_VIBRANCE);
+    expect(remix.grain).toBe(99);
+    expect(remix.contrast).toBe(0.5);
+    expect(remix.vibrance).toBe(1.4);
+  });
+
+  it("leaves grain / contrast / vibrance absent when the source has none", () => {
+    const current = baseConfig({ contrast: undefined, vibrance: undefined });
+    const remix = generateRemix(current);
+    expect(remix.contrast).toBeUndefined();
+    expect(remix.vibrance).toBeUndefined();
   });
 
   it("is deterministic given an injected rng", () => {

@@ -3,8 +3,6 @@ import { create } from "zustand";
 import { useShallow } from "zustand/react/shallow";
 import {
   ALL_ACTIVE,
-  DEFAULT_CONTRAST,
-  DEFAULT_DENSITY,
   MIN_ACTIVE_COLORS,
   PALETTES,
   STYLES,
@@ -14,11 +12,18 @@ import {
   type RenderParams,
   type Style,
 } from "@/lib/palettes";
+import {
+  DEFAULT_CONTRAST,
+  DEFAULT_DENSITY,
+  STUDIO_BLUR,
+  STUDIO_VIBRANCE,
+  V2_DEFAULT_GRAIN,
+  V2_DEFAULT_LIGHT_ANGLE,
+} from "@/lib/defaults";
 import { type Look, pickLook, toFavoriteConfig, toRenderParams } from "@/lib/look";
 import { randomColors } from "@/lib/gradient";
 import { generateRemix } from "@/lib/gradient/remix";
-import { CURATED_VIBRANCE, generateSurprise } from "@/lib/gradient/surprise";
-import { V2_DEFAULT_GRAIN, V2_DEFAULT_LIGHT_ANGLE } from "@/lib/gradient-v2/params";
+import { generateSurprise } from "@/lib/gradient/surprise";
 import { makeRafBatcher } from "@/lib/raf-batcher";
 
 /**
@@ -106,17 +111,15 @@ export const useConfigStore = create<ConfigState>()((set) => {
     colors: [...PALETTES[0].colors] as Colors4,
     active: freshMask(),
     style: "liquid",
-    blur: 48,
-    // Curated finish (same values `generateSurprise` used to force on every
-    // roll). Grain / contrast / vibrance are now the user's to set in the
-    // Adjust panel, so surprise and remix leave them alone.
-    // v2 starting look: approved grain and light from the top-left (compass 315).
+    // Starting look (lib/defaults.ts). Grain / contrast / vibrance are the user's
+    // to set in the Adjust panel, so surprise and remix leave them alone.
+    blur: STUDIO_BLUR,
     grain: V2_DEFAULT_GRAIN,
     seed: randomSeed(),
     lightAngle: V2_DEFAULT_LIGHT_ANGLE,
     density: DEFAULT_DENSITY,
     contrast: DEFAULT_CONTRAST,
-    vibrance: CURATED_VIBRANCE,
+    vibrance: STUDIO_VIBRANCE,
 
     setDevice: (d) => set({ device: d }),
     // A fresh palette invalidates any per-slot deactivation — reset the mask.

@@ -4,6 +4,7 @@
  * names) onto the shader's uniforms. No DOM, no WebGL — fully testable.
  */
 
+import { V2_DEFAULT_GRAIN, V2_DEFAULT_LIGHT_ANGLE } from "../defaults";
 import type { ColorRamp, Style } from "../palettes";
 
 export const V2_STYLES = ["liquid", "aurora", "grain-mesh"] as const;
@@ -70,15 +71,9 @@ export interface V2Uniforms {
   dither: number;
 }
 
-/**
- * Compass 315 (top-left) = the prototype's math 135°, the direction its
- * signed-off renders were made with.
- */
-export const V2_DEFAULT_LIGHT_ANGLE = 315;
+// The v2 starting look is defined in `lib/defaults.ts`; re-exported for callers of this module.
+export { V2_DEFAULT_GRAIN, V2_DEFAULT_LIGHT_ANGLE };
 const DEFAULT_COMPASS = V2_DEFAULT_LIGHT_ANGLE;
-
-/** Studio grain slider value (0..100) for the approved look of liquid and aurora. */
-export const V2_DEFAULT_GRAIN = 45;
 
 export function hexToRgb01(hex: string): [number, number, number] {
   const m = hex.replace(/^#/, "");
