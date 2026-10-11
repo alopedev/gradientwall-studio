@@ -62,7 +62,7 @@ Acto de servir el ZIP del pack al comprador: el endpoint `download.ts` valida el
 _Avoid_: "Download" para referirse a este flujo — es ambiguo con el Render del Studio.
 
 **Allowance**:
-Cupo restante de Deliveries que tiene una Order. Empieza en 5 (`DEFAULT_DOWNLOADS_ALLOWED` en `process-order.ts:6`) y se decrementa en cada Delivery. Cuando llega a 0, el endpoint responde 403.
+Cupo restante de Deliveries que tiene una Order. Empieza en 5 (`DOWNLOADS_ALLOWED` en `order.ts`) y se decrementa en cada Delivery. Cuando llega a 0, el endpoint responde 403.
 _Avoid_: "downloads remaining" en chat (es el nombre del campo, no del concepto).
 
 **Deadline**:

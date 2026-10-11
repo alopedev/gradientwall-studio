@@ -3,7 +3,7 @@ import { readEnv } from "./_lib/env";
 import { parseOrderCreatedEvent, verifyWebhookSignature } from "./_lib/lemon-squeezy";
 import { netlifyBlobsBackend } from "./_lib/orders-store";
 import { createLoopsClient } from "./_lib/loops";
-import { processOrderCreated } from "./_lib/process-order";
+import { createOrder } from "./_lib/order";
 
 export default async (req: Request, _ctx: Context): Promise<Response> => {
   if (req.method !== "POST") {
@@ -34,7 +34,7 @@ export default async (req: Request, _ctx: Context): Promise<Response> => {
     });
   }
 
-  await processOrderCreated(
+  await createOrder(
     {
       store: netlifyBlobsBackend(),
       loops: createLoopsClient(env.loopsApiKey),
