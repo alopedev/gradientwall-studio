@@ -1,3 +1,4 @@
+import { clamp, wrapAngle } from "../color";
 import type { GradientConfig } from "../palettes";
 import { pickCuratedSeedExcluding } from "./curated-seeds";
 import {
@@ -36,10 +37,6 @@ export const REMIX_DENSITY_DELTA = 0.1;
 
 /** Magnitud del giro de blur en remix (±10). */
 export const REMIX_BLUR_DELTA = 10;
-
-const clamp = (n: number, min: number, max: number): number => (n < min ? min : n > max ? max : n);
-
-const wrapAngle = (deg: number): number => ((deg % 360) + 360) % 360;
 
 /**
  * Aplica un delta aleatorio centrado en cero (`[-delta, +delta]`).
