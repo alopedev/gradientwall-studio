@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.15",
+    "@electric-sql/pglite": "^0.5.8",
     "@tailwindcss/vite": "^4.0.0",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^6.9.1",

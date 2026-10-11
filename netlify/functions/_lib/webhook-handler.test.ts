@@ -5,7 +5,7 @@ import { buildCatalog } from "./catalog";
 import { MissingEnvError, type WebhookEnv } from "./env";
 import { brokenStore, captureLogs, failingLoops, fakeLoops } from "./handler-test-utils";
 import { createWebhookHandler, type WebhookHandlerDeps } from "./webhook-handler";
-import { getOrder, inMemoryBackend, type KVBackend } from "./orders-store";
+import { getOrder, inMemoryBackend, kvOrderStore, type KVBackend } from "./orders-store";
 
 const NOW = Math.floor(Date.now() / 1000);
 const ENV: WebhookEnv = {
@@ -70,7 +70,7 @@ describe("webhook handler", () => {
   const handler = (overrides: Partial<WebhookHandlerDeps> = {}) =>
     createWebhookHandler({
       readEnv: () => ENV,
-      store: () => store,
+      store: () => kvOrderStore(store),
       loops: () => loops,
       catalog: () => CATALOG,
       now: () => NOW,

@@ -1,6 +1,6 @@
 import { vi } from "vitest";
 import type { LoopsClient } from "./loops";
-import type { KVBackend } from "./orders-store";
+import { kvOrderStore, type OrderStore } from "./orders-store";
 
 export type SentEmail = Parameters<LoopsClient["sendTransactional"]>[0];
 
@@ -24,11 +24,11 @@ export function failingLoops(): LoopsClient {
 }
 
 /** A store whose every operation fails, like a Blobs outage. */
-export function brokenStore(): KVBackend {
+export function brokenStore(): OrderStore {
   const boom = async (): Promise<never> => {
     throw new Error("blobs unavailable");
   };
-  return { get: boom, set: boom, getVersioned: boom, setIf: boom };
+  return kvOrderStore({ get: boom, set: boom, getVersioned: boom, setIf: boom });
 }
 
 /** Silences the handlers' log lines and lets a test assert on them. */

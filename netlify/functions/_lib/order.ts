@@ -1,14 +1,5 @@
 import type { LoopsClient } from "./loops";
-import {
-  consumeDownload,
-  extendDeadline,
-  getOrder,
-  isExhausted,
-  isExpired,
-  putOrder,
-  type KVBackend,
-  type OrderRecord,
-} from "./orders-store";
+import { isExhausted, isExpired, type OrderRecord, type OrderStore } from "./orders-store";
 import { issueDownloadToken, verifyDownloadToken } from "./signed-token";
 
 /**
@@ -28,7 +19,7 @@ const DOWNLOADS_ALLOWED = 5;
 
 /** Dependencies every operation needs. `now` is injected so tests pin the clock. */
 export interface OrderDeps {
-  store: KVBackend;
+  store: OrderStore;
   jwtSecret: string;
   /** Seconds since epoch. */
   now: () => number;
@@ -119,7 +110,7 @@ export async function createOrder(
   };
 
   const downloadUrl = await downloadUrlFor(deps, order, now);
-  await putOrder(deps.store, order);
+  await deps.store.put(order);
   await mailDownloadLink(deps, order, downloadUrl);
 
   return { downloadUrl, expiresAt: order.expiresAt };
@@ -181,7 +172,7 @@ export async function recoverOrder(
     return { ok: true, reason: "bad_input" };
   }
 
-  const stored = await getOrder(deps.store, orderId);
+  const stored = await deps.store.get(orderId);
   if (!stored) return { ok: true, reason: "order_not_found" };
 
   const now = deps.now();
@@ -202,8 +193,7 @@ export async function recoverOrder(
   // Never shortens the Deadline — recovery only extends if it benefits the buyer.
   // See docs/adr/0001-recovery-semantics.md. Atomic against concurrent
   // downloads: their decrement is never overwritten by ours.
-  const extended = await extendDeadline(
-    deps.store,
+  const extended = await deps.store.extendDeadline(
     orderId,
     now,
     deps.ttlSeconds ?? RECOVER_TTL_SECONDS,
@@ -269,7 +259,7 @@ export async function redeemDownload(
     };
   }
 
-  const consume = await consumeDownload(deps.store, verified.payload.orderId, deps.now());
+  const consume = await deps.store.consumeDownload(verified.payload.orderId, deps.now());
   if (!consume.ok) {
     if (consume.reason === "not_found") return { ok: false, status: 403, reason: "not_found" };
     if (consume.reason === "exhausted") return { ok: false, status: 403, reason: "exhausted" };

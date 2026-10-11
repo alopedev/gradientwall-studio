@@ -68,6 +68,22 @@ export function readRecoverEnv(source: EnvSource = process.env): RecoverEnv {
   };
 }
 
+export interface SupabaseEnv {
+  url: string;
+  secretKey: string;
+}
+
+/**
+ * Where orders are stored. Supabase when `SUPABASE_URL` is set (then
+ * `SUPABASE_SECRET_KEY` is required too), Netlify Blobs otherwise. Returns
+ * `null` for Blobs.
+ */
+export function readOrdersStoreEnv(source: EnvSource = process.env): SupabaseEnv | null {
+  const url = source.SUPABASE_URL;
+  if (!url || url.trim() === "") return null;
+  return { url, secretKey: required(source, "SUPABASE_SECRET_KEY") };
+}
+
 function required(source: EnvSource, key: string): string {
   const v = source[key];
   if (!v || v.trim() === "") {

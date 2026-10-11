@@ -4,11 +4,12 @@ import { type Catalog, getCatalog } from "./catalog";
 import { parseOrderCreatedEvent, resolveOrderPack, verifyWebhookSignature } from "./lemon-squeezy";
 import { createLoopsClient, type LoopsClient } from "./loops";
 import { createOrder } from "./order";
-import { type KVBackend, netlifyBlobsBackend } from "./orders-store";
+import type { OrderStore } from "./orders-store";
+import { prodOrderStore } from "./prod-order-store";
 
 export interface WebhookHandlerDeps {
   readEnv: () => WebhookEnv;
-  store: () => KVBackend;
+  store: () => OrderStore;
   loops: (apiKey: string) => LoopsClient;
   catalog: () => Catalog;
   /** Seconds since epoch. */
@@ -17,7 +18,7 @@ export interface WebhookHandlerDeps {
 
 export const prodWebhookDeps: WebhookHandlerDeps = {
   readEnv: readWebhookEnv,
-  store: netlifyBlobsBackend,
+  store: () => prodOrderStore(),
   loops: (apiKey) => createLoopsClient(apiKey),
   catalog: getCatalog,
   now: () => Math.floor(Date.now() / 1000),

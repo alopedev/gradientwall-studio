@@ -4,11 +4,12 @@ import { type Catalog, getCatalog } from "./catalog";
 import { createLoopsClient, type LoopsClient } from "./loops";
 import { fetchOrderEmail, type LSOrderLookup } from "./ls-api";
 import { recoverOrder } from "./order";
-import { type KVBackend, netlifyBlobsBackend } from "./orders-store";
+import type { OrderStore } from "./orders-store";
+import { prodOrderStore } from "./prod-order-store";
 
 export interface RecoverHandlerDeps {
   readEnv: () => RecoverEnv;
-  store: () => KVBackend;
+  store: () => OrderStore;
   loops: (apiKey: string) => LoopsClient;
   lookupOrderEmail: (orderId: string, apiKey: string) => Promise<LSOrderLookup | null>;
   catalog: () => Catalog;
@@ -18,7 +19,7 @@ export interface RecoverHandlerDeps {
 
 export const prodRecoverDeps: RecoverHandlerDeps = {
   readEnv: readRecoverEnv,
-  store: netlifyBlobsBackend,
+  store: () => prodOrderStore(),
   loops: (apiKey) => createLoopsClient(apiKey),
   lookupOrderEmail: (orderId, apiKey) => fetchOrderEmail(orderId, apiKey),
   catalog: getCatalog,
@@ -48,8 +49,10 @@ export function createRecoverHandler(deps: RecoverHandlerDeps) {
     // Missing config is independent of any order, so it can be reported
     // without helping an enumerator.
     let env: RecoverEnv;
+    let store: OrderStore;
     try {
       env = deps.readEnv();
+      store = deps.store();
     } catch (err) {
       return failureResponse("recover-link", err);
     }
@@ -57,7 +60,7 @@ export function createRecoverHandler(deps: RecoverHandlerDeps) {
     try {
       const outcome = await recoverOrder(
         {
-          store: deps.store(),
+          store,
           loops: deps.loops(env.loopsApiKey),
           lookupOrderEmail: (orderId) => deps.lookupOrderEmail(orderId, env.lsApiKey),
           jwtSecret: env.jwtSecret,
