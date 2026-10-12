@@ -31,7 +31,8 @@ describe("Footer", () => {
   it("asks for the email with the next-pack promise when the newsletter is on", () => {
     vi.stubEnv("VITE_NEWSLETTER_ENABLED", "true");
     render(<Footer />);
-    expect(screen.getByText(/before anyone/)).toBeTruthy();
+    const promise = screen.getByText(/the next pack, before anyone else\./);
+    expect(promise.querySelector("em, [class*='serif']")).toBeNull();
     expect(screen.getByLabelText("Email address")).toBeTruthy();
   });
 
@@ -39,7 +40,8 @@ describe("Footer", () => {
     vi.stubEnv("VITE_NEWSLETTER_ENABLED", "");
     render(<Footer />);
     expect(screen.queryByLabelText("Email address")).toBeNull();
-    expect(screen.getByText(/calmer screens/)).toBeTruthy();
+    const line = screen.getByText("wallpapers, made in tarragona.");
+    expect(line.className).toMatch(/display-head/);
   });
 
   it("says how the pack artwork was made", () => {

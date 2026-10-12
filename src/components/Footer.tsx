@@ -30,19 +30,13 @@ export function Footer() {
             <EmailCapture
               source="footer"
               size="lg"
-              heading={
-                <>
-                  The next pack,{" "}
-                  <em className="font-serif font-normal italic text-white/80">before anyone.</em>
-                </>
-              }
+              heading="the next pack, before anyone else."
               lead="One email when a new pack or Studio feature lands. Nothing else."
               className="relative max-w-[460px]"
             />
           ) : (
-            <p className="m-0 max-w-[18ch] font-sans font-bold leading-[1.02] tracking-[-0.025em] text-[clamp(26px,3vw,36px)] text-white">
-              Small tools for{" "}
-              <em className="font-serif font-normal italic text-white/80">calmer screens.</em>
+            <p className="display-head max-w-[18ch] text-[clamp(28px,3vw,40px)] text-white">
+              wallpapers, made in tarragona.
             </p>
           )}
         </Reveal>
@@ -55,7 +49,7 @@ export function Footer() {
       </div>
 
       <div className="flex flex-wrap justify-between gap-x-6 gap-y-3 border-t border-white/8 py-5 font-sans text-[11px] tracking-[0.14em] uppercase text-white/55">
-        <span>© 2026 GradientWall · Made in Tarragona</span>
+        <span>© 2026 GradientWall</span>
         <span className="max-w-[56ch] normal-case tracking-normal text-[12px] sm:text-right">
           Pack artwork: {AI_DISCLOSURE.charAt(0).toLowerCase() + AI_DISCLOSURE.slice(1)}
         </span>

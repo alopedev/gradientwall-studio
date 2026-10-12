@@ -12,6 +12,7 @@ import { HeroBackdrop } from "./HeroBackdrop";
 import { StageHalo } from "./StageHalo";
 import { StudioDock } from "./StudioDock";
 import { StudioTopBar } from "./StudioTopBar";
+import { BauhausMarks } from "@/components/ui/BauhausMarks";
 
 const enter = (delay: number) => ({
   initial: { opacity: 0, y: 18 },
@@ -60,11 +61,9 @@ export function StudioShell() {
         <HeroBackdrop occluderRef={frameRef} />
         <div className="mx-auto grid max-w-[1600px] gap-8 px-[clamp(16px,4vw,64px)] pb-[clamp(32px,5vw,72px)] pt-[88px] lg:min-h-[100svh] lg:grid-cols-[minmax(300px,0.72fr)_minmax(0,1.6fr)] lg:items-center lg:gap-10 lg:pt-[96px]">
           <Reveal className="relative z-[1]">
-            <span className="mb-5 hidden rounded-full border border-white/12 bg-white/[0.04] px-3 py-1.5 font-sans text-[11px] font-medium uppercase tracking-[0.14em] text-white/75 md:inline-flex">
-              Free · No account · No watermark
-            </span>
-            <h1 className="m-0 font-sans text-[clamp(40px,4.6vw,76px)] font-bold uppercase leading-[0.92] tracking-[-0.045em] text-white">
-              Make your own gradient <span className="serif-accent">wallpaper.</span>
+            <BauhausMarks className="mb-6 hidden md:flex" />
+            <h1 className="display-head text-[clamp(40px,4.6vw,76px)] text-white">
+              make a gradient wallpaper. shuffle until it's yours.
             </h1>
             <p className="mt-5 hidden max-w-[40ch] font-sans text-[15px] font-light text-white/75 md:block">
               Press Shuffle (or Space) until one feels right. Change the style or the colors, then
