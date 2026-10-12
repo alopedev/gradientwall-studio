@@ -1,18 +1,11 @@
-import {
-  AnimatePresence,
-  type MotionStyle,
-  m,
-  useMotionTemplate,
-  useScroll,
-  useTransform,
-} from "motion/react";
+import { AnimatePresence, type MotionStyle, m } from "motion/react";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { getPacks } from "@/lib/packs";
 import { paletteName } from "@/lib/palette-name";
 import { useConfigStore } from "@/store/useConfigStore";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { PackCover } from "./packs/PackCover";
-import { glassButton } from "./ui/GlassButton";
+import { inkButton } from "./ui/InkButton";
 
 type Section = "studio" | "packs";
 
@@ -40,31 +33,18 @@ function useSectionInView(): Section | null {
   return inView;
 }
 
-/**
- * Glass shared by the three islands. They keep their shape and border at the
- * top of the page and get denser as you scroll, so the content passing under
- * them stays legible. Interpolating across 0→80px reads as craftsmanship; a
- * hard flip at one offset feels abrupt.
- */
-function useIslandGlass(): MotionStyle {
-  const { scrollY } = useScroll();
-  const bgOpacity = useTransform(scrollY, [0, 80], [0.38, 0.72], { clamp: true });
-  const blurPx = useTransform(scrollY, [0, 80], [14, 24], { clamp: true });
-  const shadowOpacity = useTransform(scrollY, [0, 120], [0.18, 0.4], { clamp: true });
-  const backgroundColor = useMotionTemplate`rgba(14, 14, 18, ${bgOpacity})`;
-  const backdropFilter = useMotionTemplate`blur(${blurPx}px) saturate(1.6)`;
-  const boxShadow = useMotionTemplate`inset 0 0 0 1px rgba(255, 255, 255, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 12px 32px rgba(0, 0, 0, ${shadowOpacity})`;
-  return { backgroundColor, backdropFilter, WebkitBackdropFilter: backdropFilter, boxShadow };
-}
+/** Paper shared by the three islands: opaque, with a 2 px ink edge (identity B). */
+const ISLAND: MotionStyle = {
+  backgroundColor: "var(--color-bg)",
+  boxShadow: "inset 0 0 0 2px var(--color-ink)",
+};
 
 /**
- * Floating nav in three glass islands: the brand, the sections (Studio, and
+ * Floating nav in three paper islands: the brand, the sections (Studio, and
  * Packs, which grows into a menu with the covers), and the actions (current
  * palette, saved count, CTA).
  */
 export function Nav() {
-  const glass = useIslandGlass();
-
   return (
     <nav
       aria-label="Main"
@@ -75,18 +55,16 @@ export function Nav() {
         <m.a
           data-island
           href="/"
-          style={glass}
-          className="pointer-events-auto flex h-14 items-center gap-2.5 rounded-full pl-4 pr-5 max-sm:px-[17px] font-sans text-[13px] font-medium uppercase tracking-[0.12em] text-white focus-ring"
+          style={ISLAND}
+          className="pointer-events-auto flex h-14 items-center gap-2.5 rounded-sharp pl-4 pr-5 max-sm:px-[17px] font-display text-[19px] font-medium lowercase tracking-[-0.02em] text-ink focus-ring"
         >
           <BrandOrb />
-          <span className="max-sm:sr-only">
-            GradientWall<span className="ml-0.5 font-light text-white/60">*</span>
-          </span>
+          <span className="max-sm:sr-only">gradientwall</span>
         </m.a>
 
-        <SectionsIsland glass={glass} />
+        <SectionsIsland />
 
-        <ActionsIsland glass={glass} />
+        <ActionsIsland />
       </div>
     </nav>
   );
@@ -117,7 +95,7 @@ const ISLAND_PADDING_X = 8;
  * (mouse) or click (touch, keyboard): the island itself widens and grows a
  * panel with each pack, like a dynamic island.
  */
-function SectionsIsland({ glass }: { glass: MotionStyle }) {
+function SectionsIsland() {
   const inView = useSectionInView();
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState<Section | null>(null);
@@ -184,7 +162,7 @@ function SectionsIsland({ glass }: { glass: MotionStyle }) {
       <m.div
         data-island
         ref={islandRef}
-        style={glass}
+        style={ISLAND}
         initial={false}
         animate={{ width: open ? menuWidth : (closedWidth ?? "auto") }}
         transition={
@@ -200,7 +178,7 @@ function SectionsIsland({ glass }: { glass: MotionStyle }) {
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget as Node | null)) closeMenu();
         }}
-        className="pointer-events-auto overflow-hidden rounded-[28px]"
+        className="pointer-events-auto overflow-hidden rounded-sharp"
       >
         <SectionLinks
           highlighted={highlighted}
@@ -260,14 +238,14 @@ function SectionLinks({
   }, [highlighted]);
 
   const item =
-    "relative z-10 inline-flex h-12 items-center gap-1.5 rounded-full px-4 font-sans text-[11px] font-medium uppercase tracking-[0.14em] text-white/70 transition-colors duration-150 hover:text-white aria-expanded:text-white aria-[current=location]:text-white focus-ring";
+    "relative z-10 inline-flex h-12 items-center gap-1.5 rounded-full px-4 font-sans text-[11px] font-medium uppercase tracking-[0.14em] text-ink-dim transition-colors duration-150 hover:text-ink aria-expanded:text-ink aria-[current=location]:text-ink focus-ring";
 
   return (
     <div className="flex justify-center p-1">
       <div ref={trackRef} data-track className="relative flex items-center">
         <span
           aria-hidden
-          className="absolute top-1 bottom-1 rounded-full bg-white/[0.13] transition-[left,width,opacity] duration-300 ease-[cubic-bezier(0.3,1.25,0.5,1)]"
+          className="absolute top-1 bottom-1 rounded-[2px] bg-ink/[0.1] transition-[left,width,opacity] duration-300 ease-[cubic-bezier(0.3,1.25,0.5,1)]"
           style={{ left: pill?.left ?? 0, width: pill?.width ?? 0, opacity: pill ? 1 : 0 }}
         />
         <a
@@ -347,9 +325,9 @@ function PacksMenu({ width, onNavigate }: { width: number; onNavigate: () => voi
             <a
               key={pack.slug}
               href={`/packs/${pack.slug}`}
-              className="group flex min-w-0 flex-col gap-2 rounded-2xl p-1.5 transition-colors duration-150 hover:bg-white/[0.07] focus-ring"
+              className="group flex min-w-0 flex-col gap-2 rounded-2xl p-1.5 transition-colors duration-150 hover:bg-ink/[0.07] focus-ring"
             >
-              <span className="block aspect-[4/3] overflow-hidden rounded-xl shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)]">
+              <span className="block aspect-[4/3] overflow-hidden rounded-xl shadow-[inset_0_0_0_1px_rgba(18,18,18,0.12)]">
                 <PackCover
                   cover={pack.cover}
                   decorative
@@ -357,8 +335,8 @@ function PacksMenu({ width, onNavigate }: { width: number; onNavigate: () => voi
                 />
               </span>
               <span className="flex flex-col px-1 pb-0.5 font-sans">
-                <span className="text-[13px] font-medium text-white">{pack.name}</span>
-                <span className="text-[11px] text-white/55 tabular-nums">
+                <span className="text-[13px] font-medium text-ink">{pack.name}</span>
+                <span className="text-[11px] text-ink-dim tabular-nums">
                   {pack.previews.length} wallpapers · €{pack.priceEur.toFixed(2)}
                 </span>
               </span>
@@ -366,24 +344,24 @@ function PacksMenu({ width, onNavigate }: { width: number; onNavigate: () => voi
           ))}
           <a
             href="/#studio"
-            className="group flex min-w-0 flex-col gap-2 rounded-2xl p-1.5 transition-colors duration-150 hover:bg-white/[0.07] focus-ring max-[480px]:col-span-2"
+            className="group flex min-w-0 flex-col gap-2 rounded-2xl p-1.5 transition-colors duration-150 hover:bg-ink/[0.07] focus-ring max-[480px]:col-span-2"
           >
             <span
-              className="block aspect-[4/3] rounded-xl max-[480px]:aspect-[3/1] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)] transition-[background] duration-500"
+              className="block aspect-[4/3] rounded-xl max-[480px]:aspect-[3/1] shadow-[inset_0_0_0_1px_rgba(18,18,18,0.12)] transition-[background] duration-500"
               style={{
                 background: `conic-gradient(from 210deg, ${colors.join(", ")}, ${colors[0]})`,
               }}
             />
             <span className="flex flex-col px-1 pb-0.5 font-sans">
-              <span className="text-[13px] font-medium text-white">Your own</span>
-              <span className="text-[11px] text-white/55">Free in the Studio</span>
+              <span className="text-[13px] font-medium text-ink">Your own</span>
+              <span className="text-[11px] text-ink-dim">Free in the Studio</span>
             </span>
           </a>
         </div>
         <div className="flex justify-end px-4 pb-3 pt-1">
           <a
             href="/#packs"
-            className="inline-flex min-h-9 items-center px-1 font-sans text-[11px] font-medium uppercase tracking-[0.14em] text-white/70 hover:text-white focus-ring"
+            className="inline-flex min-h-9 items-center px-1 font-sans text-[11px] font-medium uppercase tracking-[0.14em] text-ink-dim hover:text-ink focus-ring"
           >
             All packs →
           </a>
@@ -394,18 +372,18 @@ function PacksMenu({ width, onNavigate }: { width: number; onNavigate: () => voi
 }
 
 /** Current palette, saved count and the CTA. */
-function ActionsIsland({ glass }: { glass: MotionStyle }) {
+function ActionsIsland() {
   const colors = useConfigStore((s) => s.colors);
   const savedCount = useFavoritesStore((s) => s.items.length);
   const name = paletteName(colors);
   const chip =
-    "inline-flex h-11 items-center gap-2 rounded-full px-3 font-sans text-[12px] text-white/85 transition-colors duration-150 hover:bg-white/[0.08] hover:text-white focus-ring";
+    "inline-flex h-11 items-center gap-2 rounded-full px-3 font-sans text-[12px] text-ink/85 transition-colors duration-150 hover:bg-ink/[0.08] hover:text-ink focus-ring";
 
   return (
     <m.div
       data-island
-      style={glass}
-      className="pointer-events-auto flex h-14 items-center gap-1 rounded-full p-1.5"
+      style={ISLAND}
+      className="pointer-events-auto flex h-14 items-center gap-1 rounded-sharp p-1.5"
     >
       <a
         href="/#studio"
@@ -417,7 +395,7 @@ function ActionsIsland({ glass }: { glass: MotionStyle }) {
             <span
               // biome-ignore lint/suspicious/noArrayIndexKey: four fixed slots
               key={i}
-              className="size-3 rounded-full shadow-[inset_0_0_0_1px_rgba(255,255,255,0.22)] transition-[background] duration-500"
+              className="size-3 rounded-full shadow-[inset_0_0_0_1px_rgba(18,18,18,0.22)] transition-[background] duration-500"
               style={{ background: c }}
             />
           ))}
@@ -435,7 +413,7 @@ function ActionsIsland({ glass }: { glass: MotionStyle }) {
       </a>
       <a
         href="/#studio"
-        className={`${glassButton({ variant: "primary" })} rounded-full! min-h-11 px-5 text-[0.82rem]`}
+        className={`${inkButton({ variant: "primary" })} rounded-[2px]! min-h-11 px-5 text-[0.82rem]`}
       >
         <span className="md:hidden">Make one →</span>
         <span className="hidden md:inline">Make a wallpaper →</span>

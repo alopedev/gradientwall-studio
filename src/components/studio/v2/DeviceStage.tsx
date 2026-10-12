@@ -6,6 +6,7 @@ import type { Device } from "@/lib/palettes";
 import { useConfigStore, useRenderParams } from "@/store";
 import { useWallpaperEngine } from "../engine";
 import { REVEAL_TTL_MS, RevealContext } from "./reveal";
+import { ScreenMotion } from "./ScreenMotion";
 
 /** Bezel padding and corner radius of each frame, in px. */
 const FRAME: Record<Device, { pad: number; radius: number }> = {
@@ -165,6 +166,7 @@ export function DeviceStage() {
           onBeforePaint={onBeforePaint}
           className="absolute inset-0 z-[2] size-full object-cover"
         />
+        <ScreenMotion params={params} />
         <LockOverlay device={device} />
         {dropping && (
           <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center rounded-[inherit] border-2 border-dashed border-white/70 bg-black/40 font-sans text-sm text-white backdrop-blur-sm">

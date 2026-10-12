@@ -31,4 +31,10 @@ describe("paper theme tokens (identity B, Dessau paper)", () => {
   it("text on the ink button passes WCAG AAA", () => {
     expect(contrastRatio(token("color-paper"), token("color-paper-ink"))).toBeGreaterThanOrEqual(7);
   });
+
+  it("state colours (saved, done, focus) read as graphics on paper (WCAG 1.4.11, 3:1)", () => {
+    for (const name of ["color-rose", "color-good", "color-accent"]) {
+      expect(contrastRatio(token(name), token("color-paper"))).toBeGreaterThanOrEqual(3);
+    }
+  });
 });

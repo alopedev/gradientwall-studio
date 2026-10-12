@@ -18,8 +18,8 @@ export const PopoverContent = React.forwardRef<
       className={cn(
         // Surface tokens land here once Phase 1+ uses them widely; for now we
         // keep the explicit hex so the popover reads as a step above bg-2.
-        "z-50 rounded-2xl border border-white/10 bg-[#0c0c11] p-4 text-white outline-none",
-        "shadow-[0_24px_60px_rgba(0,0,0,0.55)]",
+        "z-50 rounded-sharp border-2 border-ink bg-bg p-4 text-ink outline-none",
+        "shadow-[0_6px_0_var(--color-ink)]",
         "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
         "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
         "data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2",

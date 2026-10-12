@@ -7,9 +7,6 @@ import { useConfigStore } from "@/store";
 import { DeviceStage } from "./DeviceStage";
 import { FavoritesStrip } from "./FavoritesStrip";
 import { type RevealRequest, RevealContext } from "./reveal";
-import { HeroAmbient } from "./HeroAmbient";
-import { HeroBackdrop } from "./HeroBackdrop";
-import { StageHalo } from "./StageHalo";
 import { StudioInspector } from "./StudioInspector";
 import { StudioTopBar } from "./StudioTopBar";
 import { BauhausMarks } from "@/components/ui/BauhausMarks";
@@ -31,7 +28,6 @@ const enter = (delay: number) => ({
 export function StudioShell() {
   const device = useConfigStore((s) => s.device);
   const sectionRef = useRef<HTMLElement>(null);
-  const frameRef = useRef<HTMLDivElement>(null);
   const revealRef = useRef<RevealRequest | null>(null);
   const inView = useInView(sectionRef, { amount: 0.35 });
   // The Studio is now the first screen, so Space must keep scrolling the page
@@ -43,15 +39,13 @@ export function StudioShell() {
   return (
     <RevealContext.Provider value={revealRef}>
       <section ref={sectionRef} className="relative isolate overflow-hidden">
-        <HeroAmbient />
-        <HeroBackdrop occluderRef={frameRef} />
         <div className="mx-auto grid max-w-[1600px] gap-8 px-[clamp(16px,4vw,64px)] pb-[clamp(32px,5vw,72px)] pt-[88px] lg:min-h-[100svh] lg:grid-cols-[minmax(300px,0.72fr)_minmax(0,1.6fr)] lg:items-center lg:gap-10 lg:pt-[96px]">
           <Reveal className="relative z-[1]">
             <BauhausMarks className="mb-6 hidden md:flex" />
-            <h1 className="display-head text-[clamp(40px,4.6vw,76px)] text-white">
+            <h1 className="display-head text-[clamp(40px,4.6vw,76px)] text-ink">
               make a gradient wallpaper. shuffle until it's yours.
             </h1>
-            <p className="mt-5 hidden max-w-[40ch] font-sans text-[15px] font-light text-white/75 md:block">
+            <p className="mt-5 hidden max-w-[40ch] font-sans text-[15px] text-ink-dim md:block">
               Press Shuffle (or Space) until one feels right. Change the style or the colors, then
               download it sharp, up to 5120 × 2880. Free, no account, no watermark.
             </p>
@@ -60,7 +54,6 @@ export function StudioShell() {
           {/* Anchor target: "Make a wallpaper" lands on the frame (just under the nav). */}
           <div id="studio" className="@container mx-auto w-full max-w-[1500px] scroll-mt-[76px]">
             <div
-              ref={frameRef}
               data-device={device}
               onPointerEnter={() => setHovered(true)}
               onPointerLeave={() => setHovered(false)}
@@ -68,9 +61,8 @@ export function StudioShell() {
               onBlurCapture={(e) => {
                 if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false);
               }}
-              className="relative isolate grid h-[clamp(620px,calc(100svh_-_150px),860px)] grid-cols-[minmax(0,1fr)_300px] grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-[20px] border border-white/10 bg-[radial-gradient(120%_90%_at_50%_40%,#0d0d11_0%,#060607_70%)] [grid-template-areas:'top_panel''stage_panel''saved_panel'] @max-[760px]:h-auto @max-[760px]:grid-cols-1 @max-[760px]:grid-rows-[auto_clamp(300px,calc(100svh_-_440px),520px)_auto_auto] @max-[760px]:rounded-2xl @max-[760px]:[grid-template-areas:'top''stage''panel''saved'] @max-[760px]:data-[device=desktop]:grid-rows-[auto_330px_auto_auto]"
+              className="relative isolate grid h-[clamp(620px,calc(100svh_-_150px),860px)] grid-cols-[minmax(0,1fr)_300px] grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-sharp border-2 border-ink bg-bg-2 [grid-template-areas:'top_panel''stage_panel''saved_panel'] @max-[760px]:h-auto @max-[760px]:grid-cols-1 @max-[760px]:grid-rows-[auto_clamp(300px,calc(100svh_-_440px),520px)_auto_auto] @max-[760px]:[grid-template-areas:'top''stage''panel''saved'] @max-[760px]:data-[device=desktop]:grid-rows-[auto_330px_auto_auto]"
             >
-              <StageHalo />
               <m.div {...enter(0)} className="[grid-area:top]">
                 <StudioTopBar />
               </m.div>
@@ -85,7 +77,7 @@ export function StudioShell() {
                 <FavoritesStrip />
               </m.div>
             </div>
-            <p className="m-0 mt-5 text-center font-sans text-[11px] tracking-[0.04em] text-white/55">
+            <p className="m-0 mt-5 text-center font-sans text-[11px] tracking-[0.04em] text-ink-dim">
               {STUDIO_NOT_AI}
             </p>
             <EmailCapture

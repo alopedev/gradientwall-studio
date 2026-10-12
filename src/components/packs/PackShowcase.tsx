@@ -20,8 +20,8 @@ const VIEW_LABEL: Record<ShowcaseView, string> = {
 };
 
 /**
- * The hero of a pack page: the current design on a laptop and a phone over a
- * blur of its own colours, with the page's title (`header`) and buy action
+ * The hero of a pack page: the current design on a laptop and a phone on the
+ * page's paper, with the page's title (`header`) and buy action
  * (`buy`) on top. Arrows, keys, swipe, Shuffle and a thumbnail rail move
  * through the pack one design at a time.
  */
@@ -46,7 +46,6 @@ export function PackShowcase({
   // A mixed pack may have a piece without a desktop file: show its phone render rather than nothing.
   const shown: ShowcaseView = renders.desktop ? view : "phone";
   const name = pieceName(piece);
-  const glow = renders.desktop ?? renders.phone!;
 
   return (
     <section
@@ -59,19 +58,6 @@ export function PackShowcase({
         else if (e.key === "ArrowLeft") go(index - 1);
       }}
     >
-      {/* The design's own colours, blurred, as the light of the whole hero. */}
-      <PackCover
-        cover={glow}
-        w={240}
-        h={240}
-        className="pointer-events-none absolute -inset-[10%] -z-10 h-[120%] w-[120%] object-cover opacity-70 blur-3xl saturate-125 brightness-[0.55] transition-opacity duration-500"
-        decorative
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(120%_80%_at_50%_110%,rgba(10,10,13,0.95),transparent_60%),linear-gradient(rgba(10,10,13,0.55),transparent_35%)]"
-      />
-
       <div className="mx-auto max-w-[1600px] px-[clamp(16px,4vw,56px)] pt-[clamp(96px,10vw,128px)] pb-[clamp(20px,3vw,40px)]">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">{header}</div>
@@ -106,7 +92,7 @@ export function PackShowcase({
           >
             {shown !== "phone" && renders.desktop && (
               <LaptopFrame
-                className={`drop-shadow-[0_40px_60px_rgba(0,0,0,0.6)] ${
+                className={`drop-shadow-[0_30px_40px_rgba(0,0,0,0.25)] ${
                   shown === "both"
                     ? "w-[82%] sm:w-[min(66%,760px)]"
                     : "w-full sm:w-[min(80%,900px)]"
@@ -117,7 +103,7 @@ export function PackShowcase({
             )}
             {shown !== "desktop" && (
               <PhoneFrame
-                className={`relative z-10 shadow-[0_40px_80px_-24px_rgba(0,0,0,0.9)] ${
+                className={`relative z-10 shadow-[0_30px_50px_-24px_rgba(0,0,0,0.45)] ${
                   shown === "both"
                     ? "-mb-[1%] -ml-[18%] w-[30%] sm:-ml-[7%] sm:w-[min(17%,190px)]"
                     : "w-[58%] sm:w-[min(36%,250px)]"
@@ -136,16 +122,16 @@ export function PackShowcase({
               <ArrowButton side="prev" onClick={() => go(index - 1)} />
               <div
                 aria-live="polite"
-                className="min-w-[104px] text-center font-sans tabular-nums text-[13px] text-white/60"
+                className="min-w-[104px] text-center font-sans tabular-nums text-[13px] text-ink-dim"
               >
-                {name && <span className="block text-[15px] font-medium text-white">{name}</span>}
+                {name && <span className="block text-[15px] font-medium text-ink">{name}</span>}
                 {String(index + 1).padStart(2, "0")} / {total}
               </div>
               <ArrowButton side="next" onClick={() => go(index + 1)} />
               <button
                 type="button"
                 onClick={() => go(shuffleIndex(index, total))}
-                className="min-h-11 cursor-pointer rounded-[14px] border border-white/20 bg-white/[0.06] px-4 font-sans text-[14px] font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-md transition-colors hover:bg-white/[0.12]"
+                className="min-h-11 cursor-pointer rounded-sharp px-4 font-sans text-[14px] font-medium text-ink shadow-[inset_0_0_0_2px_var(--color-ink)] transition-colors hover:bg-ink hover:text-bg"
               >
                 Shuffle
               </button>
@@ -174,7 +160,7 @@ function ViewSwitch({
   return (
     <fieldset
       aria-label="Device"
-      className="m-0 flex min-w-0 rounded-full border border-white/14 bg-black/45 p-1 backdrop-blur-md"
+      className="m-0 flex min-w-0 rounded-sharp p-1 shadow-[inset_0_0_0_2px_var(--color-ink)]"
     >
       {views.map((v) => (
         <button
@@ -182,8 +168,8 @@ function ViewSwitch({
           type="button"
           aria-pressed={value === v}
           onClick={() => onChange(v)}
-          className={`min-h-9 cursor-pointer rounded-full px-3.5 font-sans text-[12px] font-medium transition-colors ${
-            value === v ? "bg-white text-[#0a0a0d]" : "text-white/60 hover:text-white"
+          className={`min-h-9 cursor-pointer rounded-[2px] px-3.5 font-sans text-[12px] font-medium transition-colors ${
+            value === v ? "bg-ink text-bg" : "text-ink-dim hover:text-ink"
           }`}
         >
           {VIEW_LABEL[v]}
@@ -199,7 +185,7 @@ function ArrowButton({ side, onClick }: { side: "prev" | "next"; onClick: () => 
       type="button"
       aria-label={side === "prev" ? "Previous wallpaper" : "Next wallpaper"}
       onClick={onClick}
-      className="grid size-11 cursor-pointer place-items-center rounded-full border border-white/20 bg-black/35 text-white backdrop-blur-md transition-[background-color,scale] hover:scale-105 hover:bg-black/55 active:scale-95 motion-reduce:transition-none"
+      className="grid size-11 cursor-pointer place-items-center rounded-full bg-bg text-ink shadow-[inset_0_0_0_2px_var(--color-ink)] transition-[background-color,color,scale] hover:scale-105 hover:bg-ink hover:text-bg active:scale-95 motion-reduce:transition-none"
     >
       {/* biome-ignore lint/a11y/noSvgWithoutTitle: decorative; the button carries the label */}
       <svg
@@ -246,7 +232,7 @@ function Rail({
     <fieldset
       ref={rail}
       aria-label={`${pack.name} designs`}
-      className="m-0 flex min-w-0 snap-x gap-2 overflow-x-auto border-0 border-y border-white/8 bg-[#0a0a0d]/60 px-[clamp(16px,4vw,56px)] py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="m-0 flex min-w-0 snap-x gap-2 overflow-x-auto border-0 border-y-2 border-ink bg-bg-2 px-[clamp(16px,4vw,56px)] py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       {pack.previews.map((piece, i) => {
         const r = pieceRenders(piece);
@@ -262,7 +248,9 @@ function Rail({
             className={`relative shrink-0 snap-start cursor-pointer overflow-hidden rounded-[10px] transition-opacity duration-300 hover:opacity-90 motion-reduce:transition-none ${
               landscape ? "aspect-[16/9] w-[92px] sm:w-[120px]" : "aspect-[9/16] w-14"
             } ${
-              i === index ? "opacity-100 shadow-[0_0_0_2px_#0a0a0d,0_0_0_3.5px_#fff]" : "opacity-55"
+              i === index
+                ? "opacity-100 shadow-[0_0_0_2px_var(--color-bg-2),0_0_0_4px_var(--color-ink)]"
+                : "opacity-60"
             }`}
           >
             <PackCover cover={art} w={240} h={landscape ? 135 : 400} className={FILL} />

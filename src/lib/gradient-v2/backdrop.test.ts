@@ -1,6 +1,8 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
 import {
+  SCREEN_MOTION_MAX_PIXELS,
+  screenMotionSize,
   BACKDROP_MAX_PIXELS,
   BACKDROP_MIN_FRAME_MS,
   backdropSize,
@@ -173,5 +175,23 @@ describe("visibleRegions", () => {
     expect(visibleRegions(scrolled, studio, buffer, 20)).toEqual(
       visibleRegions(canvas, { ...studio, y: 98 }, buffer, 20),
     );
+  });
+});
+
+describe("screenMotionSize (the wallpaper moving inside the Studio's device)", () => {
+  it("renders the screen box at the device pixel ratio, up to 1.5x", () => {
+    expect(screenMotionSize(300, 600, 1)).toEqual({ width: 300, height: 600 });
+    expect(screenMotionSize(300, 600, 1.25)).toEqual({ width: 375, height: 750 });
+    expect(screenMotionSize(200, 400, 3)).toEqual({ width: 300, height: 600 });
+  });
+
+  it("caps the pixels per frame and keeps the screen's shape", () => {
+    const { width, height } = screenMotionSize(1200, 675, 2);
+    expect(width * height).toBeLessThanOrEqual(SCREEN_MOTION_MAX_PIXELS);
+    expect(width / height).toBeCloseTo(1200 / 675, 2);
+  });
+
+  it("never asks for an empty buffer", () => {
+    expect(screenMotionSize(0, 0, 2)).toEqual({ width: 1, height: 1 });
   });
 });

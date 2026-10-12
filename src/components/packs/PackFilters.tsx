@@ -41,17 +41,17 @@ function FilterPill({
       role="tab"
       aria-selected={selected}
       onClick={onClick}
-      className={`relative inline-flex min-h-11 items-center rounded-full px-4 text-[11px] tracking-[0.14em] uppercase font-sans transition-colors duration-200 border ${
+      className={`relative inline-flex min-h-11 items-center rounded-sharp px-4 text-[11px] tracking-[0.14em] uppercase font-sans font-medium transition-colors duration-200 border-2 ${
         selected
-          ? "text-[#07070a] border-white"
-          : "text-white/65 border-white/14 hover:text-white hover:border-white/30"
+          ? "text-bg border-ink"
+          : "text-ink-dim border-ink/30 hover:text-ink hover:border-ink"
       }`}
     >
       {selected && (
         <m.span
           layoutId="active-filter-pill"
           aria-hidden
-          className="absolute inset-0 -z-10 rounded-full bg-white"
+          className="absolute inset-0 -z-10 bg-ink"
           transition={{ duration: 0.45, ease: EASE }}
         />
       )}

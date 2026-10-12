@@ -14,7 +14,7 @@ type FramedProps = Omit<ComponentPropsWithoutRef<"div">, "children" | "className
 };
 
 /**
- * Encuadra el contenido con 4 cuadritos blancos en las esquinas — marca
+ * Encuadra el contenido con 4 cuadritos de tinta en las esquinas — marca
  * brutalist editorial. El parent recibe `position: relative` automáticamente;
  * los accents son `absolute` sin afectar el flujo.
  *
@@ -25,7 +25,7 @@ export function Framed({
   children,
   offset = 12,
   size = 7,
-  color = "#ffffff",
+  color = "var(--color-ink)",
   className,
   style,
   ...rest

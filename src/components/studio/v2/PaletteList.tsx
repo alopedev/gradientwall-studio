@@ -21,11 +21,11 @@ export function PaletteList() {
             requestReveal(e.currentTarget);
             applyPalette(i);
           }}
-          className="flex min-h-9 min-w-0 items-center gap-2 rounded-[10px] bg-white/[0.04] p-1.5 text-left font-sans text-[0.8rem] text-white/85 outline-none transition-colors duration-200 hover:bg-white/[0.08] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-gold aria-pressed:bg-white/[0.1] aria-pressed:text-white aria-pressed:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.5)]"
+          className="flex min-h-9 min-w-0 items-center gap-2 rounded-[10px] bg-ink/[0.04] p-1.5 text-left font-sans text-[0.8rem] text-ink/85 outline-none transition-colors duration-200 hover:bg-ink/[0.08] hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent aria-pressed:bg-ink/[0.1] aria-pressed:text-ink aria-pressed:shadow-[inset_0_0_0_1px_rgba(18,18,18,0.5)]"
         >
           <span
             aria-hidden
-            className="flex h-[18px] w-[34px] flex-none overflow-hidden rounded-[5px] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)]"
+            className="flex h-[18px] w-[34px] flex-none overflow-hidden rounded-[5px] shadow-[inset_0_0_0_1px_rgba(18,18,18,0.12)]"
           >
             {p.colors.map((c) => (
               <i key={c} className="flex-1" style={{ background: c }} />

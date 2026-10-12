@@ -9,7 +9,7 @@ const EMAIL = "alexoliveperez@gmail.com";
 
 function Mail() {
   return (
-    <a href={`mailto:${EMAIL}`} className="underline underline-offset-2 hover:text-white">
+    <a href={`mailto:${EMAIL}`} className="underline underline-offset-2 hover:text-ink">
       {EMAIL}
     </a>
   );
@@ -18,8 +18,8 @@ function Mail() {
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="mt-10">
-      <h2 className="m-0 mb-3 font-sans text-[18px] font-semibold text-white">{title}</h2>
-      <div className="flex flex-col gap-3 font-sans text-[15px] font-light leading-relaxed text-white/75">
+      <h2 className="m-0 mb-3 font-sans text-[18px] font-semibold text-ink">{title}</h2>
+      <div className="flex flex-col gap-3 font-sans text-[15px] font-light leading-relaxed text-ink-dim">
         {children}
       </div>
     </section>
@@ -38,10 +38,10 @@ export function PrivacyPage() {
       <Nav />
       <main className="min-h-screen pt-[120px] pb-[clamp(60px,9vw,120px)]">
         <article className="mx-auto max-w-[680px] px-[clamp(24px,5vw,80px)]">
-          <h1 className="display-head m-0 text-[clamp(36px,4.6vw,56px)] leading-[1.05] text-white">
+          <h1 className="display-head m-0 text-[clamp(36px,4.6vw,56px)] leading-[1.05] text-ink">
             Privacy
           </h1>
-          <p className="mt-4 font-sans text-[15px] font-light leading-relaxed text-white/75">
+          <p className="mt-4 font-sans text-[15px] font-light leading-relaxed text-ink-dim">
             The short version: the Studio works without an account and does not ask for your data.
             We only keep your email if you join the list or buy a pack.
           </p>
@@ -54,20 +54,20 @@ export function PrivacyPage() {
 
           <Section title="The email list">
             <p>
-              <strong className="font-medium text-white">What we keep:</strong> your email, the spot
+              <strong className="font-medium text-ink">What we keep:</strong> your email, the spot
               of the site where you signed up (Studio or footer), the wording you saw next to the
               button, and the date.
             </p>
             <p>
-              <strong className="font-medium text-white">Why:</strong> to tell you about new packs
-              and Studio features, now and then.
+              <strong className="font-medium text-ink">Why:</strong> to tell you about new packs and
+              Studio features, now and then.
             </p>
             <p>
-              <strong className="font-medium text-white">Legal basis:</strong> your consent. You
-              give it by submitting the form.
+              <strong className="font-medium text-ink">Legal basis:</strong> your consent. You give
+              it by submitting the form.
             </p>
             <p>
-              <strong className="font-medium text-white">How long:</strong> until you unsubscribe.
+              <strong className="font-medium text-ink">How long:</strong> until you unsubscribe.
               Write to <Mail /> and we remove you.
             </p>
           </Section>
@@ -101,7 +101,7 @@ export function PrivacyPage() {
               protection authority:{" "}
               <a
                 href="https://www.aepd.es"
-                className="underline underline-offset-2 hover:text-white"
+                className="underline underline-offset-2 hover:text-ink"
                 rel="noopener noreferrer"
               >
                 aepd.es

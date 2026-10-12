@@ -1,6 +1,6 @@
 import { RotateCcw, Shuffle as ShuffleIcon } from "lucide-react";
 import { useId } from "react";
-import { GlassButton } from "@/components/ui/GlassButton";
+import { InkButton } from "@/components/ui/InkButton";
 import { GlassSlider } from "@/components/ui/shadcn/glass-slider";
 import { remixWallpaper, useConfigStore, useRenderParams } from "@/store";
 import { useWallpaperEngine } from "../engine";
@@ -53,11 +53,11 @@ export function AdjustPanel({ id }: { id?: string }) {
         <AdjustSlider key={spec.key} spec={spec} />
       ))}
       <div className="-mx-2 flex flex-wrap items-center justify-end gap-1">
-        <GlassButton variant="quiet" onClick={reset}>
+        <InkButton variant="quiet" onClick={reset}>
           <RotateCcw className="size-[15px]" aria-hidden />
           Reset
-        </GlassButton>
-        <GlassButton
+        </InkButton>
+        <InkButton
           variant="quiet"
           aria-keyshortcuts="R"
           onClick={(e) => {
@@ -67,10 +67,10 @@ export function AdjustPanel({ id }: { id?: string }) {
         >
           <ShuffleIcon className="size-[15px]" aria-hidden />
           Remix
-          <kbd className="hidden rounded-[5px] bg-white/10 px-1.5 py-1 font-sans text-[0.65rem] font-semibold leading-none [@media(hover:hover)]:inline">
+          <kbd className="hidden rounded-[5px] bg-ink/10 px-1.5 py-1 font-sans text-[0.65rem] font-semibold leading-none [@media(hover:hover)]:inline">
             R
           </kbd>
-        </GlassButton>
+        </InkButton>
       </div>
     </section>
   );

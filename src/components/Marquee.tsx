@@ -28,14 +28,14 @@ function Track() {
         const accentDot = i % 3 === 2;
         return (
           <span key={t} className="inline-flex items-center gap-14">
-            <span className="inline-block transition-[transform,color,text-shadow] duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.04] hover:text-white hover:[text-shadow:0_0_18px_rgba(255,59,48,0.35)]">
+            <span className="inline-block transition-[transform,color] duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.04] hover:text-ink">
               {t}
             </span>
             <span
               className={`inline-block h-1.5 w-1.5 rounded-full transition-transform duration-300 ${
                 accentDot
-                  ? "bg-[color:var(--color-accent)] hover:scale-[1.6] hover:shadow-[0_0_10px_rgba(255,59,48,0.7)]"
-                  : "bg-white/20 hover:bg-white/55 hover:scale-[1.4]"
+                  ? "bg-[color:var(--color-accent)] hover:scale-[1.6]"
+                  : "bg-ink/20 hover:bg-ink/55 hover:scale-[1.4]"
               }`}
               aria-hidden
             />
@@ -50,7 +50,7 @@ export function Marquee() {
   return (
     <Reveal>
       <div
-        className="group overflow-hidden whitespace-nowrap py-6 border-y border-white/8"
+        className="group overflow-hidden whitespace-nowrap py-6 border-y border-ink"
         style={{
           background: "var(--color-bg-2)",
           maskImage:
@@ -61,7 +61,7 @@ export function Marquee() {
         aria-hidden
       >
         <div
-          className="inline-flex gap-14 font-sans font-medium uppercase tracking-[0.18em] text-[14px] text-white/75 group-hover:[animation-play-state:paused]"
+          className="inline-flex gap-14 font-sans font-medium uppercase tracking-[0.18em] text-[14px] text-ink-dim group-hover:[animation-play-state:paused]"
           style={{ animation: "gw-scroll-left 40s linear infinite" }}
         >
           <Track />

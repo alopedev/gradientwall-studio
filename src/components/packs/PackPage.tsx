@@ -6,7 +6,7 @@ import { canPurchasePack, openCheckout } from "@/lib/store";
 import { AI_DISCLOSURE } from "@/lib/copy";
 import { Nav } from "../Nav";
 import { Footer } from "../Footer";
-import { glassButton } from "../ui/GlassButton";
+import { inkButton } from "../ui/InkButton";
 import { MagneticButton } from "../ui/MagneticButton";
 import { PageMeta } from "../PageMeta";
 import { buildPackPage } from "@/lib/seo/pages";
@@ -35,16 +35,16 @@ export function PackPage() {
         />
         <Nav />
         <main className="min-h-screen flex flex-col items-center justify-center px-6 text-center">
-          <span className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/55 mb-4">
+          <span className="font-sans text-[11px] tracking-[0.22em] uppercase text-ink-dim mb-4">
             404
           </span>
-          <h1 className="display-head text-[clamp(40px,6vw,76px)] text-white mb-4">
+          <h1 className="display-head text-[clamp(40px,6vw,76px)] text-ink mb-4">
             Pack not found.
           </h1>
-          <p className="font-sans text-[15px] text-white/60 mb-8 max-w-[42ch]">
+          <p className="font-sans text-[15px] text-ink-dim mb-8 max-w-[42ch]">
             The pack you're looking for has moved or doesn't exist. Browse the full catalog instead.
           </p>
-          <Link to="/#packs" className={`${glassButton({ variant: "primary" })} px-6`}>
+          <Link to="/#packs" className={`${inkButton({ variant: "primary" })} px-6`}>
             ← Back to packs
           </Link>
         </main>
@@ -64,20 +64,20 @@ export function PackPage() {
             <>
               <Link
                 to="/#packs"
-                className="inline-flex min-h-11 items-center gap-1.5 font-sans text-[11px] tracking-[0.18em] uppercase text-white/60 hover:text-white transition-colors"
+                className="inline-flex min-h-11 items-center gap-1.5 font-sans text-[11px] tracking-[0.18em] uppercase text-ink-dim hover:text-ink transition-colors"
               >
                 ← All packs
               </Link>
-              <span className="block mb-2 font-sans text-[11px] tracking-[0.22em] uppercase text-white/60">
+              <span className="block mb-2 font-sans text-[11px] tracking-[0.22em] uppercase text-ink-dim">
                 Pack · {pack.style}
               </span>
               <m.h1
                 layoutId={`pack-${pack.slug}-title`}
-                className="display-head text-[clamp(56px,8vw,120px)] text-white"
+                className="display-head text-[clamp(56px,8vw,120px)] text-ink"
               >
                 {pack.name}
               </m.h1>
-              <div className="mt-3 max-w-[40ch] font-sans text-[clamp(15px,1.6vw,18px)] font-light text-white/75 leading-snug">
+              <div className="mt-3 max-w-[40ch] font-sans text-[clamp(15px,1.6vw,18px)] font-light text-ink-dim leading-snug">
                 {pack.tagline}
               </div>
             </>
@@ -86,9 +86,9 @@ export function PackPage() {
             (buyEnabled || pack.etsyUrl) && (
               <div
                 ref={ctaRef}
-                className="flex w-full items-center justify-between gap-4 rounded-[22px] border border-white/16 bg-[rgba(20,20,26,0.6)] py-2 pl-5 pr-2 backdrop-blur-xl sm:w-auto"
+                className="flex w-full items-center justify-between gap-4 rounded-sharp border-2 border-ink bg-bg py-2 pl-5 pr-2 sm:w-auto"
               >
-                <span className="display-head text-[28px] leading-none text-white">
+                <span className="display-head text-[28px] leading-none text-ink">
                   €{pack.priceEur.toFixed(2)}
                 </span>
                 {buyEnabled ? (
@@ -136,13 +136,13 @@ export function PackPage() {
         {/* What you get */}
         <section className="mx-auto grid max-w-[1600px] gap-[clamp(28px,4vw,64px)] px-[clamp(16px,4vw,56px)] py-[clamp(40px,6vw,88px)] lg:grid-cols-2">
           <div className="grid content-start gap-5">
-            <span className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/60">
+            <span className="font-sans text-[11px] tracking-[0.22em] uppercase text-ink-dim">
               {describeContents(pack)}
             </span>
-            <p className="m-0 max-w-[56ch] font-sans text-[16px] leading-relaxed text-white/75">
+            <p className="m-0 max-w-[56ch] font-sans text-[16px] leading-relaxed text-ink-dim">
               {pack.description}
             </p>
-            <p className="m-0 max-w-[48ch] font-sans text-[12px] text-white/60 leading-relaxed">
+            <p className="m-0 max-w-[48ch] font-sans text-[12px] text-ink-dim leading-relaxed">
               {buyEnabled
                 ? "Instant download link by email, valid 30 days, up to 5 downloads. VAT included. Personal use only: no reselling, no sharing."
                 : "Instant download from your Etsy account. VAT included. Personal use only: no reselling, no sharing."}
@@ -150,7 +150,7 @@ export function PackPage() {
           </div>
           <div className="grid content-start gap-6">
             <PackSpecs pack={pack} />
-            <p className="m-0 max-w-[48ch] font-sans text-[11px] text-white/60 leading-relaxed">
+            <p className="m-0 max-w-[48ch] font-sans text-[11px] text-ink-dim leading-relaxed">
               <span className="uppercase tracking-[0.18em]">How it was made</span>
               <br />
               {AI_DISCLOSURE}
@@ -198,8 +198,8 @@ function StickyBuyBar({
   onCheckout?: () => void;
 }) {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-4 border-t border-white/10 bg-[rgba(10,10,13,0.88)] px-5 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl lg:hidden">
-      <span className="display-head text-[28px] leading-none text-white">€{price.toFixed(2)}</span>
+    <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-4 border-t-2 border-ink bg-bg px-5 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 lg:hidden">
+      <span className="display-head text-[28px] leading-none text-ink">€{price.toFixed(2)}</span>
       {href ? (
         <a href={href} target="_blank" rel="noopener noreferrer" className={BUY_BUTTON}>
           Get it on Etsy <span aria-hidden>↗</span>
@@ -213,4 +213,4 @@ function StickyBuyBar({
   );
 }
 
-const BUY_BUTTON = `${glassButton({ variant: "primary" })} px-6`;
+const BUY_BUTTON = `${inkButton({ variant: "primary" })} px-6`;

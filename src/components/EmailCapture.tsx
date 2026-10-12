@@ -62,24 +62,24 @@ export function EmailCapture({ source, heading, lead, size = "md", className }: 
         id={`${id}-h`}
         className={
           size === "lg"
-            ? "display-head text-[clamp(28px,3vw,40px)] text-white [text-wrap:balance]"
-            : "m-0 font-sans text-[15px] font-medium text-white"
+            ? "display-head text-[clamp(28px,3vw,40px)] text-ink [text-wrap:balance]"
+            : "m-0 font-sans text-[15px] font-medium text-ink"
         }
       >
         {heading}
       </p>
-      {lead && <p className="m-0 mt-2 font-sans text-[14px] text-white/70">{lead}</p>}
+      {lead && <p className="m-0 mt-2 font-sans text-[14px] text-ink-dim">{lead}</p>}
       {state.kind === "done" ? (
         <p
           role="status"
-          className="m-0 mt-5 inline-flex items-center gap-2 font-sans text-[14px] text-white/80"
+          className="m-0 mt-5 inline-flex items-center gap-2 font-sans text-[14px] text-ink/80"
         >
           <Check className="size-[18px] text-good" strokeWidth={2.4} aria-hidden />
           You're on the list. Thanks!
         </p>
       ) : (
         <form onSubmit={onSubmit} aria-labelledby={`${id}-h`} className="mt-4">
-          <div className="flex max-w-[440px] items-center border-b border-white/25 transition-colors duration-150 focus-within:border-gold">
+          <div className="flex max-w-[440px] items-center border-b border-ink/25 transition-colors duration-150 focus-within:border-primary">
             <label htmlFor={`${id}-email`} className="sr-only">
               Email address
             </label>
@@ -95,7 +95,7 @@ export function EmailCapture({ source, heading, lead, size = "md", className }: 
               onChange={(e) => setEmail(e.target.value)}
               aria-describedby={`${id}-note`}
               aria-invalid={state.kind === "error" || undefined}
-              className="min-h-12 min-w-0 flex-1 bg-transparent font-sans text-[16px] text-white outline-none placeholder:text-white/35"
+              className="min-h-12 min-w-0 flex-1 bg-transparent font-sans text-[16px] text-ink outline-none placeholder:text-ink-dim"
             />
             {/* Honeypot: off-screen, skipped by keyboard and screen readers. */}
             <input
@@ -112,7 +112,7 @@ export function EmailCapture({ source, heading, lead, size = "md", className }: 
               type="submit"
               disabled={submitting}
               aria-label={submitting ? "Sending…" : "Keep me posted"}
-              className="grid size-12 shrink-0 cursor-pointer place-items-center rounded-full text-white transition-colors duration-150 hover:bg-white/10 focus-ring disabled:cursor-default disabled:opacity-60"
+              className="grid size-12 shrink-0 cursor-pointer place-items-center rounded-full text-ink transition-colors duration-150 hover:bg-ink/10 focus-ring disabled:cursor-default disabled:opacity-60"
             >
               {submitting ? (
                 <LoaderCircle className="size-5 animate-spin" aria-hidden />
@@ -121,9 +121,9 @@ export function EmailCapture({ source, heading, lead, size = "md", className }: 
               )}
             </button>
           </div>
-          <p id={`${id}-note`} className="m-0 mt-2.5 font-sans text-[12px] text-white/50">
+          <p id={`${id}-note`} className="m-0 mt-2.5 font-sans text-[12px] text-ink-dim">
             {CONSENT_TEXT}{" "}
-            <a href="/privacy" className="underline underline-offset-2 hover:text-white">
+            <a href="/privacy" className="underline underline-offset-2 hover:text-ink">
               Privacy
             </a>
           </p>

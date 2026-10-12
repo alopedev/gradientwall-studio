@@ -36,7 +36,7 @@ export function SegmentedControl<T extends string>({
     <fieldset
       aria-label={ariaLabel}
       className={cn(
-        "relative m-0 inline-flex min-w-0 rounded-full border-0 bg-white/5 p-[3px] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.09)]",
+        "relative m-0 inline-flex min-w-0 rounded-sharp border-0 p-[3px] shadow-[inset_0_0_0_2px_var(--color-ink)]",
         className,
       )}
     >
@@ -50,8 +50,8 @@ export function SegmentedControl<T extends string>({
             aria-label={o.iconOnlyWhenNarrow ? o.label : undefined}
             onClick={() => onChange(o.value)}
             className={cn(
-              "relative inline-flex min-h-[38px] min-w-11 @max-[760px]:min-h-11 flex-1 items-center justify-center gap-[7px] rounded-full px-3.5 font-sans text-[0.86rem] font-medium outline-none transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold",
-              selected ? "text-white" : "text-white/60 hover:text-white",
+              "relative inline-flex min-h-[38px] min-w-11 @max-[760px]:min-h-11 flex-1 items-center justify-center gap-[7px] rounded-[2px] px-3.5 font-sans text-[0.86rem] font-medium outline-none transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+              selected ? "text-bg" : "text-ink-dim hover:text-ink",
             )}
           >
             {selected && (
@@ -59,7 +59,7 @@ export function SegmentedControl<T extends string>({
                 layoutId={`${id}-indicator`}
                 aria-hidden
                 transition={{ type: "spring", stiffness: 420, damping: 32 }}
-                className="absolute inset-0 rounded-full bg-gradient-to-b from-white/20 to-white/[0.11] shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_1px_3px_rgba(0,0,0,0.4)]"
+                className="absolute inset-0 rounded-[2px] bg-ink"
               />
             )}
             <span className="relative inline-flex items-center gap-[7px]">

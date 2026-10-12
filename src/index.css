@@ -2,136 +2,40 @@
 @import "tw-animate-css";
 
 @theme {
-  /* Space Grotesk does the UI and body. Headlines have one voice of their own,
-     --font-display (Jost, a geometric sans in the Futura line), set lowercase by
-     `display-head` as a nod to the Bauhaus single-case alphabet: no serif italic
-     accent word. Swap the headline face here and nowhere else. Instrument Serif
-     is only left on the Studio's palette name. */
-  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  /* Identity B, "Dessau paper" (chosen 2026-10-12, see CLAUDE.md "Design
+     system"): grey paper, black ink, no glass and no brand accent. Colour
+     comes only from the wallpaper being made and the three Bauhaus shapes.
+     Text is Albert Sans; headlines have their own voice, --font-display (Jost,
+     a geometric sans in the Futura line), set lowercase by `display-head`.
+     Swap a face here and nowhere else. */
+  --font-sans: "Albert Sans", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Jost", "Futura", "Century Gothic", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Instrument Serif", ui-serif, Georgia, "Times New Roman", serif;
 
-  --color-bg: #07070a;
-  --color-bg-2: #0c0c11;
-  --color-ink: #ffffff;
-  --color-ink-75: rgb(255 255 255 / 0.75);
-  --color-ink-dim: #a09d97;
-  --color-ink-faint: #55534f;
-  --color-off: #f8f8f8;
-  --color-off-ink: #171717;
-  /* Sutéra-style single-accent: bermellón. Reserved for live indicators,
-     focus rings and the blueprint annotation marker. Never used for
-     backgrounds or large surfaces. */
-  --color-accent: #ff3b30;
-
-  /* Surface layer system for cards, dialogs, accordions. Goes from base
-     bg up four steps; enough granularity to express hierarchy in dense
-     panels (Studio right-rail, ColorHUD popover, history grid) without
-     feeling washed-out. */
-  --color-surface-0: #131317;
-  --color-surface-1: #1a1a1f;
-  --color-surface-2: #222228;
-  --color-surface-3: #2c2c33;
-  --color-surface-4: #37373f;
-
-  /* Identity B, "Dessau paper" (chosen 2026-10-12): grey paper, black ink,
-     colour only from the wallpaper and the three Bauhaus shapes. Contrast is
-     guarded by src/lib/theme/paper-tokens.test.ts. Not wired to components
-     yet: the migration lands after the Studio and headline PRs merge. */
+  /* Contrast of these pairs is guarded by src/lib/theme/paper-tokens.test.ts. */
   --color-paper: #e3e2de;
   --color-paper-2: #d6d5d0;
   --color-paper-ink: #121212;
   --color-paper-sub: #4a494f;
 
-  --radius-sharp: 2px;
-  --radius-glass: 14px;
+  --color-bg: var(--color-paper);
+  --color-bg-2: var(--color-paper-2);
+  --color-ink: var(--color-paper-ink);
+  --color-ink-dim: var(--color-paper-sub);
+  /* Only for focus rings and live indicators: Bauhaus red, never a surface. */
+  --color-accent: #c8321e;
 
-  /* Studio stage palette: gold for the primary action and slider fills,
-     rose for "saved". Gold-ink is the text color on top of gold. */
-  --color-gold: #e9b949;
-  --color-gold-ink: #17130a;
-  --color-rose: #ff6b81;
-  --color-good: #7fc79b;
+  --radius-sharp: 4px;
 
-  /* Magic UI ShimmerButton animations. See keyframes in the Animations
-     section below. `--speed` is set per-instance via inline style by the
-     ShimmerButton component. */
-  --animate-shimmer-slide: shimmer-slide var(--speed, 3s) ease-in-out infinite alternate;
-  --animate-spin-around: spin-around calc(var(--speed, 3s) * 2) infinite linear;
+  /* The primary action is ink: a black button with paper text. Rose marks
+     "saved"; good marks a finished download. Both read on paper (3:1+). */
+  --color-primary: var(--color-paper-ink);
+  --color-primary-ink: var(--color-paper);
+  --color-rose: #c2255c;
+  --color-good: #1f7a45;
+
   /* Footer wordmark: its palette fill drifts slowly (Footer.tsx). */
   --animate-wordmark-drift: wordmark-drift 16s ease-in-out infinite alternate;
 
-  /* Tactile elevation stack — adapted from the keyboard-key shadow pattern.
-     The pair (inset top white highlight + inset bottom black + outer drop +
-     hairline ring) makes a small button feel physically pressable on dark
-     surfaces. Used by Studio control buttons, active pill tabs, slider thumb. */
-  --shadow-tactile:
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.45),
-    0 1px 0 rgba(255, 255, 255, 0.04),
-    0 2px 6px rgba(0, 0, 0, 0.45),
-    0 0 0 1px rgba(255, 255, 255, 0.06);
-  --shadow-tactile-active:
-    inset 0 1px 2px rgba(0, 0, 0, 0.55),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.05),
-    0 0 0 1px rgba(255, 255, 255, 0.04);
-  /* Recessed surface — for slider tracks and any area meant to read as
-     "carved into" the panel. Pure inverse of tactile: deep inset shadow,
-     no outer drop. */
-  --shadow-recessed:
-    inset 0 2px 4px rgba(0, 0, 0, 0.55),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.4);
-  /* Instrument tile — elevation for a single panel section. Subtler than
-     tactile: meant to read as a stratified surface, not a pressable
-     element. Outer drop is shallow; the 1px white inset top is what
-     separates it from the rail beneath. */
-  --shadow-instrument:
-    inset 0 1px 0 rgba(255, 255, 255, 0.07),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.35),
-    0 1px 0 rgba(0, 0, 0, 0.4),
-    0 8px 24px rgba(0, 0, 0, 0.35);
-
-  /* === Studio v2 — liquid glass moderno (iOS 26 / macOS Tahoe inspired) ===
-     Pareja de tokens para el chrome del nuevo Studio: Customize popover,
-     Favorites strip y DevicePicker. Más "cristal" que las utilidades
-     `liquid*` existentes (refracción + sat boost + inset highlight más
-     definido). Se aplican vía la utilidad `glass-modern`. */
-  --glass-bg: rgba(15, 15, 18, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-blur: 24px;
-  --glass-shadow-soft:
-    0 12px 40px rgba(0, 0, 0, 0.45),
-    0 0 0 1px rgba(255, 255, 255, 0.05);
-
-  /* Easing para hover magnético del CTA y motion delight de Fase 5.
-     Igual que el cubic-bezier que ya usan Reveal / Stagger en motion.ts. */
-  --magnetic-ease: cubic-bezier(0.22, 1, 0.36, 1);
-
-  /* Altura de la tira de favoritos (Fase 4). Compartida con el shell para
-     calcular padding-bottom del canvas y el bottom-offset del CTA en mobile. */
-  --strip-height: 88px;
-
-  /* === Fase 5 — OKLCH tokens y mix variants ===
-     OKLCH es perceptualmente uniforme: 50% lightness es ~50% perceptual
-     independiente del hue. Permite generar variantes (hover, active, soft)
-     vía color-mix sin saltos de luminosidad. Mantenemos los hex de arriba
-     como fallback para navegadores antiguos; los OKLCH ofrecen mejor
-     interpolación cuando se usan en gradients de mix-mode.
-
-     Soporte: Chrome 111+, Firefox 113+, Safari 15.4+. Cobertura ≈ 95% en
-     mayo 2026. Para el ≤5% restante, los hex fallback (--color-accent,
-     --color-ink, etc.) ya garantizan el aspecto. */
-  --accent-oklch: oklch(64% 0.21 24);
-  --ink-oklch: oklch(100% 0 0);
-  --bg-oklch: oklch(7% 0.005 280);
-
-  /* Variantes generadas con color-mix — el navegador interpola en OKLCH
-     space para que las versiones soft / dim de un color mantengan el mismo
-     hue. Reutilizables en hovers de botones, focus rings tenues, etc. */
-  --accent-soft: color-mix(in oklch, var(--accent-oklch) 60%, transparent);
-  --accent-glow: color-mix(in oklch, var(--accent-oklch) 30%, transparent);
-  --ink-soft: color-mix(in oklch, var(--ink-oklch) 75%, transparent);
 }
 
 /* =================== Base (wrapped so utilities win) =================== */
@@ -147,7 +51,7 @@
     padding: 0;
   }
   html {
-    color-scheme: dark;
+    color-scheme: light;
   }
   body {
     background: var(--color-bg);
@@ -171,213 +75,49 @@
     cursor: pointer;
   }
   ::selection {
-    background: #f4f1ea;
-    color: #07070a;
+    background: var(--color-ink);
+    color: var(--color-bg);
   }
 }
 
-/* =================== Site-wide grain (film level) =================== */
-/* Promoted to its own GPU compositing layer (translateZ + will-change) so the
-   browser doesn't have to recomposite the body grain on every paint of the
-   content beneath. mix-blend-mode is preserved for the film-overlay look — the
-   layer-promotion alone is what reclaims the lost frames during interactions. */
+/* =================== Paper grain =================== */
+/* A light tooth over the whole page, so the grey reads as paper rather than a
+   flat fill. Own compositing layer so it never repaints with the content. */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 100;
-  opacity: 0.55;
-  mix-blend-mode: overlay;
+  opacity: 0.35;
+  mix-blend-mode: multiply;
   transform: translateZ(0);
-  will-change: opacity;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.35 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.18 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
-/* =================== Liquid glass =================== */
-@utility liquid {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(22px) saturate(1.4);
-  -webkit-backdrop-filter: blur(22px) saturate(1.4);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
-    0 20px 60px rgba(0, 0, 0, 0.4);
-  border-radius: var(--radius-glass);
-}
-@utility liquid-subtle {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-}
-@utility liquid-pill {
-  background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-}
-
-/* Studio v2 — modern liquid glass (refinado Fase 5). Inspiración:
-   premio de diseño 2026 a iOS 26 / macOS Tahoe.
-   Capas:
-     1. Backdrop blur 24 + saturate 1.5 + brightness 1.05 → "cristal vivo"
-        que toma luz del fondo sin enmascararlo.
-     2. Gradient background sutil top→bottom (refracción aparente).
-     3. 1px border con gradient blanco → mejor borde que solid white/8.
-     4. Inset double-highlight (top sharp + bottom soft) para suggest grosor.
-     5. Outer shadow profunda pero limpia (single layer, sin halos).
-   Safari requiere -webkit-backdrop-filter. `contain: paint` mejora
-   compositing (reduce repaints del área del wallpaper detrás del panel). */
-@utility glass-modern {
-  background: var(--glass-bg);
-  background-image: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.04) 0%,
-    rgba(255, 255, 255, 0) 50%,
-    rgba(0, 0, 0, 0.08) 100%
-  );
-  border: 1px solid var(--glass-border);
-  backdrop-filter: blur(var(--glass-blur)) saturate(1.55) brightness(1.04);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.55) brightness(1.04);
-  box-shadow:
-    var(--glass-shadow-soft),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
-  contain: paint;
-}
-
-/* Technical "stamp" chrome — hairline border + tinted backdrop blur.
-   Used by the hero's meta stamps (LOCAL TIME, RENDER, slogan). The
-   `stamp-text` variant is the typography pair that lives inside. */
-@utility stamp {
-  border: 1px solid rgb(255 255 255 / 0.18);
-  border-radius: 10px;
-  background: rgb(7 7 10 / 0.4);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-/* =================== Studio tactility =================== */
-
-/* Pressable element on a dark panel: small button, active pill tab, slider
-   thumb. Combines the inset highlight/shadow pair with a subtle outer drop
-   so the element reads as a physical key sitting on the surface, not a
-   flat rectangle painted on it. Hover lifts the highlight; :active sinks
-   the element via --shadow-tactile-active. */
+/* Pressable element: a small physical key on paper (MagneticButton). */
 @utility tactile {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-  box-shadow: var(--shadow-tactile);
+  background: var(--color-bg);
+  box-shadow:
+    0 0 0 2px var(--color-ink),
+    0 3px 0 var(--color-ink);
   transition:
-    box-shadow 200ms ease,
-    background 200ms ease,
+    box-shadow 160ms ease,
     transform 120ms ease;
-  &:hover {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
-  }
   &:active {
-    box-shadow: var(--shadow-tactile-active);
-    transform: translateY(0.5px);
+    box-shadow:
+      0 0 0 2px var(--color-ink),
+      0 1px 0 var(--color-ink);
+    transform: translateY(2px);
   }
 }
 
-/* Recessed surface — slider tracks, "carved" inputs. Reads as if the
-   element is sunken into the panel. Inverse of tactile. */
-@utility tactile-recessed {
-  background: rgba(0, 0, 0, 0.35);
-  box-shadow: var(--shadow-recessed);
-}
-
-/* Instrument tile — one section in a console-style panel. Stratifies the
-   accordion: each open Section becomes its own "module" with its own
-   elevation, instead of being just a region inside a flat container.
-   Liquid-glass take: low-opacity white wash + backdrop blur lets the rail's
-   atmosphere bloom and the page background show through. The hairline ring
-   replaces opaque borders.
-   Backdrop blur is intentionally tight (10px) so neighbouring tiles don't
-   sample each other's bright thumbs/glows — a wider kernel was producing a
-   white halo bleeding upward from the slider thumb in the tile below. */
-@utility instrument-tile {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01)),
-    rgba(7, 7, 10, 0.32);
-  backdrop-filter: blur(10px) saturate(1.4);
-  -webkit-backdrop-filter: blur(10px) saturate(1.4);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.25),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.05),
-    0 1px 0 rgba(0, 0, 0, 0.4),
-    0 12px 28px rgba(0, 0, 0, 0.4);
-  border-radius: 14px;
-}
-
-/* Tactile-knob — the white "physical key" surface used by the slider thumb
-   and the active PillTabs pill. Top-bottom gradient + 5-layer shadow stack
-   reads as a key sitting above the recessed track. Both call sites share
-   exactly the same chrome; consolidating here keeps the depth tokens in
-   one place. */
-@utility tactile-knob {
-  background: linear-gradient(180deg, #ffffff, #d9d9d9);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.95),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.18),
-    0 1px 0 rgba(255, 255, 255, 0.05),
-    0 3px 8px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(0, 0, 0, 0.35);
-}
-
-/* Numeric chip used as the leading indicator of an instrument tile
-   (01 / 02 / 03). Etched plate over the liquid-glass tile — translucent so
-   the tile's wash bleeds through, with a hairline ring + bevel for the
-   console/synth label feel. */
-@utility instrument-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 26px;
-  height: 22px;
-  padding: 0 6px;
-  font-family: var(--font-sans);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  color: rgba(255, 255, 255, 0.9);
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 6px;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.5),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-}
-
-/* Accent focus ring used on every keyboard-reachable primary action
-   (CTAs, swatches, history cards, nav links). Keeping it in CSS means
-   we can apply it via a single class and avoid drift — every focusable
-   surface should look the same when the user tabs to it. */
+/* One focus ring for every keyboard-reachable control. */
 @utility focus-ring {
   &:focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
   }
-}
-
-/* PaletteCards (Studio v2) — hover-expand de los 4 swatches dentro de una
-   palette card. Inspirado en `ravikatiyar/color-palette-card` (21st.dev):
-   al hover sobre un swatch, ese flex pasa a 2.5 y los otros se comprimen
-   a 0.5, revelando el hex con fade. CSS puro porque Tailwind no expresa
-   "hover sobre hijo afecta a hermanos" sin trucos no portables. */
-.palette-strip:hover > .palette-swatch {
-  flex: 0.5;
-}
-.palette-strip > .palette-swatch:hover {
-  flex: 2.5;
-}
-.palette-strip > .palette-swatch:hover > .palette-hex {
-  opacity: 1;
 }
 
 /* The site's headline voice: geometric sans, lowercase, one weight, no accent
@@ -392,17 +132,6 @@ body::before {
 }
 
 /* =================== Animations =================== */
-@keyframes gw-scroll-pulse {
-  0% {
-    transform: translateX(-100%);
-  }
-  50% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
 @keyframes gw-scroll-left {
   from {
     transform: translateX(0);
@@ -411,18 +140,8 @@ body::before {
     transform: translateX(-50%);
   }
 }
-/* Scroll-driven reveal Fase 5 — utility para items que aparecen cuando
-   entran al viewport. CSS nativo (animation-timeline: view()), cero JS.
-   El navegador corre la animación en el compositor thread, así que es
-   barata incluso con 24 thumbnails simultáneos en la FavoritesStrip.
-
-   Soporte: Chrome 115+, Edge 115+, Firefox 132+ (con flag), Safari TP.
-   Donde no se soporta, los items aparecen estáticos en su estado final
-   (transform/opacity desde el resto del CSS) — degradación elegante.
-
-   `view-timeline-axis: block` afina al scroll vertical de la página
-   (no al horizontal interno de la strip). El rango cover→cover dispara
-   la animación durante la entrada del elemento. */
+/* Favourites enter as they scroll into view (CSS scroll timeline, no JS).
+   Where unsupported they simply sit in their final state. */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     @keyframes gw-reveal-in {
@@ -442,22 +161,8 @@ body::before {
     }
   }
 }
-
-/* BorderBeam Fase 5 — un beam ride alrededor del SurpriseCTA mientras el
-   wallpaper está "fresh" (el usuario aún no pineó nada en la sesión). El
-   beam usa conic-gradient que rota; el comp del padre añade clip y
-   mask. Mucho más cinemático que el border pulse anterior, y la
-   animación es CSS pura → respeta automáticamente prefers-reduced-motion
-   via @media reduce block más abajo. */
-@keyframes gw-beam-rotate {
-  to {
-    transform: rotate(1turn);
-  }
-}
-/* Heart-burst — 4 partículas que salen del corazón al hacer Save. Cada
-   partícula sigue su propia ruta vía CSS custom property `--angle`
-   inyectada inline (cuatro direcciones equiespaciadas alrededor del
-   centro del icono). Fade-out durante el viaje, scale de 1 a 0. */
+/* Heart-burst: 4 particles leave the heart on Save, each along its own
+   `--angle` (set inline). */
 @keyframes gw-heart-burst {
   0% {
     opacity: 1;
@@ -468,22 +173,6 @@ body::before {
     transform: translate(-50%, -50%) rotate(var(--angle, 0deg)) translateY(-18px) scale(0.4);
   }
 }
-/* Slow scale-breathe used by the Studio preview canvas while idle. The
-   amplitude (0.5%) is tuned to read as "the wallpaper is alive" without
-   making the device frame look like it's wobbling. */
-@keyframes gw-breathe {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.006);
-  }
-}
-/* Magic UI ShimmerButton — conic-gradient ring that traces the button border.
-   `shimmer-slide` sweeps the spark container horizontally; `spin-around`
-   rotates the conic gradient continuously. The pair, layered behind a
-   backdrop-filled inset, creates the "alive button" effect on the
-   SurpriseMeHero. */
 @keyframes wordmark-drift {
   from {
     background-position: 0% 30%;
@@ -491,62 +180,6 @@ body::before {
   to {
     background-position: 100% 70%;
   }
-}
-@keyframes shimmer-slide {
-  to {
-    transform: translate(calc(100cqw - 100%), 0);
-  }
-}
-@keyframes spin-around {
-  0% {
-    transform: translateZ(0) rotate(0);
-  }
-  15%, 35% {
-    transform: translateZ(0) rotate(90deg);
-  }
-  65%, 85% {
-    transform: translateZ(0) rotate(270deg);
-  }
-  100% {
-    transform: translateZ(0) rotate(360deg);
-  }
-}
-/* =================== Slider =================== */
-.gw-slider {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 2px;
-  background: rgba(255, 255, 255, 0.14);
-  outline: none;
-  margin: 6px 0 4px;
-}
-.gw-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #ffffff;
-  cursor: pointer;
-  border: 2px solid #07070a;
-  box-shadow: 0 0 0 1px #ffffff;
-}
-.gw-slider::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #ffffff;
-  border: 2px solid #07070a;
-  cursor: pointer;
-}
-
-/* =================== Hero inner grain =================== */
-.hero-grain {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='280' height='280'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-}
-.wallpaper-grain {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
 /* =================== Studio stage =================== */
@@ -585,13 +218,12 @@ body::before {
   pointer-events: none;
   white-space: nowrap;
   padding: 6px 9px;
-  border-radius: 7px;
-  background: #f3f1eb;
-  color: #141414;
+  border-radius: var(--radius-sharp);
+  background: var(--color-ink);
+  color: var(--color-bg);
   font: 500 0.75rem/1 var(--font-sans);
   letter-spacing: 0;
   text-transform: none;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
   transition: opacity 0.12s, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .gws-tip[data-tip-pos="bottom"]::after {
@@ -611,12 +243,12 @@ body::before {
   transform: none;
 }
 
-/* One-shot light sweep across a gold button on hover (pointer devices only). */
+/* One-shot light sweep across the primary button on hover (pointer devices only). */
 .gws-sheen::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.6) 48%, transparent 66%);
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.22) 48%, transparent 66%);
   transform: translateX(-110%);
   pointer-events: none;
 }

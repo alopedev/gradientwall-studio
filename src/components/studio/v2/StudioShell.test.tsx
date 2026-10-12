@@ -107,12 +107,9 @@ describe("StudioShell", () => {
     expect(pressSpace().defaultPrevented).toBe(false);
   });
 
-  it("lights the first screen with the current palette", () => {
+  it("keeps the palette inside the device: the page around it stays paper", () => {
     act(() => useConfigStore.getState().setColors(["#112233", "#445566", "#778899", "#aabbcc"]));
     const { container } = render(<StudioShell />);
-    const ambient = container.querySelector("section > [aria-hidden='true']") as HTMLElement;
-    expect(ambient).not.toBeNull();
-    // jsdom serialises colors as rgb().
-    expect(ambient.innerHTML).toContain("17, 34, 51");
+    expect(container.querySelector("section > [aria-hidden='true']")).toBeNull();
   });
 });
