@@ -6,6 +6,8 @@ import { useConfigStore } from "@/store/useConfigStore";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { PackCover } from "./packs/PackCover";
 import { inkButton } from "./ui/InkButton";
+import { PAGE_COLUMN } from "./ui/layout";
+import { BrandMark, Logo } from "./ui/Logo";
 
 type Section = "studio" | "packs";
 
@@ -49,17 +51,21 @@ export function Nav() {
     <nav
       aria-label="Main"
       style={{ paddingTop: "max(12px, env(safe-area-inset-top))" }}
-      className="pointer-events-none fixed inset-x-0 top-0 z-50 px-3 md:px-6"
+      className="pointer-events-none fixed inset-x-0 top-0 z-50"
     >
-      <div className="relative mx-auto flex max-w-[1100px] items-start justify-between gap-2">
+      <div
+        data-nav-column
+        className={`${PAGE_COLUMN} relative flex items-start justify-between gap-2`}
+      >
         <m.a
           data-island
           href="/"
           style={ISLAND}
-          className="pointer-events-auto flex h-14 items-center gap-2.5 rounded-sharp pl-4 pr-5 max-sm:px-[17px] font-display text-[19px] font-medium lowercase tracking-[-0.02em] text-ink focus-ring"
+          className="pointer-events-auto flex h-14 items-center rounded-sharp pl-4 pr-5 max-sm:px-[15px] text-ink focus-ring"
         >
-          <BrandOrb />
-          <span className="max-sm:sr-only">gradientwall</span>
+          <Logo size={26} className="max-sm:hidden" />
+          <BrandMark size={26} className="sm:hidden" />
+          <span className="sr-only">gradientwall</span>
         </m.a>
 
         <SectionsIsland />
@@ -67,21 +73,6 @@ export function Nav() {
         <ActionsIsland />
       </div>
     </nav>
-  );
-}
-
-/** The brand dot, painted with the Studio palette so the mark follows the wallpaper. */
-function BrandOrb() {
-  const colors = useConfigStore((s) => s.colors);
-  return (
-    <span
-      aria-hidden
-      className="size-[22px] flex-none rounded-full transition-[background] duration-500"
-      style={{
-        background: `conic-gradient(from 210deg, ${colors.join(", ")}, ${colors[0]})`,
-        boxShadow: `0 0 24px color-mix(in srgb, ${colors[1]} 45%, transparent)`,
-      }}
-    />
   );
 }
 

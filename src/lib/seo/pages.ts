@@ -69,7 +69,7 @@ export const HOME_JSON_LD: Record<string, unknown>[] = [
     "@type": "Organization",
     name: SITE_NAME,
     url: SITE_ORIGIN,
-    logo: `${SITE_ORIGIN}/favicon.svg`,
+    logo: `${SITE_ORIGIN}/icon-512.png`,
     description:
       "GradientWall makes gradient wallpapers: a free online generator plus curated wallpaper packs.",
   },
