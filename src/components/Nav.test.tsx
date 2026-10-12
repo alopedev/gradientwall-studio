@@ -77,6 +77,13 @@ describe("<Nav />", () => {
     expect(container.querySelector("[data-track]")?.className).not.toMatch(/\bw-full\b|flex-1/);
   });
 
+  it("lays the Packs panel out at a fixed width, so it never sets the island's width", () => {
+    render(<Nav />);
+    fireEvent.click(screen.getByRole("button", { name: /^packs$/i }));
+    const content = screen.getByRole("region", { name: /packs/i }).firstElementChild as HTMLElement;
+    expect(content.style.width).toMatch(/^\d+px$/);
+  });
+
   it("shows the current Studio palette and follows it when it changes", () => {
     render(<Nav />);
     const colors = useConfigStore.getState().colors;

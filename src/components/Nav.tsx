@@ -109,6 +109,8 @@ function BrandOrb() {
 
 const MENU_WIDTH = 520;
 const CLOSE_DELAY_MS = 160;
+/** Horizontal padding around the links track (`p-1` on both sides). */
+const ISLAND_PADDING_X = 8;
 
 /**
  * Studio link + Packs button with a sliding highlight. Packs opens on hover
@@ -120,6 +122,7 @@ function SectionsIsland({ glass }: { glass: MotionStyle }) {
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState<Section | null>(null);
   const [menuWidth, setMenuWidth] = useState(MENU_WIDTH);
+  const [closedWidth, setClosedWidth] = useState<number | null>(null);
   const islandRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const closeTimer = useRef<number | undefined>(undefined);
@@ -159,6 +162,20 @@ function SectionsIsland({ glass }: { glass: MotionStyle }) {
 
   useEffect(() => () => window.clearTimeout(closeTimer.current), []);
 
+  // The closed island is as wide as its links. Animating back to a measured
+  // number (not "auto") lets it shrink in one movement: "auto" would wait for
+  // the panel to unmount and then snap.
+  useLayoutEffect(() => {
+    const measure = () => {
+      const track = islandRef.current?.querySelector<HTMLElement>("[data-track]");
+      if (track?.offsetWidth) setClosedWidth(track.offsetWidth + ISLAND_PADDING_X);
+    };
+    measure();
+    document.fonts?.ready.then(measure);
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
   // The pointer wins over the open menu, which wins over the section on screen.
   const highlighted: Section | null = hovered ?? (open ? "packs" : inView);
 
@@ -169,7 +186,7 @@ function SectionsIsland({ glass }: { glass: MotionStyle }) {
         ref={islandRef}
         style={glass}
         initial={false}
-        animate={{ width: open ? menuWidth : "auto" }}
+        animate={{ width: open ? menuWidth : (closedWidth ?? "auto") }}
         transition={
           open
             ? { type: "spring", stiffness: 380, damping: 32 }
@@ -195,7 +212,7 @@ function SectionsIsland({ glass }: { glass: MotionStyle }) {
           onPacksClick={() => (open ? closeMenu() : openMenu())}
         />
         <AnimatePresence initial={false}>
-          {open && <PacksMenu key="menu" onNavigate={closeMenu} />}
+          {open && <PacksMenu key="menu" width={menuWidth} onNavigate={closeMenu} />}
         </AnimatePresence>
       </m.div>
     </div>
@@ -220,6 +237,8 @@ function SectionLinks({
   onPacksClick: () => void;
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
+  // After closing with a click, hovering doesn't reopen until the pointer leaves.
+  const hoverLocked = useRef(false);
   const [pill, setPill] = useState<{ left: number; width: number } | null>(null);
 
   // The highlight is one element that slides between the items; measured
@@ -271,9 +290,19 @@ function SectionLinks({
           aria-controls="nav-packs"
           onPointerEnter={(e) => {
             onHover("packs");
-            if (e.pointerType === "mouse") onPacksHover();
+            if (e.pointerType === "mouse" && !hoverLocked.current) onPacksHover();
           }}
-          onClick={onPacksClick}
+          // Backs up pointerenter, which can be missed when the page gains focus.
+          onPointerMove={(e) => {
+            if (e.pointerType === "mouse" && !open && !hoverLocked.current) onPacksHover();
+          }}
+          onPointerLeave={() => {
+            hoverLocked.current = false;
+          }}
+          onClick={() => {
+            hoverLocked.current = open;
+            onPacksClick();
+          }}
           className={item}
         >
           Packs
@@ -291,7 +320,7 @@ function SectionLinks({
 }
 
 /** The panel the Packs island grows: one card per pack, plus the free Studio. */
-function PacksMenu({ onNavigate }: { onNavigate: () => void }) {
+function PacksMenu({ width, onNavigate }: { width: number; onNavigate: () => void }) {
   const colors = useConfigStore((s) => s.colors);
   const packs = getPacks();
 
@@ -308,52 +337,57 @@ function PacksMenu({ onNavigate }: { onNavigate: () => void }) {
       animate={{ height: "auto", opacity: 1 }}
       exit={{ height: 0, opacity: 0 }}
       transition={{ type: "spring", stiffness: 380, damping: 34, opacity: { duration: 0.18 } }}
+      className="flex justify-center"
     >
-      <div className="grid grid-cols-3 gap-2.5 px-3 pt-1 max-[480px]:grid-cols-2">
-        {packs.map((pack) => (
-          <a
-            key={pack.slug}
-            href={`/packs/${pack.slug}`}
-            className="group flex min-w-0 flex-col gap-2 rounded-2xl p-1.5 transition-colors duration-150 hover:bg-white/[0.07] focus-ring"
-          >
-            <span className="block aspect-[4/3] overflow-hidden rounded-xl shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)]">
-              <PackCover
-                cover={pack.cover}
-                decorative
-                className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-              />
-            </span>
-            <span className="flex flex-col px-1 pb-0.5 font-sans">
-              <span className="text-[13px] font-medium text-white">{pack.name}</span>
-              <span className="text-[11px] text-white/55 tabular-nums">
-                {pack.previews.length} wallpapers · €{pack.priceEur.toFixed(2)}
+      {/* Fixed width, centred: while the island shrinks it clips the cards
+          evenly instead of squeezing them. */}
+      <div style={{ width }} className="flex-none">
+        <div className="grid grid-cols-3 gap-2.5 px-3 pt-1 max-[480px]:grid-cols-2">
+          {packs.map((pack) => (
+            <a
+              key={pack.slug}
+              href={`/packs/${pack.slug}`}
+              className="group flex min-w-0 flex-col gap-2 rounded-2xl p-1.5 transition-colors duration-150 hover:bg-white/[0.07] focus-ring"
+            >
+              <span className="block aspect-[4/3] overflow-hidden rounded-xl shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)]">
+                <PackCover
+                  cover={pack.cover}
+                  decorative
+                  className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                />
               </span>
+              <span className="flex flex-col px-1 pb-0.5 font-sans">
+                <span className="text-[13px] font-medium text-white">{pack.name}</span>
+                <span className="text-[11px] text-white/55 tabular-nums">
+                  {pack.previews.length} wallpapers · €{pack.priceEur.toFixed(2)}
+                </span>
+              </span>
+            </a>
+          ))}
+          <a
+            href="/#studio"
+            className="group flex min-w-0 flex-col gap-2 rounded-2xl p-1.5 transition-colors duration-150 hover:bg-white/[0.07] focus-ring max-[480px]:col-span-2"
+          >
+            <span
+              className="block aspect-[4/3] rounded-xl max-[480px]:aspect-[3/1] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)] transition-[background] duration-500"
+              style={{
+                background: `conic-gradient(from 210deg, ${colors.join(", ")}, ${colors[0]})`,
+              }}
+            />
+            <span className="flex flex-col px-1 pb-0.5 font-sans">
+              <span className="text-[13px] font-medium text-white">Your own</span>
+              <span className="text-[11px] text-white/55">Free in the Studio</span>
             </span>
           </a>
-        ))}
-        <a
-          href="/#studio"
-          className="group flex min-w-0 flex-col gap-2 rounded-2xl p-1.5 transition-colors duration-150 hover:bg-white/[0.07] focus-ring max-[480px]:col-span-2"
-        >
-          <span
-            className="block aspect-[4/3] rounded-xl max-[480px]:aspect-[3/1] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)] transition-[background] duration-500"
-            style={{
-              background: `conic-gradient(from 210deg, ${colors.join(", ")}, ${colors[0]})`,
-            }}
-          />
-          <span className="flex flex-col px-1 pb-0.5 font-sans">
-            <span className="text-[13px] font-medium text-white">Your own</span>
-            <span className="text-[11px] text-white/55">Free in the Studio</span>
-          </span>
-        </a>
-      </div>
-      <div className="flex justify-end px-4 pb-3 pt-1">
-        <a
-          href="/#packs"
-          className="inline-flex min-h-9 items-center px-1 font-sans text-[11px] font-medium uppercase tracking-[0.14em] text-white/70 hover:text-white focus-ring"
-        >
-          All packs →
-        </a>
+        </div>
+        <div className="flex justify-end px-4 pb-3 pt-1">
+          <a
+            href="/#packs"
+            className="inline-flex min-h-9 items-center px-1 font-sans text-[11px] font-medium uppercase tracking-[0.14em] text-white/70 hover:text-white focus-ring"
+          >
+            All packs →
+          </a>
+        </div>
       </div>
     </m.div>
   );
