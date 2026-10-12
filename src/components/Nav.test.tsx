@@ -23,6 +23,13 @@ describe("<Nav />", () => {
     expect(screen.getByText(/make a wallpaper/i)).toBeInTheDocument();
   });
 
+  it("signs with the logo: the window mark and the wordmark, named for screen readers", () => {
+    render(<Nav />);
+    const brand = screen.getByRole("link", { name: "gradientwall" });
+    expect(brand.querySelector("svg[data-brand-mark]")).toBeInTheDocument();
+    expect(brand.querySelector("svg[data-wordmark]")).toBeInTheDocument();
+  });
+
   it("is split into separate paper islands with an ink edge and no glass blur", () => {
     const { container } = render(<Nav />);
     const islands = container.querySelectorAll<HTMLElement>("[data-island]");
