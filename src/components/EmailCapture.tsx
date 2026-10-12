@@ -1,6 +1,5 @@
-import { Check } from "lucide-react";
-import { type FormEvent, useId, useState } from "react";
-import { GlassButton } from "@/components/ui/GlassButton";
+import { ArrowRight, Check, LoaderCircle } from "lucide-react";
+import { type FormEvent, type ReactNode, useId, useState } from "react";
 import {
   CONSENT_TEXT,
   isNewsletterEnabled,
@@ -24,16 +23,20 @@ const ERRORS: Record<Extract<SubscribeResult, { kind: "error" }>["reason"], stri
 interface Props {
   /** Where the form sits; stored on the contact to learn which spot works. */
   source: SubscribeSource;
-  heading: string;
+  heading: ReactNode;
+  /** One line under the heading: what the email is for. */
+  lead?: string;
+  /** `lg` for the footer, where the form is the section's headline. */
+  size?: "md" | "lg";
   className?: string;
 }
 
 /**
- * One field, no account. Never blocks anything: it sits beside the free
+ * One field on a single underline with an arrow, no account. Never blocks anything: it sits beside the free
  * download, not in front of it, and the line under the field says what the
  * address is for. Renders nothing until the newsletter is switched on.
  */
-export function EmailCapture({ source, heading, className }: Props) {
+export function EmailCapture({ source, heading, lead, size = "md", className }: Props) {
   const id = useId();
   const [email, setEmail] = useState("");
   const [website, setWebsite] = useState(""); // honeypot: people never see it
@@ -51,22 +54,32 @@ export function EmailCapture({ source, heading, className }: Props) {
     );
   };
 
+  const submitting = state.kind === "submitting";
+
   return (
     <div className={className}>
-      <p id={`${id}-h`} className="m-0 mb-3 font-sans text-[15px] font-medium text-white">
+      <p
+        id={`${id}-h`}
+        className={
+          size === "lg"
+            ? "m-0 font-sans text-[clamp(26px,3vw,36px)] font-bold leading-[1.02] tracking-[-0.025em] text-white [text-wrap:balance]"
+            : "m-0 font-sans text-[15px] font-medium text-white"
+        }
+      >
         {heading}
       </p>
+      {lead && <p className="m-0 mt-2 font-sans text-[14px] text-white/70">{lead}</p>}
       {state.kind === "done" ? (
         <p
           role="status"
-          className="m-0 inline-flex items-center gap-2 font-sans text-[14px] text-white/80"
+          className="m-0 mt-5 inline-flex items-center gap-2 font-sans text-[14px] text-white/80"
         >
           <Check className="size-[18px] text-good" strokeWidth={2.4} aria-hidden />
           You're on the list. Thanks!
         </p>
       ) : (
-        <form onSubmit={onSubmit} aria-labelledby={`${id}-h`}>
-          <div className="flex flex-wrap items-center gap-2">
+        <form onSubmit={onSubmit} aria-labelledby={`${id}-h`} className="mt-4">
+          <div className="flex max-w-[440px] items-center border-b border-white/25 transition-colors duration-150 focus-within:border-gold">
             <label htmlFor={`${id}-email`} className="sr-only">
               Email address
             </label>
@@ -82,7 +95,7 @@ export function EmailCapture({ source, heading, className }: Props) {
               onChange={(e) => setEmail(e.target.value)}
               aria-describedby={`${id}-note`}
               aria-invalid={state.kind === "error" || undefined}
-              className="min-h-11 min-w-0 flex-1 basis-[200px] rounded-glass bg-white/5 px-4 font-sans text-[0.9rem] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.09)] outline-none placeholder:text-white/35 focus-visible:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.3)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+              className="min-h-12 min-w-0 flex-1 bg-transparent font-sans text-[16px] text-white outline-none placeholder:text-white/35"
             />
             {/* Honeypot: off-screen, skipped by keyboard and screen readers. */}
             <input
@@ -95,9 +108,18 @@ export function EmailCapture({ source, heading, className }: Props) {
               onChange={(e) => setWebsite(e.target.value)}
               className="absolute -left-[9999px] size-px opacity-0"
             />
-            <GlassButton type="submit" variant="primary" disabled={state.kind === "submitting"}>
-              {state.kind === "submitting" ? "Sending…" : "Keep me posted"}
-            </GlassButton>
+            <button
+              type="submit"
+              disabled={submitting}
+              aria-label={submitting ? "Sending…" : "Keep me posted"}
+              className="grid size-12 shrink-0 cursor-pointer place-items-center rounded-full text-white transition-colors duration-150 hover:bg-white/10 focus-ring disabled:cursor-default disabled:opacity-60"
+            >
+              {submitting ? (
+                <LoaderCircle className="size-5 animate-spin" aria-hidden />
+              ) : (
+                <ArrowRight className="size-5" aria-hidden />
+              )}
+            </button>
           </div>
           <p id={`${id}-note`} className="m-0 mt-2.5 font-sans text-[12px] text-white/50">
             {CONSENT_TEXT}{" "}
