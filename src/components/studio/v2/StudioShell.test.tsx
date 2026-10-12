@@ -38,6 +38,8 @@ describe("StudioShell", () => {
 
     expect(container.querySelector("#studio")).not.toBeNull();
     expect(getByRole("toolbar", { name: /wallpaper controls/i })).toBeTruthy();
+    // Every control lives in one panel beside the wallpaper.
+    expect(getByRole("complementary", { name: /studio controls/i })).toBeTruthy();
     expect(getByLabelText(/shuffle: generate another wallpaper/i)).toBeTruthy();
     expect(getByLabelText("Device")).toBeTruthy();
     expect(getByLabelText("Style")).toBeTruthy();

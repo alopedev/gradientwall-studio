@@ -87,9 +87,9 @@ export function createCanvas2DEngine(sink: Sink = browserDownloadSink): Wallpape
   return {
     id: "canvas2d",
     styles: [
-      { id: "liquid", label: "Liquid" },
-      { id: "aurora", label: "Aurora" },
       { id: "mesh", label: "Mesh" },
+      { id: "aurora", label: "Aurora" },
+      { id: "liquid", label: "Liquid" },
     ],
     adjustmentsFor: () => ADJUSTMENTS,
     Canvas: Canvas2DCanvas,

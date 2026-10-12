@@ -72,7 +72,7 @@ describe("webgl v2 engine", () => {
     const adjustments = engine.adjustmentsFor(v2);
     expect(adjustments.map((a) => a.key)).toEqual(["grain", "lightAngle"]);
     for (const spec of adjustments) expect(spec.default, spec.key).toBe(store[spec.key]);
-    expect(engine.styles.map((s) => s.id)).toEqual(["liquid", "aurora", "mesh"]);
+    expect(engine.styles.map((s) => s.id)).toEqual(["mesh", "aurora", "liquid"]);
   });
 
   it("hands the sliders of a v1 favorite to the v1 engine", () => {

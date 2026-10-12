@@ -12,10 +12,13 @@ type Phase = "idle" | "busy" | "done";
 interface Props {
   /** Short messages shown in the dock toast, with an optional link. */
   onMessage: (message: string, action?: ToastAction) => void;
+  /** Gold, as the main action of the panel. */
+  primary?: boolean;
+  className?: string;
 }
 
 /** Download button: the label fills with a gold bar while the file is rendered and encoded. */
-export function ExportButton({ onMessage }: Props) {
+export function ExportButton({ onMessage, primary = false, className = "" }: Props) {
   const engine = useWallpaperEngine();
   const device = useConfigStore((s) => s.device);
   const params = useRenderParams();
@@ -52,8 +55,9 @@ export function ExportButton({ onMessage }: Props) {
     <GlassButton
       onClick={run}
       aria-busy={phase === "busy"}
+      variant={primary ? "primary" : "ghost"}
       aria-label={`Download wallpaper, ${spec}`}
-      className="relative min-w-[176px] overflow-hidden tabular-nums @max-[760px]:min-w-0"
+      className={`relative min-w-[176px] overflow-hidden tabular-nums @max-[760px]:min-w-0 ${className}`}
     >
       {phase === "busy" && (
         <m.span
@@ -81,7 +85,7 @@ export function ExportButton({ onMessage }: Props) {
             {phase === "busy" && `Rendering ${Math.round(progress * 100)}%`}
             {phase === "done" && "Downloaded"}
           </span>
-          <span className="text-[0.64rem] font-normal tracking-[0.04em] text-white/60">
+          <span className="text-[0.64rem] font-normal tracking-[0.04em] opacity-65">
             {`${sizeLabel} · ${format}`}
           </span>
         </span>

@@ -1,13 +1,10 @@
-import { RotateCcw, Shuffle as ShuffleIcon, SlidersHorizontal } from "lucide-react";
+import { RotateCcw, Shuffle as ShuffleIcon } from "lucide-react";
 import { useId } from "react";
 import { GlassButton } from "@/components/ui/GlassButton";
 import { GlassSlider } from "@/components/ui/shadcn/glass-slider";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/shadcn/popover";
 import { remixWallpaper, useConfigStore, useRenderParams } from "@/store";
 import { useWallpaperEngine } from "../engine";
 import type { AdjustmentSpec } from "../engine";
-import { HarmonicWheel } from "../HarmonicWheel";
-import { UseMyPhotoButton } from "../UseMyPhotoButton";
 import { useRequestReveal } from "./reveal";
 
 const SETTERS = {
@@ -34,8 +31,8 @@ function AdjustSlider({ spec }: { spec: AdjustmentSpec }) {
   );
 }
 
-/** Sliders and finer color tools that open under the dock. */
-export function AdjustPanel({ id }: { id: string }) {
+/** The engine's sliders, with Reset and Remix. */
+export function AdjustPanel({ id }: { id?: string }) {
   const engine = useWallpaperEngine();
   const adjustments = engine.adjustmentsFor(useRenderParams());
   const requestReveal = useRequestReveal();
@@ -48,18 +45,14 @@ export function AdjustPanel({ id }: { id: string }) {
   };
 
   return (
-    <section
-      id={id}
-      aria-labelledby={headingId}
-      className="mt-2 grid grid-cols-5 items-end gap-x-5 gap-y-1 border-t border-white/[0.08] px-3 pb-1.5 pt-3.5 @max-[900px]:grid-cols-2 @max-[760px]:gap-x-[18px] @max-[760px]:px-1.5"
-    >
+    <section id={id} aria-labelledby={headingId} className="grid gap-y-1">
       <h3 id={headingId} className="sr-only">
         Adjust the wallpaper
       </h3>
       {adjustments.map((spec) => (
         <AdjustSlider key={spec.key} spec={spec} />
       ))}
-      <div className="col-span-full flex flex-wrap items-center justify-end gap-1">
+      <div className="-mx-2 flex flex-wrap items-center justify-end gap-1">
         <GlassButton variant="quiet" onClick={reset}>
           <RotateCcw className="size-[15px]" aria-hidden />
           Reset
@@ -78,24 +71,6 @@ export function AdjustPanel({ id }: { id: string }) {
             R
           </kbd>
         </GlassButton>
-        <Popover>
-          <PopoverTrigger asChild>
-            <GlassButton variant="quiet">
-              <SlidersHorizontal className="size-[15px]" aria-hidden />
-              Colors
-            </GlassButton>
-          </PopoverTrigger>
-          <PopoverContent
-            align="end"
-            side="top"
-            className="max-h-[min(80vh,640px)] w-[min(420px,92vw)] overflow-y-auto rounded-[14px] border-white/10 bg-[#0c0c11]/95 p-5 backdrop-blur-xl"
-          >
-            <HarmonicWheel />
-            <div className="mt-4 flex justify-center">
-              <UseMyPhotoButton />
-            </div>
-          </PopoverContent>
-        </Popover>
       </div>
     </section>
   );
