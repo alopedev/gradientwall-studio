@@ -58,6 +58,25 @@ describe("<Nav />", () => {
     expect(button).toHaveFocus();
   });
 
+  it("closes the Packs menu when the pointer moves on to Studio, and highlights Studio", () => {
+    render(<Nav />);
+    const button = screen.getByRole("button", { name: /^packs$/i });
+    fireEvent.click(button);
+    const studio = screen.getByRole("link", { name: /^studio$/i });
+    fireEvent.pointerEnter(studio);
+    expect(button).toHaveAttribute("aria-expanded", "false");
+    expect(studio).toHaveAttribute("aria-current", "location");
+  });
+
+  it("keeps the highlight measured against the links, not the widening island", () => {
+    const { container } = render(<Nav />);
+    const button = screen.getByRole("button", { name: /^packs$/i });
+    // The links sit in their own track, so the island growing around them
+    // doesn't shift the offsets the highlight is placed with.
+    expect(button.parentElement).toHaveAttribute("data-track");
+    expect(container.querySelector("[data-track]")?.className).not.toMatch(/\bw-full\b|flex-1/);
+  });
+
   it("shows the current Studio palette and follows it when it changes", () => {
     render(<Nav />);
     const colors = useConfigStore.getState().colors;

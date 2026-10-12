@@ -159,7 +159,8 @@ function SectionsIsland({ glass }: { glass: MotionStyle }) {
 
   useEffect(() => () => window.clearTimeout(closeTimer.current), []);
 
-  const highlighted: Section | null = open ? "packs" : (hovered ?? inView);
+  // The pointer wins over the open menu, which wins over the section on screen.
+  const highlighted: Section | null = hovered ?? (open ? "packs" : inView);
 
   return (
     <div className="pointer-events-none absolute left-1/2 top-0 z-10 -translate-x-1/2">
@@ -169,7 +170,11 @@ function SectionsIsland({ glass }: { glass: MotionStyle }) {
         style={glass}
         initial={false}
         animate={{ width: open ? menuWidth : "auto" }}
-        transition={{ type: "spring", stiffness: 380, damping: 32 }}
+        transition={
+          open
+            ? { type: "spring", stiffness: 380, damping: 32 }
+            : { type: "spring", stiffness: 520, damping: 44 }
+        }
         onPointerEnter={cancelClose}
         onPointerLeave={(e) => {
           setHovered(null);
@@ -185,6 +190,7 @@ function SectionsIsland({ glass }: { glass: MotionStyle }) {
           open={open}
           buttonRef={buttonRef}
           onHover={setHovered}
+          onStudioHover={closeMenu}
           onPacksHover={openMenu}
           onPacksClick={() => (open ? closeMenu() : openMenu())}
         />
@@ -201,6 +207,7 @@ function SectionLinks({
   open,
   buttonRef,
   onHover,
+  onStudioHover,
   onPacksHover,
   onPacksClick,
 }: {
@@ -208,73 +215,77 @@ function SectionLinks({
   open: boolean;
   buttonRef: React.RefObject<HTMLButtonElement>;
   onHover: (s: Section) => void;
+  onStudioHover: () => void;
   onPacksHover: () => void;
   onPacksClick: () => void;
 }) {
-  const rowRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const [pill, setPill] = useState<{ left: number; width: number } | null>(null);
 
   // The highlight is one element that slides between the items; measured
-  // after layout so it follows the real label widths.
+  // after layout so it follows the real label widths. Offsets are taken
+  // inside the track, which only wraps the links: the island widening around
+  // it never moves them, so the highlight has nothing to chase.
   useLayoutEffect(() => {
-    const row = rowRef.current;
-    if (!row) return;
+    const track = trackRef.current;
+    if (!track) return;
     const measure = () => {
       const el = highlighted
-        ? row.querySelector<HTMLElement>(`[data-section=${highlighted}]`)
+        ? track.querySelector<HTMLElement>(`[data-section=${highlighted}]`)
         : null;
-      setPill(el ? { left: el.offsetLeft, width: el.offsetWidth } : null);
+      // A hidden item (Studio on phones) has no box: hide the highlight.
+      setPill(el?.offsetWidth ? { left: el.offsetLeft, width: el.offsetWidth } : null);
     };
     measure();
     document.fonts?.ready.then(measure);
-    // The row re-centres while the island widens, so follow its size too.
-    if (typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(measure);
-    ro.observe(row);
-    return () => ro.disconnect();
   }, [highlighted]);
 
   const item =
     "relative z-10 inline-flex h-12 items-center gap-1.5 rounded-full px-4 font-sans text-[11px] font-medium uppercase tracking-[0.14em] text-white/70 transition-colors duration-150 hover:text-white aria-expanded:text-white aria-[current=location]:text-white focus-ring";
 
   return (
-    <div ref={rowRef} className="relative flex items-center justify-center p-1">
-      <span
-        aria-hidden
-        className="absolute top-1 bottom-1 rounded-full bg-white/[0.13] transition-[left,width,opacity] duration-300 ease-[cubic-bezier(0.3,1.25,0.5,1)]"
-        style={{ left: pill?.left ?? 0, width: pill?.width ?? 0, opacity: pill ? 1 : 0 }}
-      />
-      <a
-        href="/#studio"
-        data-section="studio"
-        aria-current={highlighted === "studio" ? "location" : undefined}
-        onPointerEnter={() => onHover("studio")}
-        className={`${item} max-sm:hidden`}
-      >
-        Studio
-      </a>
-      <button
-        ref={buttonRef}
-        type="button"
-        data-section="packs"
-        aria-expanded={open}
-        aria-controls="nav-packs"
-        onPointerEnter={(e) => {
-          onHover("packs");
-          if (e.pointerType === "mouse") onPacksHover();
-        }}
-        onClick={onPacksClick}
-        className={item}
-      >
-        Packs
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 10 6"
-          className={`size-2 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+    <div className="flex justify-center p-1">
+      <div ref={trackRef} data-track className="relative flex items-center">
+        <span
+          aria-hidden
+          className="absolute top-1 bottom-1 rounded-full bg-white/[0.13] transition-[left,width,opacity] duration-300 ease-[cubic-bezier(0.3,1.25,0.5,1)]"
+          style={{ left: pill?.left ?? 0, width: pill?.width ?? 0, opacity: pill ? 1 : 0 }}
+        />
+        <a
+          href="/#studio"
+          data-section="studio"
+          aria-current={highlighted === "studio" ? "location" : undefined}
+          onPointerEnter={() => {
+            onHover("studio");
+            onStudioHover();
+          }}
+          className={`${item} max-sm:hidden`}
         >
-          <path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.5" />
-        </svg>
-      </button>
+          Studio
+        </a>
+        <button
+          ref={buttonRef}
+          type="button"
+          data-section="packs"
+          aria-expanded={open}
+          aria-controls="nav-packs"
+          onPointerEnter={(e) => {
+            onHover("packs");
+            if (e.pointerType === "mouse") onPacksHover();
+          }}
+          onClick={onPacksClick}
+          className={item}
+        >
+          Packs
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 10 6"
+            className={`size-2 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+          >
+            <path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          </svg>
+        </button>
+      </div>
     </div>
   );
 }
