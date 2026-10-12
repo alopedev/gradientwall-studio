@@ -14,11 +14,19 @@ function renderPack(slug: string) {
 }
 
 describe("PackPage", () => {
-  it("shows all six Dessau pieces with their phone and desktop renders", () => {
-    const { container } = renderPack("dessau");
-    expect(screen.getByRole("heading", { name: "All 6 designs." })).toBeInTheDocument();
-    const srcs = [...container.querySelectorAll("img")].map((i) => i.getAttribute("src"));
-    expect(srcs).toContain("/assets/packs/dessau/06_halbkreise.png");
+  it("opens on the pack's own hero: title, price and buy link over the devices", () => {
+    renderPack("dessau");
+    const hero = screen.getByRole("region", { name: /dessau wallpapers/i });
+    expect(within(hero).getByRole("heading", { level: 1, name: "Dessau." })).toBeInTheDocument();
+    expect(within(hero).getByText("€5.99")).toBeInTheDocument();
+    expect(within(hero).getByRole("link", { name: /get it on etsy/i })).toBeInTheDocument();
+  });
+
+  it("lists all six Dessau designs as thumbnails", () => {
+    renderPack("dessau");
+    const rail = screen.getByRole("group", { name: /dessau designs/i });
+    const srcs = [...rail.querySelectorAll("img")].map((i) => i.getAttribute("src"));
+    expect(srcs).toHaveLength(6);
     expect(srcs).toContain("/assets/packs/dessau/06_halbkreise-desktop.png");
   });
 });
@@ -44,11 +52,6 @@ describe("PackPage showcase and specs", () => {
     renderPack("dessau");
     const specs = screen.getByRole("list", { name: /specifications/i });
     expect(within(specs).getByText("6 × 4K and 5K")).toBeInTheDocument();
-  });
-
-  it("introduces the gallery as what's inside", () => {
-    renderPack("dessau");
-    expect(screen.getByText(/what's inside/i)).toBeInTheDocument();
   });
 });
 

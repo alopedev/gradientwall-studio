@@ -30,11 +30,34 @@ export function pieceRenders(piece: PackCover): PieceRenders {
   return { phone: piece, desktop: null, phoneIsCrop: false };
 }
 
-/** Devices the pack page lets the buyer switch between. */
-export function showcaseDevices(pack: Pick<Pack, "previews">): ShowcaseDevice[] {
-  const devices: ShowcaseDevice[] = ["phone"];
-  if (pack.previews.some((p) => pieceRenders(p).desktop)) devices.push("desktop");
-  return devices;
+/** What the pack page's stage can show: both devices together, or one alone. */
+export type ShowcaseView = "both" | ShowcaseDevice;
+
+/** Views the buyer can switch between; the first is where the page opens. */
+export function showcaseViews(pack: Pick<Pack, "previews">): ShowcaseView[] {
+  return pack.previews.some((p) => pieceRenders(p).desktop)
+    ? ["both", "phone", "desktop"]
+    : ["phone"];
+}
+
+/** The design's name when its file carries one (`06_halbkreise.png` → "Halbkreise"), else null. */
+export function pieceName(piece: PackCover): string | null {
+  if (piece.kind !== "image") return null;
+  const match = /\/\d+_([^/.]+)\.\w+$/.exec(piece.url);
+  if (!match) return null;
+  const words = match[1].split("-");
+  return words.map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+}
+
+/** A random piece other than the current one (the Shuffle button). */
+export function shuffleIndex(
+  current: number,
+  total: number,
+  random: () => number = Math.random,
+): number {
+  if (total < 2) return current;
+  const step = 1 + Math.floor(random() * (total - 1));
+  return (current + step) % total;
 }
 
 /** The laptop + phone pair a catalog card shows: the pack's first piece. */

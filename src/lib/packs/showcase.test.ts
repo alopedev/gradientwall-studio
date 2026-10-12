@@ -1,6 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { getPackBySlug } from "./index";
-import { coverRenders, pieceRenders, packSpecs, showcaseDevices } from "./showcase";
+import {
+  coverRenders,
+  pieceName,
+  pieceRenders,
+  packSpecs,
+  showcaseViews,
+  shuffleIndex,
+} from "./showcase";
 import type { PackCover, Pack } from "./types";
 
 const phoneOnly: PackCover = { kind: "image", url: "/p.png", alt: "p", width: 1170, height: 2080 };
@@ -47,19 +54,6 @@ describe("pieceRenders", () => {
   });
 });
 
-describe("showcaseDevices", () => {
-  const pack = (previews: PackCover[]) => ({ previews }) as Pick<Pack, "previews">;
-
-  it("offers phone and desktop when pieces have both", () => {
-    expect(showcaseDevices(pack([pair, pair]))).toEqual(["phone", "desktop"]);
-    expect(showcaseDevices(pack([landscapeOnly]))).toEqual(["phone", "desktop"]);
-  });
-
-  it("offers only the phone for portrait-only packs", () => {
-    expect(showcaseDevices(pack([phoneOnly]))).toEqual(["phone"]);
-  });
-});
-
 describe("coverRenders", () => {
   it("builds a catalog cover from the first piece of each real pack", () => {
     const dessau = coverRenders(getPackBySlug("dessau")!);
@@ -100,5 +94,54 @@ describe("packSpecs", () => {
     const labels = packSpecs(single).map((s) => s.label);
     expect(labels).toEqual(["Files", "Format", "Licence"]);
     expect(packSpecs(single)[0].value).toBe("3 wallpapers");
+  });
+});
+
+describe("showcaseViews", () => {
+  const pack = (previews: PackCover[]) => ({ previews }) as Pick<Pack, "previews">;
+
+  it("opens on both devices, then each one alone, when pieces have a desktop render", () => {
+    expect(showcaseViews(pack([pair]))).toEqual(["both", "phone", "desktop"]);
+    expect(showcaseViews(pack([landscapeOnly]))).toEqual(["both", "phone", "desktop"]);
+  });
+
+  it("offers only the phone for portrait-only packs", () => {
+    expect(showcaseViews(pack([phoneOnly]))).toEqual(["phone"]);
+  });
+});
+
+describe("pieceName", () => {
+  it("reads the design name from a numbered file like 01_kreise.png", () => {
+    expect(pieceName(pair)).toBeNull();
+    expect(pieceName({ ...phoneOnly, url: "/assets/packs/dessau/06_halbkreise.png" })).toBe(
+      "Halbkreise",
+    );
+  });
+
+  it("has no name for a bare number or a gradient", () => {
+    expect(pieceName({ ...landscapeOnly, url: "/assets/packs/acrylic/03.jpg" })).toBeNull();
+    expect(getPackBySlug("dessau")!.previews.map(pieceName)).toEqual([
+      "Kreise",
+      "Rot",
+      "Schwarz",
+      "Gelb",
+      "Sonne",
+      "Halbkreise",
+    ]);
+  });
+});
+
+describe("shuffleIndex", () => {
+  it("always lands on a different piece", () => {
+    for (const r of [0, 0.2, 0.5, 0.99]) {
+      const next = shuffleIndex(2, 6, () => r);
+      expect(next).not.toBe(2);
+      expect(next).toBeGreaterThanOrEqual(0);
+      expect(next).toBeLessThan(6);
+    }
+  });
+
+  it("stays put when there is nothing else to show", () => {
+    expect(shuffleIndex(0, 1, () => 0.5)).toBe(0);
   });
 });
