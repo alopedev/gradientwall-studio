@@ -8,7 +8,7 @@ import {
   shuffleIndex,
   type ShowcaseView,
 } from "@/lib/packs/showcase";
-import { LaptopFrame, PhoneFrame } from "./DeviceFrames";
+import { LaptopFrame, LockScreen, PhoneFrame } from "./DeviceFrames";
 import { PackCover } from "./PackCover";
 
 const FILL = "absolute inset-0 block h-full w-full object-cover";
@@ -159,24 +159,6 @@ export function PackShowcase({
 
       {total > 1 && <Rail pack={pack} index={index} onSelect={setIndex} />}
     </section>
-  );
-}
-
-/** The time on top of the phone render, so the wallpaper reads as a lock screen. */
-function LockScreen() {
-  const today = new Date().toLocaleDateString("en-GB", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  });
-  return (
-    <div
-      aria-hidden
-      className="@container pointer-events-none absolute inset-x-0 top-[10%] z-10 text-center font-sans text-white [text-shadow:0_1px_12px_rgba(0,0,0,0.3)]"
-    >
-      <div className="text-[5.2cqi] font-medium">{today.replace(",", "")}</div>
-      <div className="text-[24cqi] font-bold leading-none tracking-[-0.03em]">9:41</div>
-    </div>
   );
 }
 

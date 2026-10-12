@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { getPackBySlug } from "./index";
 import {
   coverRenders,
+  fanPieces,
   pieceName,
   pieceRenders,
   packSpecs,
@@ -143,5 +144,34 @@ describe("shuffleIndex", () => {
 
   it("stays put when there is nothing else to show", () => {
     expect(shuffleIndex(0, 1, () => 0.5)).toBe(0);
+  });
+});
+
+describe("fanPieces", () => {
+  const pieces = (n: number): PackCover[] =>
+    Array.from({ length: n }, (_, i) => ({ ...pair, url: `/${i + 1}.png`, alt: `piece ${i + 1}` }));
+
+  it("fans at most five phones, centred, with the cover piece on top in the middle", () => {
+    const fan = fanPieces({ previews: pieces(10) });
+    expect(fan.map((f) => f.offset)).toEqual([-2, -1, 0, 1, 2]);
+    const middle = fan.find((f) => f.offset === 0)!;
+    expect(middle.cover).toMatchObject({ url: "/1.png" });
+    expect(new Set(fan.map((f) => f.cover.kind === "image" && f.cover.url)).size).toBe(5);
+  });
+
+  it("keeps the fan centred when a pack has fewer pieces", () => {
+    expect(fanPieces({ previews: pieces(3) }).map((f) => f.offset)).toEqual([-1, 0, 1]);
+    expect(fanPieces({ previews: pieces(1) }).map((f) => f.offset)).toEqual([0]);
+  });
+
+  it("shows the phone render of each piece, never the nested desktop file", () => {
+    for (const f of fanPieces({ previews: pieces(4) }))
+      expect(f.cover).not.toHaveProperty("desktop");
+  });
+
+  it("fans a landscape-only pack too (the phone crops it, as its real file is cut)", () => {
+    const fan = fanPieces(getPackBySlug("acrylic")!);
+    expect(fan).toHaveLength(5);
+    expect(fan[2].cover).toMatchObject({ url: "/assets/packs/acrylic/01.jpg" });
   });
 });
