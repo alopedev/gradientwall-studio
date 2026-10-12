@@ -73,11 +73,11 @@ export function PackPage() {
               </span>
               <m.h1
                 layoutId={`pack-${pack.slug}-title`}
-                className="m-0 font-serif italic font-normal text-[clamp(56px,8vw,120px)] text-white leading-[0.92] tracking-tight"
+                className="display-head text-[clamp(56px,8vw,120px)] text-white"
               >
-                {pack.name}.
+                {pack.name}
               </m.h1>
-              <div className="mt-2 font-serif italic text-[clamp(18px,2vw,24px)] text-white/70 leading-snug">
+              <div className="mt-3 max-w-[40ch] font-sans text-[clamp(15px,1.6vw,18px)] font-light text-white/75 leading-snug">
                 {pack.tagline}
               </div>
             </>

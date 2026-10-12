@@ -56,9 +56,22 @@ describe("PacksSection", () => {
       expect(phones).toHaveLength(Math.min(5, pack.previews.length));
       expect(link.querySelector("[data-device='laptop']")).toBeNull();
       const heading = within(link).getByRole("heading", { name: new RegExp(pack.name) });
-      expect(heading.className).toMatch(/font-serif/);
-      expect(heading.className).toMatch(/italic/);
+      expect(heading.className).toMatch(/display-head/);
+      expect(heading.className).not.toMatch(/serif|italic/);
+      expect(heading.textContent).toBe(pack.name);
     }
+  });
+
+  it("titles the section in one lowercase voice, with the price folded into the intro", () => {
+    render(
+      <MemoryRouter>
+        <PacksSection />
+      </MemoryRouter>,
+    );
+    const h2 = screen.getByRole("heading", { level: 2 });
+    expect(h2.textContent).toBe("wallpaper packs.");
+    expect(h2.querySelector("[class*='serif']")).toBeNull();
+    expect(screen.getByText(/€5\.99 each, VAT included/)).toBeInTheDocument();
   });
 
   it("says how many designs each pack has and what it costs", () => {

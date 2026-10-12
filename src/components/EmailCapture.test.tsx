@@ -54,4 +54,21 @@ describe("EmailCapture", () => {
     expect((await screen.findByRole("alert")).textContent).toMatch(/doesn't look right/);
     expect(screen.getByLabelText("Email address")).toBeTruthy();
   });
+
+  it("shows the line under the heading when one is given", () => {
+    render(<EmailCapture source="footer" heading="Hi" lead="One email per pack." />);
+    expect(screen.getByText("One email per pack.")).toBeTruthy();
+  });
+
+  it("marks the form busy while the address is being sent", async () => {
+    let resolve: (r: Response) => void = () => {};
+    fetchSpy.mockReturnValue(new Promise<Response>((r) => (resolve = r)));
+    const user = userEvent.setup();
+    render(<EmailCapture source="footer" heading="Hi" />);
+    await user.type(screen.getByLabelText("Email address"), "ana@example.com");
+    await user.click(screen.getByRole("button", { name: "Keep me posted" }));
+    expect(screen.getByRole("button", { name: "Sending…" }).hasAttribute("disabled")).toBe(true);
+    resolve(new Response('{"ok":true}', { status: 200 }));
+    await screen.findByRole("status");
+  });
 });
