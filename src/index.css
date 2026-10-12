@@ -2,11 +2,13 @@
 @import "tw-animate-css";
 
 @theme {
-  /* Two-voice typography. Space Grotesk does the heavy lifting (UI, body,
-     uppercase brutalist heads). Instrument Serif italic appears only at
-     editorial accent moments — second-line headlines, pack names, italic
-     intros of pack descriptions. Never body. */
+  /* Space Grotesk does the UI and body. Headlines have one voice of their own,
+     --font-display (Jost, a geometric sans in the Futura line), set lowercase by
+     `display-head` as a nod to the Bauhaus single-case alphabet: no serif italic
+     accent word. Swap the headline face here and nowhere else. Instrument Serif
+     is only left on the Studio's palette name. */
   --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Jost", "Futura", "Century Gothic", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Instrument Serif", ui-serif, Georgia, "Times New Roman", serif;
 
   --color-bg: #07070a;
@@ -378,24 +380,14 @@ body::before {
   opacity: 1;
 }
 
-/* Two-line brutalist display headline (Studio / Gallery / Footer).
-   Callers set their own size via a `text-[clamp(...)]` utility. */
-/* The serif italic second voice of a headline. Headlines using display-head are
-   uppercase bold sans; this puts the accent back to normal-case regular serif. */
-@utility serif-accent {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-weight: 400;
-  text-transform: none;
-  letter-spacing: -0.02em;
-}
-
+/* The site's headline voice: geometric sans, lowercase, one weight, no accent
+   word in another face. Callers set their own size via `text-[clamp(...)]`. */
 @utility display-head {
-  font-family: var(--font-sans);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: -0.04em;
-  line-height: 0.92;
+  font-family: var(--font-display);
+  font-weight: 500;
+  text-transform: lowercase;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
   margin: 0;
 }
 

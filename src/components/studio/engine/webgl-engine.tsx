@@ -117,10 +117,10 @@ export function createWebGLEngine(deps: WebGLEngineDeps = {}): WallpaperEngine {
   return {
     id: "webgl-v2",
     styles: [
-      { id: "liquid", label: "Liquid" },
-      { id: "aurora", label: "Aurora" },
       // Rendered as v2 "grain-mesh" (see toV2Style).
       { id: "mesh", label: "Mesh" },
+      { id: "aurora", label: "Aurora" },
+      { id: "liquid", label: "Liquid" },
     ],
     // Favorites saved with v1 keep the v1 sliders: that is the renderer drawing them.
     adjustmentsFor: (params) =>

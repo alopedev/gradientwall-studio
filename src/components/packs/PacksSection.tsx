@@ -21,20 +21,13 @@ export function PacksSection() {
     >
       <Reveal className="grid md:grid-cols-2 gap-12 items-end mb-10">
         <div>
-          <span className="block mb-4 font-sans text-[11px] tracking-[0.22em] uppercase text-white/55">
-            From 5.99€ · VAT included
-          </span>
           <h2 className="display-head text-[clamp(40px,5.5vw,76px)]">
-            <SplitWords text="Wallpaper packs." className="block text-white" />
-            <SplitWords
-              text="Chosen by hand."
-              className="block text-white serif-accent"
-              delayChildren={0.2}
-            />
+            <SplitWords text="wallpaper packs." className="block text-white" />
           </h2>
         </div>
         <p className="max-w-[42ch] text-[15px] text-white/75 font-sans font-light">
-          Pay once, no subscription. Instant download, phone and desktop, up to 5K. Personal use.
+          €5.99 each, VAT included. Pay once, no subscription. Instant download, phone and desktop,
+          up to 5K. Personal use.
         </p>
       </Reveal>
 

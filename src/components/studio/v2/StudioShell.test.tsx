@@ -38,6 +38,8 @@ describe("StudioShell", () => {
 
     expect(container.querySelector("#studio")).not.toBeNull();
     expect(getByRole("toolbar", { name: /wallpaper controls/i })).toBeTruthy();
+    // Every control lives in one panel beside the wallpaper.
+    expect(getByRole("complementary", { name: /studio controls/i })).toBeTruthy();
     expect(getByLabelText(/shuffle: generate another wallpaper/i)).toBeTruthy();
     expect(getByLabelText("Device")).toBeTruthy();
     expect(getByLabelText("Style")).toBeTruthy();
@@ -55,8 +57,16 @@ describe("StudioShell", () => {
     const { getAllByRole, getByRole } = render(<StudioShell />);
     expect(getAllByRole("heading", { level: 1 })).toHaveLength(1);
     expect(getByRole("heading", { level: 1 }).textContent).toMatch(
-      /make your own gradient\s+wallpaper\./i,
+      /make a gradient wallpaper\.\s*shuffle until it's yours\./,
     );
+  });
+
+  it("sets the H1 in one lowercase voice, with no serif italic accent, under palette shapes", () => {
+    const { container, getByRole } = render(<StudioShell />);
+    const h1 = getByRole("heading", { level: 1 });
+    expect(h1.className).toMatch(/display-head/);
+    expect(h1.querySelector("[class*='serif'], em, i")).toBeNull();
+    expect(container.querySelector("[data-bauhaus-marks]")).not.toBeNull();
   });
 
   it("keeps the #studio anchor on the frame, so the nav link lands on the dock", () => {
