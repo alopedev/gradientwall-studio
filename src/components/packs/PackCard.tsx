@@ -74,11 +74,11 @@ export function PackCard({ pack }: { pack: Pack }) {
         <div className="min-w-0">
           <m.h3
             layoutId={`pack-${pack.slug}-title`}
-            className="m-0 font-serif italic font-normal text-[clamp(32px,3.4vw,48px)] leading-[0.95] tracking-tight text-white"
+            className="display-head text-[clamp(32px,3.4vw,48px)] text-white"
           >
-            {pack.name}.
+            {pack.name}
           </m.h3>
-          <p className="m-0 mt-2 font-serif italic text-[15px] leading-snug text-white/80">
+          <p className="m-0 mt-2 font-sans text-[14px] leading-snug text-white/75">
             {pack.tagline}
           </p>
           <ul className="m-0 mt-4 flex list-none flex-wrap gap-1.5 p-0">

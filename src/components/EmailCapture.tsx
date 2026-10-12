@@ -62,7 +62,7 @@ export function EmailCapture({ source, heading, lead, size = "md", className }: 
         id={`${id}-h`}
         className={
           size === "lg"
-            ? "m-0 font-sans text-[clamp(26px,3vw,36px)] font-bold leading-[1.02] tracking-[-0.025em] text-white [text-wrap:balance]"
+            ? "display-head text-[clamp(28px,3vw,40px)] text-white [text-wrap:balance]"
             : "m-0 font-sans text-[15px] font-medium text-white"
         }
       >
