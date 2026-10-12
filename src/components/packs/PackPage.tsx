@@ -1,14 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { m } from "motion/react";
-import {
-  coverAspect,
-  getPackBySlug,
-  isPhoneAndDesktop,
-  pieceAspect,
-  type PackCover as PackCoverType,
-} from "@/lib/packs";
-import { pieceRenders } from "@/lib/packs/showcase";
+import { describeContents, getPackBySlug } from "@/lib/packs";
 import { canPurchasePack, openCheckout } from "@/lib/store";
 import { AI_DISCLOSURE } from "@/lib/copy";
 import { Nav } from "../Nav";
@@ -17,7 +10,6 @@ import { glassButton } from "../ui/GlassButton";
 import { MagneticButton } from "../ui/MagneticButton";
 import { PageMeta } from "../PageMeta";
 import { buildPackPage } from "@/lib/seo/pages";
-import { PackCover } from "./PackCover";
 import { PackShowcase } from "./PackShowcase";
 import { PackSpecs } from "./PackSpecs";
 
@@ -31,7 +23,6 @@ export function PackPage() {
   const buyEnabled = eligibility.kind === "buyable";
   const ctaRef = useRef<HTMLDivElement>(null);
   const ctaVisible = useInView(ctaRef);
-  const landscapeGrid = pack ? pack.previews.some((p) => pieceAspect(p) > 1) : false;
 
   if (!pack) {
     return (
@@ -66,21 +57,18 @@ export function PackPage() {
     <>
       {seo && <PageMeta {...seo} />}
       <Nav />
-      <main className="pt-[100px]">
-        {/* Hero */}
-        <section className="mx-auto max-w-[1600px] px-[clamp(24px,5vw,80px)] pt-[clamp(40px,6vw,80px)] pb-[clamp(40px,6vw,80px)]">
-          <Link
-            to="/#packs"
-            className="inline-flex min-h-11 items-center gap-1.5 mb-4 font-sans text-[11px] tracking-[0.18em] uppercase text-white/50 hover:text-white transition-colors"
-          >
-            ← All packs
-          </Link>
-
-          <div className="grid lg:grid-cols-[1.1fr_1fr] gap-[clamp(40px,5vw,80px)] items-start">
-            <PackShowcase pack={pack} />
-
-            <div>
-              <span className="block mb-4 font-sans text-[11px] tracking-[0.22em] uppercase text-white/55">
+      <main>
+        <PackShowcase
+          pack={pack}
+          header={
+            <>
+              <Link
+                to="/#packs"
+                className="inline-flex min-h-11 items-center gap-1.5 font-sans text-[11px] tracking-[0.18em] uppercase text-white/60 hover:text-white transition-colors"
+              >
+                ← All packs
+              </Link>
+              <span className="block mb-2 font-sans text-[11px] tracking-[0.22em] uppercase text-white/60">
                 Pack · {pack.style}
               </span>
               <m.h1
@@ -89,23 +77,20 @@ export function PackPage() {
               >
                 {pack.name}.
               </m.h1>
-              <div className="mt-4 font-serif italic text-[clamp(20px,2.4vw,28px)] text-white/65 leading-snug">
+              <div className="mt-2 font-serif italic text-[clamp(18px,2vw,24px)] text-white/70 leading-snug">
                 {pack.tagline}
               </div>
-
-              <p className="mt-8 max-w-[52ch] font-sans text-[16px] leading-relaxed text-white/75">
-                {pack.description}
-              </p>
-
-              <div ref={ctaRef} className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4">
-                <div>
-                  <div className="font-sans text-[10px] tracking-[0.22em] uppercase text-white/55 mb-1.5">
-                    Price
-                  </div>
-                  <div className="display-head text-[44px] text-white leading-none">
-                    €{pack.priceEur.toFixed(2)}
-                  </div>
-                </div>
+            </>
+          }
+          buy={
+            (buyEnabled || pack.etsyUrl) && (
+              <div
+                ref={ctaRef}
+                className="flex w-full items-center justify-between gap-4 rounded-[22px] border border-white/16 bg-[rgba(20,20,26,0.6)] py-2 pl-5 pr-2 backdrop-blur-xl sm:w-auto"
+              >
+                <span className="display-head text-[28px] leading-none text-white">
+                  €{pack.priceEur.toFixed(2)}
+                </span>
                 {buyEnabled ? (
                   <MagneticButton>
                     <button
@@ -128,10 +113,10 @@ export function PackPage() {
                         checkoutLoading ? "opacity-80 cursor-wait" : ""
                       }`}
                     >
-                      {checkoutLoading ? "Loading…" : `Buy · €${pack.priceEur.toFixed(2)}`}
+                      {checkoutLoading ? "Loading…" : "Buy now"}
                     </button>
                   </MagneticButton>
-                ) : pack.etsyUrl ? (
+                ) : (
                   <MagneticButton>
                     <a
                       href={pack.etsyUrl}
@@ -139,50 +124,37 @@ export function PackPage() {
                       rel="noopener noreferrer"
                       className={BUY_BUTTON}
                     >
-                      Get it on Etsy · €{pack.priceEur.toFixed(2)} <span aria-hidden>↗</span>
+                      Get it on Etsy <span aria-hidden>↗</span>
                     </a>
                   </MagneticButton>
-                ) : null}
+                )}
               </div>
+            )
+          }
+        />
 
-              <div className="mt-10 font-sans text-[11px] text-white/55 leading-relaxed max-w-[44ch]">
-                {buyEnabled
-                  ? "Instant download link by email, valid 30 days, up to 5 downloads. VAT included. Personal use only: no reselling, no sharing."
-                  : "Instant download from your Etsy account. VAT included. Personal use only: no reselling, no sharing."}
-              </div>
-              <div className="mt-8 max-w-[52ch]">
-                <PackSpecs pack={pack} />
-              </div>
-              <p className="mt-6 font-sans text-[11px] text-white/55 leading-relaxed max-w-[44ch]">
-                <span className="uppercase tracking-[0.18em] text-white/55">How it was made</span>
-                <br />
-                {AI_DISCLOSURE}
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Previews grid */}
-        <section className="mx-auto max-w-[1600px] px-[clamp(24px,5vw,80px)] py-[clamp(60px,8vw,120px)] border-t border-white/8">
-          <div className="mb-10">
-            <span className="block mb-3 font-sans text-[11px] tracking-[0.22em] uppercase text-white/55">
-              What's inside
+        {/* What you get */}
+        <section className="mx-auto grid max-w-[1600px] gap-[clamp(28px,4vw,64px)] px-[clamp(16px,4vw,56px)] py-[clamp(40px,6vw,88px)] lg:grid-cols-2">
+          <div className="grid content-start gap-5">
+            <span className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/60">
+              {describeContents(pack)}
             </span>
-            <h2 className="display-head text-[clamp(28px,3.6vw,48px)] text-white">
-              {pack.previews.length === 1
-                ? "The wallpaper."
-                : `All ${pack.previews.length} ${isPhoneAndDesktop(pack) ? "designs" : "wallpapers"}.`}
-            </h2>
+            <p className="m-0 max-w-[56ch] font-sans text-[16px] leading-relaxed text-white/75">
+              {pack.description}
+            </p>
+            <p className="m-0 max-w-[48ch] font-sans text-[12px] text-white/60 leading-relaxed">
+              {buyEnabled
+                ? "Instant download link by email, valid 30 days, up to 5 downloads. VAT included. Personal use only: no reselling, no sharing."
+                : "Instant download from your Etsy account. VAT included. Personal use only: no reselling, no sharing."}
+            </p>
           </div>
-
-          <div className={landscapeGrid ? LANDSCAPE_GRID : PORTRAIT_GRID}>
-            {pack.previews.map((preview, i) => (
-              <PieceTile
-                key={preview.kind === "image" ? preview.url : `gradient-${preview.seed}`}
-                piece={preview}
-                index={i}
-              />
-            ))}
+          <div className="grid content-start gap-6">
+            <PackSpecs pack={pack} />
+            <p className="m-0 max-w-[48ch] font-sans text-[11px] text-white/60 leading-relaxed">
+              <span className="uppercase tracking-[0.18em]">How it was made</span>
+              <br />
+              {AI_DISCLOSURE}
+            </p>
           </div>
         </section>
       </main>
@@ -241,55 +213,4 @@ function StickyBuyBar({
   );
 }
 
-// Landscape pieces need wider cells than the 9:16-ish phone art the grid was first sized for.
 const BUY_BUTTON = `${glassButton({ variant: "primary" })} px-6`;
-
-const LANDSCAPE_GRID = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3";
-const PORTRAIT_GRID = "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3";
-
-/**
- * One wallpaper in the pack grid, boxed at its own aspect ratio. A piece that
- * ships both renders shows desktop and phone side by side at the same height;
- * anything else shows the single render it has.
- */
-function PieceTile({ piece, index }: { piece: PackCoverType; index: number }) {
-  const { phone, desktop, phoneIsCrop } = pieceRenders(piece);
-  const pair = phone !== null && desktop !== null && !phoneIsCrop;
-  const single = (desktop ?? phone)!;
-  const badge = (
-    <div className="absolute bottom-2 left-2 z-10 rounded-full bg-black/55 border border-white/14 px-2 py-0.5 font-sans text-[9px] tracking-[0.18em] uppercase text-white/70 backdrop-blur-md">
-      {String(index + 1).padStart(2, "0")}
-    </div>
-  );
-  if (pair) {
-    return (
-      <div
-        className="relative flex gap-1.5 rounded-2xl overflow-hidden bg-black border border-white/8 p-1.5"
-        style={{ aspectRatio: coverAspect(desktop) + coverAspect(phone) }}
-      >
-        <div
-          className="relative h-full overflow-hidden rounded-xl"
-          style={{ aspectRatio: coverAspect(desktop) }}
-        >
-          <PackCover cover={desktop} w={480} h={270} className="block w-full h-full object-cover" />
-        </div>
-        <div
-          className="relative h-full overflow-hidden rounded-xl"
-          style={{ aspectRatio: coverAspect(phone) }}
-        >
-          <PackCover cover={phone} w={270} h={480} className="block w-full h-full object-cover" />
-        </div>
-        {badge}
-      </div>
-    );
-  }
-  return (
-    <div
-      className="relative rounded-2xl overflow-hidden bg-black border border-white/8"
-      style={{ aspectRatio: coverAspect(single) }}
-    >
-      <PackCover cover={single} w={480} h={640} className="block w-full h-full object-cover" />
-      {badge}
-    </div>
-  );
-}

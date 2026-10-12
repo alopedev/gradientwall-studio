@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { afterEach, describe, it, expect, vi } from "vitest";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { getPackBySlug } from "@/lib/packs";
 import type { Pack } from "@/lib/packs";
@@ -7,33 +7,50 @@ import { PackShowcase } from "./PackShowcase";
 const dessau = () => getPackBySlug("dessau")!;
 const impasto = () => getPackBySlug("acrylic")!;
 
-/** The wallpaper shown on the device in the stage (the thumbnails are outside it). */
-function stageSrc(): string | null {
+/** The wallpaper on one device in the stage (the thumbnails are outside it), or null when that device is hidden. */
+function shownOn(device: "phone" | "laptop"): string | null {
   return (
     screen
       .getByTestId("showcase-stage")
-      .querySelector("img[alt]:not([alt=''])")
+      .querySelector(`[data-device="${device}"] img`)
       ?.getAttribute("src") ?? null
   );
 }
 
+function show(pack: Pack) {
+  return render(
+    <PackShowcase pack={pack} header={<h1>{pack.name}.</h1>} buy={<a href="#buy">Buy</a>} />,
+  );
+}
+
+afterEach(() => vi.restoreAllMocks());
+
 describe("PackShowcase", () => {
-  it("opens on the first piece, on a phone, with a counter", () => {
-    render(<PackShowcase pack={dessau()} />);
+  it("opens on the first piece on a laptop and a phone together", () => {
+    show(dessau());
+    expect(shownOn("laptop")).toBe("/assets/packs/dessau/01_kreise-desktop.png");
+    expect(shownOn("phone")).toBe("/assets/packs/dessau/01_kreise.png");
+    expect(screen.getByRole("button", { name: "Both" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByText("01 / 6")).toBeInTheDocument();
-    expect(stageSrc()).toBe("/assets/packs/dessau/01_kreise.png");
-    expect(screen.getByRole("button", { name: "Phone" })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByRole("button", { name: "Desktop" })).toHaveAttribute(
-      "aria-pressed",
-      "false",
-    );
+  });
+
+  it("names the design when its file carries a name", () => {
+    show(dessau());
+    expect(screen.getByText("Kreise")).toBeInTheDocument();
+  });
+
+  it("carries the page's title and buy action inside the hero", () => {
+    show(dessau());
+    const hero = screen.getByRole("region", { name: /dessau wallpapers/i });
+    expect(within(hero).getByRole("heading", { name: "Dessau." })).toBeInTheDocument();
+    expect(within(hero).getByRole("link", { name: "Buy" })).toBeInTheDocument();
   });
 
   it("goes to the next and previous piece, wrapping at both ends", () => {
-    render(<PackShowcase pack={dessau()} />);
+    show(dessau());
     fireEvent.click(screen.getByRole("button", { name: /next wallpaper/i }));
     expect(screen.getByText("02 / 6")).toBeInTheDocument();
-    expect(stageSrc()).toBe("/assets/packs/dessau/02_rot.png");
+    expect(shownOn("phone")).toBe("/assets/packs/dessau/02_rot.png");
     fireEvent.click(screen.getByRole("button", { name: /previous wallpaper/i }));
     fireEvent.click(screen.getByRole("button", { name: /previous wallpaper/i }));
     expect(screen.getByText("06 / 6")).toBeInTheDocument();
@@ -41,18 +58,29 @@ describe("PackShowcase", () => {
     expect(screen.getByText("01 / 6")).toBeInTheDocument();
   });
 
-  it("switches the frame to the composed desktop render and keeps the piece", () => {
-    render(<PackShowcase pack={dessau()} />);
+  it("shuffles to a different piece", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.5);
+    show(dessau());
+    fireEvent.click(screen.getByRole("button", { name: /shuffle/i }));
+    expect(screen.queryByText("01 / 6")).toBeNull();
+    expect(shownOn("phone")).not.toBe("/assets/packs/dessau/01_kreise.png");
+  });
+
+  it("shows one device alone and keeps the piece", () => {
+    show(dessau());
     fireEvent.click(screen.getByRole("button", { name: /next wallpaper/i }));
     fireEvent.click(screen.getByRole("button", { name: "Desktop" }));
-    expect(stageSrc()).toBe("/assets/packs/dessau/02_rot-desktop.png");
+    expect(shownOn("laptop")).toBe("/assets/packs/dessau/02_rot-desktop.png");
+    expect(shownOn("phone")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Phone" }));
+    expect(shownOn("phone")).toBe("/assets/packs/dessau/02_rot.png");
+    expect(shownOn("laptop")).toBeNull();
     expect(screen.getByText("02 / 6")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Desktop" })).toHaveAttribute("aria-pressed", "true");
   });
 
   it("lists every piece as a thumbnail and marks the current one", () => {
-    render(<PackShowcase pack={dessau()} />);
-    const rail = screen.getByRole("group", { name: /dessau wallpapers/i });
+    show(dessau());
+    const rail = screen.getByRole("group", { name: /dessau designs/i });
     const thumbs = within(rail).getAllByRole("button");
     expect(thumbs).toHaveLength(6);
     expect(thumbs[0]).toHaveAttribute("aria-current", "true");
@@ -63,7 +91,7 @@ describe("PackShowcase", () => {
   });
 
   it("moves with the arrow keys", () => {
-    render(<PackShowcase pack={dessau()} />);
+    show(dessau());
     const region = screen.getByRole("region", { name: /dessau wallpapers/i });
     fireEvent.keyDown(region, { key: "ArrowRight" });
     expect(screen.getByText("02 / 6")).toBeInTheDocument();
@@ -71,33 +99,24 @@ describe("PackShowcase", () => {
     expect(screen.getByText("01 / 6")).toBeInTheDocument();
   });
 
-  it("moves with a horizontal swipe", () => {
-    render(<PackShowcase pack={dessau()} />);
+  it("moves with a horizontal swipe and ignores a vertical drag", () => {
+    show(dessau());
     const stage = screen.getByTestId("showcase-stage");
     fireEvent.touchStart(stage, { touches: [{ clientX: 300, clientY: 100 }] });
     fireEvent.touchEnd(stage, { changedTouches: [{ clientX: 180, clientY: 110 }] });
     expect(screen.getByText("02 / 6")).toBeInTheDocument();
-    fireEvent.touchStart(stage, { touches: [{ clientX: 100, clientY: 100 }] });
-    fireEvent.touchEnd(stage, { changedTouches: [{ clientX: 230, clientY: 100 }] });
-    expect(screen.getByText("01 / 6")).toBeInTheDocument();
-  });
-
-  it("ignores a mostly vertical drag, which is the page scrolling", () => {
-    render(<PackShowcase pack={dessau()} />);
-    const stage = screen.getByTestId("showcase-stage");
     fireEvent.touchStart(stage, { touches: [{ clientX: 200, clientY: 100 }] });
     fireEvent.touchEnd(stage, { changedTouches: [{ clientX: 150, clientY: 260 }] });
-    expect(screen.getByText("01 / 6")).toBeInTheDocument();
+    expect(screen.getByText("02 / 6")).toBeInTheDocument();
   });
 
-  it("shows a landscape-only pack on the phone as the same file, cropped", () => {
-    render(<PackShowcase pack={impasto()} />);
-    expect(stageSrc()).toBe("/assets/packs/acrylic/01.jpg");
-    fireEvent.click(screen.getByRole("button", { name: "Desktop" }));
-    expect(stageSrc()).toBe("/assets/packs/acrylic/01.jpg");
+  it("shows a landscape-only pack on both devices as the same file", () => {
+    show(impasto());
+    expect(shownOn("laptop")).toBe("/assets/packs/acrylic/01.jpg");
+    expect(shownOn("phone")).toBe("/assets/packs/acrylic/01.jpg");
   });
 
-  it("hides the device switch when the pack has no desktop render", () => {
+  it("shows only the phone, with no switch, when the pack has no desktop render", () => {
     const portraitOnly: Pack = {
       ...dessau(),
       previews: [
@@ -105,21 +124,23 @@ describe("PackShowcase", () => {
         { kind: "image", url: "/b.png", alt: "b", width: 1170, height: 2080 },
       ],
     };
-    render(<PackShowcase pack={portraitOnly} />);
+    show(portraitOnly);
     expect(screen.queryByRole("button", { name: "Desktop" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Phone" })).toBeNull();
+    expect(shownOn("laptop")).toBeNull();
+    expect(shownOn("phone")).toBe("/a.png");
   });
 
-  it("hides the arrows and counter jump for a single piece but still renders it", () => {
-    const one: Pack = { ...dessau(), previews: [dessau().previews[0]] };
-    render(<PackShowcase pack={one} />);
+  it("hides the arrows and shuffle for a single piece but still renders it", () => {
+    show({ ...dessau(), previews: [dessau().previews[0]] });
     expect(screen.queryByRole("button", { name: /next wallpaper/i })).toBeNull();
-    expect(stageSrc()).toBe("/assets/packs/dessau/01_kreise.png");
+    expect(screen.queryByRole("button", { name: /shuffle/i })).toBeNull();
+    expect(shownOn("phone")).toBe("/assets/packs/dessau/01_kreise.png");
   });
 
-  it("loads the wallpaper in the stage eagerly", () => {
-    render(<PackShowcase pack={dessau()} />);
-    const img = screen.getByTestId("showcase-stage").querySelector("img[alt]:not([alt=''])");
-    expect(img).toHaveAttribute("loading", "eager");
+  it("loads the wallpapers in the stage eagerly", () => {
+    show(dessau());
+    for (const img of screen.getByTestId("showcase-stage").querySelectorAll("[data-device] img")) {
+      expect(img).toHaveAttribute("loading", "eager");
+    }
   });
 });

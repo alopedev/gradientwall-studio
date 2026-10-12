@@ -22,10 +22,11 @@ export function PhoneFrame({ children, className = "", style }: FrameProps) {
   return (
     <div
       data-device="phone"
-      className={`aspect-[1290/2796] rounded-[15%/7%] p-[2.5%] ${BEZEL} ${className}`}
+      className={`${/\babsolute\b/.test(className) ? "" : "relative"} aspect-[1290/2796] rounded-[15%/7%] ${BEZEL} ${className}`}
       style={style}
     >
-      <div className="relative h-full w-full overflow-hidden rounded-[13%/6%] bg-black">
+      {/* Inset, not padding: a padding % follows the parent's width, so the bezel would grow with the page. */}
+      <div className="absolute inset-x-[2.5%] inset-y-[1.15%] overflow-hidden rounded-[13%/6%] bg-black">
         {children}
         <span
           aria-hidden
