@@ -32,6 +32,15 @@
   --color-surface-3: #2c2c33;
   --color-surface-4: #37373f;
 
+  /* Identity B, "Dessau paper" (chosen 2026-10-12): grey paper, black ink,
+     colour only from the wallpaper and the three Bauhaus shapes. Contrast is
+     guarded by src/lib/theme/paper-tokens.test.ts. Not wired to components
+     yet: the migration lands after the Studio and headline PRs merge. */
+  --color-paper: #e3e2de;
+  --color-paper-2: #d6d5d0;
+  --color-paper-ink: #121212;
+  --color-paper-sub: #4a494f;
+
   --radius-sharp: 2px;
   --radius-glass: 14px;
 

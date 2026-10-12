@@ -1,5 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { clamp, hexToHsl, hexToRgb, hslToHex, lerp, parseHex, rgbToHex, wrapAngle } from "./color";
+import {
+  clamp,
+  contrastRatio,
+  hexToHsl,
+  hexToRgb,
+  hslToHex,
+  lerp,
+  parseHex,
+  relativeLuminance,
+  rgbToHex,
+  wrapAngle,
+} from "./color";
 
 describe("parseHex", () => {
   it("reads 6- and 3-digit hex, with or without #, any case", () => {
@@ -51,5 +62,22 @@ describe("number helpers", () => {
     expect(wrapAngle(-30)).toBe(330);
     expect(wrapAngle(725)).toBe(5);
     expect(wrapAngle(360)).toBe(0);
+  });
+});
+
+describe("relativeLuminance / contrastRatio (WCAG 2)", () => {
+  it("is 0 for black and 1 for white", () => {
+    expect(relativeLuminance("#000000")).toBe(0);
+    expect(relativeLuminance("#ffffff")).toBe(1);
+  });
+
+  it("gives 21:1 for black on white, symmetric, and 1:1 for equal colours", () => {
+    expect(contrastRatio("#000", "#fff")).toBeCloseTo(21, 5);
+    expect(contrastRatio("#fff", "#000")).toBeCloseTo(21, 5);
+    expect(contrastRatio("#777", "#777")).toBe(1);
+  });
+
+  it("matches a known WCAG pair (#767676 on white is the 4.5:1 threshold)", () => {
+    expect(contrastRatio("#767676", "#ffffff")).toBeCloseTo(4.54, 2);
   });
 });
