@@ -36,7 +36,7 @@ describe("canvas2d engine", () => {
 
   it("offers the three styles the dock shows", () => {
     const { styles } = createCanvas2DEngine(vi.fn());
-    expect(styles.map((s) => s.id)).toEqual(["liquid", "aurora", "mesh"]);
+    expect(styles.map((s) => s.id)).toEqual(["mesh", "aurora", "liquid"]);
   });
 
   it("declares adjustments with defaults inside their range", () => {

@@ -1,3 +1,4 @@
+import { Camera, Flashlight } from "lucide-react";
 import { AnimatePresence, m } from "motion/react";
 import { type DragEvent, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { extractColorsFromFile } from "@/lib/color-extract";
@@ -8,7 +9,7 @@ import { REVEAL_TTL_MS, RevealContext } from "./reveal";
 
 /** Bezel padding and corner radius of each frame, in px. */
 const FRAME: Record<Device, { pad: number; radius: number }> = {
-  mobile: { pad: 8, radius: 46 },
+  mobile: { pad: 7, radius: 46 },
   tablet: { pad: 10, radius: 30 },
   desktop: { pad: 7, radius: 14 },
 };
@@ -133,8 +134,14 @@ export function DeviceStage() {
         borderRadius: frame.radius,
         marginBottom: device === "desktop" ? STAND_H : 0,
       }}
-      className="relative bg-gradient-to-br from-[#2a2a30] via-[#151519] to-[#1d1d22] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.07),0_0_0_1px_#050506,0_50px_100px_-30px_rgba(0,0,0,0.85),0_20px_40px_-20px_rgba(0,0,0,0.6)]"
+      className={`relative bg-gradient-to-br from-[#2a2a30] via-[#151519] to-[#1d1d22] ${
+        device === "mobile"
+          ? // iPhone: a thin titanium band around a black bezel.
+            "bg-none bg-[#08080a] shadow-[inset_0_0_0_1.5px_#8a8a90,inset_0_0_0_3px_#2a2a2e,0_50px_100px_-30px_rgba(0,0,0,0.85),0_20px_40px_-20px_rgba(0,0,0,0.6)]"
+          : "shadow-[inset_0_0_0_1px_rgba(255,255,255,0.07),0_0_0_1px_#050506,0_50px_100px_-30px_rgba(0,0,0,0.85),0_20px_40px_-20px_rgba(0,0,0,0.6)]"
+      }`}
     >
+      {device === "mobile" && <SideButtons />}
       <m.div
         layout
         ref={screenRef}
@@ -212,24 +219,93 @@ function LockOverlay({ device }: { device: Device }) {
       </div>
     );
   }
+  const phone = device === "mobile";
   return (
     <>
       <div
         className="absolute left-1/2 top-[2.6cqh] z-[6] h-[3.9cqh] w-[30cqw] -translate-x-1/2 rounded-full bg-black"
         aria-hidden
       />
+      {phone && (
+        <div
+          aria-hidden
+          data-part="status-bar"
+          className="absolute right-[7cqw] top-[3.7cqh] z-[6] flex items-center gap-[1.4cqw]"
+        >
+          <i
+            className="block h-[2.8cqw] w-[4.4cqw] bg-white"
+            style={{
+              clipPath: "polygon(0 75%, 100% 0, 100% 100%, 0 100%)",
+              maskImage:
+                "linear-gradient(90deg, #000 0 18%, transparent 18% 27%, #000 27% 45%, transparent 45% 55%, #000 55% 73%, transparent 73% 82%, #000 82%)",
+            }}
+          />
+          <i className="block h-[3cqw] w-[6.2cqw] rounded-[1cqw] bg-white/95" />
+        </div>
+      )}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 z-[5] grid content-start justify-items-center pt-[12.5cqh] text-white/95 [text-shadow:0_1px_18px_rgba(0,0,0,0.25)]"
       >
-        <span className="whitespace-nowrap text-[max(9px,4.6cqw)] font-medium tracking-[0.01em]">
+        <span className="whitespace-nowrap text-[max(9px,4.6cqw)] font-semibold tracking-[0.01em]">
           {date}
         </span>
-        <span className="mt-[0.5cqh] text-[23cqw] font-semibold leading-none tracking-[-0.03em] tabular-nums">
+        <span className="mt-[0.5cqh] text-[23cqw] font-bold leading-none tracking-[-0.04em] tabular-nums">
           9:41
         </span>
+        {phone && (
+          <>
+            <QuickAction side="left">
+              <Flashlight className="size-[5cqw]" strokeWidth={2.2} />
+            </QuickAction>
+            <QuickAction side="right">
+              <Camera className="size-[5cqw]" strokeWidth={2.2} />
+            </QuickAction>
+          </>
+        )}
         <span className="absolute bottom-[1.4cqh] left-1/2 h-[max(3px,0.55cqh)] w-[36cqw] -translate-x-1/2 rounded-[9px] bg-white/85" />
       </div>
+    </>
+  );
+}
+
+/** Flashlight and camera buttons at the bottom corners of the iPhone lock screen. */
+function QuickAction({ side, children }: { side: "left" | "right"; children: React.ReactNode }) {
+  return (
+    <span
+      data-part="quick-action"
+      className={`absolute bottom-[3cqh] grid size-[11.5cqw] place-items-center rounded-full bg-[rgba(30,30,34,0.38)] backdrop-blur-[10px] ${side === "left" ? "left-[9cqw]" : "right-[9cqw]"}`}
+    >
+      {children}
+    </span>
+  );
+}
+
+/** Action button, volume up and down on the left edge of the iPhone, side button on the right. */
+function SideButtons() {
+  const part = "absolute w-[3px] rounded-[2px] bg-gradient-to-r";
+  return (
+    <>
+      <i
+        data-part="side-button"
+        aria-hidden
+        className={`${part} -left-[2px] top-[16%] h-[4.5%] from-[#3a3a3f] to-[#6c6c72]`}
+      />
+      <i
+        data-part="side-button"
+        aria-hidden
+        className={`${part} -left-[2px] top-[23.5%] h-[8%] from-[#3a3a3f] to-[#6c6c72]`}
+      />
+      <i
+        data-part="side-button"
+        aria-hidden
+        className={`${part} -left-[2px] top-[33%] h-[8%] from-[#3a3a3f] to-[#6c6c72]`}
+      />
+      <i
+        data-part="side-button"
+        aria-hidden
+        className={`${part} -right-[2px] top-[26%] h-[12%] from-[#6c6c72] to-[#3a3a3f]`}
+      />
     </>
   );
 }

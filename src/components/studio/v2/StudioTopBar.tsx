@@ -40,7 +40,7 @@ export function StudioTopBar() {
   return (
     <header className="relative z-[5] flex items-center justify-between gap-3 px-[18px] pb-1.5 pt-4 @max-[760px]:px-3.5 @max-[760px]:pb-1 @max-[760px]:pt-3.5">
       <div className="grid min-w-0 gap-0.5">
-        <span className="font-sans text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-white/60">
+        <span className="truncate font-sans text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-white/60">
           Gradientwall · Studio
         </span>
         <div className="relative h-[1.9rem] overflow-hidden" aria-live="polite">

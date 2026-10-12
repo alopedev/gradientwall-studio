@@ -1,7 +1,7 @@
 import { STUDIO_NOT_AI } from "@/lib/copy";
 import { EmailCapture } from "../../EmailCapture";
 import { m, useInView } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Reveal } from "../../ui/Reveal";
 import { useConfigStore } from "@/store";
 import { DeviceStage } from "./DeviceStage";
@@ -10,7 +10,7 @@ import { type RevealRequest, RevealContext } from "./reveal";
 import { HeroAmbient } from "./HeroAmbient";
 import { HeroBackdrop } from "./HeroBackdrop";
 import { StageHalo } from "./StageHalo";
-import { StudioDock } from "./StudioDock";
+import { StudioInspector } from "./StudioInspector";
 import { StudioTopBar } from "./StudioTopBar";
 import { BauhausMarks } from "@/components/ui/BauhausMarks";
 
@@ -23,13 +23,12 @@ const enter = (delay: number) => ({
 
 /**
  * The first screen of the site and the Studio in one: the pitch on the left,
- * the wallpaper inside a phone, tablet or monitor frame on the right with one
- * glass dock holding every control, and the saved wallpapers underneath.
- * Shuffle (or Space) is the main gesture; everything finer sits behind Adjust.
- * On narrow screens the pitch stacks above the frame.
+ * then the Studio frame: the wallpaper inside a phone, tablet or monitor with
+ * the saved wallpapers under it, and a panel beside it holding every control
+ * (StudioInspector). Shuffle (or Space) is the main gesture. On narrow screens
+ * the pitch stacks above the frame and the panel drops under the wallpaper.
  */
 export function StudioShell() {
-  const [adjustOpen, setAdjustOpen] = useState(false);
   const device = useConfigStore((s) => s.device);
   const sectionRef = useRef<HTMLElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
@@ -40,19 +39,6 @@ export function StudioShell() {
   // over the frame or focus is inside it.
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
-
-  // Escape closes Adjust (unless the key is going to a text field).
-  useEffect(() => {
-    if (!adjustOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "Escape") return;
-      const t = e.target as HTMLElement | null;
-      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
-      setAdjustOpen(false);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [adjustOpen]);
 
   return (
     <RevealContext.Provider value={revealRef}>
@@ -82,29 +68,20 @@ export function StudioShell() {
               onBlurCapture={(e) => {
                 if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false);
               }}
-              className="relative isolate grid h-[clamp(560px,calc(100svh_-_210px),840px)] grid-rows-[auto_minmax(0,1fr)_auto_auto] overflow-hidden rounded-[20px] border border-white/10 bg-[radial-gradient(120%_90%_at_50%_40%,#0d0d11_0%,#060607_70%)] @max-[760px]:h-auto @max-[760px]:grid-rows-[auto_clamp(300px,calc(100svh_-_440px),520px)_auto_auto] @max-[760px]:rounded-2xl @max-[760px]:data-[device=desktop]:grid-rows-[auto_330px_auto_auto]"
+              className="relative isolate grid h-[clamp(620px,calc(100svh_-_150px),860px)] grid-cols-[minmax(0,1fr)_300px] grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-[20px] border border-white/10 bg-[radial-gradient(120%_90%_at_50%_40%,#0d0d11_0%,#060607_70%)] [grid-template-areas:'top_panel''stage_panel''saved_panel'] @max-[760px]:h-auto @max-[760px]:grid-cols-1 @max-[760px]:grid-rows-[auto_clamp(300px,calc(100svh_-_440px),520px)_auto_auto] @max-[760px]:rounded-2xl @max-[760px]:[grid-template-areas:'top''stage''panel''saved'] @max-[760px]:data-[device=desktop]:grid-rows-[auto_330px_auto_auto]"
             >
               <StageHalo />
-              <m.div {...enter(0)}>
+              <m.div {...enter(0)} className="[grid-area:top]">
                 <StudioTopBar />
               </m.div>
               <m.div
                 {...enter(0.05)}
-                className="relative z-[1] grid min-h-0 place-items-center px-6 pb-11 pt-2 [container-type:size] @max-[760px]:px-4 @max-[760px]:pb-[34px]"
+                className="relative z-[1] grid min-h-0 place-items-center px-6 pb-4 pt-2 [container-type:size] [grid-area:stage] @max-[760px]:px-4 @max-[760px]:pb-5"
               >
                 <DeviceStage />
               </m.div>
-              <m.div
-                {...enter(0.18)}
-                className="relative z-[4] -mt-[26px] grid @max-[760px]:-mt-[22px]"
-              >
-                <StudioDock
-                  adjustOpen={adjustOpen}
-                  onToggleAdjust={() => setAdjustOpen((o) => !o)}
-                  keysActive={inView && (hovered || focused)}
-                />
-              </m.div>
-              <m.div {...enter(0.3)}>
+              <StudioInspector keysActive={inView && (hovered || focused)} />
+              <m.div {...enter(0.3)} className="min-w-0 [grid-area:saved]">
                 <FavoritesStrip />
               </m.div>
             </div>

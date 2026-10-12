@@ -1,33 +1,33 @@
 // @vitest-environment jsdom
-import { act, render, screen } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PALETTES } from "@/lib/palettes";
 import { useConfigStore } from "@/store";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { useLookHistoryStore } from "@/store/useLookHistoryStore";
-import { StudioDock } from "./StudioDock";
+import { StudioInspector } from "./StudioInspector";
 
 const INITIAL = useConfigStore.getState();
 
 function Harness({ keysActive = true }: { keysActive?: boolean }) {
-  // Adjust open state is owned by the shell; mimic it here.
-  return <DockWithState keysActive={keysActive} />;
+  return <StudioInspector keysActive={keysActive} />;
 }
 
-import { useState } from "react";
-function DockWithState({ keysActive }: { keysActive: boolean }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <StudioDock
-      adjustOpen={open}
-      onToggleAdjust={() => setOpen((o) => !o)}
-      keysActive={keysActive}
-    />
-  );
+/** The frame the inspector measures: narrow (phone) or wide. */
+function stubFrameWidth(width: number) {
+  class RO {
+    constructor(private cb: ResizeObserverCallback) {}
+    observe() {
+      this.cb([{ contentRect: { width } } as ResizeObserverEntry], this as never);
+    }
+    disconnect() {}
+    unobserve() {}
+  }
+  vi.stubGlobal("ResizeObserver", RO);
 }
 
-describe("StudioDock", () => {
+describe("StudioInspector", () => {
   beforeEach(() => {
     act(() => {
       useConfigStore.setState(INITIAL, true);
@@ -37,16 +37,27 @@ describe("StudioDock", () => {
     localStorage.clear();
   });
 
-  it("opens Adjust as a bottom sheet on a narrow frame, with a way to close it", async () => {
-    class Narrow {
-      constructor(private cb: ResizeObserverCallback) {}
-      observe() {
-        this.cb([{ contentRect: { width: 390 } } as ResizeObserverEntry], this as never);
-      }
-      disconnect() {}
-      unobserve() {}
-    }
-    vi.stubGlobal("ResizeObserver", Narrow);
+  it("shows every control at once on a wide frame: style, palettes, colors, sliders, save and download", () => {
+    render(<Harness />);
+    expect(screen.getByLabelText("Style")).toBeTruthy();
+    expect(screen.getByRole("group", { name: "Palette" })).toBeTruthy();
+    expect(screen.getAllByLabelText(/^color [1-4]$/i)).toHaveLength(4);
+    expect(screen.getByRole("slider", { name: "Grain" })).toBeTruthy();
+    expect(screen.getByLabelText("Save this wallpaper")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /download/i })).toBeTruthy();
+    // Nothing is hidden behind an Adjust toggle any more.
+    expect(screen.queryByRole("button", { name: /^adjust$/i })).toBeNull();
+  });
+
+  it("orders the styles Mesh, Aurora, Liquid", () => {
+    render(<Harness />);
+    const style = screen.getByLabelText("Style");
+    const labels = Array.from(style.querySelectorAll("button")).map((b) => b.textContent);
+    expect(labels).toEqual(["Mesh", "Aurora", "Liquid"]);
+  });
+
+  it("on a phone-wide frame, groups the controls under Style, Colors and Adjust tabs", async () => {
+    stubFrameWidth(390);
     try {
       const user = userEvent.setup();
       render(
@@ -54,12 +65,24 @@ describe("StudioDock", () => {
           <Harness />
         </div>,
       );
-      await user.click(screen.getByRole("button", { name: /^adjust$/i }));
-      const sheet = screen.getByRole("dialog", { name: "Adjust" });
-      expect(sheet.parentElement).toBe(document.body);
-      expect(screen.getAllByRole("slider").length).toBeGreaterThan(0);
-      await user.click(screen.getByRole("button", { name: /close adjust/i }));
-      expect(screen.queryByRole("dialog", { name: "Adjust" })).toBeNull();
+      const tabs = screen.getByRole("tablist", { name: /controls/i });
+      expect(
+        within(tabs)
+          .getAllByRole("tab")
+          .map((t) => t.textContent),
+      ).toEqual(["Style", "Colors", "Adjust"]);
+      expect(screen.getByRole("group", { name: "Style" })).toBeTruthy();
+      expect(screen.queryByRole("slider")).toBeNull();
+
+      await user.click(within(tabs).getByRole("tab", { name: "Colors" }));
+      expect(screen.getByLabelText("Palette Forest")).toBeTruthy();
+      expect(screen.getAllByLabelText(/^color [1-4]$/i)).toHaveLength(4);
+
+      await user.click(within(tabs).getByRole("tab", { name: "Adjust" }));
+      expect(screen.getByRole("slider", { name: "Grain" })).toBeTruthy();
+      // Shuffle, save and download stay in reach whatever the tab.
+      expect(screen.getByLabelText(/shuffle: generate another wallpaper/i)).toBeTruthy();
+      expect(screen.getByLabelText("Save this wallpaper")).toBeTruthy();
     } finally {
       vi.unstubAllGlobals();
     }
@@ -150,16 +173,9 @@ describe("StudioDock", () => {
     expect(heart.getAttribute("aria-pressed")).toBe("false");
   });
 
-  it("Adjust opens the sliders and Reset restores the engine defaults", async () => {
+  it("shows the engine's sliders and Reset restores their defaults", async () => {
     const user = userEvent.setup();
     render(<Harness />);
-    const adjust = screen.getByRole("button", { name: /adjust/i });
-    expect(adjust.getAttribute("aria-expanded")).toBe("false");
-    expect(screen.queryByRole("slider", { name: "Grain" })).toBeNull();
-
-    await user.click(adjust);
-    expect(adjust.getAttribute("aria-expanded")).toBe("true");
-    expect(await screen.findByRole("slider", { name: "Grain" })).toBeTruthy();
     // The v2 shader's look is calibrated: only grain and light are exposed.
     expect(screen.getAllByRole("slider")).toHaveLength(2);
     expect(screen.getByRole("slider", { name: "Light" })).toBeTruthy();
