@@ -1,6 +1,4 @@
 import type { CSSProperties, ReactNode } from "react";
-import type { PackCover as PackCoverType } from "@/lib/packs";
-import { PackCover } from "./PackCover";
 
 /**
  * Pure-CSS device bezels used to show wallpapers the way buyers will see them.
@@ -54,37 +52,20 @@ export function LaptopFrame({ children, className = "", style }: FrameProps) {
   );
 }
 
-const FILL = "absolute inset-0 block h-full w-full object-cover";
-
-/**
- * Laptop with a phone leaning in front of it: the catalog cover. Either
- * render can be missing (a portrait-only pack has no desktop file).
- */
-export function DeviceDuo({
-  phone,
-  desktop,
-  className = "",
-}: {
-  phone: PackCoverType | null;
-  desktop: PackCoverType | null;
-  className?: string;
-}) {
+/** The time on top of the phone render, so the wallpaper reads as a lock screen. */
+export function LockScreen() {
+  const today = new Date().toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
   return (
-    <div className={`relative aspect-[16/10.5] w-full ${className}`}>
-      {desktop && (
-        <LaptopFrame className="absolute left-0 top-[4%] w-[86%] drop-shadow-[0_30px_40px_rgba(0,0,0,0.55)]">
-          <PackCover cover={desktop} w={960} h={600} className={FILL} />
-        </LaptopFrame>
-      )}
-      {phone && (
-        <PhoneFrame
-          className={`absolute bottom-0 rotate-[4deg] shadow-[-20px_30px_50px_-10px_rgba(0,0,0,0.85)] transition-transform duration-700 ease-out motion-reduce:transition-none group-hover:-translate-y-2 group-hover:rotate-0 ${
-            desktop ? "right-0 w-[30%]" : "left-1/2 w-[44%] -translate-x-1/2"
-          }`}
-        >
-          <PackCover cover={phone} w={480} h={1040} className={FILL} />
-        </PhoneFrame>
-      )}
+    <div
+      aria-hidden
+      className="@container pointer-events-none absolute inset-x-0 top-[10%] z-10 text-center font-sans text-white [text-shadow:0_1px_12px_rgba(0,0,0,0.3)]"
+    >
+      <div className="text-[5.2cqi] font-medium">{today.replace(",", "")}</div>
+      <div className="text-[24cqi] font-bold leading-none tracking-[-0.03em]">9:41</div>
     </div>
   );
 }
