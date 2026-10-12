@@ -10,6 +10,7 @@ import { type RevealRequest, RevealContext } from "./reveal";
 import { StudioInspector } from "./StudioInspector";
 import { StudioTopBar } from "./StudioTopBar";
 import { BauhausMarks } from "@/components/ui/BauhausMarks";
+import { PAGE_COLUMN } from "@/components/ui/layout";
 
 const enter = (delay: number) => ({
   initial: { opacity: 0, y: 18 },
@@ -39,7 +40,9 @@ export function StudioShell() {
   return (
     <RevealContext.Provider value={revealRef}>
       <section ref={sectionRef} className="relative isolate overflow-hidden">
-        <div className="mx-auto grid max-w-[1600px] gap-8 px-[clamp(16px,4vw,64px)] pb-[clamp(32px,5vw,72px)] pt-[88px] lg:min-h-[100svh] lg:grid-cols-[minmax(300px,0.72fr)_minmax(0,1.6fr)] lg:items-center lg:gap-10 lg:pt-[96px]">
+        <div
+          className={`${PAGE_COLUMN} grid gap-8 pb-[clamp(32px,5vw,72px)] pt-[88px] lg:min-h-[100svh] lg:grid-cols-[minmax(300px,0.72fr)_minmax(0,1.6fr)] lg:items-center lg:gap-10 lg:pt-[96px]`}
+        >
           <Reveal className="relative z-[1]">
             <BauhausMarks className="mb-6 hidden md:flex" />
             <h1 className="display-head text-[clamp(40px,4.6vw,76px)] text-ink">

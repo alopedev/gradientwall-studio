@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { Nav } from "./Nav";
+import { PAGE_COLUMN } from "./ui/layout";
 import { getPacks } from "@/lib/packs";
 import { paletteName } from "@/lib/palette-name";
 import type { Colors4 } from "@/lib/palettes";
@@ -28,6 +29,12 @@ describe("<Nav />", () => {
     const brand = screen.getByRole("link", { name: "gradientwall" });
     expect(brand.querySelector("svg[data-brand-mark]")).toBeInTheDocument();
     expect(brand.querySelector("svg[data-wordmark]")).toBeInTheDocument();
+  });
+
+  it("spans the same column as the page content", () => {
+    const { container } = render(<Nav />);
+    const column = container.querySelector("[data-nav-column]");
+    for (const cls of PAGE_COLUMN.split(" ")) expect(column).toHaveClass(cls);
   });
 
   it("is split into separate paper islands with an ink edge and no glass blur", () => {

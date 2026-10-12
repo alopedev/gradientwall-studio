@@ -6,6 +6,7 @@ import { useConfigStore } from "@/store/useConfigStore";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { PackCover } from "./packs/PackCover";
 import { inkButton } from "./ui/InkButton";
+import { PAGE_COLUMN } from "./ui/layout";
 import { BrandMark, Logo } from "./ui/Logo";
 
 type Section = "studio" | "packs";
@@ -50,9 +51,12 @@ export function Nav() {
     <nav
       aria-label="Main"
       style={{ paddingTop: "max(12px, env(safe-area-inset-top))" }}
-      className="pointer-events-none fixed inset-x-0 top-0 z-50 px-3 md:px-6"
+      className="pointer-events-none fixed inset-x-0 top-0 z-50"
     >
-      <div className="relative mx-auto flex max-w-[1100px] items-start justify-between gap-2">
+      <div
+        data-nav-column
+        className={`${PAGE_COLUMN} relative flex items-start justify-between gap-2`}
+      >
         <m.a
           data-island
           href="/"
