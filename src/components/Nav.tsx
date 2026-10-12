@@ -1,4 +1,5 @@
-import { AnimatePresence, type MotionStyle, m } from "motion/react";
+import type { CSSProperties } from "react";
+import { AnimatePresence, m } from "motion/react";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { getPacks } from "@/lib/packs";
 import { paletteName } from "@/lib/palette-name";
@@ -35,42 +36,57 @@ function useSectionInView(): Section | null {
   return inView;
 }
 
-/** Paper shared by the three islands: opaque, with a 2 px ink edge (identity B). */
-const ISLAND: MotionStyle = {
-  backgroundColor: "var(--color-bg)",
-  boxShadow: "inset 0 0 0 2px var(--color-ink)",
-};
+/** True once the page has scrolled past the top. */
+function useScrolled(threshold = 8): boolean {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const update = () => setScrolled(window.scrollY > threshold);
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
+  }, [threshold]);
+  return scrolled;
+}
+
+/** Floating paper with a soft shadow and no edge: the strip once scrolled, and the open menu. */
+const SHADOW = "0 10px 30px -12px rgb(30 28 24 / 0.35)";
+const PAPER: CSSProperties = { backgroundColor: "var(--color-bg)", boxShadow: SHADOW };
+const BARE: CSSProperties = { backgroundColor: "transparent", boxShadow: "none" };
 
 /**
- * Floating nav in three paper islands: the brand, the sections (Studio, and
- * Packs, which grows into a menu with the covers), and the actions (current
- * palette, saved count, CTA).
+ * Frameless nav: the brand, the sections (Studio, and Packs, which grows into
+ * a menu with the covers) and the actions (current palette, saved count, CTA)
+ * sit on the hero with no background. Once the page scrolls they become one
+ * floating paper strip with a soft shadow, so content never runs under bare text.
  */
 export function Nav() {
+  const scrolled = useScrolled();
   return (
     <nav
       aria-label="Main"
       style={{ paddingTop: "max(12px, env(safe-area-inset-top))" }}
       className="pointer-events-none fixed inset-x-0 top-0 z-50"
     >
-      <div
-        data-nav-column
-        className={`${PAGE_COLUMN} relative flex items-start justify-between gap-2`}
-      >
-        <m.a
-          data-island
-          href="/"
-          style={ISLAND}
-          className="pointer-events-auto flex h-14 items-center rounded-sharp pl-4 pr-5 max-sm:px-[15px] text-ink focus-ring"
+      <div data-nav-column className={PAGE_COLUMN}>
+        <div
+          data-nav-strip
+          data-scrolled={scrolled}
+          style={scrolled ? PAPER : BARE}
+          className="pointer-events-auto relative flex items-start justify-between gap-2 rounded-sharp transition-[background-color,box-shadow] duration-300"
         >
-          <Logo size={26} className="max-sm:hidden" />
-          <BrandMark size={26} className="sm:hidden" />
-          <span className="sr-only">gradientwall</span>
-        </m.a>
+          <a
+            href="/"
+            className="flex h-14 items-center rounded-sharp pl-4 pr-5 max-sm:px-[15px] text-ink focus-ring"
+          >
+            <Logo size={26} className="max-sm:hidden" />
+            <BrandMark size={26} className="sm:hidden" />
+            <span className="sr-only">gradientwall</span>
+          </a>
 
-        <SectionsIsland />
+          <SectionsIsland />
 
-        <ActionsIsland />
+          <ActionsIsland />
+        </div>
       </div>
     </nav>
   );
@@ -151,9 +167,9 @@ function SectionsIsland() {
   return (
     <div className="pointer-events-none absolute left-1/2 top-0 z-10 -translate-x-1/2">
       <m.div
-        data-island
+        data-packs-island
         ref={islandRef}
-        style={ISLAND}
+        style={open ? PAPER : BARE}
         initial={false}
         animate={{ width: open ? menuWidth : (closedWidth ?? "auto") }}
         transition={
@@ -169,7 +185,7 @@ function SectionsIsland() {
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget as Node | null)) closeMenu();
         }}
-        className="pointer-events-auto overflow-hidden rounded-sharp"
+        className="pointer-events-auto overflow-hidden rounded-sharp transition-[background-color,box-shadow] duration-200"
       >
         <SectionLinks
           highlighted={highlighted}
@@ -371,11 +387,7 @@ function ActionsIsland() {
     "inline-flex h-11 items-center gap-2 rounded-full px-3 font-sans text-[12px] text-ink/85 transition-colors duration-150 hover:bg-ink/[0.08] hover:text-ink focus-ring";
 
   return (
-    <m.div
-      data-island
-      style={ISLAND}
-      className="pointer-events-auto flex h-14 items-center gap-1 rounded-sharp p-1.5"
-    >
+    <div className="flex h-14 items-center gap-1 rounded-sharp p-1.5">
       <a
         href="/#studio"
         aria-label={`Current palette: ${name}`}
@@ -409,6 +421,6 @@ function ActionsIsland() {
         <span className="md:hidden">Make one →</span>
         <span className="hidden md:inline">Make a wallpaper →</span>
       </a>
-    </m.div>
+    </div>
   );
 }

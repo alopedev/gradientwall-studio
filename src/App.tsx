@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { LazyMotion, MotionConfig, AnimatePresence } from "motion/react";
+import { Hero } from "./components/hero/Hero";
 import { Nav } from "./components/Nav";
 import { Marquee } from "./components/Marquee";
 import { StudioShell } from "./components/studio/v2/StudioShell";
@@ -105,9 +106,10 @@ function HomePage() {
     <>
       <PageMeta {...HOME_PAGE} />
       <Nav />
+      <Hero />
+      <PacksSection />
       <StudioShell />
       <Marquee />
-      <PacksSection />
       <Footer />
     </>
   );

@@ -37,14 +37,41 @@ describe("<Nav />", () => {
     for (const cls of PAGE_COLUMN.split(" ")) expect(column).toHaveClass(cls);
   });
 
-  it("is split into separate paper islands with an ink edge and no glass blur", () => {
+  it("sits on the hero with no frame: no ink edges, no background, no glass", () => {
     const { container } = render(<Nav />);
-    const islands = container.querySelectorAll<HTMLElement>("[data-island]");
-    expect(islands.length).toBe(3);
-    for (const island of islands) {
-      expect(island.style.backdropFilter).toBe("");
-      expect(island.style.boxShadow).toContain("var(--color-ink)");
+    const strip = container.querySelector<HTMLElement>("[data-nav-strip]");
+    expect(strip).toHaveAttribute("data-scrolled", "false");
+    expect(strip?.style.backgroundColor).toBe("transparent");
+    for (const el of container.querySelectorAll<HTMLElement>("nav, nav *")) {
+      expect(el.style.boxShadow).not.toContain("var(--color-ink)");
+      expect(el.style.backdropFilter).toBe("");
     }
+  });
+
+  it("turns into one floating paper strip with a soft shadow once the page scrolls", () => {
+    const { container } = render(<Nav />);
+    const strip = container.querySelector<HTMLElement>("[data-nav-strip]");
+    act(() => {
+      window.scrollY = 120;
+      window.dispatchEvent(new Event("scroll"));
+    });
+    expect(strip).toHaveAttribute("data-scrolled", "true");
+    expect(strip?.style.backgroundColor).toBe("var(--color-bg)");
+    expect(strip?.style.boxShadow).not.toBe("");
+    expect(strip?.style.boxShadow).not.toContain("var(--color-ink)");
+    act(() => {
+      window.scrollY = 0;
+      window.dispatchEvent(new Event("scroll"));
+    });
+    expect(strip).toHaveAttribute("data-scrolled", "false");
+  });
+
+  it("gives the open Packs menu its own paper, so it reads over the hero", () => {
+    const { container } = render(<Nav />);
+    fireEvent.click(screen.getByRole("button", { name: /^packs$/i }));
+    const panel = container.querySelector<HTMLElement>("[data-packs-island]");
+    expect(panel?.style.backgroundColor).toBe("var(--color-bg)");
+    expect(panel?.style.boxShadow).not.toContain("var(--color-ink)");
   });
 
   it("opens the Packs menu with one link per pack, its size and price", () => {

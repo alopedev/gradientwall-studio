@@ -111,7 +111,7 @@ export const useConfigStore = create<ConfigState>()((set) => {
     engine: "v2",
     colors: [...PALETTES[0].colors] as Colors4,
     active: freshMask(),
-    style: "liquid",
+    style: "mesh",
     // Starting look (lib/defaults.ts). Grain / contrast / vibrance are the user's
     // to set in the Adjust panel, so surprise and remix leave them alone.
     blur: STUDIO_BLUR,

@@ -17,11 +17,11 @@ export function PacksSection() {
   return (
     <section
       id="packs"
-      className="relative mx-auto max-w-[1600px] px-[clamp(24px,5vw,80px)] py-[clamp(60px,9vw,120px)] border-t border-ink"
+      className="relative mx-auto max-w-[1600px] px-[clamp(24px,5vw,80px)] pt-[clamp(24px,3vw,40px)] pb-[clamp(60px,9vw,120px)] border-t border-ink"
     >
-      <Reveal className="grid md:grid-cols-2 gap-12 items-end mb-10">
+      <Reveal className="grid md:grid-cols-2 gap-6 md:gap-12 items-end mb-8">
         <div>
-          <h2 className="display-head text-[clamp(40px,5.5vw,76px)]">
+          <h2 className="display-head text-[clamp(32px,3.6vw,52px)]">
             <SplitWords text="wallpaper packs." className="block text-ink" />
           </h2>
         </div>
