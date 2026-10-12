@@ -1,7 +1,8 @@
 /**
  * Pure helpers for the animated page backdrop (the v2 shader moving behind the
- * first screen). No DOM, no WebGL: sizing, palette easing and the "should it
- * run at all" rule. The component that uses them is `HeroBackdrop`.
+ * first screen, now the wallpaper drifting inside the Studio's device). No DOM,
+ * no WebGL: sizing, frame pacing and the "should it run at all" rule. The
+ * component that uses them is `ScreenMotion`.
  */
 
 import { clamp, hexToRgb, rgbToHex } from "../color";
@@ -33,6 +34,31 @@ export function backdropSize(
     h *= k;
   }
   return { width: Math.round(w), height: Math.round(h) };
+}
+
+/**
+ * The Studio's device screen: the current wallpaper drifts there (identity B,
+ * 2026-10-12) instead of behind the page. Sharp, unlike the soft backdrop:
+ * the screen box at the device pixel ratio (at most 1.5x), with a pixel ceiling.
+ */
+export const SCREEN_MOTION_MAX_DPR = 1.5;
+export const SCREEN_MOTION_MAX_PIXELS = 600_000;
+
+export function screenMotionSize(
+  cssWidth: number,
+  cssHeight: number,
+  dpr: number,
+): { width: number; height: number } {
+  const k = Math.min(Math.max(dpr, 1), SCREEN_MOTION_MAX_DPR);
+  let w = cssWidth * k;
+  let h = cssHeight * k;
+  const px = w * h;
+  if (px > SCREEN_MOTION_MAX_PIXELS) {
+    const s = Math.sqrt(SCREEN_MOTION_MAX_PIXELS / px);
+    w *= s;
+    h *= s;
+  }
+  return { width: Math.max(1, Math.floor(w)), height: Math.max(1, Math.floor(h)) };
 }
 
 export function mixHex(a: string, b: string, t: number): string {

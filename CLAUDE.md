@@ -48,7 +48,7 @@ Four concentric layers: **pure render → state → React views → backend func
   - `shader.ts` — GLSL sources. Signed-off math like `spec.ts`; a sha256 snapshot guards it.
   - `params.ts` — pure mapping from `RenderParams` vocabulary to uniforms (compass light angle → math radians, grain 0..100 → 0..1, 2–4 colour ramp → 4 stops, v1 style names → `liquid | aurora | grain-mesh`).
   - `renderer.ts` — the only file here that touches the GPU. One shared WebGL2 context (`getSharedRendererV2`), `paintV2` blits into any 2D canvas, large sizes render in 512-row strips.
-  - `shader-animated.ts` — `FRAG_ANIMATED`: `FRAG` plus a `uTime` drift, derived by two string edits so the signed-off shader stays untouched (zero drift at t = 0). Only the page backdrop uses it (`createRendererV2(canvas, { animated: true })`, `draw(..., { time })`). `backdrop.ts` — its pure helpers (size, palette easing, when to run).
+  - `shader-animated.ts` — `FRAG_ANIMATED`: `FRAG` plus a `uTime` drift, derived by two string edits so the signed-off shader stays untouched (zero drift at t = 0). Only `studio/v2/ScreenMotion` uses it, to drift the wallpaper inside the Studio device (`createRendererV2(canvas, { animated: true })`, `draw(..., { time })`). `backdrop.ts` — its pure helpers (`screenMotionSize`, when to run).
   - `export.ts` — `renderWallpaperV2(params, w, h)` → canvas for `encodeWithFallback`, or `null` when the GPU path can't run (caller falls back to v1 `composeWallpaper`).
 - `download/`
   - `compose.ts` — **single source of truth for "render a wallpaper onto a canvas"**. Exposes `paintWallpaper(canvas, opts)` for callers that already hold a canvas (gradient hooks, PackCover) and `composeWallpaper(opts, factory?)` for callers that need a fresh off-screen canvas (download flow, mockup shared canvas). Both internally call `paintWallpaper` so the gradient + grain pipeline is defined exactly once. If you ever need a watermark / blend mode tweak, this is the only file to touch.
@@ -83,7 +83,7 @@ useEffect(() => { paintWallpaper(canvasRef.current!, { colors, ... }); }, [color
 ```
 
 Component layout:
-- `Nav.tsx` (floating glass pill), `Marquee.tsx`, `Footer.tsx` (ends with a wordmark filled with the Studio palette) — the editorial chrome. There is no separate Hero: `studio/v2/StudioShell` carries the H1 and the pitch, `HeroAmbient` tints the first screen with the current palette (CSS, instant) and `HeroBackdrop` puts the v2 shader moving slowly on top of it (own small WebGL context, ~30 fps, paused off-screen or in a hidden tab; renders nothing without WebGL2, with reduced motion or data saver). For speed it creates its context once the page is idle, lets the shader compile in the background (`isReady()`, KHR_parallel_shader_compile) and shades only what the Studio frame leaves visible (`visibleRegions`, passed as `draw(..., { regions })`); the frame is opaque, so keep it that way or drop `occluderRef`.
+- `Nav.tsx` (three flat paper islands with an ink edge), `Marquee.tsx`, `Footer.tsx` (ends with a wordmark filled with the Studio palette) — the editorial chrome. There is no separate Hero: `studio/v2/StudioShell` carries the H1 and the pitch on plain paper. The only motion of the first screen is `ScreenMotion` inside `DeviceStage`: the same wallpaper drifting slowly on the device screen (own small WebGL context, ~30 fps, created when idle; renders nothing without WebGL2, with reduced motion, data saver or a v1 favorite). It hides while a new wallpaper's reveal plays and starts at t = 0, which matches the still render.
 - `studio/engine/` — the seam between the Studio UI and whatever draws wallpapers. `WallpaperEngine` (`types.ts`) declares styles, adjustment sliders (with defaults), a live `Canvas` component, `paintThumbnail`, `exportFormat()` ("WebP", or "JPEG" without a WebP encoder; the Download button shows it) and `exportWallpaper(params, device, onProgress)`. `webgl-engine.tsx` is the default engine (v2 shader); it hands favorites saved with v1 and browsers without WebGL2 to `canvas2d-engine.tsx`, which wraps `lib/gradient` + `lib/download`. `EngineProvider` / `useWallpaperEngine` swap it. The UI never imports `lib/gradient` or `lib/download` directly, so a WebGL engine plugs in by implementing this interface.
 - `studio/v2/` — el Studio activo: `StudioShell` (orquestador: rejilla con marco, panel y tira), `StudioTopBar` (nombre de la paleta + selector de dispositivo), `DeviceStage` (marco de móvil/tablet/monitor con pantalla de bloqueo y reveal circular desde el botón pulsado; el iPhone lleva botones laterales, barra de estado, linterna y cámara), `StageHalo`, `StudioInspector` (panel lateral con todo a la vista: ‹ Shuffle/Space › arriba, estilo, `PaletteList` (10 paletas), `ColorEditor` (4 selectores de color propios + hex, "Back to <paleta>"), `AdjustPanel`, y guardar + Descargar abajo; en un marco ≤760 px va bajo el wallpaper con pestañas Style / Colors / Adjust), `AdjustPanel` (sliders declarados por el motor + Reset / Remix), `SaveButton`, `ExportButton` (progreso por fases), `PaletteSwatches`, `FavoritesStrip` + `FavoriteThumbnail`, `reveal.ts` (`useRequestReveal`: los botones avisan al marco de dónde nace el reveal).
 - `studio/` (hojas reutilizadas) — `HarmonicWheel` y `UseMyPhotoButton` (sin uso desde el panel inspector: los 4 selectores de `ColorEditor` sustituyen a la rueda), `ImageSource`, `useColorEditing`.
@@ -136,22 +136,23 @@ The app is still a client-rendered SPA (`createRoot`, no SSR). `seoPlugin` in `v
 
 Tokens live in `src/index.css` inside `@theme { ... }` (Tailwind v4 CSS-first config). **There is no `tailwind.config.js`** — don't create one. Add tokens to `@theme`.
 
-Custom utilities are declared with `@utility liquid { ... }` etc. The three tiers of "liquid glass" are `.liquid` (strong, for panels), `.liquid-subtle` (cards), `.liquid-pill` (over-image chrome).
+Identity B, "Dessau paper" (chosen 2026-10-12): grey paper (`--color-paper`), black ink, no glass, no brand accent colour. Colour on the page comes only from the wallpapers and the three Bauhaus shapes. `src/lib/theme/identity.test.ts` guards it: no `backdrop-blur`, gold, serif or Space Grotesk in components, and white only in files that paint on top of a wallpaper (its `ON_WALLPAPER` list). `paper-tokens.test.ts` guards the contrast of the token pairs.
+
+Custom utilities: `tactile` (a small ink-edged key), `focus-ring` (the one keyboard focus ring, Bauhaus red `--color-accent`; the accent is for focus only, never a surface) and `display-head`.
 
 **Critical Tailwind v4 gotcha**: base resets (e.g. `a { color: inherit; }`) **must** be wrapped in `@layer base { ... }`. Otherwise they end up in the implicit layer that comes *after* utilities, and things like `text-[#171717]` silently lose the cascade war. This bit us during the initial migration.
 
 Typography:
-- `font-sans` → Space Grotesk (see `src/index.css`)
-- `font-serif` → Instrument Serif (italic 400) — accents only (second line of two-line headlines, "calmer screens" emphasis). Never body copy.
-- Mono-styled labels use Space Grotesk 500 with wide tracking (`tracking-[0.18em]` or `tracking-[0.22em]` uppercase).
+- `font-sans` → Albert Sans (body, labels, buttons).
+- `font-display` → Jost, set lowercase by `display-head` — headlines and the palette name. No second accent face.
+- Labels use `font-sans` 500 with wide tracking (`tracking-[0.18em]` or `tracking-[0.22em]` uppercase), in `text-ink-dim`. Don't use `text-ink/50`-style fades for text: use `text-ink-dim`, which is contrast-tested.
 
-Buttons (decision 2026-10-10: rounded everywhere; the old sharp 2px rule is retired):
-- **Glass 14px** (`rounded-glass`) for buttons — `GlassButton` in `components/ui/` (variants `primary` gold, `ghost`, `icon` round, `quiet`).
-- **Pill rounded-full** for toggles and segmented controls (`SegmentedControl`).
-- Gold (`--color-gold`) marks the primary action and slider fills; rose (`--color-rose`) marks "saved".
-- Older sections (packs) may still use 2px corners until they are redesigned.
+Buttons and controls:
+- `InkButton` in `components/ui/` (variants `primary` black with paper text, `round` the black Shuffle circle, `ghost` 2px ink outline, `icon`, `quiet`). Corners are `rounded-sharp` (4px); circles for icon buttons.
+- Segmented controls and tabs: 2px ink outline, the selected option filled ink with paper text (`SegmentedControl`).
+- Primary (`--color-primary`) is ink; rose (`--color-rose`) marks "saved"; good (`--color-good`) a finished download.
 
-Site-wide grain: `body::before` (fixed, z-index 100, `mix-blend-mode: overlay`). 
+Site-wide paper grain: `body::before` (fixed, z-index 100, `mix-blend-mode: multiply`, low opacity).
 
 ## Path alias `@/*`
 
@@ -173,7 +174,7 @@ If imports resolve in the editor but Vite fails to build, suspect this.
 
 ## Video asset
 
-The home no longer ships a background video (the 41 MB hero loop was removed when the hero and the Studio were merged); the first screen is the live Studio over `HeroAmbient`. `specimenGem*.mp4` in `public/assets/backgroundVideos/` are unused leftovers.
+The home no longer ships a background video (the 41 MB hero loop was removed when the hero and the Studio were merged); the first screen is the live Studio on plain paper. `specimenGem*.mp4` in `public/assets/backgroundVideos/` are unused leftovers.
 
 ## Accessibility and motion
 
@@ -196,7 +197,7 @@ For backend Functions during local dev, use `netlify dev` (Netlify CLI) — it p
 
 El Studio v2 es ahora el único Studio (cutover Fase 5 completado). Mini-framework histórico en raíz: `PRD.md`, `PLANNING.md`, `TASKS.md`. Plan completo en `~/.claude/plans/vamos-a-afrontar-el-polymorphic-fiddle.md`.
 
-**Tesis**: surprise-first + remix + galería persistente. Tres clicks máximo del primer load a wallpaper instalado. Potencia detrás de "Customize". Lenguaje visual: liquid glass moderno (iOS 26 / macOS Tahoe inspired) + brutalist tipográfico.
+**Tesis**: surprise-first + remix + galería persistente. Tres clicks máximo del primer load a wallpaper instalado. Potencia detrás de "Customize". Lenguaje visual: papel Dessau (identidad B, 2026-10-12; ver "Design system").
 
 **Interfaz (inspector, 2026-10-12)** — fondo dentro del marco del dispositivo, un panel lateral con todos los controles a la vista y la tira de guardados debajo. Shuffle (o Space) es el gesto principal. Space y R solo actúan mientras el Studio está en pantalla y el foco no está en un botón o campo. Los controles llevan `aria-pressed` / `aria-expanded`; la animación respeta `prefers-reduced-motion` (`MotionConfig` + el reveal se omite). Detalle de componentes arriba (sección 3).
 
@@ -215,9 +216,7 @@ El Studio v2 es ahora el único Studio (cutover Fase 5 completado). Mini-framewo
 
 **Controles**: Style picker (Mesh / Aurora / Liquid, en ese orden: lo fija `engine.styles`), sliders Grain / Light en Adjust (los declara el motor v2; Softness / Contrast / Vibrance solo existen en el motor Canvas2D), y los 4 selectores de color de `ColorEditor`. `applySurprise` y `applyRemix` respetan estilo, grain, contrast y vibrance del usuario. Siguen eliminados: Density (sin efecto visible en Canvas2D), SeedBadge, StudioHints, Swatches grid + ColorHUD, PaletteCards y LightDial standalone (la luz es el slider Light).
 
-**Tendencias 2026 aplicadas (Fase 5)**:
-- Liquid glass refinement: backdrop-filter `blur+saturate+brightness`, double-inset highlight, gradient background, `contain: paint`.
-- OKLCH tokens (`--accent-oklch`, `--ink-oklch`, `--bg-oklch`) + `color-mix` variants para hovers consistentes.
+**Tendencias 2026 aplicadas (Fase 5; el cristal y los tokens OKLCH se retiraron con la identidad B)**:
 - BorderBeam conic-gradient con mask trick (CSS pure, `motion-safe:` para reduced-motion).
 - Heart-burst particles con CSS custom property `--angle` inyectada inline (4 direcciones equiespaciadas).
 - Kinetic typography (`SplitWords kinetic` — scale spring por palabra al hover).

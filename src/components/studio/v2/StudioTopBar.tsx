@@ -40,7 +40,7 @@ export function StudioTopBar() {
   return (
     <header className="relative z-[5] flex items-center justify-between gap-3 px-[18px] pb-1.5 pt-4 @max-[760px]:px-3.5 @max-[760px]:pb-1 @max-[760px]:pt-3.5">
       <div className="grid min-w-0 gap-0.5">
-        <span className="truncate font-sans text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-white/60">
+        <span className="truncate font-sans text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-ink-dim">
           Gradientwall · Studio
         </span>
         <div className="relative h-[1.9rem] overflow-hidden" aria-live="polite">
@@ -53,10 +53,10 @@ export function StudioTopBar() {
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
               className="absolute left-0 top-0 flex items-baseline gap-2 whitespace-nowrap"
             >
-              <b className="font-serif text-[1.6rem] font-normal italic leading-[1.15] text-white @max-[760px]:text-[1.4rem]">
+              <b className="font-display text-[1.6rem] font-medium lowercase leading-[1.15] text-ink @max-[760px]:text-[1.4rem]">
                 {name}
               </b>
-              <em className="font-sans text-[0.72rem] font-medium not-italic uppercase tracking-[0.16em] text-white/60">
+              <em className="font-sans text-[0.72rem] font-medium not-italic uppercase tracking-[0.16em] text-ink-dim">
                 {styleLabel}
               </em>
             </m.span>

@@ -2,7 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { getPackBySlug } from "@/lib/packs";
 import { Nav } from "../Nav";
 import { Footer } from "../Footer";
-import { glassButton } from "../ui/GlassButton";
+import { inkButton } from "../ui/InkButton";
 import { PageMeta } from "../PageMeta";
 
 /**
@@ -25,16 +25,16 @@ export function PackPurchaseSuccess() {
       <Nav />
       <main className="min-h-screen pt-[120px] pb-[clamp(60px,9vw,120px)]">
         <section className="mx-auto max-w-[680px] px-[clamp(24px,5vw,80px)] text-center">
-          <span className="block mb-6 font-sans text-[11px] tracking-[0.22em] uppercase text-white/55">
+          <span className="block mb-6 font-sans text-[11px] tracking-[0.22em] uppercase text-ink-dim">
             Order confirmed
           </span>
-          <h1 className="display-head text-[clamp(40px,5.5vw,68px)] text-white leading-[1] mb-5">
+          <h1 className="display-head text-[clamp(40px,5.5vw,68px)] text-ink leading-[1] mb-5">
             thanks. check your inbox.
           </h1>
-          <p className="font-sans text-[16px] text-white/70 leading-relaxed mb-8">
+          <p className="font-sans text-[16px] text-ink-dim leading-relaxed mb-8">
             {pack ? (
               <>
-                We've sent the download link for <span className="text-white">{pack.name}</span> to
+                We've sent the download link for <span className="text-ink">{pack.name}</span> to
                 the email used at checkout. It should land within a minute.
               </>
             ) : (
@@ -46,15 +46,15 @@ export function PackPurchaseSuccess() {
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3 mb-12">
-            <Link to="/#packs" className={`${glassButton({ variant: "primary" })} px-6`}>
+            <Link to="/#packs" className={`${inkButton({ variant: "primary" })} px-6`}>
               ← Browse more packs
             </Link>
-            <Link to="/recover" className={`${glassButton({ variant: "ghost" })} px-6`}>
+            <Link to="/recover" className={`${inkButton({ variant: "ghost" })} px-6`}>
               Email didn't arrive?
             </Link>
           </div>
 
-          <div className="font-sans text-[11px] text-white/55 leading-relaxed">
+          <div className="font-sans text-[11px] text-ink-dim leading-relaxed">
             The download link is valid for 30 days and works up to 5 times. Personal use only: no
             reselling, no redistribution.
           </div>

@@ -16,14 +16,14 @@ export function FavoritesStrip() {
       aria-label={items.length === 0 ? "Favorites — empty" : "Favorites"}
       className="relative z-[3] flex min-h-[108px] min-w-0 items-center justify-center gap-3.5 px-[18px] pb-[18px] pt-3.5 @max-[760px]:min-h-0 @max-[760px]:flex-col @max-[760px]:gap-2 @max-[760px]:px-3.5 @max-[760px]:pb-4"
     >
-      <span className="inline-flex flex-none items-center gap-2 font-sans text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-white/60">
+      <span className="inline-flex flex-none items-center gap-2 font-sans text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-ink-dim">
         Saved
-        <span className="inline-grid h-5 min-w-5 place-items-center rounded-full bg-white/[0.08] px-1.5 tracking-normal text-white tabular-nums">
+        <span className="inline-grid h-5 min-w-5 place-items-center rounded-full bg-ink/[0.08] px-1.5 tracking-normal text-ink tabular-nums">
           {items.length}
         </span>
       </span>
       {items.length === 0 ? (
-        <p className="m-0 text-balance text-center font-sans text-[0.85rem] text-white/60">
+        <p className="m-0 text-balance text-center font-sans text-[0.85rem] text-ink-dim">
           <Heart className="mr-1.5 inline size-3.5 -translate-y-px text-rose" aria-hidden />
           Tap the heart to keep a wallpaper. Saved in this browser only.
         </p>

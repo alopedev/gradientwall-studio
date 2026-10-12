@@ -62,14 +62,14 @@ export function ColorEditor({ onMessage }: Props) {
   return (
     <div className="grid gap-2.5">
       <div className="flex min-h-6 items-center justify-between gap-2">
-        <span className="font-sans text-[0.66rem] font-semibold uppercase tracking-[0.2em] text-white/60">
+        <span className="font-sans text-[0.66rem] font-semibold uppercase tracking-[0.2em] text-ink-dim">
           {base ? "Your colors" : "Colors · tap to change"}
         </span>
         {base && (
           <button
             type="button"
             onClick={restore}
-            className="whitespace-nowrap rounded-full bg-white/[0.08] px-2.5 py-1 font-sans text-[0.72rem] text-white/85 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.14)] outline-none transition-colors hover:bg-white/[0.14] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-gold"
+            className="whitespace-nowrap rounded-full bg-ink/[0.08] px-2.5 py-1 font-sans text-[0.72rem] text-ink/85 shadow-[inset_0_0_0_1px_rgba(18,18,18,0.14)] outline-none transition-colors hover:bg-ink/[0.14] hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
           >
             Back to {paletteName(base)}
           </button>
@@ -84,7 +84,7 @@ export function ColorEditor({ onMessage }: Props) {
             <li key={slot} className="grid min-w-0 gap-1">
               <label
                 style={{ background: c }}
-                className="relative block h-[34px] cursor-pointer rounded-[9px] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18)] transition-transform duration-150 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-gold [@media(hover:hover)]:hover:-translate-y-0.5"
+                className="relative block h-[34px] cursor-pointer rounded-[9px] shadow-[inset_0_0_0_1px_rgba(18,18,18,0.18)] transition-transform duration-150 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-accent [@media(hover:hover)]:hover:-translate-y-0.5"
               >
                 <input
                   type="color"
@@ -95,14 +95,14 @@ export function ColorEditor({ onMessage }: Props) {
                 />
                 <Pencil
                   aria-hidden
-                  className="pointer-events-none absolute bottom-1.5 right-1.5 size-3 text-white drop-shadow-[0_0_2px_rgba(0,0,0,0.7)]"
+                  className="pointer-events-none absolute bottom-1.5 right-1.5 size-3 text-ink drop-shadow-[0_0_2px_rgba(255,255,255,0.8)]"
                 />
               </label>
               <button
                 type="button"
                 aria-label={`Copy ${hex}`}
                 onClick={() => copy(hex)}
-                className="truncate rounded px-0.5 text-left font-sans text-[0.64rem] font-medium tabular-nums tracking-[0.04em] text-white/65 outline-none hover:text-white focus-visible:outline-2 focus-visible:outline-gold"
+                className="truncate rounded px-0.5 text-left font-sans text-[0.64rem] font-medium tabular-nums tracking-[0.04em] text-ink-dim outline-none hover:text-ink focus-visible:outline-2 focus-visible:outline-accent"
               >
                 {hex}
               </button>

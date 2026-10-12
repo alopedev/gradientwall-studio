@@ -1,7 +1,7 @@
 import { ChevronLeft, ChevronRight, Shuffle } from "lucide-react";
 import { AnimatePresence, m } from "motion/react";
 import { type ReactNode, useCallback, useEffect, useId, useRef, useState } from "react";
-import { GlassButton } from "@/components/ui/GlassButton";
+import { InkButton } from "@/components/ui/InkButton";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { remixWallpaper, shuffleWallpaper, useConfigStore } from "@/store";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
@@ -60,7 +60,7 @@ type Tab = (typeof TABS)[number]["id"];
 function Group({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="grid gap-2.5">
-      <h3 className="m-0 font-sans text-[0.66rem] font-semibold uppercase tracking-[0.2em] text-white/60">
+      <h3 className="m-0 font-sans text-[0.66rem] font-semibold uppercase tracking-[0.2em] text-ink-dim">
         {title}
       </h3>
       {children}
@@ -161,14 +161,14 @@ export function StudioInspector({ keysActive }: Props) {
     <aside
       ref={rootRef}
       aria-label="Studio controls"
-      className="relative z-[4] flex min-h-0 min-w-0 flex-col gap-3.5 border-l border-white/10 bg-[rgba(14,14,18,0.84)] p-[18px] [grid-area:panel] @max-[760px]:gap-3 @max-[760px]:border-l-0 @max-[760px]:border-t @max-[760px]:px-3.5 @max-[760px]:py-3.5"
+      className="relative z-[4] flex min-h-0 min-w-0 flex-col gap-3.5 border-l-2 border-ink bg-bg p-[18px] [grid-area:panel] @max-[760px]:gap-3 @max-[760px]:border-l-0 @max-[760px]:border-t-2 @max-[760px]:px-3.5 @max-[760px]:py-3.5"
     >
       <div
         role="toolbar"
         aria-label="Wallpaper controls"
-        className="grid grid-cols-[44px_minmax(0,1fr)_44px] items-center gap-2"
+        className="grid grid-cols-[44px_minmax(0,1fr)_44px] items-center justify-items-center gap-2"
       >
-        <GlassButton
+        <InkButton
           variant="icon"
           onClick={(e) => step(e, "back")}
           aria-disabled={!canBack}
@@ -177,10 +177,10 @@ export function StudioInspector({ keysActive }: Props) {
           className="gws-tip aria-disabled:pointer-events-none aria-disabled:opacity-40"
         >
           <ChevronLeft className="size-5" aria-hidden />
-        </GlassButton>
-        <GlassButton
+        </InkButton>
+        <InkButton
           ref={shuffleRef}
-          variant="primary"
+          variant="round"
           onClick={shuffle}
           aria-keyshortcuts="Space"
           aria-label="Shuffle: generate another wallpaper"
@@ -192,17 +192,10 @@ export function StudioInspector({ keysActive }: Props) {
             transition={{ type: "spring", stiffness: 260, damping: 14 }}
             className="inline-flex"
           >
-            <Shuffle className="size-[18px]" strokeWidth={2.1} />
+            <Shuffle className="size-6" strokeWidth={2.1} />
           </m.span>
-          <span>Shuffle</span>
-          <kbd
-            aria-hidden
-            className="ml-1 rounded-md bg-[rgba(23,19,10,0.1)] px-[7px] py-[5px] font-sans text-[0.68rem] font-semibold leading-none tracking-[0.04em] shadow-[inset_0_0_0_1px_rgba(23,19,10,0.2),inset_0_-1px_0_rgba(23,19,10,0.18)] [@media(hover:none)]:hidden"
-          >
-            Space
-          </kbd>
-        </GlassButton>
-        <GlassButton
+        </InkButton>
+        <InkButton
           variant="icon"
           onClick={(e) => step(e, "forward")}
           aria-disabled={!canForward}
@@ -211,7 +204,7 @@ export function StudioInspector({ keysActive }: Props) {
           className="gws-tip aria-disabled:pointer-events-none aria-disabled:opacity-40"
         >
           <ChevronRight className="size-5" aria-hidden />
-        </GlassButton>
+        </InkButton>
       </div>
 
       {/* Only the middle scrolls on a short screen: Shuffle and Download stay in view. */}
@@ -221,7 +214,7 @@ export function StudioInspector({ keysActive }: Props) {
             <div
               role="tablist"
               aria-label="Controls"
-              className="grid grid-cols-3 rounded-full bg-white/5 p-[3px] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.09)]"
+              className="grid grid-cols-3 rounded-sharp p-[3px] shadow-[inset_0_0_0_2px_var(--color-ink)]"
             >
               {TABS.map((t) => (
                 <button
@@ -232,7 +225,7 @@ export function StudioInspector({ keysActive }: Props) {
                   aria-selected={tab === t.id}
                   aria-controls={`${tabsId}-panel`}
                   onClick={() => setTab(t.id)}
-                  className="min-h-10 rounded-full font-sans text-[0.86rem] font-medium text-white/60 outline-none transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold aria-selected:bg-white/[0.14] aria-selected:text-white"
+                  className="min-h-10 rounded-[2px] font-sans text-[0.86rem] font-medium text-ink-dim outline-none transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent aria-selected:bg-ink aria-selected:text-bg"
                 >
                   {t.label}
                 </button>
@@ -270,7 +263,7 @@ export function StudioInspector({ keysActive }: Props) {
 
       <div className="relative grid grid-cols-[44px_minmax(0,1fr)] items-center gap-2">
         <SaveButton onMessage={say} />
-        <ExportButton onMessage={say} primary className="w-full" />
+        <ExportButton onMessage={say} className="w-full" />
         <div
           role="status"
           aria-live="polite"
@@ -284,7 +277,7 @@ export function StudioInspector({ keysActive }: Props) {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 4, transition: { duration: 0.15 } }}
                 transition={{ type: "spring", stiffness: 360, damping: 26 }}
-                className="m-0 rounded-xl bg-[rgba(28,28,34,0.97)] px-3.5 py-2 text-center font-sans text-[0.82rem] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12),0_12px_30px_-10px_rgba(0,0,0,0.7)]"
+                className="m-0 rounded-sharp bg-ink px-3.5 py-2 text-center font-sans text-[0.82rem] text-bg"
               >
                 {toast.message}
                 {toast.action && (
@@ -292,7 +285,7 @@ export function StudioInspector({ keysActive }: Props) {
                     {" "}
                     <a
                       href={toast.action.href}
-                      className="pointer-events-auto font-medium text-gold underline underline-offset-2 hover:text-white focus-ring"
+                      className="pointer-events-auto font-medium text-bg underline underline-offset-2 focus-ring"
                     >
                       {toast.action.label}
                     </a>

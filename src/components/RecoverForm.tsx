@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { Nav } from "./Nav";
 import { Footer } from "./Footer";
-import { glassButton } from "./ui/GlassButton";
+import { inkButton } from "./ui/InkButton";
 import { PageMeta } from "./PageMeta";
 import { submitRecoverRequest } from "@/lib/store";
 
@@ -41,30 +41,30 @@ export function RecoverForm() {
         <section className="mx-auto max-w-[560px] px-[clamp(24px,5vw,80px)]">
           <Link
             to="/#packs"
-            className="inline-flex min-h-11 items-center gap-1.5 mb-2 font-sans text-[11px] tracking-[0.18em] uppercase text-white/50 hover:text-white"
+            className="inline-flex min-h-11 items-center gap-1.5 mb-2 font-sans text-[11px] tracking-[0.18em] uppercase text-ink-dim hover:text-ink"
           >
             ← All packs
           </Link>
-          <span className="block mb-4 font-sans text-[11px] tracking-[0.22em] uppercase text-white/55">
+          <span className="block mb-4 font-sans text-[11px] tracking-[0.22em] uppercase text-ink-dim">
             Recover download
           </span>
-          <h1 className="display-head text-[clamp(36px,4.6vw,56px)] text-white leading-[1.05] mb-4">
+          <h1 className="display-head text-[clamp(36px,4.6vw,56px)] text-ink leading-[1.05] mb-4">
             lost your download link?
           </h1>
-          <p className="font-sans text-[15px] text-white/70 leading-relaxed mb-8">
+          <p className="font-sans text-[15px] text-ink-dim leading-relaxed mb-8">
             Enter the email and order ID from your Lemon Squeezy receipt. If they match a real paid
             order, we'll re-send the download link to that email.
           </p>
 
           {state.kind === "done" ? (
-            <div className="rounded-glass border border-white/15 bg-white/5 p-5 font-sans text-[14px] text-white/80 leading-relaxed">
+            <div className="rounded-sharp border border-ink/15 bg-ink/5 p-5 font-sans text-[14px] text-ink/80 leading-relaxed">
               If the order exists, a fresh download email is on its way. Check your inbox in the
               next minute.
             </div>
           ) : (
             <form onSubmit={onSubmit} className="flex flex-col gap-4">
               <label className="block">
-                <span className="block mb-1.5 font-sans text-[11px] tracking-[0.18em] uppercase text-white/50">
+                <span className="block mb-1.5 font-sans text-[11px] tracking-[0.18em] uppercase text-ink-dim">
                   Email used at checkout
                 </span>
                 <input
@@ -73,12 +73,12 @@ export function RecoverForm() {
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full rounded-glass bg-black/40 border border-white/15 px-3 py-2.5 font-sans text-[14px] text-white placeholder:text-white/50 focus:border-white/40 focus:outline-none"
+                  className="block w-full rounded-sharp bg-bg border-2 border-ink/40 px-3 py-2.5 font-sans text-[14px] text-ink placeholder:text-ink-dim focus:border-ink focus:outline-none"
                   placeholder="you@example.com"
                 />
               </label>
               <label className="block">
-                <span className="block mb-1.5 font-sans text-[11px] tracking-[0.18em] uppercase text-white/50">
+                <span className="block mb-1.5 font-sans text-[11px] tracking-[0.18em] uppercase text-ink-dim">
                   Order ID
                 </span>
                 <input
@@ -86,13 +86,13 @@ export function RecoverForm() {
                   required
                   value={orderId}
                   onChange={(e) => setOrderId(e.target.value)}
-                  className="block w-full rounded-glass bg-black/40 border border-white/15 px-3 py-2.5 font-sans text-[14px] text-white placeholder:text-white/50 focus:border-white/40 focus:outline-none"
+                  className="block w-full rounded-sharp bg-bg border-2 border-ink/40 px-3 py-2.5 font-sans text-[14px] text-ink placeholder:text-ink-dim focus:border-ink focus:outline-none"
                   placeholder="The numeric ID from your receipt"
                 />
               </label>
 
               {state.kind === "error" && (
-                <div className="rounded-glass border border-red-500/30 bg-red-500/10 px-3 py-2 font-sans text-[13px] text-red-200">
+                <div className="rounded-sharp border border-red-500/30 bg-red-500/10 px-3 py-2 font-sans text-[13px] text-red-200">
                   {state.message}
                 </div>
               )}
@@ -100,7 +100,7 @@ export function RecoverForm() {
               <button
                 type="submit"
                 disabled={state.kind === "submitting"}
-                className={`${glassButton({ variant: "primary" })} mt-2 self-start px-6`}
+                className={`${inkButton({ variant: "primary" })} mt-2 self-start px-6`}
               >
                 {state.kind === "submitting" ? "Sending…" : "Send me the link"}
               </button>

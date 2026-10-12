@@ -1,7 +1,7 @@
 import { Check, Download } from "lucide-react";
 import { m } from "motion/react";
 import { useRef, useState } from "react";
-import { GlassButton } from "@/components/ui/GlassButton";
+import { InkButton } from "@/components/ui/InkButton";
 import { DEVICE_SIZES } from "@/lib/palettes";
 import { useConfigStore, useRenderParams } from "@/store";
 import { useWallpaperEngine } from "../engine";
@@ -17,7 +17,7 @@ interface Props {
   className?: string;
 }
 
-/** Download button: the label fills with a gold bar while the file is rendered and encoded. */
+/** Download button: the label fills with a ink bar while the file is rendered and encoded. */
 export function ExportButton({ onMessage, primary = false, className = "" }: Props) {
   const engine = useWallpaperEngine();
   const device = useConfigStore((s) => s.device);
@@ -52,7 +52,7 @@ export function ExportButton({ onMessage, primary = false, className = "" }: Pro
   };
 
   return (
-    <GlassButton
+    <InkButton
       onClick={run}
       aria-busy={phase === "busy"}
       variant={primary ? "primary" : "ghost"}
@@ -65,7 +65,7 @@ export function ExportButton({ onMessage, primary = false, className = "" }: Pro
           animate={{ scaleX: progress }}
           transition={{ type: "spring", stiffness: 120, damping: 22 }}
           style={{ transformOrigin: "left" }}
-          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-gold/10 to-gold/35 after:absolute after:inset-y-0 after:right-0 after:w-0.5 after:bg-gold after:shadow-[0_0_12px_var(--color-gold)] after:content-['']"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-primary/10 to-primary/35 after:absolute after:inset-y-0 after:right-0 after:w-0.5 after:bg-primary after:content-['']"
         />
       )}
       <span className="relative inline-flex items-center gap-2">
@@ -73,7 +73,7 @@ export function ExportButton({ onMessage, primary = false, className = "" }: Pro
         {phase === "busy" && (
           <span
             aria-hidden
-            className="size-4 animate-spin rounded-full border-2 border-gold/25 border-t-gold"
+            className="size-4 animate-spin rounded-full border-2 border-primary/25 border-t-primary"
           />
         )}
         {phase === "done" && (
@@ -90,6 +90,6 @@ export function ExportButton({ onMessage, primary = false, className = "" }: Pro
           </span>
         </span>
       </span>
-    </GlassButton>
+    </InkButton>
   );
 }

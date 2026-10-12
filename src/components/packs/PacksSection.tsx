@@ -17,15 +17,15 @@ export function PacksSection() {
   return (
     <section
       id="packs"
-      className="relative mx-auto max-w-[1600px] px-[clamp(24px,5vw,80px)] py-[clamp(60px,9vw,120px)] border-t border-white/8"
+      className="relative mx-auto max-w-[1600px] px-[clamp(24px,5vw,80px)] py-[clamp(60px,9vw,120px)] border-t border-ink"
     >
       <Reveal className="grid md:grid-cols-2 gap-12 items-end mb-10">
         <div>
           <h2 className="display-head text-[clamp(40px,5.5vw,76px)]">
-            <SplitWords text="wallpaper packs." className="block text-white" />
+            <SplitWords text="wallpaper packs." className="block text-ink" />
           </h2>
         </div>
-        <p className="max-w-[42ch] text-[15px] text-white/75 font-sans font-light">
+        <p className="max-w-[42ch] text-[15px] text-ink-dim font-sans font-light">
           €5.99 each, VAT included. Pay once, no subscription. Instant download, phone and desktop,
           up to 5K. Personal use.
         </p>
@@ -40,7 +40,7 @@ export function PacksSection() {
       <PackGrid packs={packs} />
 
       {packs.length === 0 && (
-        <div className="font-sans text-[14px] text-white/50 mt-10 text-center">
+        <div className="font-sans text-[14px] text-ink-dim mt-10 text-center">
           No packs in this style yet. Check back soon.
         </div>
       )}

@@ -20,7 +20,7 @@ interface Props {
 /**
  * One saved wallpaper: a small render of its config. Tap loads it into the
  * stage, drag reorders, ✕ removes. The chip that matches the stage shows a
- * gold outline.
+ * ink outline.
  */
 export function FavoriteThumbnail({ item }: Props) {
   const engine = useWallpaperEngine();
@@ -57,9 +57,9 @@ export function FavoriteThumbnail({ item }: Props) {
         onClick={(e) => load(e.currentTarget)}
         aria-current={isCurrent}
         aria-label={`Load favorite wallpaper from ${new Date(item.createdAt).toLocaleString()}`}
-        className={`relative block size-full cursor-grab overflow-hidden rounded-lg bg-black outline-none transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold active:scale-95 active:cursor-grabbing [@media(hover:hover)]:hover:-translate-y-[3px] ${
+        className={`relative block size-full cursor-grab overflow-hidden rounded-lg bg-black outline-none transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-95 active:cursor-grabbing [@media(hover:hover)]:hover:-translate-y-[3px] ${
           isCurrent
-            ? "shadow-[0_0_0_2px_#0b0b0d,0_0_0_4px_var(--color-gold)]"
+            ? "shadow-[0_0_0_2px_var(--color-bg),0_0_0_4px_var(--color-primary)]"
             : "shadow-[0_0_0_1px_rgba(255,255,255,0.14),0_6px_14px_-6px_rgba(0,0,0,0.7)]"
         }`}
       >
@@ -72,7 +72,7 @@ export function FavoriteThumbnail({ item }: Props) {
           unpin(item.id);
         }}
         aria-label="Remove from favorites"
-        className="absolute -right-1.5 -top-1.5 inline-flex size-6 items-center justify-center rounded-full border border-white/20 bg-black/70 text-white/80 opacity-0 outline-none transition-opacity duration-150 hover:text-white focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-gold group-hover:opacity-100 [@media(hover:none)]:opacity-100"
+        className="absolute -right-1.5 -top-1.5 inline-flex size-6 items-center justify-center rounded-full border border-white/20 bg-black/70 text-white/80 opacity-0 outline-none transition-opacity duration-150 hover:text-white focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-accent group-hover:opacity-100 [@media(hover:none)]:opacity-100"
       >
         <X className="size-3" aria-hidden />
       </button>

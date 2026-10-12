@@ -1,7 +1,7 @@
 import { Heart } from "lucide-react";
 import { m } from "motion/react";
 import { useState } from "react";
-import { GlassButton } from "@/components/ui/GlassButton";
+import { InkButton } from "@/components/ui/InkButton";
 import { fromFavorite, isSameLook, toFavoriteConfig } from "@/lib/look";
 import { useLook } from "@/store";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
@@ -31,13 +31,13 @@ export function SaveButton({ onMessage }: Props) {
   };
 
   return (
-    <GlassButton
+    <InkButton
       variant="icon"
       onClick={toggle}
       aria-pressed={!!saved}
       aria-label="Save this wallpaper"
       data-tip={saved ? "Saved" : "Save"}
-      className={`gws-tip ${saved ? "bg-rose/10 text-rose shadow-[inset_0_0_0_1px_rgba(255,107,129,0.35)] hover:bg-rose/15" : ""}`}
+      className={`gws-tip ${saved ? "bg-rose/10 text-rose shadow-[inset_0_0_0_2px_var(--color-rose)] hover:bg-rose/15" : ""}`}
     >
       <m.span
         key={burst}
@@ -59,6 +59,6 @@ export function SaveButton({ onMessage }: Props) {
           ))}
         </span>
       )}
-    </GlassButton>
+    </InkButton>
   );
 }

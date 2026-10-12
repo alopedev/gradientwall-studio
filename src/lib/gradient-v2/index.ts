@@ -30,6 +30,8 @@ export {
   BACKDROP_MIN_FRAME_MS,
   BACKDROP_SEED,
   backdropSize,
+  SCREEN_MOTION_MAX_PIXELS,
+  screenMotionSize,
   frameDue,
   shouldRunBackdrop,
   stepPalette,

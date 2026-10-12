@@ -15,7 +15,7 @@ export function UseMyPhotoButton() {
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="self-start inline-flex items-center gap-2 px-3 py-2 rounded-glass border border-white/12 bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/20 font-sans text-[11px] tracking-[0.18em] uppercase text-white/70 hover:text-white transition-colors duration-150 focus-ring"
+          className="self-start inline-flex items-center gap-2 px-3 py-2 rounded-sharp border border-ink/12 bg-ink/[0.03] hover:bg-ink/[0.06] hover:border-ink/20 font-sans text-[11px] tracking-[0.18em] uppercase text-ink-dim hover:text-ink transition-colors duration-150 focus-ring"
         >
           <span aria-hidden>↑</span>
           Use my photo

@@ -23,7 +23,7 @@ const HELP: FooterLink[] = [
 
 export function Footer() {
   return (
-    <footer className="mx-auto max-w-[1600px] px-[clamp(24px,5vw,80px)] pt-20 border-t border-white/8">
+    <footer className="mx-auto max-w-[1600px] px-[clamp(24px,5vw,80px)] pt-20 border-t border-ink">
       <div className="grid grid-cols-2 gap-x-8 gap-y-12 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)] md:gap-x-12 pb-14">
         <Reveal className="col-span-2 md:col-span-1">
           {isNewsletterEnabled() ? (
@@ -35,7 +35,7 @@ export function Footer() {
               className="relative max-w-[460px]"
             />
           ) : (
-            <p className="display-head max-w-[18ch] text-[clamp(28px,3vw,40px)] text-white">
+            <p className="display-head max-w-[18ch] text-[clamp(28px,3vw,40px)] text-ink">
               wallpapers, made in tarragona.
             </p>
           )}
@@ -48,7 +48,7 @@ export function Footer() {
         </Reveal>
       </div>
 
-      <div className="flex flex-wrap justify-between gap-x-6 gap-y-3 border-t border-white/8 py-5 font-sans text-[11px] tracking-[0.14em] uppercase text-white/55">
+      <div className="flex flex-wrap justify-between gap-x-6 gap-y-3 border-t border-ink py-5 font-sans text-[11px] tracking-[0.14em] uppercase text-ink-dim">
         <span>© 2026 GradientWall</span>
         <span className="max-w-[56ch] normal-case tracking-normal text-[12px] sm:text-right">
           Pack artwork: {AI_DISCLOSURE.charAt(0).toLowerCase() + AI_DISCLOSURE.slice(1)}
@@ -89,7 +89,7 @@ function Wordmark() {
 function FooterCol({ title, links }: { title: string; links: FooterLink[] }) {
   return (
     <nav aria-label={title}>
-      <h4 className="m-0 mb-2 font-sans text-[11px] font-medium tracking-[0.22em] uppercase text-white/55">
+      <h4 className="m-0 mb-2 font-sans text-[11px] font-medium tracking-[0.22em] uppercase text-ink-dim">
         {title}
       </h4>
       <ul className="flex flex-col gap-0 list-none p-0 m-0">
@@ -98,11 +98,11 @@ function FooterCol({ title, links }: { title: string; links: FooterLink[] }) {
             <a
               href={l.href}
               {...(l.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-              className="group relative inline-block py-2.5 focus-ring text-[14px] text-white/75 hover:text-white transition-colors duration-150"
+              className="group relative inline-block py-2.5 focus-ring text-[14px] text-ink-dim hover:text-ink transition-colors duration-150"
             >
               {l.label}
               {l.external && (
-                <span aria-hidden className="ml-1 text-white/45">
+                <span aria-hidden className="ml-1 text-ink-dim">
                   ↗
                 </span>
               )}

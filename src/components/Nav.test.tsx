@@ -23,11 +23,14 @@ describe("<Nav />", () => {
     expect(screen.getByText(/make a wallpaper/i)).toBeInTheDocument();
   });
 
-  it("is split into separate glass islands, each with a backdrop blur", () => {
+  it("is split into separate paper islands with an ink edge and no glass blur", () => {
     const { container } = render(<Nav />);
     const islands = container.querySelectorAll<HTMLElement>("[data-island]");
     expect(islands.length).toBe(3);
-    for (const island of islands) expect(island.style.backdropFilter).toMatch(/blur\(/);
+    for (const island of islands) {
+      expect(island.style.backdropFilter).toBe("");
+      expect(island.style.boxShadow).toContain("var(--color-ink)");
+    }
   });
 
   it("opens the Packs menu with one link per pack, its size and price", () => {
