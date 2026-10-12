@@ -1,10 +1,15 @@
 // @vitest-environment jsdom
 import { act, fireEvent, render } from "@testing-library/react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PALETTES } from "@/lib/palettes";
 import { useConfigStore } from "@/store";
 import { useLookHistoryStore } from "@/store/useLookHistoryStore";
 import { Hero } from "./Hero";
+
+// jsdom has no WebGL2, so the real ScreenMotion renders nothing; a stand-in shows where it goes.
+vi.mock("../studio/v2/ScreenMotion", () => ({
+  ScreenMotion: () => <canvas data-testid="screen-motion" />,
+}));
 
 const INITIAL = useConfigStore.getState();
 
@@ -33,6 +38,20 @@ describe("Hero", () => {
     expect(photo).not.toBeNull();
     // The photo is decoration: the screen element already names what it shows.
     expect(photo?.getAttribute("alt")).toBe("");
+  });
+
+  it("moves the wallpaper on the phone screen, like the Studio's device", () => {
+    const { getByRole, getByTestId } = render(<Hero />);
+    const screen = getByRole("img", { name: /current wallpaper on a phone/i });
+    expect(screen.contains(getByTestId("screen-motion"))).toBe(true);
+  });
+
+  it("measures the phone with rulers in the pixels a phone download has", () => {
+    const { container } = render(<Hero />);
+    const rulers = container.querySelector("[data-rulers]");
+    expect(rulers?.getAttribute("aria-hidden")).toBe("true");
+    expect(rulers?.textContent).toContain("1440 px");
+    expect(rulers?.textContent).toContain("3200 px");
   });
 
   it("floats the phone only for visitors who allow motion", () => {

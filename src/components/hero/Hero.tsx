@@ -2,10 +2,12 @@ import { ChevronLeft, ChevronRight, Shuffle } from "lucide-react";
 import { m } from "motion/react";
 import { useState } from "react";
 import { paletteName } from "@/lib/palette-name";
+import { DEVICE_SIZES } from "@/lib/palettes";
 import { shuffleWallpaper, useConfigStore, useRenderParams } from "@/store";
 import { useLookHistoryStore } from "@/store/useLookHistoryStore";
 import { LockScreen } from "../packs/DeviceFrames";
 import { useWallpaperEngine } from "../studio/engine";
+import { ScreenMotion } from "../studio/v2/ScreenMotion";
 import { BauhausMarks } from "../ui/BauhausMarks";
 import { InkButton } from "../ui/InkButton";
 import { PAGE_COLUMN } from "../ui/layout";
@@ -43,7 +45,7 @@ export function Hero() {
           make a gradient wallpaper. shuffle until it's yours.
         </h1>
 
-        <div className="mt-[clamp(16px,2.2vw,28px)] grid items-center gap-x-10 gap-y-6 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
+        <div className="mt-[clamp(36px,3.6vw,52px)] grid items-center gap-x-10 gap-y-6 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
           <div className="hidden flex-col items-start gap-5 justify-self-end md:flex">
             <BauhausMarks size={22} />
             <p className="max-w-[30ch] font-sans text-[15px] text-ink-dim">
@@ -61,7 +63,7 @@ export function Hero() {
           <figure className="relative m-0 justify-self-center">
             <div
               data-float
-              className="relative w-[clamp(150px,min(15vw,calc((100svh-470px)/2.14)),224px)] motion-safe:animate-float"
+              className="relative w-[clamp(150px,min(15vw,calc((100svh-490px)/2.14)),224px)] motion-safe:animate-float"
             >
               <div
                 role="img"
@@ -73,6 +75,7 @@ export function Hero() {
                   device="mobile"
                   className="absolute inset-0 size-full object-cover"
                 />
+                <ScreenMotion params={params} />
                 <LockScreen />
               </div>
               <img
@@ -83,6 +86,7 @@ export function Hero() {
                 className="relative block h-auto w-full select-none"
                 draggable={false}
               />
+              <Rulers />
             </div>
             {/* The shadow stays on the paper and shrinks as the phone rises. */}
             <div
@@ -139,5 +143,33 @@ export function Hero() {
         </div>
       </div>
     </section>
+  );
+}
+
+const PHONE = DEVICE_SIZES.mobile;
+
+/**
+ * Drafting-table rulers around the phone, labelled with the size a phone
+ * download has: the wallpaper is made to measure. They float with the phone.
+ */
+function Rulers() {
+  const label = "font-sans text-[11px] font-medium tabular-nums tracking-[0.08em] text-ink-dim";
+  return (
+    <div data-rulers aria-hidden="true" className="pointer-events-none absolute inset-0">
+      <div className="absolute inset-x-0 -top-[22px] h-[9px] border-x border-ink-dim">
+        <div className="absolute inset-x-0 top-1/2 border-t border-ink-dim" />
+        <span className={`${label} absolute bottom-full left-1/2 -translate-x-1/2 pb-1`}>
+          {PHONE.w} px
+        </span>
+      </div>
+      <div className="absolute inset-y-0 -left-[22px] w-[9px] border-y border-ink-dim">
+        <div className="absolute inset-y-0 left-1/2 border-l border-ink-dim" />
+        <span
+          className={`${label} absolute right-full top-1/2 -translate-y-1/2 whitespace-nowrap pr-1 [writing-mode:vertical-rl] rotate-180`}
+        >
+          {PHONE.h} px
+        </span>
+      </div>
+    </div>
   );
 }
