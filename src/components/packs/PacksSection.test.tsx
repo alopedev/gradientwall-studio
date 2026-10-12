@@ -11,6 +11,10 @@ function packLinks(): string[] {
     .filter((h) => h.startsWith("/packs/"));
 }
 
+function packLink(slug: string): HTMLElement {
+  return screen.getAllByRole("link").find((a) => a.getAttribute("href") === `/packs/${slug}`)!;
+}
+
 describe("PacksSection", () => {
   it("renders every pack in the manifest, none dropped by the Bento layout", () => {
     render(
@@ -40,21 +44,45 @@ describe("PacksSection", () => {
     expect(screen.getByText(/6 designs · 12 wallpapers/)).toBeInTheDocument();
   });
 
-  it("shows each pack on a laptop and a phone, with its name over the art", () => {
+  it("shows each pack as a fan of its phone wallpapers, with its name over the art", () => {
     render(
       <MemoryRouter>
         <PacksSection />
       </MemoryRouter>,
     );
     for (const pack of getPacks()) {
-      const link = screen
-        .getAllByRole("link")
-        .find((a) => a.getAttribute("href") === `/packs/${pack.slug}`)!;
-      const shots = [...link.querySelectorAll("img[alt]:not([alt=''])")];
-      expect(shots).toHaveLength(2);
+      const link = packLink(pack.slug);
+      const phones = link.querySelectorAll("[data-device='phone']");
+      expect(phones).toHaveLength(Math.min(5, pack.previews.length));
+      expect(link.querySelector("[data-device='laptop']")).toBeNull();
       const heading = within(link).getByRole("heading", { name: new RegExp(pack.name) });
       expect(heading.className).toMatch(/font-serif/);
       expect(heading.className).toMatch(/italic/);
+    }
+  });
+
+  it("says how many designs each pack has and what it costs", () => {
+    render(
+      <MemoryRouter>
+        <PacksSection />
+      </MemoryRouter>,
+    );
+    for (const pack of getPacks()) {
+      const link = packLink(pack.slug);
+      expect(within(link).getByText(`${pack.previews.length} designs`)).toBeInTheDocument();
+      expect(within(link).getByText(`€${pack.priceEur.toFixed(2)}`)).toBeInTheDocument();
+    }
+  });
+
+  it("names the fanned wallpapers once, for screen readers, not five times", () => {
+    render(
+      <MemoryRouter>
+        <PacksSection />
+      </MemoryRouter>,
+    );
+    for (const pack of getPacks()) {
+      const named = packLink(pack.slug).querySelectorAll("img[alt]:not([alt=''])");
+      expect(named).toHaveLength(1);
     }
   });
 

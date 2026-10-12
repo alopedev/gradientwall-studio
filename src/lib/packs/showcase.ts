@@ -65,6 +65,30 @@ export function coverRenders(pack: Pick<Pack, "previews">): PieceRenders {
   return pieceRenders(pack.previews[0]);
 }
 
+/** Most phones a catalog card fans out; more would only crowd the card. */
+export const FAN_MAX = 5;
+
+export interface FanPiece {
+  cover: PackCover;
+  /** Position from the centre: 0 is the front phone, ±1 next to it, ±2 at the edges. */
+  offset: number;
+}
+
+/**
+ * The phones a catalog card stacks and fans open: the pack's first pieces,
+ * phone renders only, with the cover piece in front at the centre and the
+ * rest alternating left and right, ordered left to right.
+ */
+export function fanPieces(pack: Pick<Pack, "previews">): FanPiece[] {
+  return pack.previews
+    .slice(0, FAN_MAX)
+    .map((piece, i) => ({
+      cover: pieceRenders(piece).phone!,
+      offset: i === 0 ? 0 : Math.ceil(i / 2) * (i % 2 ? -1 : 1),
+    }))
+    .sort((a, b) => a.offset - b.offset);
+}
+
 export interface PackSpec {
   label: string;
   value: string;
