@@ -1,0 +1,69 @@
+// @vitest-environment jsdom
+import { act, fireEvent, render } from "@testing-library/react";
+import { beforeEach, describe, expect, it } from "vitest";
+import { PALETTES } from "@/lib/palettes";
+import { useConfigStore } from "@/store";
+import { useLookHistoryStore } from "@/store/useLookHistoryStore";
+import { Hero } from "./Hero";
+
+const INITIAL = useConfigStore.getState();
+
+describe("Hero", () => {
+  beforeEach(() => {
+    act(() => {
+      useConfigStore.setState(INITIAL, true);
+      useLookHistoryStore.setState({ past: [], future: [] });
+    });
+  });
+
+  it("carries the page's only H1, in the lowercase display voice, under palette shapes", () => {
+    const { getAllByRole, container } = render(<Hero />);
+    const h1s = getAllByRole("heading", { level: 1 });
+    expect(h1s).toHaveLength(1);
+    expect(h1s[0].textContent).toMatch(/make a gradient wallpaper\.\s*shuffle until it's yours\./);
+    expect(h1s[0].className).toMatch(/display-head/);
+    expect(container.querySelector("[data-bauhaus-marks]")).not.toBeNull();
+  });
+
+  it("shows the live wallpaper inside the photographed phone", () => {
+    const { getByRole, container } = render(<Hero />);
+    const screen = getByRole("img", { name: /current wallpaper on a phone/i });
+    expect(screen.querySelector("canvas")).not.toBeNull();
+    const photo = container.querySelector("img[src='/assets/hero/phone.webp']");
+    expect(photo).not.toBeNull();
+    // The photo is decoration: the screen element already names what it shows.
+    expect(photo?.getAttribute("alt")).toBe("");
+  });
+
+  it("floats the phone only for visitors who allow motion", () => {
+    const { container } = render(<Hero />);
+    const float = container.querySelector("[data-float]");
+    expect(float?.className).toMatch(/motion-safe:animate-float\b/);
+    expect(float?.className).not.toMatch(/(^|\s)animate-/);
+  });
+
+  it("shuffles the wallpaper, and steps back to the previous one", () => {
+    const { getByRole } = render(<Hero />);
+    const before = useConfigStore.getState().seed;
+    const back = getByRole("button", { name: /previous wallpaper/i });
+    expect(back.getAttribute("aria-disabled")).toBe("true");
+
+    fireEvent.click(getByRole("button", { name: /shuffle: generate another wallpaper/i }));
+    expect(useConfigStore.getState().seed).not.toBe(before);
+    expect(back.getAttribute("aria-disabled")).toBe("false");
+
+    fireEvent.click(back);
+    expect(useConfigStore.getState().seed).toBe(before);
+  });
+
+  it("names the palette on screen and follows it", () => {
+    const { getByText } = render(<Hero />);
+    act(() => useConfigStore.getState().setColors([...PALETTES[1].colors]));
+    expect(getByText(PALETTES[1].name.toLowerCase())).toBeTruthy();
+  });
+
+  it("sends visitors who want more control down to the Studio", () => {
+    const { getByRole } = render(<Hero />);
+    expect(getByRole("link", { name: /customize it/i }).getAttribute("href")).toBe("#studio");
+  });
+});

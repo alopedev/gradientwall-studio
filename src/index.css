@@ -36,6 +36,10 @@
   /* Footer wordmark: its palette fill drifts slowly (Footer.tsx). */
   --animate-wordmark-drift: wordmark-drift 16s ease-in-out infinite alternate;
 
+  /* Hero: the phone floats over the paper; its shadow shrinks as it rises (Hero.tsx). */
+  --animate-float: gw-float 6s ease-in-out infinite;
+  --animate-float-shadow: gw-float-shadow 6s ease-in-out infinite;
+
 }
 
 /* =================== Base (wrapped so utilities win) =================== */
@@ -171,6 +175,26 @@ body::before {
   100% {
     opacity: 0;
     transform: translate(-50%, -50%) rotate(var(--angle, 0deg)) translateY(-18px) scale(0.4);
+  }
+}
+@keyframes gw-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-5deg);
+  }
+  50% {
+    transform: translateY(-16px) rotate(-3.5deg);
+  }
+}
+@keyframes gw-float-shadow {
+  0%,
+  100% {
+    transform: translateX(-4.5%) scaleX(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(-4.5%) scaleX(0.82);
+    opacity: 0.65;
   }
 }
 @keyframes wordmark-drift {

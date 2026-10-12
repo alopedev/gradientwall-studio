@@ -53,20 +53,13 @@ describe("StudioShell", () => {
     expect(container.querySelector("canvas")).not.toBeNull();
   });
 
-  it("is the first screen: it carries the page's only H1, with the pitch", () => {
-    const { getAllByRole, getByRole } = render(<StudioShell />);
-    expect(getAllByRole("heading", { level: 1 })).toHaveLength(1);
-    expect(getByRole("heading", { level: 1 }).textContent).toMatch(
-      /make a gradient wallpaper\.\s*shuffle until it's yours\./,
-    );
-  });
-
-  it("sets the H1 in one lowercase voice, with no serif italic accent, under palette shapes", () => {
-    const { container, getByRole } = render(<StudioShell />);
-    const h1 = getByRole("heading", { level: 1 });
-    expect(h1.className).toMatch(/display-head/);
-    expect(h1.querySelector("[class*='serif'], em, i")).toBeNull();
-    expect(container.querySelector("[data-bauhaus-marks]")).not.toBeNull();
+  it("leaves the page's H1 to the hero and titles itself with an h2", () => {
+    const { queryAllByRole, getByRole } = render(<StudioShell />);
+    expect(queryAllByRole("heading", { level: 1 })).toHaveLength(0);
+    const h2 = getByRole("heading", { level: 2 });
+    expect(h2.textContent).toBe("make it yours.");
+    expect(h2.className).toMatch(/display-head/);
+    expect(h2.querySelector("[class*='serif'], em, i")).toBeNull();
   });
 
   it("keeps the #studio anchor on the frame, so the nav link lands on the dock", () => {

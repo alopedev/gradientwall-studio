@@ -9,7 +9,6 @@ import { FavoritesStrip } from "./FavoritesStrip";
 import { type RevealRequest, RevealContext } from "./reveal";
 import { StudioInspector } from "./StudioInspector";
 import { StudioTopBar } from "./StudioTopBar";
-import { BauhausMarks } from "@/components/ui/BauhausMarks";
 import { PAGE_COLUMN } from "@/components/ui/layout";
 
 const enter = (delay: number) => ({
@@ -20,7 +19,7 @@ const enter = (delay: number) => ({
 });
 
 /**
- * The first screen of the site and the Studio in one: the pitch on the left,
+ * The full Studio, after the hero and the packs: a short pitch on the left,
  * then the Studio frame: the wallpaper inside a phone, tablet or monitor with
  * the saved wallpapers under it, and a panel beside it holding every control
  * (StudioInspector). Shuffle (or Space) is the main gesture. On narrow screens
@@ -31,7 +30,7 @@ export function StudioShell() {
   const sectionRef = useRef<HTMLElement>(null);
   const revealRef = useRef<RevealRequest | null>(null);
   const inView = useInView(sectionRef, { amount: 0.35 });
-  // The Studio is now the first screen, so Space must keep scrolling the page
+  // The Studio sits in the middle of the page, so Space must keep scrolling it
   // until the visitor is actually using it: keys only act while the pointer is
   // over the frame or focus is inside it.
   const [hovered, setHovered] = useState(false);
@@ -39,15 +38,12 @@ export function StudioShell() {
 
   return (
     <RevealContext.Provider value={revealRef}>
-      <section ref={sectionRef} className="relative isolate overflow-hidden">
+      <section ref={sectionRef} className="relative isolate overflow-hidden border-t border-ink">
         <div
-          className={`${PAGE_COLUMN} grid gap-8 pb-[clamp(32px,5vw,72px)] pt-[88px] lg:min-h-[100svh] lg:grid-cols-[minmax(300px,0.72fr)_minmax(0,1.6fr)] lg:items-center lg:gap-10 lg:pt-[96px]`}
+          className={`${PAGE_COLUMN} grid gap-8 pb-[clamp(32px,5vw,72px)] pt-[clamp(48px,6vw,88px)] lg:min-h-[100svh] lg:grid-cols-[minmax(300px,0.72fr)_minmax(0,1.6fr)] lg:items-center lg:gap-10`}
         >
           <Reveal className="relative z-[1]">
-            <BauhausMarks className="mb-6 hidden md:flex" />
-            <h1 className="display-head text-[clamp(40px,4.6vw,76px)] text-ink">
-              make a gradient wallpaper. shuffle until it's yours.
-            </h1>
+            <h2 className="display-head text-[clamp(40px,4.6vw,76px)] text-ink">make it yours.</h2>
             <p className="mt-5 hidden max-w-[40ch] font-sans text-[15px] text-ink-dim md:block">
               Press Shuffle (or Space) until one feels right. Change the style or the colors, then
               download it sharp, up to 5120 × 2880. Free, no account, no watermark.
