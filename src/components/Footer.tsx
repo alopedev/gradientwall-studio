@@ -1,50 +1,65 @@
 import { AI_DISCLOSURE, ETSY_SHOP_URL } from "@/lib/copy";
+import { isNewsletterEnabled } from "@/lib/newsletter/subscribe";
 import { useConfigStore } from "@/store/useConfigStore";
 import { EmailCapture } from "./EmailCapture";
 import { Reveal } from "./ui/Reveal";
 
+interface FooterLink {
+  label: string;
+  href: string;
+  external?: boolean;
+}
+
+const MAKE: FooterLink[] = [
+  { label: "Studio", href: "/#studio" },
+  { label: "Packs", href: "/#packs" },
+  { label: "Etsy shop", href: ETSY_SHOP_URL, external: true },
+];
+
+const HELP: FooterLink[] = [
+  { label: "Recover download", href: "/recover" },
+  { label: "Privacy", href: "/privacy" },
+];
+
 export function Footer() {
   return (
-    <footer className="mx-auto max-w-[1600px] px-[clamp(24px,5vw,80px)] pt-20 pb-10 border-t border-white/8 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-10">
-      <Reveal>
-        <div className="max-w-[18ch] leading-[0.98] tracking-[-0.03em] text-[clamp(28px,3.5vw,44px)]">
-          <span className="block font-sans font-bold uppercase text-white">Small tools for</span>
-          <span className="block font-sans font-bold uppercase text-white/80 mt-1">
-            calmer screens.
-          </span>
-        </div>
-        <div className="mt-6 font-sans text-[11px] tracking-[0.12em] uppercase text-white/55">
-          GradientWall · Made in Tarragona
-        </div>
-      </Reveal>
+    <footer className="mx-auto max-w-[1600px] px-[clamp(24px,5vw,80px)] pt-20 border-t border-white/8">
+      <div className="grid grid-cols-2 gap-x-8 gap-y-12 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)] md:gap-x-12 pb-14">
+        <Reveal className="col-span-2 md:col-span-1">
+          {isNewsletterEnabled() ? (
+            <EmailCapture
+              source="footer"
+              size="lg"
+              heading={
+                <>
+                  The next pack,{" "}
+                  <em className="font-serif font-normal italic text-white/80">before anyone.</em>
+                </>
+              }
+              lead="One email when a new pack or Studio feature lands. Nothing else."
+              className="relative max-w-[460px]"
+            />
+          ) : (
+            <p className="m-0 max-w-[18ch] font-sans font-bold leading-[1.02] tracking-[-0.025em] text-[clamp(26px,3vw,36px)] text-white">
+              Small tools for{" "}
+              <em className="font-serif font-normal italic text-white/80">calmer screens.</em>
+            </p>
+          )}
+        </Reveal>
+        <Reveal delay={0.08}>
+          <FooterCol title="Make" links={MAKE} />
+        </Reveal>
+        <Reveal delay={0.14}>
+          <FooterCol title="Help" links={HELP} />
+        </Reveal>
+      </div>
 
-      <Reveal delay={0.1}>
-        <FooterCol
-          title="Get started"
-          links={[
-            { label: "Studio", href: "/#studio" },
-            { label: "Packs", href: "/#packs" },
-            { label: "Etsy shop", href: ETSY_SHOP_URL },
-            { label: "Recover download", href: "/recover" },
-            { label: "Privacy", href: "/privacy" },
-          ]}
-        />
-      </Reveal>
-
-      <EmailCapture
-        source="footer"
-        heading="New packs and Studio features, in your inbox."
-        className="relative md:col-span-2 max-w-[520px]"
-      />
-
-      <Reveal delay={0.2} className="md:col-span-2 pt-10 mt-5 border-t border-white/8">
-        <div className="flex flex-wrap justify-between gap-4 font-sans text-[11px] tracking-[0.14em] uppercase text-white/55">
-          <span>© 2026 GradientWall</span>
-          <span className="max-w-[56ch] normal-case tracking-normal text-[12px] sm:text-right">
-            Pack artwork: {AI_DISCLOSURE.charAt(0).toLowerCase() + AI_DISCLOSURE.slice(1)}
-          </span>
-        </div>
-      </Reveal>
+      <div className="flex flex-wrap justify-between gap-x-6 gap-y-3 border-t border-white/8 py-5 font-sans text-[11px] tracking-[0.14em] uppercase text-white/55">
+        <span>© 2026 GradientWall · Made in Tarragona</span>
+        <span className="max-w-[56ch] normal-case tracking-normal text-[12px] sm:text-right">
+          Pack artwork: {AI_DISCLOSURE.charAt(0).toLowerCase() + AI_DISCLOSURE.slice(1)}
+        </span>
+      </div>
 
       <Wordmark />
     </footer>
@@ -53,33 +68,34 @@ export function Footer() {
 
 /**
  * The brand name, huge, filled with the Studio's current palette: shuffle a
- * wallpaper and the footer picks up its colours. Decorative (the brand text
- * is already in the nav and the copyright line), so it is hidden from
- * assistive tech.
+ * wallpaper and the footer picks up its colours. The fill drifts slowly
+ * (`wordmark-drift`, stilled by the reduced-motion block in index.css).
+ * Decorative (the brand text is already in the nav and the copyright line),
+ * so it is hidden from assistive tech.
  */
 function Wordmark() {
   const colors = useConfigStore((s) => s.colors);
   const [c0, c1, c2, c3] = colors;
   return (
-    <Reveal className="md:col-span-2 -mb-2 select-none overflow-hidden">
+    <div className="-mb-[1.2vw] select-none overflow-hidden">
       <div
         aria-hidden
-        className="font-sans font-bold uppercase leading-[0.82] tracking-[-0.055em] text-center text-transparent bg-clip-text text-[clamp(40px,12.4vw,200px)]"
+        className="animate-wordmark-drift font-sans font-bold uppercase leading-[0.8] tracking-[-0.055em] text-center text-transparent bg-clip-text bg-[length:140%_140%] text-[clamp(40px,12.4vw,200px)]"
         style={{
-          backgroundImage: `radial-gradient(70% 130% at 12% 15%, ${c0}, transparent 62%), radial-gradient(70% 130% at 88% 5%, ${c1}, transparent 62%), radial-gradient(80% 150% at 50% 115%, ${c2}, transparent 62%)`,
+          backgroundImage: `radial-gradient(50% 93% at 12% 15%, ${c0}, transparent 62%), radial-gradient(50% 93% at 88% 5%, ${c1}, transparent 62%), radial-gradient(57% 107% at 50% 110%, ${c2}, transparent 62%)`,
           backgroundColor: c3,
         }}
       >
         GradientWall
       </div>
-    </Reveal>
+    </div>
   );
 }
 
-function FooterCol({ title, links }: { title: string; links: { label: string; href: string }[] }) {
+function FooterCol({ title, links }: { title: string; links: FooterLink[] }) {
   return (
-    <div>
-      <h4 className="m-0 mb-3.5 font-sans text-[11px] font-medium tracking-[0.22em] uppercase text-white/55">
+    <nav aria-label={title}>
+      <h4 className="m-0 mb-2 font-sans text-[11px] font-medium tracking-[0.22em] uppercase text-white/55">
         {title}
       </h4>
       <ul className="flex flex-col gap-0 list-none p-0 m-0">
@@ -87,17 +103,23 @@ function FooterCol({ title, links }: { title: string; links: { label: string; hr
           <li key={l.label}>
             <a
               href={l.href}
-              className="group relative inline-block py-3 focus-ring text-[14px] text-white/75 hover:text-white transition-colors duration-150"
+              {...(l.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              className="group relative inline-block py-2.5 focus-ring text-[14px] text-white/75 hover:text-white transition-colors duration-150"
             >
               {l.label}
+              {l.external && (
+                <span aria-hidden className="ml-1 text-white/45">
+                  ↗
+                </span>
+              )}
               <span
                 aria-hidden
-                className="absolute left-0 right-0 bottom-2 h-px origin-left scale-x-0 bg-[color:var(--color-accent)] transition-transform duration-200 ease-out group-hover:scale-x-100"
+                className="absolute left-0 right-0 bottom-1.5 h-px origin-left scale-x-0 bg-[color:var(--color-accent)] transition-transform duration-200 ease-out group-hover:scale-x-100"
               />
             </a>
           </li>
         ))}
       </ul>
-    </div>
+    </nav>
   );
 }
