@@ -33,6 +33,15 @@ describe("PackPage", () => {
   });
 });
 
+describe("PackPage ending", () => {
+  it("closes with the other packs and the Studio, not a dead end", () => {
+    renderPack("acrylic");
+    const more = screen.getByRole("region", { name: /more packs/i });
+    expect(within(more).getAllByRole("link", { name: /dessau/i }).length).toBeGreaterThan(0);
+    expect(within(more).getByRole("link", { name: /open the studio/i })).toBeInTheDocument();
+  });
+});
+
 describe("PackPage showcase and specs", () => {
   it("opens with a device carousel of the pack's pieces", () => {
     renderPack("acrylic");

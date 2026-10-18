@@ -3,7 +3,6 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-route
 import { LazyMotion, MotionConfig, AnimatePresence } from "motion/react";
 import { Hero } from "./components/hero/Hero";
 import { Nav } from "./components/Nav";
-import { Marquee } from "./components/Marquee";
 import { StudioShell } from "./components/studio/v2/StudioShell";
 import { PacksSection } from "./components/packs/PacksSection";
 import { PackPage } from "./components/packs/PackPage";
@@ -109,7 +108,6 @@ function HomePage() {
       <Hero />
       <PacksSection />
       <StudioShell />
-      <Marquee />
       <Footer />
     </>
   );
