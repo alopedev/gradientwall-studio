@@ -7,6 +7,7 @@ import { AI_DISCLOSURE } from "@/lib/copy";
 import { Nav } from "../Nav";
 import { Footer } from "../Footer";
 import { inkButton } from "../ui/InkButton";
+import { MorePacks } from "./MorePacks";
 import { MagneticButton } from "../ui/MagneticButton";
 import { PageMeta } from "../PageMeta";
 import { buildPackPage } from "@/lib/seo/pages";
@@ -157,6 +158,8 @@ export function PackPage() {
             </p>
           </div>
         </section>
+
+        <MorePacks currentSlug={pack.slug} />
       </main>
       {!ctaVisible && (buyEnabled || pack.etsyUrl) && (
         <StickyBuyBar
