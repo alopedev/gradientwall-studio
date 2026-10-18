@@ -45,7 +45,9 @@ export function Hero() {
           make a gradient wallpaper. shuffle until it's yours.
         </h1>
 
-        <div className="mt-[clamp(36px,3.6vw,52px)] grid items-center gap-x-10 gap-y-6 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
+        {/* Room above the phone for the width ruler and its label, plus the float
+            (up 16px) and the tilt, so they never touch the headline. */}
+        <div className="mt-[clamp(76px,6vw,88px)] grid items-center gap-x-10 gap-y-6 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
           <div className="hidden flex-col items-start gap-5 justify-self-end md:flex">
             <BauhausMarks size={22} />
             <p className="max-w-[30ch] font-sans text-[15px] text-ink-dim">
