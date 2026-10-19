@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, render, screen } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useConfigStore } from "@/store";
@@ -15,6 +15,7 @@ const INITIAL = useConfigStore.getState();
 describe("ExportButton", () => {
   beforeEach(() => {
     act(() => useConfigStore.setState(INITIAL, true));
+    sessionStorage.clear();
   });
 
   it("says the size and the format of the file right on the button", () => {
@@ -69,7 +70,7 @@ describe("ExportButton", () => {
     );
   });
 
-  it("shows progress while exporting, then Downloaded, and reports the file with a link to the packs", async () => {
+  it("shows progress while exporting, then Downloaded, and opens the help on the first download", async () => {
     const user = userEvent.setup();
     let finish!: () => void;
     const exportWallpaper = vi.fn(
@@ -95,10 +96,69 @@ describe("ExportButton", () => {
 
     await act(async () => finish());
     expect(screen.getByText("Downloaded")).toBeTruthy();
-    expect(onMessage).toHaveBeenCalledWith(
-      expect.stringContaining("gradientwall-mobile-A47B.webp"),
-      { label: expect.stringMatching(/packs/i), href: "#packs" },
+    const help = screen.getByRole("dialog", { name: /your wallpaper is downloading/i });
+    expect(help.textContent).toContain("gradientwall-mobile-A47B.webp");
+    expect(help.textContent).toContain("2.0 MB");
+    expect(onMessage).not.toHaveBeenCalled();
+  });
+
+  it("tells how to set the wallpaper on the device it was made for, then shows the packs", async () => {
+    const user = userEvent.setup();
+    act(() => useConfigStore.getState().setDevice("mobile"));
+    render(
+      <EngineProvider
+        engine={engineWith(vi.fn().mockResolvedValue({ filename: "a.webp", bytes: 1 }))}
+      >
+        <ExportButton onMessage={vi.fn()} />
+      </EngineProvider>,
     );
+    await user.click(screen.getByRole("button", { name: /download wallpaper/i }));
+    const help = screen.getByRole("dialog");
+    expect(within(help).getByText("On iPhone")).toBeTruthy();
+    expect(within(help).getByText("On Android")).toBeTruthy();
+    expect(help.textContent).toMatch(/Use as Wallpaper/);
+    const packs = within(help).getByRole("link", { name: /see the packs/i });
+    expect(packs.getAttribute("href")).toBe("#packs");
+    expect(help.textContent).toMatch(/€5\.99 each on Etsy/);
+  });
+
+  it("gives desktop steps for a desktop wallpaper", async () => {
+    const user = userEvent.setup();
+    act(() => useConfigStore.getState().setDevice("desktop"));
+    render(
+      <EngineProvider
+        engine={engineWith(vi.fn().mockResolvedValue({ filename: "a.webp", bytes: 1 }))}
+      >
+        <ExportButton onMessage={vi.fn()} />
+      </EngineProvider>,
+    );
+    await user.click(screen.getByRole("button", { name: /download wallpaper/i }));
+    const help = screen.getByRole("dialog");
+    expect(within(help).getByText("On a Mac")).toBeTruthy();
+    expect(within(help).getByText("On Windows")).toBeTruthy();
+  });
+
+  it("closes the help, and later downloads only report the file with a link to the packs", async () => {
+    const user = userEvent.setup();
+    const onMessage = vi.fn();
+    render(
+      <EngineProvider
+        engine={engineWith(vi.fn().mockResolvedValue({ filename: "b.webp", bytes: 2_097_152 }))}
+      >
+        <ExportButton onMessage={onMessage} />
+      </EngineProvider>,
+    );
+    const download = screen.getByRole("button", { name: /download wallpaper/i });
+    await user.click(download);
+    await user.click(screen.getByRole("button", { name: /close/i }));
+    expect(screen.queryByRole("dialog")).toBeNull();
+
+    await user.click(download);
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(onMessage).toHaveBeenCalledWith(expect.stringContaining("b.webp"), {
+      label: expect.stringMatching(/packs/i),
+      href: "#packs",
+    });
     expect(onMessage).toHaveBeenCalledWith(expect.stringContaining("2.0 MB"), expect.anything());
   });
 

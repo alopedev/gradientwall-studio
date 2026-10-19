@@ -35,13 +35,31 @@ describe("PacksSection", () => {
     expect(screen.queryByText(/\bten\b/i)).toBeNull();
   });
 
-  it("describes Dessau as 6 designs, 12 wallpapers", () => {
+  it("describes Dessau as 6 designs for phone and desktop, up to 5K", () => {
     render(
       <MemoryRouter>
         <PacksSection />
       </MemoryRouter>,
     );
-    expect(screen.getByText(/6 designs · 12 wallpapers/)).toBeInTheDocument();
+    const dessau = packLink("dessau");
+    expect(within(dessau).getByText("6 designs")).toBeInTheDocument();
+    expect(within(dessau).getByText("Phone + desktop")).toBeInTheDocument();
+    expect(within(dessau).getByText("Up to 5K")).toBeInTheDocument();
+  });
+
+  it("says where each pack is sold and invites to see it, once per card", () => {
+    render(
+      <MemoryRouter>
+        <PacksSection />
+      </MemoryRouter>,
+    );
+    for (const pack of getPacks()) {
+      const link = packLink(pack.slug);
+      expect(within(link).getByText("See the pack →")).toBeInTheDocument();
+      if (pack.etsyUrl) expect(within(link).getByText("sold on Etsy")).toBeInTheDocument();
+      // The count shows once, not as a badge and a tag.
+      expect(within(link).getAllByText(`${pack.previews.length} designs`)).toHaveLength(1);
+    }
   });
 
   it("shows each pack as a fan of its phone wallpapers, with its name over the art", () => {

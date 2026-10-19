@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight, Shuffle } from "lucide-react";
 import { m } from "motion/react";
 import { useState } from "react";
+import { getPacks } from "@/lib/packs";
 import { paletteName } from "@/lib/palette-name";
 import { DEVICE_SIZES } from "@/lib/palettes";
 import { shuffleWallpaper, useConfigStore, useRenderParams } from "@/store";
@@ -141,6 +142,18 @@ export function Hero() {
             >
               {paletteName(colors).toLowerCase()}
             </p>
+            {/* Phones don't get the column beside the phone: say the same here, shorter. */}
+            <div className="mt-2 flex flex-col items-center gap-3 text-center md:hidden">
+              <p className="m-0 max-w-[26ch] text-balance font-sans text-[16px] leading-snug text-ink-dim">
+                Free, up to 5K, no account, no watermark.
+              </p>
+              <a
+                href="#packs"
+                className="inline-flex min-h-11 items-center font-sans text-[15px] font-semibold text-ink underline underline-offset-4 focus-ring"
+              >
+                Or get a hand-picked pack, {FROM_PRICE} →
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -149,6 +162,9 @@ export function Hero() {
 }
 
 const PHONE = DEVICE_SIZES.mobile;
+
+/** The cheapest pack, as the hero's link to the store quotes it. */
+const FROM_PRICE = `€${Math.min(...getPacks().map((p) => p.priceEur)).toFixed(2)}`;
 
 /**
  * Drafting-table rulers around the phone, labelled with the size a phone

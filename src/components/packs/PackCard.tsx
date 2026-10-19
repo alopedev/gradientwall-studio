@@ -1,7 +1,7 @@
 import { type CSSProperties, useRef } from "react";
 import { Link } from "react-router-dom";
 import { m, useInView } from "motion/react";
-import { describeContents, isPhoneAndDesktop, type Pack } from "@/lib/packs";
+import { isPhoneAndDesktop, type Pack } from "@/lib/packs";
 import { fanPieces } from "@/lib/packs/showcase";
 import { LockScreen, PhoneFrame } from "./DeviceFrames";
 import { PackCover } from "./PackCover";
@@ -26,10 +26,6 @@ export function PackCard({ pack }: { pack: Pack }) {
       data-open={open || undefined}
       className="group relative flex h-full min-h-[500px] flex-col overflow-hidden rounded-sharp border-2 border-ink bg-bg-2 transition-colors duration-300 hover:bg-[#cfcec9]"
     >
-      <span className="absolute right-4 top-4 z-20 rounded-sharp bg-ink px-2.5 py-1 font-sans text-[12px] font-medium text-bg">
-        {pack.previews.length} designs
-      </span>
-
       <div className="relative z-10 flex flex-1 items-end justify-center px-6 pt-16 pb-6">
         <div className="relative aspect-[4/3] w-[74%] sm:w-[min(86%,380px)]">
           {fan.map(({ cover, offset }) => (
@@ -51,24 +47,29 @@ export function PackCard({ pack }: { pack: Pack }) {
         </div>
       </div>
 
-      <div className="relative z-10 flex items-end justify-between gap-4 p-5 sm:p-6">
-        <div className="min-w-0">
-          <m.h3
-            layoutId={`pack-${pack.slug}-title`}
-            className="display-head text-[clamp(32px,3.4vw,48px)] text-ink"
-          >
-            {pack.name}
-          </m.h3>
-          <p className="m-0 mt-2 font-sans text-[14px] leading-snug text-ink-dim">{pack.tagline}</p>
-          <ul className="m-0 mt-4 flex list-none flex-wrap gap-1.5 p-0">
-            <Tag>{describeContents(pack)}</Tag>
-            {isPhoneAndDesktop(pack) && <Tag>Phone + desktop</Tag>}
-            <Tag>4K · 5K</Tag>
-          </ul>
+      <div className="relative z-10 p-5 sm:p-6">
+        <m.h3
+          layoutId={`pack-${pack.slug}-title`}
+          className="display-head text-[clamp(32px,3.4vw,48px)] text-ink"
+        >
+          {pack.name}
+        </m.h3>
+        <p className="m-0 mt-2 font-sans text-[16px] leading-snug text-ink-dim">{pack.tagline}</p>
+        <ul className="m-0 mt-2 flex list-none flex-wrap p-0 font-sans text-[14px] text-ink-dim [&>li+li]:before:px-1.5 [&>li+li]:before:content-['·']">
+          <li>{designCount(pack.previews.length)}</li>
+          {isPhoneAndDesktop(pack) && <li>Phone + desktop</li>}
+          <li>Up to 5K</li>
+        </ul>
+        <div className="mt-4 flex items-center justify-between gap-4 border-t-2 border-ink pt-4">
+          <p className="m-0 grid font-sans">
+            <span className="text-[20px] font-semibold text-ink">{price}</span>
+            {pack.etsyUrl && <span className="text-[13px] text-ink-dim">sold on Etsy</span>}
+          </p>
+          {/* The whole card is the link; this only shows where it leads. */}
+          <span className="inline-flex min-h-11 shrink-0 items-center rounded-sharp bg-ink px-4 font-sans text-[15px] font-semibold text-bg transition-colors group-hover:bg-ink/85">
+            See the pack →
+          </span>
         </div>
-        <span className="shrink-0 rounded-sharp bg-ink px-3 py-1.5 font-sans text-[14px] font-semibold text-bg">
-          {price}
-        </span>
       </div>
     </Link>
   );
@@ -92,10 +93,7 @@ function canHover(): boolean {
   return typeof window !== "undefined" && window.matchMedia("(hover: hover)").matches;
 }
 
-function Tag({ children }: { children: React.ReactNode }) {
-  return (
-    <li className="rounded-sharp border border-ink/30 px-2 py-0.5 font-sans text-[12px] font-medium text-ink-dim">
-      {children}
-    </li>
-  );
+/** "10 designs", "1 design". */
+function designCount(n: number): string {
+  return `${n} ${n === 1 ? "design" : "designs"}`;
 }
