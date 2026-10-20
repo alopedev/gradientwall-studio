@@ -13,15 +13,15 @@ import {
 } from "@/lib/gradient-v2";
 import { engineOf, type RenderParams } from "@/lib/palettes";
 import { useMotionStore } from "@/store/useMotionStore";
+import { prefersReducedMotion, saveDataOn } from "@/lib/motion";
 
 /** What the visitor and their browser allow, read once on mount. */
 function readEnv() {
-  const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
   return {
     webgl2: isWebGL2Supported(),
     softwareGl: isSoftwareRenderer(webglRendererName()),
-    reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-    saveData: connection?.saveData === true,
+    reducedMotion: prefersReducedMotion(),
+    saveData: saveDataOn(),
   };
 }
 

@@ -21,3 +21,20 @@ export const FADE_UP_INITIAL = { opacity: 0, y: 16 } as const;
 export function fadeUpTransition(delay = 0, duration = 0.7) {
   return { duration, ease: EASE, delay };
 }
+
+/**
+ * The visitor asked the OS for less motion. The one place that reads it
+ * outside Motion's own `MotionConfig reducedMotion="user"`; read at the moment
+ * an animation would start. False where the browser can't tell.
+ */
+export function prefersReducedMotion(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+}
+
+/** The browser reports data saver: skip work that only decorates. */
+export function saveDataOn(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+  return connection?.saveData === true;
+}
