@@ -1,5 +1,5 @@
 import { readSubscribeEnv, type SupabaseEnv } from "./env";
-import { failureResponse, json, methodNotAllowed } from "./http";
+import { failureResponse, json, methodNotAllowed, rejectNonJson } from "./http";
 import { type SubscriberStore, supabaseSubscriberStore } from "./supabase-subscribers";
 
 export interface SubscribeHandlerDeps {
@@ -31,6 +31,8 @@ const EMAIL = /^[^\s@]+@[^\s@.][^\s@]*\.[^\s@]{2,}$/;
 export function createSubscribeHandler(deps: SubscribeHandlerDeps) {
   return async (req: Request): Promise<Response> => {
     if (req.method !== "POST") return methodNotAllowed();
+    const notJson = rejectNonJson(req);
+    if (notJson) return notJson;
 
     const input = parseInput(await req.json().catch(() => undefined));
     if (!input) return json({ ok: false, reason: "bad_request" }, 400);

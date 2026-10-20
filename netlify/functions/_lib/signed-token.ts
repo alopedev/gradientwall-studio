@@ -52,6 +52,7 @@ export async function verifyDownloadToken(token: string, secret: string): Promis
     const { payload } = await jwtVerify(token, encodeSecret(secret), {
       issuer: ISSUER,
       audience: AUDIENCE,
+      algorithms: ["HS256"],
     });
     if (
       typeof payload.orderId !== "string" ||

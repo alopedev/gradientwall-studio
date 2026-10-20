@@ -93,6 +93,16 @@ describe("download handler", () => {
     expect((await getOrder(store, "ord_1"))?.downloadsRemaining).toBe(1);
   });
 
+  it("never lets a cache keep the redirect or the answer", async () => {
+    // A cached 302 would replay a presigned URL without spending a download.
+    const ok = await handler()(request(await tokenFor()));
+    const bad = await handler()(request("not-a-token"));
+    for (const res of [ok, bad]) {
+      expect(res.headers.get("cache-control")).toBe("no-store");
+      expect(res.headers.get("referrer-policy")).toBe("no-referrer");
+    }
+  });
+
   it("answers 403 once the allowance is spent, without presigning", async () => {
     const h = handler();
     const token = await tokenFor();

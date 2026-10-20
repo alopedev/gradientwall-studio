@@ -16,7 +16,7 @@ describe("submitRecoverRequest", () => {
     const out = await submitRecoverRequest({ email: "  buyer@example.com  ", orderId: " 12345 " });
     expect(out).toEqual({ kind: "ok" });
     expect(fetchSpy).toHaveBeenCalledWith(
-      "/.netlify/functions/recover-link",
+      "/api/recover-link",
       expect.objectContaining({
         method: "POST",
         body: JSON.stringify({ email: "buyer@example.com", orderId: "12345" }),

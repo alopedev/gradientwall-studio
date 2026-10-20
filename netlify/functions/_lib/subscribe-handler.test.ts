@@ -76,6 +76,31 @@ describe("subscribe handler", () => {
     expect(subscribe).not.toHaveBeenCalled();
   });
 
+  it("answers 415 to a body not sent as JSON, so a cross-site form cannot add addresses", async () => {
+    for (const type of [null, "text/plain", "application/x-www-form-urlencoded"]) {
+      const res = await handler()(
+        new Request("https://gradientwall.test/api/subscribe", {
+          method: "POST",
+          headers: type ? { "content-type": type } : {},
+          body: JSON.stringify({ email: "victim@example.com", consentText: CONSENT }),
+        }),
+      );
+      expect(res.status).toBe(415);
+    }
+    expect(subscribe).not.toHaveBeenCalled();
+  });
+
+  it("accepts a JSON content type with a charset", async () => {
+    const res = await handler()(
+      new Request("https://gradientwall.test/api/subscribe", {
+        method: "POST",
+        headers: { "content-type": "application/json; charset=utf-8" },
+        body: JSON.stringify({ email: "a@b.co", consentText: CONSENT }),
+      }),
+    );
+    expect(res.status).toBe(200);
+  });
+
   it("answers 200 and stores nothing when the honeypot is filled", async () => {
     const res = await handler()(
       post({ email: "a@b.co", website: "http://spam", consentText: CONSENT }),
