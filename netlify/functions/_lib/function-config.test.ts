@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
-import { config as recoverConfig } from "./recover-link";
-import { config as subscribeConfig } from "./subscribe";
+import { config as recoverConfig } from "../recover-link";
+import { config as subscribeConfig } from "../subscribe";
 
 /**
  * The two endpoints anyone can call without a token. Each request to
