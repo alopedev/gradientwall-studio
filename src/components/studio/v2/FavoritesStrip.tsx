@@ -13,7 +13,7 @@ export function FavoritesStrip() {
 
   return (
     <section
-      aria-label={items.length === 0 ? "Favorites — empty" : "Favorites"}
+      aria-label={items.length === 0 ? "Favourites — empty" : "Favourites"}
       className="relative z-[3] flex min-h-[108px] min-w-0 items-center justify-center gap-3.5 px-[18px] pb-[18px] pt-3.5 @max-[760px]:min-h-0 @max-[760px]:flex-col @max-[760px]:gap-2 @max-[760px]:px-3.5 @max-[760px]:pb-4"
     >
       <span className="inline-flex flex-none items-center gap-2 font-sans text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-ink-dim">
@@ -25,7 +25,7 @@ export function FavoritesStrip() {
       {items.length === 0 ? (
         <p className="m-0 text-balance text-center font-sans text-[0.85rem] text-ink-dim">
           <Heart className="mr-1.5 inline size-3.5 -translate-y-px text-rose" aria-hidden />
-          Tap the heart to keep a wallpaper. Saved in this browser only.
+          Keep a wallpaper with the heart button. Saved in this browser only.
         </p>
       ) : (
         <Reorder.Group

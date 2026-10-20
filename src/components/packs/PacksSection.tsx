@@ -26,8 +26,8 @@ export function PacksSection() {
           </h2>
         </div>
         <p className="max-w-[42ch] text-[15px] text-ink-dim font-sans font-light">
-          €5.99 each, VAT included. Pay once, no subscription. Instant download, phone and desktop,
-          up to 5K. Personal use.
+          Hand-picked sets for phone and desktop, up to 5K. €5.99 each, VAT included, from our Etsy
+          shop.
         </p>
       </Reveal>
 

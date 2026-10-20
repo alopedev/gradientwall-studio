@@ -56,7 +56,7 @@ export function FavoriteThumbnail({ item }: Props) {
         onPointerDown={(e) => controls.start(e)}
         onClick={(e) => load(e.currentTarget)}
         aria-current={isCurrent}
-        aria-label={`Load favorite wallpaper from ${new Date(item.createdAt).toLocaleString()}`}
+        aria-label={`Load favourite wallpaper from ${new Date(item.createdAt).toLocaleString()}`}
         className={`relative block size-full cursor-grab overflow-hidden rounded-lg bg-black outline-none transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-95 active:cursor-grabbing [@media(hover:hover)]:hover:-translate-y-[3px] ${
           isCurrent
             ? "shadow-[0_0_0_2px_var(--color-bg),0_0_0_4px_var(--color-primary)]"
@@ -71,7 +71,7 @@ export function FavoriteThumbnail({ item }: Props) {
           e.stopPropagation();
           unpin(item.id);
         }}
-        aria-label="Remove from favorites"
+        aria-label="Remove from favourites"
         className="absolute -right-1.5 -top-1.5 inline-flex size-6 items-center justify-center rounded-full border border-white/20 bg-black/70 text-white/80 opacity-0 outline-none transition-opacity duration-150 hover:text-white focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-accent group-hover:opacity-100 [@media(hover:none)]:opacity-100"
       >
         <X className="size-3" aria-hidden />

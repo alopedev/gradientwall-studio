@@ -63,7 +63,7 @@ export function ColorEditor({ onMessage }: Props) {
     <div className="grid gap-2.5">
       <div className="flex min-h-6 items-center justify-between gap-2">
         <span className="font-sans text-[0.66rem] font-semibold uppercase tracking-[0.2em] text-ink-dim">
-          {base ? "Your colors" : "Colors · tap to change"}
+          {base ? "Your colours" : "Colours"}
         </span>
         {base && (
           <button
@@ -88,7 +88,7 @@ export function ColorEditor({ onMessage }: Props) {
               >
                 <input
                   type="color"
-                  aria-label={`Color ${slot + 1}`}
+                  aria-label={`Colour ${slot + 1}`}
                   value={c.toLowerCase()}
                   onChange={(e) => edit(slot, e.target.value)}
                   className="absolute inset-0 size-full cursor-pointer opacity-0"

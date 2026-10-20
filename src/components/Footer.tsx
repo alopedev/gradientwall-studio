@@ -1,4 +1,4 @@
-import { AI_DISCLOSURE, ETSY_SHOP_URL } from "@/lib/copy";
+import { AI_DISCLOSURE, ETSY_PURCHASES_URL, ETSY_SHOP_URL } from "@/lib/copy";
 import { isNewsletterEnabled } from "@/lib/newsletter/subscribe";
 import { useConfigStore } from "@/store/useConfigStore";
 import { EmailCapture } from "./EmailCapture";
@@ -17,7 +17,7 @@ const MAKE: FooterLink[] = [
 ];
 
 const HELP: FooterLink[] = [
-  { label: "Recover download", href: "/recover" },
+  { label: "Find your download", href: ETSY_PURCHASES_URL, external: true },
   { label: "Privacy", href: "/privacy" },
 ];
 
@@ -36,7 +36,7 @@ export function Footer() {
             />
           ) : (
             <p className="display-head max-w-[18ch] text-[clamp(28px,3vw,40px)] text-ink">
-              wallpapers, made in tarragona.
+              colour for the screen you look at most.
             </p>
           )}
         </Reveal>

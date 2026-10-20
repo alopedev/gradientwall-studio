@@ -225,7 +225,7 @@ function LockOverlay({ device }: { device: Device }) {
   const [date, setDate] = useState("");
   useEffect(() => {
     setDate(
-      new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric" }).format(
+      new Intl.DateTimeFormat("en-GB", { weekday: "long", month: "long", day: "numeric" }).format(
         new Date(),
       ),
     );

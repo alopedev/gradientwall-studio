@@ -17,7 +17,7 @@ describe("Footer", () => {
     const make = screen.getByRole("navigation", { name: "Make" });
     const help = screen.getByRole("navigation", { name: "Help" });
     expect(make.textContent).toMatch(/Studio.*Packs.*Etsy shop/);
-    expect(help.textContent).toMatch(/Recover download.*Privacy/);
+    expect(help.textContent).toMatch(/Find your download.*Privacy/);
   });
 
   it("opens the Etsy shop in a new tab", () => {
@@ -40,7 +40,7 @@ describe("Footer", () => {
     vi.stubEnv("VITE_NEWSLETTER_ENABLED", "");
     render(<Footer />);
     expect(screen.queryByLabelText("Email address")).toBeNull();
-    const line = screen.getByText("wallpapers, made in tarragona.");
+    const line = screen.getByText("colour for the screen you look at most.");
     expect(line.className).toMatch(/display-head/);
   });
 

@@ -43,14 +43,16 @@ export function StudioShell() {
           className={`${PAGE_COLUMN} grid gap-8 pb-[clamp(32px,5vw,72px)] pt-[clamp(48px,6vw,88px)] lg:min-h-[100svh] lg:grid-cols-[minmax(300px,0.72fr)_minmax(0,1.6fr)] lg:items-center lg:gap-10`}
         >
           <Reveal className="relative z-[1]">
-            <h2 className="display-head text-[clamp(40px,4.6vw,76px)] text-ink">make it yours.</h2>
+            <h2 className="display-head text-[clamp(40px,4.6vw,76px)] text-ink">
+              shuffle, tweak, download.
+            </h2>
             <p className="mt-5 hidden max-w-[40ch] font-sans text-[15px] text-ink-dim md:block">
-              Press Shuffle (or Space) until one feels right. Change the style or the colors, then
-              download it sharp, up to 5120 × 2880. Free, no account, no watermark.
+              Press Shuffle (or Space) until one feels right. Change the style, the palette or any
+              single colour, then download it at the exact size of your screen.
             </p>
           </Reveal>
 
-          {/* Anchor target: "Make a wallpaper" lands on the frame (just under the nav). */}
+          {/* Anchor target: "Open the Studio" lands on the frame (just under the nav). */}
           <div id="studio" className="@container mx-auto w-full max-w-[1500px] scroll-mt-[76px]">
             <div
               data-device={device}

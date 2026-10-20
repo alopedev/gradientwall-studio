@@ -21,7 +21,7 @@ describe("<Nav />", () => {
       "aria-expanded",
       "false",
     );
-    expect(screen.getByText(/make a wallpaper/i)).toBeInTheDocument();
+    expect(screen.getByText(/open the studio/i)).toBeInTheDocument();
   });
 
   it("signs with the logo: the window mark and the wordmark, named for screen readers", () => {

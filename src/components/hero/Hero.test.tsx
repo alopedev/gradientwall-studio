@@ -83,7 +83,7 @@ describe("Hero", () => {
 
   it("sends visitors who want more control down to the Studio", () => {
     const { getByRole } = render(<Hero />);
-    expect(getByRole("link", { name: /customize it/i }).getAttribute("href")).toBe("#studio");
+    expect(getByRole("link", { name: /customise it/i }).getAttribute("href")).toBe("#studio");
   });
 
   it("tells phone visitors what it costs and points to the packs", () => {

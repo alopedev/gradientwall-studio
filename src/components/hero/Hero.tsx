@@ -17,7 +17,7 @@ import { PAGE_COLUMN } from "../ui/layout";
  * The first screen: the headline, a photographed phone floating over the paper
  * with the live wallpaper on its screen, and ‹ Shuffle › beside it. It stays
  * short so the packs show under it; the full Studio (style, colors, download)
- * comes after the packs, and "Customize it" leads there.
+ * comes after the packs, and "Customise it" leads there.
  *
  * The phone is a cut-out photo (public/assets/hero/phone.webp, 599 × 1283)
  * whose screen is transparent; the wallpaper canvas sits behind that hole. The
@@ -59,7 +59,7 @@ export function Hero() {
               href="#studio"
               className="font-sans text-[14px] font-medium text-ink underline underline-offset-4 focus-ring"
             >
-              Customize it ↓
+              Customise it ↓
             </a>
           </div>
 

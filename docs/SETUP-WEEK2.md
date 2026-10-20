@@ -47,7 +47,7 @@ Necesitarás:
    - Template name: `Your pack is ready`
    - Asunto: `Your ${packName} pack is ready ↓`
    - Body: usa las dos data variables disponibles:
-     - `{{packName}}` — slug del pack (más adelante lo cambiamos a nombre legible)
+     - `{{packName}}` — nombre del pack (p. ej. "Impasto")
      - `{{downloadUrl}}` — link absoluto al endpoint de descarga
    - Tras guardar, **copia el Transactional ID** → será `LOOPS_TRANSACTIONAL_ID`
 3. **Settings → API → Generate API Key** → será `LOOPS_API_KEY`

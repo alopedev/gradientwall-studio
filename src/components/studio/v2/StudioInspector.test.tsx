@@ -41,7 +41,7 @@ describe("StudioInspector", () => {
     render(<Harness />);
     expect(screen.getByLabelText("Style")).toBeTruthy();
     expect(screen.getByRole("group", { name: "Palette" })).toBeTruthy();
-    expect(screen.getAllByLabelText(/^color [1-4]$/i)).toHaveLength(4);
+    expect(screen.getAllByLabelText(/^colour [1-4]$/i)).toHaveLength(4);
     expect(screen.getByRole("slider", { name: "Grain" })).toBeTruthy();
     expect(screen.getByLabelText("Save this wallpaper")).toBeTruthy();
     expect(screen.getByRole("button", { name: /download/i })).toBeTruthy();
@@ -70,13 +70,13 @@ describe("StudioInspector", () => {
         within(tabs)
           .getAllByRole("tab")
           .map((t) => t.textContent),
-      ).toEqual(["Style", "Colors", "Adjust"]);
+      ).toEqual(["Style", "Colours", "Adjust"]);
       expect(screen.getByRole("group", { name: "Style" })).toBeTruthy();
       expect(screen.queryByRole("slider")).toBeNull();
 
-      await user.click(within(tabs).getByRole("tab", { name: "Colors" }));
+      await user.click(within(tabs).getByRole("tab", { name: "Colours" }));
       expect(screen.getByLabelText("Palette Forest")).toBeTruthy();
-      expect(screen.getAllByLabelText(/^color [1-4]$/i)).toHaveLength(4);
+      expect(screen.getAllByLabelText(/^colour [1-4]$/i)).toHaveLength(4);
 
       await user.click(within(tabs).getByRole("tab", { name: "Adjust" }));
       expect(screen.getByRole("slider", { name: "Grain" })).toBeTruthy();
@@ -110,9 +110,9 @@ describe("StudioInspector", () => {
     const shuffle = screen.getByLabelText(/shuffle: generate another wallpaper/i);
     await user.click(shuffle);
     await user.click(shuffle);
-    expect(screen.queryByText(/tap the heart to keep it/i)).toBeNull();
+    expect(screen.queryByText(/keep it with the heart/i)).toBeNull();
     await user.click(shuffle);
-    expect(screen.getByText(/tap the heart to keep it/i)).toBeTruthy();
+    expect(screen.getByText(/keep it with the heart/i)).toBeTruthy();
     expect(localStorage.getItem("gw:hint:heart")).toBe("1");
   });
 
