@@ -8,7 +8,6 @@ import { useConfigStore, useRenderParams } from "@/store";
 import { useWallpaperEngine } from "../engine";
 import { PrintSweep } from "./PrintSweep";
 import { REVEAL_TTL_MS, RevealContext, revealDurationMs } from "./reveal";
-import { ScreenMotion } from "./ScreenMotion";
 
 /** Bezel padding and corner radius of each frame, in px. */
 const FRAME: Record<Device, { pad: number; radius: number }> = {
@@ -192,7 +191,7 @@ export function DeviceStage() {
           onBeforePaint={onBeforePaint}
           className="absolute inset-0 z-[2] size-full object-cover"
         />
-        <ScreenMotion params={params} />
+        {engine.Motion && <engine.Motion params={params} />}
         <LockOverlay device={device} />
         <PrintSweep />
         {dropping && (

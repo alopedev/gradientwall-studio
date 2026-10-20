@@ -5,10 +5,11 @@ import { PALETTES } from "@/lib/palettes";
 import { useConfigStore } from "@/store";
 import { useLookHistoryStore } from "@/store/useLookHistoryStore";
 import { useMotionStore } from "@/store/useMotionStore";
+import { EngineProvider, webglEngine } from "../studio/engine";
 import { Hero } from "./Hero";
 
 // jsdom has no WebGL2, so the real ScreenMotion renders nothing; a stand-in shows where it goes.
-vi.mock("../studio/v2/ScreenMotion", () => ({
+vi.mock("../studio/engine/ScreenMotion", () => ({
   ScreenMotion: () => <canvas data-testid="screen-motion" />,
 }));
 
@@ -46,6 +47,16 @@ describe("Hero", () => {
     const { getByRole, getByTestId } = render(<Hero />);
     const screen = getByRole("img", { name: /current wallpaper on a phone/i });
     expect(screen.contains(getByTestId("screen-motion"))).toBe(true);
+  });
+
+  it("leaves the still wallpaper alone when the engine has no drifting layer", () => {
+    const still = { ...webglEngine, Motion: undefined };
+    const { queryByTestId } = render(
+      <EngineProvider engine={still}>
+        <Hero />
+      </EngineProvider>,
+    );
+    expect(queryByTestId("screen-motion")).toBeNull();
   });
 
   it("measures the phone with rulers in the pixels a phone download has", () => {

@@ -34,6 +34,10 @@ describe("canvas2d engine", () => {
     toDataURL.mockRestore();
   });
 
+  it("has no drifting layer: the still canvas is all it draws", () => {
+    expect(createCanvas2DEngine(vi.fn()).Motion).toBeUndefined();
+  });
+
   it("offers the three styles the dock shows", () => {
     const { styles } = createCanvas2DEngine(vi.fn());
     expect(styles.map((s) => s.id)).toEqual(["mesh", "aurora", "liquid"]);

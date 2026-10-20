@@ -10,6 +10,7 @@ vi.mock("@/lib/download/encode", () => ({
   exportFormatLabel: vi.fn(() => "WebP"),
 }));
 
+import { ScreenMotion } from "./ScreenMotion";
 import { createWebGLEngine } from "./webgl-engine";
 
 const v2: RenderParams = {
@@ -59,6 +60,10 @@ describe("webgl v2 engine", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     stubCanvas2D();
+  });
+
+  it("offers the drifting screen layer (the hero and the Studio device show it)", () => {
+    expect(setup().engine.Motion).toBe(ScreenMotion);
   });
 
   it("tells the Download button which format the file will have", () => {
