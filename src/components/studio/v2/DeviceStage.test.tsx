@@ -2,7 +2,7 @@
 import { act, render } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 import { useConfigStore } from "@/store";
-import { DeviceStage } from "./DeviceStage";
+import { DeviceStage, frameCorners, screenSize } from "./DeviceStage";
 
 const INITIAL = useConfigStore.getState();
 
@@ -27,5 +27,20 @@ describe("DeviceStage", () => {
       expect(container.querySelector("[data-part='quick-action']")).toBeNull();
       unmount();
     }
+  });
+
+  it("rounds the iPhone in proportion to its width, like an iPhone 16 Pro", () => {
+    // 62 pt corners on a 402 pt screen: the radius grows with the screen, so a
+    // small phone keeps the shape instead of turning into a pill.
+    const { width } = screenSize("mobile");
+    const corners = frameCorners("mobile");
+    expect(corners.screen).toBe(`calc(${width} * 0.154)`);
+    // The bezel follows the screen corner, so both curves share a centre.
+    expect(corners.frame).toBe(`calc(${width} * 0.154 + 7px)`);
+  });
+
+  it("keeps fixed corners on the tablet and the monitor", () => {
+    expect(frameCorners("tablet")).toEqual({ frame: "30px", screen: "20px" });
+    expect(frameCorners("desktop")).toEqual({ frame: "14px", screen: "7px" });
   });
 });
