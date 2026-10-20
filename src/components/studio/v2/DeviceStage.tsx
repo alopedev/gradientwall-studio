@@ -10,7 +10,8 @@ import { ScreenMotion } from "./ScreenMotion";
 
 /** Bezel padding and corner radius of each frame, in px. */
 const FRAME: Record<Device, { pad: number; radius: number }> = {
-  mobile: { pad: 7, radius: 46 },
+  // The phone's radius comes from its width (see frameCorners).
+  mobile: { pad: 7, radius: 0 },
   tablet: { pad: 10, radius: 30 },
   desktop: { pad: 7, radius: 14 },
 };
@@ -19,7 +20,7 @@ const FRAME: Record<Device, { pad: number; radius: number }> = {
 const STAND_H = 46;
 
 /** Screen size as CSS, fitted inside the stage box (container query units). */
-function screenSize(device: Device): { width: string; height: string } {
+export function screenSize(device: Device): { width: string; height: string } {
   const { pad } = FRAME[device];
   const w = `(100cqw - ${pad * 2}px)`;
   if (device === "desktop") {
@@ -32,6 +33,26 @@ function screenSize(device: Device): { width: string; height: string } {
   const h = `(100cqh - ${pad * 2}px)`;
   const height = `min(${h}, ${w} * ${rh} / ${rw})`;
   return { width: `calc(${height} * ${rw} / ${rh})`, height: `calc(${height})` };
+}
+
+/** iPhone 16 Pro screen corner: 62 pt on a 402 pt wide screen. */
+const PHONE_CORNER = 0.154;
+
+/**
+ * Corner radius of the frame and of the screen, as CSS. The phone's corners
+ * scale with its width (a fixed radius turns a small phone into a pill); the
+ * frame adds the bezel so both curves stay concentric.
+ */
+export function frameCorners(device: Device): { frame: string; screen: string } {
+  const { pad, radius } = FRAME[device];
+  if (device === "mobile") {
+    const { width } = screenSize(device);
+    return {
+      frame: `calc(${width} * ${PHONE_CORNER} + ${pad}px)`,
+      screen: `calc(${width} * ${PHONE_CORNER})`,
+    };
+  }
+  return { frame: `${radius}px`, screen: `${radius - pad}px` };
 }
 
 const REVEAL_MS = 900;
@@ -48,6 +69,7 @@ export function DeviceStage() {
   const revealRef = useContext(RevealContext);
   const frame = FRAME[device];
   const size = screenSize(device);
+  const corners = frameCorners(device);
 
   const screenRef = useRef<HTMLDivElement>(null);
   const underRef = useRef<HTMLCanvasElement>(null);
@@ -132,7 +154,7 @@ export function DeviceStage() {
       transition={{ type: "spring", stiffness: 170, damping: 24 }}
       style={{
         padding: frame.pad,
-        borderRadius: frame.radius,
+        borderRadius: corners.frame,
         marginBottom: device === "desktop" ? STAND_H : 0,
       }}
       className={`relative bg-gradient-to-br from-[#2a2a30] via-[#151519] to-[#1d1d22] ${
@@ -152,7 +174,7 @@ export function DeviceStage() {
         onDragLeave={() => setDropping(false)}
         onDrop={onDrop}
         transition={{ type: "spring", stiffness: 170, damping: 24 }}
-        style={{ ...size, borderRadius: frame.radius - frame.pad }}
+        style={{ ...size, borderRadius: corners.screen }}
         className="relative translate-z-0 overflow-hidden bg-black [container-type:size]"
       >
         <canvas
