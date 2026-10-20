@@ -202,3 +202,12 @@ describe("pack slugs", () => {
     expect(toml).toContain('from = "/packs/acrylic/*"');
   });
 });
+
+describe("largest image preload", () => {
+  it("preloads the hero phone on the home, with high priority", () => {
+    expect(renderHeadTags(buildHomePage())).toContain(
+      '<link rel="preload" as="image" href="/assets/hero/phone.webp" fetchpriority="high" />',
+    );
+    expect(renderHeadTags(PRIVACY_PAGE)).not.toContain('rel="preload"');
+  });
+});

@@ -70,6 +70,7 @@ describe("security headers", () => {
     expect(headersFor("/static/*").get("cache-control")).toBe(
       "public, max-age=31536000, immutable",
     );
+    expect(headersFor("/fonts/*").get("cache-control")).toMatch(/max-age=\d{7,}/);
     expect(headersFor("/manifest.webmanifest").get("content-type")).toBe(
       "application/manifest+json",
     );

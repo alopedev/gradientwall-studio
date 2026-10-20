@@ -4,10 +4,12 @@ import { pixelKey } from "@/lib/fitted-canvas";
 import {
   createRendererV2,
   frameDue,
+  isSoftwareRenderer,
   isWebGL2Supported,
   screenMotionSize,
   shouldRunBackdrop,
   type V2Renderer,
+  webglRendererName,
 } from "@/lib/gradient-v2";
 import { engineOf, type RenderParams } from "@/lib/palettes";
 import { useMotionStore } from "@/store/useMotionStore";
@@ -17,6 +19,7 @@ function readEnv() {
   const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
   return {
     webgl2: isWebGL2Supported(),
+    softwareGl: isSoftwareRenderer(webglRendererName()),
     reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     saveData: connection?.saveData === true,
   };

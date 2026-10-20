@@ -39,6 +39,8 @@ export interface SeoPage {
   ogImageAlt?: string;
   /** Pixel size of `ogImage`; leave out when unknown. */
   ogImageSize?: { width: number; height: number };
+  /** The page's largest image (its LCP), fetched before the app's JS asks for it. */
+  preloadImage?: string;
   jsonLd?: Record<string, unknown>[];
   noindex: boolean;
   /** Crawlable content injected into `#root` before React mounts. */
@@ -72,6 +74,9 @@ export function absoluteUrl(pathOrUrl: string): string {
 export function isPackIndexable(pack: Pick<SeoPack, "lemonSqueezyVariantId" | "etsyUrl">): boolean {
   return Boolean(pack.lemonSqueezyVariantId || pack.etsyUrl);
 }
+
+/** The cut-out phone of the home hero (`Hero.tsx`), the home page's LCP. */
+export const HERO_PHONE_IMAGE = "/assets/hero/phone.webp";
 
 export const HOME_TITLE = "Free Gradient Wallpaper Generator";
 export const HOME_DESCRIPTION =
@@ -209,6 +214,7 @@ export function buildHomePage(packs: Pick<SeoPack, "slug" | "name">[] = []): Seo
     ogType: "website",
     ogImageAlt: DEFAULT_OG_ALT,
     ogImageSize: DEFAULT_OG_SIZE,
+    preloadImage: HERO_PHONE_IMAGE,
     jsonLd: HOME_JSON_LD,
     noindex: false,
     shell: {

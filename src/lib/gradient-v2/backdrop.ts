@@ -35,13 +35,30 @@ export function screenMotionSize(
 
 export interface BackdropEnv {
   webgl2: boolean;
+  /** WebGL emulated on the CPU (`isSoftwareRenderer`): a drifting field would hog the main thread. */
+  softwareGl: boolean;
   reducedMotion: boolean;
   saveData: boolean;
 }
 
-/** The backdrop moves only on the GPU path and only if the visitor hasn't asked for less. */
-export function shouldRunBackdrop({ webgl2, reducedMotion, saveData }: BackdropEnv): boolean {
-  return webgl2 && !reducedMotion && !saveData;
+/** The backdrop moves only on a real GPU and only if the visitor hasn't asked for less. */
+export function shouldRunBackdrop({
+  webgl2,
+  softwareGl,
+  reducedMotion,
+  saveData,
+}: BackdropEnv): boolean {
+  return webgl2 && !softwareGl && !reducedMotion && !saveData;
+}
+
+/**
+ * Whether a WebGL renderer name is a CPU rasteriser (SwiftShader, llvmpipe,
+ * Windows' Basic Render Driver): what machines without a GPU, Lighthouse and
+ * crawlers' headless Chrome run. An empty name (hidden by the browser) counts
+ * as a real GPU.
+ */
+export function isSoftwareRenderer(name: string): boolean {
+  return /swiftshader|llvmpipe|softpipe|basic render driver/i.test(name);
 }
 
 /**

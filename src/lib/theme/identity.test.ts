@@ -50,9 +50,16 @@ describe("identity B: paper, ink, no AI tells", () => {
   });
 
   it("loads only the identity's two faces", () => {
+    // Self-hosted in public/fonts/, declared in index.css, preloaded in index.html.
+    const fonts = readdirSync(join(ROOT, "../public/fonts")).filter((f) => f.endsWith(".woff2"));
+    expect(new Set(fonts.map((f) => f.replace(/-latin(-ext)?\.woff2$/, "")))).toEqual(
+      new Set(["albert-sans", "jost"]),
+    );
+    const css = readFileSync(join(ROOT, "index.css"), "utf8");
+    const families = new Set([...css.matchAll(/font-family: "([^"]+)"/g)].map((m) => m[1]));
+    expect(families).toEqual(new Set(["Albert Sans", "Jost"]));
     const html = readFileSync(join(ROOT, "../index.html"), "utf8");
-    expect(html).toMatch(/family=Albert\+Sans/);
-    expect(html).toMatch(/family=Jost/);
-    expect(html).not.toMatch(/Space\+Grotesk|Instrument\+Serif/);
+    expect(html).toContain('href="/fonts/albert-sans-latin.woff2"');
+    expect(html).toContain('href="/fonts/jost-latin.woff2"');
   });
 });

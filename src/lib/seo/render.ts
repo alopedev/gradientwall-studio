@@ -63,6 +63,11 @@ export function renderHeadTags(page: SeoPage): string {
     `<meta name="twitter:description" content="${description}" />`,
     `<meta name="twitter:image" content="${image}" />`,
     ...(alt ? [`<meta name="twitter:image:alt" content="${alt}" />`] : []),
+    ...(page.preloadImage
+      ? [
+          `<link rel="preload" as="image" href="${escapeHtml(page.preloadImage)}" fetchpriority="high" />`,
+        ]
+      : []),
     ...(page.jsonLd
       ? [
           `<script type="application/ld+json" data-prerender="true">${jsonForScript(page.jsonLd)}</script>`,
