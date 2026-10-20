@@ -85,4 +85,14 @@ describe("Hero", () => {
     const { getByRole } = render(<Hero />);
     expect(getByRole("link", { name: /customize it/i }).getAttribute("href")).toBe("#studio");
   });
+
+  it("tells phone visitors what it costs and points to the packs", () => {
+    const { getByText, getByRole } = render(<Hero />);
+    const line = getByText(/free, up to 5K, no account, no watermark\./i);
+    // On wider screens the column beside the phone already says it.
+    expect(line.closest(".md\\:hidden")).not.toBeNull();
+    const packs = getByRole("link", { name: /or get a hand-picked pack, €5\.99/i });
+    expect(packs.getAttribute("href")).toBe("#packs");
+    expect(packs.closest(".md\\:hidden")).not.toBeNull();
+  });
 });
