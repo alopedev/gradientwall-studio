@@ -26,3 +26,14 @@ export function useRequestReveal(): (from: Element | null) => void {
     ref.current = { x: r.left + r.width / 2, y: r.top + r.height / 2, at: performance.now() };
   };
 }
+
+/** The circular reveal (B1, 2026-10-20): short, and shorter when shuffles come in a row. */
+export const REVEAL_MS = 420;
+export const REVEAL_QUICK_MS = 240;
+/** A reveal that starts this soon after the previous one is part of a run. */
+const RUN_GAP_MS = 1200;
+
+/** How long the next reveal lasts, given the time since the previous one started (null: none yet). */
+export function revealDurationMs(sinceLastMs: number | null): number {
+  return sinceLastMs !== null && sinceLastMs < RUN_GAP_MS ? REVEAL_QUICK_MS : REVEAL_MS;
+}

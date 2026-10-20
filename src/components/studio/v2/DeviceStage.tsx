@@ -5,7 +5,8 @@ import { extractColorsFromFile } from "@/lib/color-extract";
 import type { Device } from "@/lib/palettes";
 import { useConfigStore, useRenderParams } from "@/store";
 import { useWallpaperEngine } from "../engine";
-import { REVEAL_TTL_MS, RevealContext } from "./reveal";
+import { PrintSweep } from "./PrintSweep";
+import { REVEAL_TTL_MS, RevealContext, revealDurationMs } from "./reveal";
 import { ScreenMotion } from "./ScreenMotion";
 
 /** Bezel padding and corner radius of each frame, in px. */
@@ -55,8 +56,6 @@ export function frameCorners(device: Device): { frame: string; screen: string } 
   return { frame: `${radius}px`, screen: `${radius - pad}px` };
 }
 
-const REVEAL_MS = 900;
-
 /**
  * The wallpaper inside a phone, tablet or monitor frame. Switching device
  * morphs the frame; a change started from a button reveals the new frame as a
@@ -74,6 +73,7 @@ export function DeviceStage() {
   const screenRef = useRef<HTMLDivElement>(null);
   const underRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<Animation | null>(null);
+  const lastRevealAt = useRef<number | null>(null);
 
   const endReveal = useCallback((live?: HTMLCanvasElement | null) => {
     animRef.current?.cancel();
@@ -114,9 +114,12 @@ export function DeviceStage() {
       // the first frame of the animation already shows the new bitmap.
       requestAnimationFrame(() => {
         if (!live.classList.contains("gws-reveal")) return;
+        const now = performance.now();
+        const since = lastRevealAt.current === null ? null : now - lastRevealAt.current;
+        lastRevealAt.current = now;
         const anim = live.animate([{ "--r": "0px" }, { "--r": `${reach}px` }], {
-          duration: REVEAL_MS,
-          easing: "cubic-bezier(.45,.05,.2,1)",
+          duration: revealDurationMs(since),
+          easing: "cubic-bezier(.2,.7,.2,1)",
         });
         animRef.current = anim;
         anim.onfinish = () => endReveal(live);
@@ -190,6 +193,7 @@ export function DeviceStage() {
         />
         <ScreenMotion params={params} />
         <LockOverlay device={device} />
+        <PrintSweep />
         {dropping && (
           <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center rounded-[inherit] border-2 border-dashed border-white/70 bg-black/40 font-sans text-sm text-white backdrop-blur-sm">
             Drop a photo to use its colors

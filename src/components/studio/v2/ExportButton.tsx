@@ -6,6 +6,7 @@ import { DEVICE_SIZES } from "@/lib/palettes";
 import { useConfigStore, useRenderParams } from "@/store";
 import { useWallpaperEngine } from "../engine";
 import { DownloadHelp } from "./DownloadHelp";
+import { emitPrint } from "./print";
 import type { ToastAction } from "./toast";
 
 const HELP_SEEN_KEY = "gw:download-help";
@@ -55,8 +56,10 @@ export function ExportButton({ onMessage, primary = false, className = "" }: Pro
     clearTimeout(resetTimer.current);
     setPhase("busy");
     setProgress(0);
+    emitPrint("start");
     try {
       const { filename, bytes } = await engine.exportWallpaper(params, device, setProgress);
+      emitPrint("done");
       if (!helpSeen()) {
         markHelpSeen();
         setHelp({ filename, bytes });
@@ -71,6 +74,7 @@ export function ExportButton({ onMessage, primary = false, className = "" }: Pro
       setPhase("done");
       resetTimer.current = setTimeout(() => setPhase("idle"), 1800);
     } catch {
+      emitPrint("fail");
       onMessage("Couldn't render that one. Try again.");
       setPhase("idle");
     }

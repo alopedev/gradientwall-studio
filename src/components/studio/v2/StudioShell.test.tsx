@@ -47,6 +47,11 @@ describe("StudioShell", () => {
     expect(getByLabelText(/favourites — empty/i)).toBeTruthy();
   });
 
+  it("offers a pause for the drifting wallpaper on the device", () => {
+    const { getByRole } = render(<StudioShell />);
+    expect(getByRole("button", { name: "Pause motion" })).toBeTruthy();
+  });
+
   it("paints the wallpaper into a framed screen", () => {
     const { container, getByRole } = render(<StudioShell />);
     expect(getByRole("img", { name: /wallpaper preview/i })).toBeTruthy();

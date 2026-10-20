@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useConfigStore } from "@/store";
 import { canvas2DEngine, EngineProvider, type WallpaperEngine } from "../engine";
 import { ExportButton } from "./ExportButton";
+import { onPrint, type PrintEvent } from "./print";
 
 function engineWith(exportWallpaper: WallpaperEngine["exportWallpaper"]): WallpaperEngine {
   return { ...canvas2DEngine, exportWallpaper, exportFormat: () => "WebP" };
@@ -187,5 +188,35 @@ describe("ExportButton", () => {
     await user.click(screen.getByRole("button", { name: /download wallpaper/i }));
     expect(onMessage).toHaveBeenCalledWith(expect.stringMatching(/couldn't render/i));
     expect(screen.getByText("Download")).toBeTruthy();
+  });
+
+  it("tells the device screen to print while the file renders", async () => {
+    const user = userEvent.setup();
+    const seen: PrintEvent[] = [];
+    const off = onPrint((e) => seen.push(e));
+    render(
+      <EngineProvider
+        engine={engineWith(vi.fn().mockResolvedValue({ filename: "gw.webp", bytes: 1 }))}
+      >
+        <ExportButton onMessage={vi.fn()} />
+      </EngineProvider>,
+    );
+    await user.click(screen.getByRole("button", { name: /download wallpaper/i }));
+    off();
+    expect(seen).toEqual(["start", "done"]);
+  });
+
+  it("tells the screen to stop printing when the render fails", async () => {
+    const user = userEvent.setup();
+    const seen: PrintEvent[] = [];
+    const off = onPrint((e) => seen.push(e));
+    render(
+      <EngineProvider engine={engineWith(vi.fn().mockRejectedValue(new Error("boom")))}>
+        <ExportButton onMessage={vi.fn()} />
+      </EngineProvider>,
+    );
+    await user.click(screen.getByRole("button", { name: /download wallpaper/i }));
+    off();
+    expect(seen).toEqual(["start", "fail"]);
   });
 });
