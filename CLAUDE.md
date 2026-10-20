@@ -228,3 +228,17 @@ El Studio v2 es ahora el único Studio (cutover Fase 5 completado). Mini-framewo
 - Linter: Biome (config en `biome.json`, indent 2 espacios, line width 100). CSS deshabilitado porque Tailwind v4 `@theme/@utility` no es CSS estándar aún soportado.
 - `npm run check` (typecheck + lint + test) — el "ready to commit".
 - Lint debt pendiente: 62 violations en código preexistente registradas en `TASKS.md` Fase 6 (cleanup post-cutover).
+
+## Agent skills
+
+### Issue tracker
+
+Issues live as local markdown files under `.scratch/<feature>/`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `GLOSSARY.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
