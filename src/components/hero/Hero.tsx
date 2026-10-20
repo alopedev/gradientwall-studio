@@ -1,16 +1,13 @@
-import { ChevronLeft, ChevronRight, Shuffle } from "lucide-react";
-import { m } from "motion/react";
 import { useState } from "react";
 import { getPacks } from "@/lib/packs";
 import { paletteName } from "@/lib/palette-name";
 import { DEVICE_SIZES } from "@/lib/palettes";
 import { shuffleWallpaper, useConfigStore, useRenderParams } from "@/store";
-import { useLookHistoryStore } from "@/store/useLookHistoryStore";
 import { LockScreen } from "../packs/DeviceFrames";
 import { useWallpaperEngine } from "../studio/engine";
 import { ScreenMotion } from "../studio/v2/ScreenMotion";
+import { ShuffleToolbar } from "../studio/v2/ShuffleToolbar";
 import { BauhausMarks } from "../ui/BauhausMarks";
-import { InkButton } from "../ui/InkButton";
 import { MotionToggle } from "../ui/MotionToggle";
 import { useMotionStore } from "@/store/useMotionStore";
 import { PAGE_COLUMN } from "../ui/layout";
@@ -30,8 +27,6 @@ export function Hero() {
   const engine = useWallpaperEngine();
   const params = useRenderParams();
   const colors = useConfigStore((s) => s.colors);
-  const canBack = useLookHistoryStore((s) => s.past.length > 0);
-  const canForward = useLookHistoryStore((s) => s.future.length > 0);
   const [spins, setSpins] = useState(0);
   // Paused, the phone stops where it is instead of snapping back to rest.
   const hold = useMotionStore((s) => s.paused) ? "[animation-play-state:paused]" : "";
@@ -107,40 +102,7 @@ export function Hero() {
           </figure>
 
           <div className="flex flex-col items-center gap-3 md:items-start md:justify-self-start">
-            <div role="toolbar" aria-label="Wallpaper controls" className="flex items-center gap-3">
-              <InkButton
-                variant="icon"
-                onClick={() => useLookHistoryStore.getState().back()}
-                aria-disabled={!canBack}
-                aria-label="Previous wallpaper"
-                className="aria-disabled:pointer-events-none aria-disabled:opacity-40"
-              >
-                <ChevronLeft className="size-5" aria-hidden />
-              </InkButton>
-              <InkButton
-                variant="round"
-                onClick={shuffle}
-                aria-label="Shuffle: generate another wallpaper"
-              >
-                <m.span
-                  aria-hidden
-                  animate={{ rotate: spins * 180 }}
-                  transition={{ type: "spring", stiffness: 260, damping: 14 }}
-                  className="inline-flex"
-                >
-                  <Shuffle className="size-6" strokeWidth={2.1} />
-                </m.span>
-              </InkButton>
-              <InkButton
-                variant="icon"
-                onClick={() => useLookHistoryStore.getState().forward()}
-                aria-disabled={!canForward}
-                aria-label="Next wallpaper"
-                className="aria-disabled:pointer-events-none aria-disabled:opacity-40"
-              >
-                <ChevronRight className="size-5" aria-hidden />
-              </InkButton>
-            </div>
+            <ShuffleToolbar spins={spins} onShuffle={shuffle} className="flex items-center gap-3" />
             <p className="m-0 hidden font-sans text-[12px] font-medium uppercase tracking-[0.18em] text-ink-dim md:block">
               Palette
             </p>

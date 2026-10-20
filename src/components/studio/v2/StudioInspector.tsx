@@ -1,11 +1,8 @@
-import { ChevronLeft, ChevronRight, Shuffle } from "lucide-react";
 import { AnimatePresence, m } from "motion/react";
 import { type ReactNode, useCallback, useEffect, useId, useRef, useState } from "react";
-import { InkButton } from "@/components/ui/InkButton";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { remixWallpaper, shuffleWallpaper, useConfigStore } from "@/store";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
-import { useLookHistoryStore } from "@/store/useLookHistoryStore";
 import { useWallpaperEngine } from "../engine";
 import { AdjustPanel } from "./AdjustPanel";
 import { ColorEditor } from "./ColorEditor";
@@ -14,6 +11,7 @@ import { PaletteList } from "./PaletteList";
 import { PaletteSwatches } from "./PaletteSwatches";
 import { useRequestReveal } from "./reveal";
 import { SaveButton } from "./SaveButton";
+import { ShuffleToolbar } from "./ShuffleToolbar";
 import type { ToastAction } from "./toast";
 
 interface Props {
@@ -78,8 +76,6 @@ export function StudioInspector({ keysActive }: Props) {
   const engine = useWallpaperEngine();
   const style = useConfigStore((s) => s.style);
   const setStyle = useConfigStore((s) => s.setStyle);
-  const canBack = useLookHistoryStore((s) => s.past.length > 0);
-  const canForward = useLookHistoryStore((s) => s.future.length > 0);
   const requestReveal = useRequestReveal();
   const tabsId = useId();
   const shuffleRef = useRef<HTMLButtonElement>(null);
@@ -114,18 +110,12 @@ export function StudioInspector({ keysActive }: Props) {
     say("Found one you like? Keep it with the heart.");
   }, [spins, say]);
 
-  const shuffle = () => {
+  // The button and the Space key: reveal from the button, new wallpaper, half a turn.
+  const shuffle = useCallback(() => {
     requestReveal(shuffleRef.current);
     shuffleWallpaper();
     setSpins((n) => n + 1);
-  };
-
-  // aria-disabled (not `disabled`) keeps focus on the arrow when its end of the list is reached.
-  const step = (e: React.MouseEvent<HTMLButtonElement>, dir: "back" | "forward") => {
-    if (e.currentTarget.getAttribute("aria-disabled") === "true") return;
-    requestReveal(e.currentTarget);
-    useLookHistoryStore.getState()[dir]();
-  };
+  }, [requestReveal]);
 
   // Space → shuffle, R → remix (not while typing or on a focused control).
   useEffect(() => {
@@ -134,9 +124,7 @@ export function StudioInspector({ keysActive }: Props) {
       if (e.metaKey || e.ctrlKey || e.altKey || e.repeat || isTypingTarget(e.target)) return;
       if (e.code === "Space") {
         e.preventDefault();
-        requestReveal(shuffleRef.current);
-        shuffleWallpaper();
-        setSpins((n) => n + 1);
+        shuffle();
       } else if (e.key === "r" || e.key === "R") {
         e.preventDefault();
         requestReveal(shuffleRef.current);
@@ -145,7 +133,7 @@ export function StudioInspector({ keysActive }: Props) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [keysActive, requestReveal]);
+  }, [keysActive, requestReveal, shuffle]);
 
   const styleControl = (
     <SegmentedControl
@@ -163,49 +151,16 @@ export function StudioInspector({ keysActive }: Props) {
       aria-label="Studio controls"
       className="relative z-[4] flex min-h-0 min-w-0 flex-col gap-3.5 border-l-2 border-ink bg-bg p-[18px] [grid-area:panel] @max-[760px]:gap-3 @max-[760px]:border-l-0 @max-[760px]:border-t-2 @max-[760px]:px-3.5 @max-[760px]:py-3.5"
     >
-      <div
-        role="toolbar"
-        aria-label="Wallpaper controls"
+      <ShuffleToolbar
+        ref={shuffleRef}
+        spins={spins}
+        onShuffle={shuffle}
+        onStep={requestReveal}
+        shortcut="Space"
+        tips
+        shuffleClassName={keysActive && spins === 0 ? "gws-nudge" : ""}
         className="grid grid-cols-[44px_minmax(0,1fr)_44px] items-center justify-items-center gap-2"
-      >
-        <InkButton
-          variant="icon"
-          onClick={(e) => step(e, "back")}
-          aria-disabled={!canBack}
-          aria-label="Previous wallpaper"
-          data-tip="Previous"
-          className="gws-tip aria-disabled:pointer-events-none aria-disabled:opacity-40"
-        >
-          <ChevronLeft className="size-5" aria-hidden />
-        </InkButton>
-        <InkButton
-          ref={shuffleRef}
-          variant="round"
-          onClick={shuffle}
-          aria-keyshortcuts="Space"
-          aria-label="Shuffle: generate another wallpaper"
-          className={keysActive && spins === 0 ? "gws-nudge" : ""}
-        >
-          <m.span
-            aria-hidden
-            animate={{ rotate: spins * 180 }}
-            transition={{ type: "spring", stiffness: 260, damping: 14 }}
-            className="inline-flex"
-          >
-            <Shuffle className="size-6" strokeWidth={2.1} />
-          </m.span>
-        </InkButton>
-        <InkButton
-          variant="icon"
-          onClick={(e) => step(e, "forward")}
-          aria-disabled={!canForward}
-          aria-label="Next wallpaper"
-          data-tip="Next"
-          className="gws-tip aria-disabled:pointer-events-none aria-disabled:opacity-40"
-        >
-          <ChevronRight className="size-5" aria-hidden />
-        </InkButton>
-      </div>
+      />
 
       {/* Only the middle scrolls on a short screen: Shuffle and Download stay in view. */}
       <div className="-mx-[18px] grid min-h-0 flex-1 content-start gap-[18px] overflow-y-auto px-[18px] py-1 [scrollbar-width:thin] @max-[760px]:mx-0 @max-[760px]:gap-3 @max-[760px]:overflow-visible @max-[760px]:px-0 @max-[760px]:py-0">
