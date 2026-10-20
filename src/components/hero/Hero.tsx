@@ -42,8 +42,11 @@ export function Hero() {
           id="hero-title"
           className="display-head mx-auto max-w-[20ch] text-balance text-center text-[clamp(34px,3.3vw,52px)] text-ink md:max-w-none"
         >
-          make a gradient wallpaper. shuffle until it's yours.
+          make a gradient wallpaper. free, in 5K.
         </h1>
+        <p className="mx-auto mt-3 max-w-[30ch] text-balance text-center font-sans text-[16px] text-ink-dim">
+          shuffle until it's yours.
+        </p>
 
         {/* Room above the phone for the width ruler and its label, plus the float
             (up 16px) and the tilt, so they never touch the headline. */}
@@ -114,7 +117,7 @@ export function Hero() {
             {/* Phones don't get the column beside the phone: say the same here, shorter. */}
             <div className="mt-2 flex flex-col items-center gap-3 text-center md:hidden">
               <p className="m-0 max-w-[26ch] text-balance font-sans text-[16px] leading-snug text-ink-dim">
-                Free, up to 5K, no account, no watermark.
+                No account, no watermark.
               </p>
               <a
                 href="#packs"

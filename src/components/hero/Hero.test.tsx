@@ -28,7 +28,10 @@ describe("Hero", () => {
     const { getAllByRole, container } = render(<Hero />);
     const h1s = getAllByRole("heading", { level: 1 });
     expect(h1s).toHaveLength(1);
-    expect(h1s[0].textContent).toMatch(/make a gradient wallpaper\.\s*shuffle until it's yours\./);
+    // A4 (2026-10-20): the H1 names the search term and the benefit; the old
+    // promise stays right under it.
+    expect(h1s[0].textContent).toMatch(/make a gradient wallpaper\.\s*free, in 5K\./);
+    expect(h1s[0].nextElementSibling?.textContent).toMatch(/shuffle until it's yours\./);
     expect(h1s[0].className).toMatch(/display-head/);
     expect(container.querySelector("[data-bauhaus-marks]")).not.toBeNull();
   });
@@ -112,7 +115,7 @@ describe("Hero", () => {
 
   it("tells phone visitors what it costs and points to the packs", () => {
     const { getByText, getByRole } = render(<Hero />);
-    const line = getByText(/free, up to 5K, no account, no watermark\./i);
+    const line = getByText(/^no account, no watermark\./i);
     // On wider screens the column beside the phone already says it.
     expect(line.closest(".md\\:hidden")).not.toBeNull();
     const packs = getByRole("link", { name: /or get a hand-picked pack, €5\.99/i });

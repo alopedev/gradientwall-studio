@@ -218,7 +218,7 @@ export function buildHomePage(packs: Pick<SeoPack, "slug" | "name">[] = []): Seo
     jsonLd: HOME_JSON_LD,
     noindex: false,
     shell: {
-      h1: "Free gradient wallpaper generator",
+      h1: "make a gradient wallpaper. free, in 5K.",
       text: "Design your own gradient wallpaper for phone, tablet or desktop. Shuffle until something feels right, tweak the colours, and download it in high resolution. No account, no watermark.",
       links: [
         ...packs.map((p) => ({ href: packPath(p.slug), label: `${p.name} wallpaper pack` })),
