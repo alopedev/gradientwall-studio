@@ -14,6 +14,7 @@ import {
 import { DEVICE_SIZES, engineOf, type RenderParams } from "@/lib/palettes";
 import { useFittedCanvas } from "@/lib/useFittedCanvas";
 import { canvas2DEngine } from "./canvas2d-engine";
+import { ScreenMotion } from "./ScreenMotion";
 import type { AdjustmentSpec, EngineCanvasProps, WallpaperEngine } from "./types";
 
 /** Longest preview side and DPR cap, same budget as the Canvas2D preview. */
@@ -118,6 +119,7 @@ export function createWebGLEngine(deps: WebGLEngineDeps = {}): WallpaperEngine {
     adjustmentsFor: (params) =>
       engineOf(params) === "v1" ? fallback.adjustmentsFor(params) : ADJUSTMENTS,
     Canvas: EngineCanvas,
+    Motion: ScreenMotion,
     paintThumbnail(canvas, params, size) {
       if (engineOf(params) === "v1" || !tryPaint(canvas, params, size.w, size.h)) {
         fallback.paintThumbnail(canvas, params, size);

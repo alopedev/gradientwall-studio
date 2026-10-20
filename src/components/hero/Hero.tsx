@@ -5,7 +5,6 @@ import { DEVICE_SIZES } from "@/lib/palettes";
 import { shuffleWallpaper, useConfigStore, useRenderParams } from "@/store";
 import { LockScreen } from "../packs/DeviceFrames";
 import { useWallpaperEngine } from "../studio/engine";
-import { ScreenMotion } from "../studio/v2/ScreenMotion";
 import { ShuffleToolbar } from "../studio/v2/ShuffleToolbar";
 import { BauhausMarks } from "../ui/BauhausMarks";
 import { MotionToggle } from "../ui/MotionToggle";
@@ -78,7 +77,7 @@ export function Hero() {
                   device="mobile"
                   className="absolute inset-0 size-full object-cover"
                 />
-                <ScreenMotion params={params} />
+                {engine.Motion && <engine.Motion params={params} />}
                 <LockScreen />
               </div>
               <img

@@ -60,7 +60,13 @@ export interface WallpaperEngine {
   adjustmentsFor: (params: RenderParams) => readonly AdjustmentSpec[];
   /** Live preview. Fills its parent box, keeping the device aspect ratio. */
   Canvas: ComponentType<EngineCanvasProps>;
-  /** Synchronous small render for the favorites strip. */
+  /**
+   * Optional layer drawn over `Canvas` with the same look, drifting slowly (the
+   * hero phone and the Studio device). It renders nothing when it can't move;
+   * an engine without one leaves the still canvas on its own.
+   */
+  Motion?: ComponentType<{ params: RenderParams }>;
+  /** Synchronous small render for the favorites strip and gradient pack covers. */
   paintThumbnail: (
     canvas: HTMLCanvasElement,
     params: RenderParams,

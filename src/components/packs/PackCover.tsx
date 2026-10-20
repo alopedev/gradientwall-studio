@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
-import { paintWallpaper } from "@/lib/download/compose";
 import type { PackCover as PackCoverType } from "@/lib/packs";
 import { coverDisplayWidth, srcSetFor } from "@/lib/responsive-image";
+import { useWallpaperEngine } from "../studio/engine";
 
 interface Props {
   cover: PackCoverType;
@@ -21,7 +21,7 @@ interface Props {
 }
 
 /**
- * Renders a pack cover regardless of source — gradient (drawn via the engine
+ * Renders a pack cover regardless of source — gradient (drawn by the wallpaper engine
  * with grain baked in, WYSIWYG with downloads) or external image. Pack pages
  * and cards both go through here, so swapping a future pack from
  * gradient-spec to a real R2 image is a single manifest change with no
@@ -75,19 +75,23 @@ function GradientCover({
   className?: string;
   decorative?: boolean;
 }) {
+  const engine = useWallpaperEngine();
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const c = ref.current;
     if (!c) return;
-    paintWallpaper(c, {
-      w,
-      h,
-      colors: cover.colors,
-      style: cover.style,
-      blur: cover.blur,
-      grain: cover.grain,
-      seed: cover.seed,
-    });
-  }, [cover, w, h]);
+    // No `engine` field: a cover is a v1 look, drawn as the Studio draws v1 thumbnails.
+    engine.paintThumbnail(
+      c,
+      {
+        colors: cover.colors,
+        style: cover.style,
+        blur: cover.blur,
+        grain: cover.grain,
+        seed: cover.seed,
+      },
+      { w, h },
+    );
+  }, [engine, cover, w, h]);
   return <canvas ref={ref} className={className} aria-hidden={decorative || undefined} />;
 }
