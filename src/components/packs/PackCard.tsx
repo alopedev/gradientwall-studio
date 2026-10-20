@@ -1,3 +1,4 @@
+import { prefersReducedMotion } from "@/lib/motion";
 import { type CSSProperties, type MouseEvent, useRef } from "react";
 import { flushSync } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
@@ -34,7 +35,7 @@ export function PackCard({ pack }: { pack: Pack }) {
     void runPageTransition({
       update: () => flushSync(() => navigate(to)),
       ready: () => document.querySelector(PACK_PAGE_PHONE) !== null,
-      reducedMotion: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches,
+      reducedMotion: prefersReducedMotion(),
       shared: [
         {
           name: "pack-phone",

@@ -1,3 +1,4 @@
+import { prefersReducedMotion } from "@/lib/motion";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { onPrint } from "./print";
 
@@ -6,10 +7,6 @@ const HOLD_AT = 88;
 const PRINT_MS = 1000;
 const FINISH_MS = 240;
 const EASE = "cubic-bezier(.45,0,.55,1)";
-
-function reducedMotion(): boolean {
-  return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-}
 
 /**
  * While a download renders, the device screen turns to paper and the
@@ -43,7 +40,7 @@ export function PrintSweep() {
     };
     return onPrint((e) => {
       if (e === "start") {
-        if (!reducedMotion()) setOn(true);
+        if (!prefersReducedMotion()) setOn(true);
       } else if (e === "fail") {
         stop();
       } else {

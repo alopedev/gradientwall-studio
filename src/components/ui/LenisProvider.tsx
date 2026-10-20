@@ -1,3 +1,4 @@
+import { prefersReducedMotion } from "@/lib/motion";
 import { createContext, useContext, useEffect, useRef, type ReactNode } from "react";
 import Lenis from "lenis";
 
@@ -23,7 +24,7 @@ export function LenisProvider({ children }: { children: ReactNode }) {
   const ref = useRef<Lenis | null>(null);
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (prefersReducedMotion()) return;
 
     const lenis = new Lenis({
       duration: 1.1,

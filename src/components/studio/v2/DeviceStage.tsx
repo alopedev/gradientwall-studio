@@ -1,3 +1,4 @@
+import { prefersReducedMotion } from "@/lib/motion";
 import { Camera, Flashlight } from "lucide-react";
 import { AnimatePresence, m } from "motion/react";
 import { type DragEvent, useCallback, useContext, useEffect, useRef, useState } from "react";
@@ -92,7 +93,7 @@ export function DeviceStage() {
       const screen = screenRef.current;
       if (!req || !under || !screen) return;
       if (performance.now() - req.at > REVEAL_TTL_MS) return;
-      if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+      if (prefersReducedMotion()) return;
       if (live.width === 0 || live.height === 0) return;
 
       endReveal(live);
