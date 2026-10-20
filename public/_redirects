@@ -1,1 +1,4 @@
+# Impasto's URL was /packs/acrylic until October 2026.
+/packs/acrylic    /packs/impasto/          301
+/packs/acrylic/*  /packs/impasto/:splat    301
 /packs/:slug/success  /index.html  200

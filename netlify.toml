@@ -7,6 +7,17 @@
 # 404 (served from the prerendered 404.html, whose React app then redirects
 # the visitor home). Only the post-checkout page has no prerendered file and
 # needs the SPA fallback. `public/_redirects` mirrors this block.
+# Impasto's URL was /packs/acrylic until October 2026.
+[[redirects]]
+  from = "/packs/acrylic"
+  to = "/packs/impasto/"
+  status = 301
+
+[[redirects]]
+  from = "/packs/acrylic/*"
+  to = "/packs/impasto/:splat"
+  status = 301
+
 [[redirects]]
   from = "/packs/:slug/success"
   to = "/index.html"

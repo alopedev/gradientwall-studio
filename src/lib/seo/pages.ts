@@ -25,10 +25,12 @@ export interface SeoPack {
   seoDescription?: string;
   cover: { kind: string; url?: string; alt?: string; width?: number; height?: number };
   lemonSqueezyVariantId?: string;
+  /** Etsy listing, while the pack is sold there instead of here. */
+  etsyUrl?: string;
 }
 
 export interface SeoPage {
-  /** Path-only URL with its trailing slash, e.g. `/packs/acrylic/` (see `packPath`). */
+  /** Path-only URL with its trailing slash, e.g. `/packs/impasto/` (see `packPath`). */
   path: string;
   title: string;
   description: string;
@@ -63,12 +65,12 @@ export function absoluteUrl(pathOrUrl: string): string {
 }
 
 /**
- * Pack pages are indexable only once the pack can be bought. Until the store
- * opens (Phase 2) they are prerendered for correct link previews but kept
+ * Pack pages are indexable once the pack can be bought: on Etsy (today) or in
+ * our own store. A pack with neither is prerendered for link previews but kept
  * out of the index and the sitemap.
  */
-export function isPackIndexable(pack: Pick<SeoPack, "lemonSqueezyVariantId">): boolean {
-  return Boolean(pack.lemonSqueezyVariantId);
+export function isPackIndexable(pack: Pick<SeoPack, "lemonSqueezyVariantId" | "etsyUrl">): boolean {
+  return Boolean(pack.lemonSqueezyVariantId || pack.etsyUrl);
 }
 
 export const HOME_TITLE = "Free Gradient Wallpaper Generator";
@@ -159,7 +161,8 @@ export function buildPackJsonLd(pack: SeoPack): Record<string, unknown>[] {
       brand: { "@type": "Brand", name: SITE_NAME },
       offers: {
         "@type": "Offer",
-        url,
+        // Where it is bought: the Etsy listing until our own checkout opens.
+        url: pack.lemonSqueezyVariantId || !pack.etsyUrl ? url : pack.etsyUrl,
         priceCurrency: "EUR",
         price: pack.priceEur.toFixed(2),
         availability: "https://schema.org/InStock",

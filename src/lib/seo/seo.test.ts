@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import packsData from "../../data/packs.json";
 import {
@@ -43,10 +44,23 @@ describe("seo pages", () => {
     expect(fullTitle("Pack")).toBe("Pack — GradientWall");
   });
 
-  it("makes pack pages indexable only once they can be bought", () => {
-    const pack = packs[0];
-    expect(buildPackPage({ ...pack, lemonSqueezyVariantId: undefined }).noindex).toBe(true);
+  it("makes pack pages indexable once they can be bought, on Etsy or here", () => {
+    const pack = { ...packs[0], etsyUrl: undefined, lemonSqueezyVariantId: undefined };
+    expect(buildPackPage(pack).noindex).toBe(true);
     expect(buildPackPage({ ...pack, lemonSqueezyVariantId: "123" }).noindex).toBe(false);
+    expect(buildPackPage({ ...pack, etsyUrl: "https://www.etsy.com/listing/1" }).noindex).toBe(
+      false,
+    );
+    for (const p of packs) expect(buildPackPage(p).noindex, p.slug).toBe(false);
+  });
+
+  it("points a pack sold on Etsy at its listing as the place to buy", () => {
+    const pack = { ...packs[0], etsyUrl: "https://www.etsy.com/listing/1" };
+    const offer = (buildPackPage(pack).jsonLd?.[0] as { offers: { url: string } }).offers;
+    expect(offer.url).toBe("https://www.etsy.com/listing/1");
+    const own = { ...pack, lemonSqueezyVariantId: "123" };
+    const ownOffer = (buildPackPage(own).jsonLd?.[0] as { offers: { url: string } }).offers;
+    expect(ownOffer.url).toBe(absoluteUrl(packPath(pack.slug)));
   });
 
   it("prerenders the privacy page, indexable and with its own h1", () => {
@@ -70,7 +84,7 @@ describe("renderPage", () => {
     expect(html).toContain(
       `<link rel="canonical" href="https://gradientwall-studio.netlify.app/packs/${packs[0].slug}/" />`,
     );
-    expect(html).toContain('<meta name="robots" content="noindex" />');
+    expect(html).toContain('<meta name="robots" content="index,follow" />');
     expect(html).toContain(`<h1>${packs[0].name}</h1>`);
     expect(html).toContain('<meta name="theme-color" />');
   });
@@ -175,5 +189,16 @@ describe("head tags for search and link previews", () => {
   it("links the home shell to every pack", () => {
     const hrefs = (buildHomePage(packs).shell.links ?? []).map((l) => l.href);
     for (const pack of packs) expect(hrefs).toContain(packPath(pack.slug));
+  });
+});
+
+describe("pack slugs", () => {
+  it("names Impasto's URL after the pack and redirects the old one", () => {
+    expect(packs.map((p) => p.slug)).toContain("impasto");
+    expect(packs.map((p) => p.slug)).not.toContain("acrylic");
+    const redirects = readFileSync("public/_redirects", "utf8");
+    const toml = readFileSync("netlify.toml", "utf8");
+    expect(redirects).toMatch(/^\/packs\/acrylic\/?\*?\s+\/packs\/impasto\/\s+301/m);
+    expect(toml).toContain('from = "/packs/acrylic/*"');
   });
 });

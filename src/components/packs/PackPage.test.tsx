@@ -35,7 +35,7 @@ describe("PackPage", () => {
 
 describe("PackPage ending", () => {
   it("closes with the other packs and the Studio, not a dead end", () => {
-    renderPack("acrylic");
+    renderPack("impasto");
     const more = screen.getByRole("region", { name: /more packs/i });
     expect(within(more).getAllByRole("link", { name: /dessau/i }).length).toBeGreaterThan(0);
     expect(within(more).getByRole("link", { name: /open the studio/i })).toBeInTheDocument();
@@ -44,13 +44,13 @@ describe("PackPage ending", () => {
 
 describe("PackPage showcase and specs", () => {
   it("opens with a device carousel of the pack's pieces", () => {
-    renderPack("acrylic");
+    renderPack("impasto");
     expect(screen.getByText("01 / 10")).toBeInTheDocument();
     expect(screen.getByRole("region", { name: /impasto wallpapers/i })).toBeInTheDocument();
   });
 
   it("lists exact files, sizes, format and licence in a spec block", () => {
-    renderPack("acrylic");
+    renderPack("impasto");
     const specs = screen.getByRole("list", { name: /specifications/i });
     expect(within(specs).getByText("10 × 4K and 5K")).toBeInTheDocument();
     expect(within(specs).getByText("3840 × 2160 · 5120 × 2880")).toBeInTheDocument();
@@ -96,7 +96,7 @@ describe("PackPage buying", () => {
   });
 
   it("declares that the artwork is AI-assisted", () => {
-    renderPack("acrylic");
+    renderPack("impasto");
     expect(screen.getByText(/how it was made/i)).toBeInTheDocument();
     expect(screen.getAllByText(/AI-assisted image generation/i).length).toBeGreaterThan(0);
   });
