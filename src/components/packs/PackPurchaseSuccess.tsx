@@ -4,6 +4,7 @@ import { Nav } from "../Nav";
 import { Footer } from "../Footer";
 import { inkButton } from "../ui/InkButton";
 import { PageMeta } from "../PageMeta";
+import { RECOVER_PAGE } from "@/lib/seo/pages";
 
 /**
  * Landing after the LS overlay completes. The download link is sent by
@@ -49,7 +50,7 @@ export function PackPurchaseSuccess() {
             <Link to="/#packs" className={`${inkButton({ variant: "primary" })} px-6`}>
               ← Browse more packs
             </Link>
-            <Link to="/recover" className={`${inkButton({ variant: "ghost" })} px-6`}>
+            <Link to={RECOVER_PAGE.path} className={`${inkButton({ variant: "ghost" })} px-6`}>
               Email didn't arrive?
             </Link>
           </div>

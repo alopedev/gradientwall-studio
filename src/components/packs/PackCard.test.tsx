@@ -15,7 +15,7 @@ function renderCard() {
       </Routes>
     </MemoryRouter>,
   );
-  return screen.getAllByRole("link").find((a) => a.getAttribute("href") === "/packs/dessau")!;
+  return screen.getAllByRole("link").find((a) => a.getAttribute("href") === "/packs/dessau/")!;
 }
 
 /** jsdom has no view transitions; tests add and remove a fake. */

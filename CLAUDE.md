@@ -127,7 +127,9 @@ Hosting: every public route is prerendered (see "SEO / prerender" below), so Net
 The app is still a client-rendered SPA (`createRoot`, no SSR). `seoPlugin` in `vite.config.ts` post-processes the build: it takes the built `index.html` as a template and writes `dist/<route>/index.html` for the home, each pack in `src/data/packs.json`, `/recover`, plus `404.html` and `sitemap.xml`. Each file has its own title, description, canonical, robots, Open Graph/Twitter and JSON-LD, plus a visually hidden h1/intro inside `#root` that React replaces on mount.
 
 - Source of truth: `src/lib/seo/pages.ts` (pure; used by the plugin **and** by `PageMeta` at runtime) and `render.ts` (HTML/sitemap rendering). Change copy there, not in `index.html`: the block between `<!--seo:start-->` and `<!--seo:end-->` is generated.
-- Pack pages are `noindex` and out of the sitemap until the pack has a `lemonSqueezyVariantId` (store opens in Phase 2).
+- Pack pages are indexable once the pack can be bought: an `etsyUrl` (today; the Product `Offer.url` then points at the Etsy listing) or a `lemonSqueezyVariantId`.
+- URLs carry a trailing slash (`packPath(slug)` → `/packs/impasto/`, `/privacy/`): Netlify serves `dir/index.html` there and 301-redirects the slashless form, so canonicals, sitemap and internal links use the slash. Impasto's old `/packs/acrylic` 301s to `/packs/impasto/` (`_redirects` + `netlify.toml`); its R2 ZIP key follows the slug (`packs/impasto/impasto.zip`) when the own store opens.
+- Plan and research: `/mnt/project-files/web-plan/seo-2026-10-20/`.
 - Per-page copy is English. `public/og-default.jpg` (1200×630) is the default share image.
 
 ## Design system — non-obvious rules

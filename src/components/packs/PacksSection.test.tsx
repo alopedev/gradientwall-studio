@@ -12,7 +12,7 @@ function packLinks(): string[] {
 }
 
 function packLink(slug: string): HTMLElement {
-  return screen.getAllByRole("link").find((a) => a.getAttribute("href") === `/packs/${slug}`)!;
+  return screen.getAllByRole("link").find((a) => a.getAttribute("href") === `/packs/${slug}/`)!;
 }
 
 describe("PacksSection", () => {
@@ -22,7 +22,7 @@ describe("PacksSection", () => {
         <PacksSection />
       </MemoryRouter>,
     );
-    const slugs = getPacks().map((p) => `/packs/${p.slug}`);
+    const slugs = getPacks().map((p) => `/packs/${p.slug}/`);
     expect(packLinks().sort()).toEqual([...slugs].sort());
   });
 
@@ -125,5 +125,18 @@ describe("PacksSection", () => {
     );
     expect(container.querySelector("[data-variant='hero']")).toBeNull();
     expect(packLinks()).toHaveLength(getPacks().length);
+  });
+
+  it("keeps the lock-screen clock out of each card's link text", () => {
+    render(
+      <MemoryRouter>
+        <PacksSection />
+      </MemoryRouter>,
+    );
+    for (const pack of getPacks()) {
+      const text = packLink(pack.slug).textContent ?? "";
+      expect(text).not.toContain("9:41");
+      expect(text.trim().startsWith(pack.name)).toBe(true);
+    }
   });
 });

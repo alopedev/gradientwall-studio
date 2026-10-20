@@ -15,9 +15,9 @@ function renderMore(slug: string) {
 
 describe("MorePacks", () => {
   it("ends the pack page with the other packs, never the one being viewed", () => {
-    renderMore("acrylic");
+    renderMore("impasto");
     const section = screen.getByRole("region", { name: /more packs/i });
-    const others = getPacks().filter((p) => p.slug !== "acrylic");
+    const others = getPacks().filter((p) => p.slug !== "impasto");
     for (const p of others) {
       expect(
         within(section).getAllByRole("link", { name: new RegExp(p.name, "i") }).length,

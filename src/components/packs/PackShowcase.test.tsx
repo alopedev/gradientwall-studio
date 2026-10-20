@@ -5,7 +5,7 @@ import type { Pack } from "@/lib/packs";
 import { PackShowcase } from "./PackShowcase";
 
 const dessau = () => getPackBySlug("dessau")!;
-const impasto = () => getPackBySlug("acrylic")!;
+const impasto = () => getPackBySlug("impasto")!;
 
 /** The wallpaper on one device in the stage (the thumbnails are outside it), or null when that device is hidden. */
 function shownOn(device: "phone" | "laptop"): string | null {

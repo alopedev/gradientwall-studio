@@ -4,6 +4,7 @@ import { Nav } from "./Nav";
 import { Footer } from "./Footer";
 import { inkButton } from "./ui/InkButton";
 import { PageMeta } from "./PageMeta";
+import { RECOVER_PAGE } from "@/lib/seo/pages";
 import { submitRecoverRequest } from "@/lib/store";
 
 type State =
@@ -33,7 +34,7 @@ export function RecoverForm() {
       <PageMeta
         title="Recover your download link"
         description="Lost your download email? Recover it with your order ID."
-        path="/recover"
+        path={RECOVER_PAGE.path}
         noindex
       />
       <Nav />

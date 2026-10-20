@@ -1,6 +1,7 @@
 import {
   absoluteUrl,
   DEFAULT_OG_IMAGE,
+  DEFAULT_OG_SIZE,
   fullTitle,
   SITE_NAME,
   SITE_ORIGIN,
@@ -14,6 +15,16 @@ const ROOT_EMPTY = '<div id="root"></div>';
 const escapeHtml = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
+const IMAGE_TYPES: Record<string, string> = {
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+};
+
+/** MIME type from the file extension, or undefined for an unknown one. */
+const imageType = (url: string) => IMAGE_TYPES[url.split(".").pop()?.toLowerCase() ?? ""];
+
 /** `<` escaped so a JSON string can never close the script tag. */
 const jsonForScript = (data: unknown) => JSON.stringify(data).replace(/</g, "\\u003c");
 
@@ -24,20 +35,29 @@ export function renderHeadTags(page: SeoPage): string {
   const url = escapeHtml(absoluteUrl(page.path === "/404" ? "/" : page.path));
   const image = escapeHtml(absoluteUrl(page.ogImage ?? DEFAULT_OG_IMAGE));
   const alt = page.ogImageAlt ? escapeHtml(page.ogImageAlt) : "";
+  const size = page.ogImage ? page.ogImageSize : DEFAULT_OG_SIZE;
+  const type = imageType(page.ogImage ?? DEFAULT_OG_IMAGE);
 
   const lines = [
     `<title>${title}</title>`,
     `<meta name="description" content="${description}" />`,
     `<link rel="canonical" href="${url}" />`,
-    `<meta name="robots" content="${page.noindex ? "noindex,nofollow" : "index,follow"}" />`,
+    `<meta name="robots" content="${page.noindex ? "noindex" : "index,follow"}" />`,
     `<meta property="og:type" content="${page.ogType}" />`,
     `<meta property="og:site_name" content="${SITE_NAME}" />`,
     `<meta property="og:title" content="${title}" />`,
     `<meta property="og:description" content="${description}" />`,
     `<meta property="og:url" content="${url}" />`,
     `<meta property="og:image" content="${image}" />`,
+    ...(size
+      ? [
+          `<meta property="og:image:width" content="${size.width}" />`,
+          `<meta property="og:image:height" content="${size.height}" />`,
+        ]
+      : []),
+    ...(type ? [`<meta property="og:image:type" content="${type}" />`] : []),
     ...(alt ? [`<meta property="og:image:alt" content="${alt}" />`] : []),
-    `<meta property="og:locale" content="en_US" />`,
+    `<meta property="og:locale" content="en_GB" />`,
     `<meta name="twitter:card" content="summary_large_image" />`,
     `<meta name="twitter:title" content="${title}" />`,
     `<meta name="twitter:description" content="${description}" />`,
@@ -88,7 +108,7 @@ export function renderPage(template: string, page: SeoPage): string {
 export function renderSitemap(pages: SeoPage[]): string {
   const urls = pages
     .filter((p) => !p.noindex)
-    .map((p) => `  <url>\n    <loc>${SITE_ORIGIN}${p.path === "/" ? "/" : p.path}</loc>\n  </url>`);
+    .map((p) => `  <url>\n    <loc>${SITE_ORIGIN}${p.path}</loc>\n  </url>`);
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>\n`;
 }
 
@@ -96,5 +116,5 @@ export function renderSitemap(pages: SeoPage[]): string {
 export function outputFile(page: SeoPage): string {
   if (page.path === "/") return "index.html";
   if (page.path === "/404") return "404.html";
-  return `${page.path.slice(1)}/index.html`;
+  return `${page.path.slice(1)}index.html`;
 }

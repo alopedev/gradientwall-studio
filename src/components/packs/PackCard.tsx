@@ -1,6 +1,7 @@
 import { type CSSProperties, type MouseEvent, useRef } from "react";
 import { flushSync } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
+import { packPath } from "@/lib/seo/pages";
 import { useInView } from "motion/react";
 import { isPlainClick, runPageTransition } from "@/lib/page-transition";
 import { isPhoneAndDesktop, type Pack } from "@/lib/packs";
@@ -22,7 +23,7 @@ export function PackCard({ pack }: { pack: Pack }) {
   const open = inView && !canHover();
   const fan = fanPieces(pack);
   const price = `€${pack.priceEur.toFixed(2)}`;
-  const to = `/packs/${pack.slug}`;
+  const to = packPath(pack.slug);
   const navigate = useNavigate();
 
   const onClick = (e: MouseEvent<HTMLAnchorElement>) => {

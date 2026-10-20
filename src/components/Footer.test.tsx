@@ -9,7 +9,7 @@ describe("Footer", () => {
 
   it("links the privacy page", () => {
     render(<Footer />);
-    expect(screen.getByRole("link", { name: "Privacy" }).getAttribute("href")).toBe("/privacy");
+    expect(screen.getByRole("link", { name: "Privacy" }).getAttribute("href")).toBe("/privacy/");
   });
 
   it("groups the links under Make and Help", () => {

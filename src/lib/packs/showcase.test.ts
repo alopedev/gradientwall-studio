@@ -61,7 +61,7 @@ describe("coverRenders", () => {
     expect(dessau.phone).toMatchObject({ url: "/assets/packs/dessau/01_kreise.png" });
     expect(dessau.desktop).toMatchObject({ url: "/assets/packs/dessau/01_kreise-desktop.png" });
 
-    const impasto = coverRenders(getPackBySlug("acrylic")!);
+    const impasto = coverRenders(getPackBySlug("impasto")!);
     expect(impasto.phone).toMatchObject({ url: "/assets/packs/acrylic/01.jpg" });
     expect(impasto.desktop).toMatchObject({ url: "/assets/packs/acrylic/01.jpg" });
   });
@@ -72,8 +72,8 @@ describe("packSpecs", () => {
     Object.fromEntries(packSpecs(getPackBySlug(slug)!).map((s) => [s.label, s]));
 
   it("counts files from the manifest, not from copy", () => {
-    expect(byLabel("acrylic").Phone.value).toBe("10 × iPhone & Android");
-    expect(byLabel("acrylic").Desktop.value).toBe("10 × 4K and 5K");
+    expect(byLabel("impasto").Phone.value).toBe("10 × iPhone & Android");
+    expect(byLabel("impasto").Desktop.value).toBe("10 × 4K and 5K");
     expect(byLabel("dessau").Phone.value).toBe("6 × iPhone & Android");
     expect(byLabel("dessau").Desktop.value).toBe("6 × 4K and 5K");
   });
@@ -170,7 +170,7 @@ describe("fanPieces", () => {
   });
 
   it("fans a landscape-only pack too (the phone crops it, as its real file is cut)", () => {
-    const fan = fanPieces(getPackBySlug("acrylic")!);
+    const fan = fanPieces(getPackBySlug("impasto")!);
     expect(fan).toHaveLength(5);
     expect(fan[2].cover).toMatchObject({ url: "/assets/packs/acrylic/01.jpg" });
   });
