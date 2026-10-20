@@ -1,7 +1,22 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { afterEach, describe, it, expect, vi } from "vitest";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { PackPage } from "./PackPage";
+
+// Real store by default; a test can make a pack buyable and script the checkout.
+const shop = vi.hoisted(() => ({
+  buyable: false,
+  openCheckout: vi.fn<(input: { variantId: string; packSlug: string }) => Promise<void>>(),
+}));
+vi.mock("@/lib/store", async (importOriginal) => {
+  const real = await importOriginal<typeof import("@/lib/store")>();
+  return {
+    ...real,
+    canPurchasePack: (pack: Parameters<typeof real.canPurchasePack>[0]) =>
+      shop.buyable ? { kind: "buyable", variantId: "v1" } : real.canPurchasePack(pack),
+    openCheckout: (input: { variantId: string; packSlug: string }) => shop.openCheckout(input),
+  };
+});
 
 function renderPack(slug: string) {
   return render(
@@ -99,5 +114,34 @@ describe("PackPage buying", () => {
     renderPack("acrylic");
     expect(screen.getByText(/how it was made/i)).toBeInTheDocument();
     expect(screen.getAllByText(/AI-assisted image generation/i).length).toBeGreaterThan(0);
+  });
+});
+
+describe("PackPage checkout", () => {
+  afterEach(() => {
+    shop.buyable = false;
+    shop.openCheckout.mockReset();
+  });
+
+  it("gives the Buy button back after the checkout fails to load, so the visitor can retry", async () => {
+    shop.buyable = true;
+    shop.openCheckout.mockRejectedValueOnce(new Error("Failed to load Lemon Squeezy script"));
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    renderPack("dessau");
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /buy now/i }));
+    });
+    const button = screen.getByRole("button", { name: /buy now/i });
+    expect(button).toBeEnabled();
+    expect(error).toHaveBeenCalled();
+
+    shop.openCheckout.mockResolvedValueOnce();
+    await act(async () => {
+      fireEvent.click(button);
+    });
+    expect(shop.openCheckout).toHaveBeenCalledTimes(2);
+    expect(shop.openCheckout).toHaveBeenLastCalledWith({ variantId: "v1", packSlug: "dessau" });
+    error.mockRestore();
   });
 });

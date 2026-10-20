@@ -1,35 +1,9 @@
-import { useEffect, useRef, type DependencyList, type RefObject } from "react";
+import type { DependencyList, RefObject } from "react";
 import { DEFAULT_CONTRAST, DEFAULT_VIBRANCE } from "./defaults";
 import { pixelKey } from "./fitted-canvas";
 import { useFittedCanvas } from "./useFittedCanvas";
-import type { RenderOpts } from "./gradient";
-import { paintWallpaper, paintWallpaperPreview, gradingCssFilter } from "./download/compose";
+import { paintWallpaperPreview, gradingCssFilter } from "./download/compose";
 import type { RenderParams } from "./palettes";
-
-/**
- * Paint a gradient onto a `<canvas>` whenever its opts change.
- * Returns the ref to pass to the `<canvas>` element.
- *
- * Legacy fixed-size form. Prefer `useFittedGradientCanvas` for visible previews
- * — it drives the canvas resolution from the container's CSS size × DPR, which
- * keeps the wallpaper crisp on Retina and avoids the sub-resolved look.
- */
-export function useGradientCanvas(
-  opts: RenderOpts,
-  deps: DependencyList,
-): RefObject<HTMLCanvasElement> {
-  const ref = useRef<HTMLCanvasElement>(null);
-  // Caller passes `deps` as a runtime DependencyList — biome wants an array
-  // literal but the whole point of this hook is to forward whatever the
-  // caller decides drives a repaint.
-  useEffect(() => {
-    const canvas = ref.current;
-    if (!canvas) return;
-    paintWallpaper(canvas, opts);
-    // biome-ignore lint/correctness/useExhaustiveDependencies: deps is the hook contract
-  }, deps);
-  return ref;
-}
 
 export type FittedGradientOpts = RenderParams & {
   /**

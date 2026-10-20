@@ -10,7 +10,6 @@
 
 import { FRAG, VERT } from "./shader";
 import { FRAG_ANIMATED } from "./shader-animated";
-import type { PixelRect } from "./backdrop";
 import { resolveV2Uniforms, type V2Params } from "./params";
 
 /** Rows per draw call when exporting large sizes; keeps each draw under the GPU watchdog. */
@@ -21,12 +20,6 @@ export interface DrawOptions {
   strip?: number;
   /** Seconds, for a renderer created with `animated: true`; ignored by the still shader. */
   time?: number;
-  /**
-   * Shade only these rectangles (GL pixels, origin bottom left); the rest of
-   * the buffer keeps its previous frame. For a backdrop partly hidden under
-   * opaque boxes (see `visibleRegions`). Takes precedence over `strip`.
-   */
-  regions?: readonly PixelRect[];
 }
 
 export interface RendererOptions {
@@ -173,14 +166,7 @@ export function createRendererV2(
     if (animated) gl.uniform1f(loc.uTime, opts.time ?? 0);
 
     const strip = opts.strip ?? 0;
-    if (opts.regions) {
-      gl.enable(gl.SCISSOR_TEST);
-      for (const r of opts.regions) {
-        gl.scissor(r.x, r.y, r.width, r.height);
-        gl.drawArrays(gl.TRIANGLES, 0, 3);
-      }
-      gl.disable(gl.SCISSOR_TEST);
-    } else if (strip > 0 && strip < h) {
+    if (strip > 0 && strip < h) {
       gl.enable(gl.SCISSOR_TEST);
       for (let y = 0; y < h; y += strip) {
         gl.scissor(0, y, w, Math.min(strip, h - y));

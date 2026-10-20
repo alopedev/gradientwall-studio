@@ -6,7 +6,6 @@ import {
   ALL_ACTIVE,
   MIN_ACTIVE_COLORS,
   PALETTES,
-  STYLES,
   type ActiveMask,
   type Colors4,
   type Device,
@@ -22,7 +21,6 @@ import {
   V2_DEFAULT_LIGHT_ANGLE,
 } from "@/lib/defaults";
 import { type Look, pickLook, toFavoriteConfig, toRenderParams } from "@/lib/look";
-import { randomColors } from "@/lib/gradient";
 import { generateRemix } from "@/lib/gradient/remix";
 import { generateSurprise } from "@/lib/gradient/surprise";
 import { makeRafBatcher } from "@/lib/raf-batcher";
@@ -40,7 +38,7 @@ import { makeRafBatcher } from "@/lib/raf-batcher";
  *   looks the way it was saved.
  * - `active`: per-slot on/off over the four colors. A `false` entry removes
  *   that slot from the rendered ramp so the wallpaper uses 2 or 3 colors
- *   instead of 4. Replacing the palette (setColors, randomize, applyPalette,
+ *   instead of 4. Replacing the palette (setColors, applyPalette,
  *   gallery load) snaps the mask back to all-true.
  */
 export interface ConfigState extends Look {
@@ -57,26 +55,11 @@ export interface ConfigState extends Look {
   setStyle: (s: Style) => void;
   setBlur: (n: number) => void;
   setGrain: (n: number) => void;
-  /**
-   * Apply an explicit seed (0..65535). Used by the SeedBadge editor when the
-   * user pastes / types a specific seed. `reshuffle` rerolls randomly.
-   */
-  setSeed: (n: number) => void;
   /** Set the painterly highlight direction in compass degrees (0..360). */
   setLightAngle: (deg: number) => void;
-  /** Set visual density 0..1 (clamped). 0.5 reproduces the legacy counts. */
-  setDensity: (n: number) => void;
   /** Color-grading multipliers, clamped to 0.5..1.5. Identity = 1. */
   setContrast: (n: number) => void;
   setVibrance: (n: number) => void;
-  reshuffle: () => void;
-  /**
-   * @deprecated Studio v2 usa `applySurprise()` que sustituye este método con
-   * paletas armónicas constreñidas, seeds curados y defaults de grain /
-   * contrast / vibrance fijos. Se conserva por retrocompat de tests y por si
-   * v1 sigue montado tras el feature flag. Eliminar en Fase 5 (cutover).
-   */
-  randomize: () => void;
   /**
    * Studio v2 — surprise-first. Aplica un `GradientConfig` generado por
    * `generateSurprise` (paleta armónica + style weighted + curated seed +
@@ -96,7 +79,6 @@ export interface ConfigState extends Look {
 const randomSeed = () => Math.floor(Math.random() * 65535);
 const freshMask = (): ActiveMask => [...ALL_ACTIVE] as ActiveMask;
 
-const clamp01 = (n: number) => clamp(n, 0, 1);
 const clampGrade = (n: number) => clamp(n, 0.5, 1.5);
 
 /** Numeric fields that are mutated repeatedly by slider/dial drags. */
@@ -145,21 +127,9 @@ export const useConfigStore = create<ConfigState>()((set) => {
     // most one render per frame instead of one per pointermove event.
     setBlur: (n) => rafSet({ blur: n }),
     setGrain: (n) => rafSet({ grain: n }),
-    setSeed: (n) => set({ seed: n & 0xffff }),
     setLightAngle: (deg) => rafSet({ lightAngle: ((deg % 360) + 360) % 360 }),
-    setDensity: (n) => rafSet({ density: clamp01(n) }),
     setContrast: (n) => rafSet({ contrast: clampGrade(n) }),
     setVibrance: (n) => rafSet({ vibrance: clampGrade(n) }),
-    reshuffle: () => set({ seed: randomSeed() }),
-    randomize: () =>
-      set({
-        colors: randomColors(),
-        active: freshMask(),
-        style: STYLES[Math.floor(Math.random() * STYLES.length)],
-        seed: randomSeed(),
-        lightAngle: Math.floor(Math.random() * 360),
-        density: Math.random(),
-      }),
     applySurprise: () =>
       set((s) => {
         const next = generateSurprise(s.seed);

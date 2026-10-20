@@ -26,16 +26,9 @@ export {
 export { renderWallpaperV2, type ExportV2Deps } from "./export";
 export { FRAG_ANIMATED } from "./shader-animated";
 export {
-  BACKDROP_GRAIN,
   BACKDROP_MIN_FRAME_MS,
-  BACKDROP_SEED,
-  backdropSize,
   SCREEN_MOTION_MAX_PIXELS,
   screenMotionSize,
   frameDue,
   shouldRunBackdrop,
-  stepPalette,
-  visibleRegions,
-  type CssRect,
-  type PixelRect,
 } from "./backdrop";

@@ -15,10 +15,6 @@ const ON_WALLPAPER = new Set([
   "components/studio/v2/FavoriteThumbnail.tsx",
   "components/studio/v2/ColorEditor.tsx",
   "components/packs/DeviceFrames.tsx",
-  "components/studio/HarmonicWheel.tsx",
-  "components/studio/wheel/ColorBullet.tsx",
-  "components/studio/wheel/ColorDots.tsx",
-  "components/studio/wheel/LightHandle.tsx",
 ]);
 
 function sources(dir: string): string[] {

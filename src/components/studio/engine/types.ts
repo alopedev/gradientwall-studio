@@ -1,4 +1,5 @@
 import type { ComponentType } from "react";
+import type { ExportedFile } from "@/lib/download/export";
 import type { Device, RenderParams, Style } from "@/lib/palettes";
 
 /**
@@ -45,10 +46,7 @@ export interface EngineCanvasProps {
 /** Called with a number in 0..1 as the export advances. */
 export type ExportProgress = (fraction: number) => void;
 
-export interface ExportResult {
-  filename: string;
-  bytes: number;
-}
+export type ExportResult = ExportedFile;
 
 export interface WallpaperEngine {
   id: string;

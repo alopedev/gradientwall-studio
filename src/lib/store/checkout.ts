@@ -31,7 +31,13 @@ function loadScript(): Promise<void> {
       window.createLemonSqueezy?.();
       resolve();
     };
-    s.onerror = () => reject(new Error("Failed to load Lemon Squeezy script"));
+    s.onerror = () => {
+      // Forget the failure so the next click tries again (a flaky network
+      // shouldn't kill the Buy button until a reload), and drop the dead tag.
+      scriptPromise = null;
+      s.remove();
+      reject(new Error("Failed to load Lemon Squeezy script"));
+    };
     document.body.appendChild(s);
   });
   return scriptPromise;
