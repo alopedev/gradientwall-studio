@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach } from "vitest";
 import { useConfigStore } from "./useConfigStore";
-import { ALL_ACTIVE, PALETTES, STYLES } from "@/lib/palettes";
+import { ALL_ACTIVE, PALETTES } from "@/lib/palettes";
 import { flushRaf } from "@/test-utils";
 
 // Snapshot the pristine state so each test starts fresh.
@@ -44,28 +44,6 @@ describe("useConfigStore", () => {
     expect(colors[3]).toBe(INITIAL.colors[3]);
   });
 
-  it("reshuffle changes seed (PRNG) without touching colors/style", () => {
-    const before = useConfigStore.getState();
-    useConfigStore.getState().reshuffle();
-    const after = useConfigStore.getState();
-    expect(after.seed).not.toBe(before.seed);
-    expect(after.colors).toBe(before.colors);
-    expect(after.style).toBe(before.style);
-  });
-
-  it("randomize changes colors + style + seed in a single set (one notification)", () => {
-    let notifications = 0;
-    const unsub = useConfigStore.subscribe(() => notifications++);
-    useConfigStore.getState().randomize();
-    unsub();
-    expect(notifications).toBe(1);
-
-    const s = useConfigStore.getState();
-    expect(STYLES).toContain(s.style);
-    expect(s.colors).toHaveLength(4);
-    for (const c of s.colors) expect(c).toMatch(/^#[0-9a-f]{6}$/);
-  });
-
   describe("active mask", () => {
     it("initializes with all four slots active", () => {
       expect(useConfigStore.getState().active).toEqual(ALL_ACTIVE);
@@ -92,12 +70,6 @@ describe("useConfigStore", () => {
     it("setColors resets the active mask to ALL_ACTIVE", () => {
       useConfigStore.setState({ active: [true, false, true, false] });
       useConfigStore.getState().setColors(["#000000", "#111111", "#222222", "#333333"]);
-      expect(useConfigStore.getState().active).toEqual(ALL_ACTIVE);
-    });
-
-    it("randomize resets the active mask to ALL_ACTIVE", () => {
-      useConfigStore.setState({ active: [false, true, false, true] });
-      useConfigStore.getState().randomize();
       expect(useConfigStore.getState().active).toEqual(ALL_ACTIVE);
     });
   });

@@ -1,9 +1,7 @@
 import { useConfigStore } from "@/store/useConfigStore";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
-import { useRecentColorsStore } from "@/store/useRecentColorsStore";
 
 const CONFIG_INITIAL = useConfigStore.getState();
-const RECENT_COLORS_INITIAL = useRecentColorsStore.getState();
 
 /**
  * Reset every store to its pristine post-init state.
@@ -15,13 +13,12 @@ const RECENT_COLORS_INITIAL = useRecentColorsStore.getState();
  */
 export function resetStores(): void {
   useConfigStore.setState(CONFIG_INITIAL);
-  useRecentColorsStore.setState(RECENT_COLORS_INITIAL);
   useFavoritesStore.getState().clear();
 }
 
 /**
  * Yield until the next animation frame fires. Used to flush rAF-batched
- * setters (setBlur, setGrain, setLightAngle, setDensity) before reading
+ * setters (setBlur, setGrain, setLightAngle) before reading
  * state in tests.
  */
 export const flushRaf = (): Promise<void> =>

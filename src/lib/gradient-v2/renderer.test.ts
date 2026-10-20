@@ -138,29 +138,6 @@ describe("createRendererV2", () => {
     expect(named(calls, "disable")[0].args).toEqual([9]);
   });
 
-  it("shades only the given regions, one scissored draw each", () => {
-    const { canvas, calls } = fakeGl();
-    const r = createRendererV2(canvas, { animated: true });
-    const regions = [
-      { x: 0, y: 300, width: 576, height: 60 },
-      { x: 0, y: 0, width: 200, height: 300 },
-    ];
-    r.draw({ colors: RAMP, style: "liquid", seed: 1 }, 576, 360, { time: 2, regions });
-    expect(named(calls, "scissor").map((c) => c.args)).toEqual([
-      [0, 300, 576, 60],
-      [0, 0, 200, 300],
-    ]);
-    expect(named(calls, "drawArrays")).toHaveLength(2);
-    expect(named(calls, "disable")[0].args).toEqual([9]);
-  });
-
-  it("draws nothing for an empty region list", () => {
-    const { canvas, calls } = fakeGl();
-    const r = createRendererV2(canvas, { animated: true });
-    r.draw({ colors: RAMP, style: "liquid", seed: 1 }, 576, 360, { regions: [] });
-    expect(named(calls, "drawArrays")).toHaveLength(0);
-  });
-
   it("refuses a drawing buffer the browser clamped, so callers can fall back", () => {
     const { canvas } = fakeGl({ clampTo: [4096, 2304] });
     const r = createRendererV2(canvas);

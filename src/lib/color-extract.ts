@@ -37,22 +37,6 @@ export async function extractColorsFromFile(file: File): Promise<Colors4> {
 }
 
 /**
- * Sync convenience wrapper around `extractFromPixels` — kept for tests and
- * any caller that already holds the bitmap and doesn't want a worker hop.
- */
-export function extractColorsFromBitmap(bitmap: ImageBitmap | HTMLImageElement): Colors4 {
-  const size = 96;
-  const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Canvas 2D unavailable");
-  ctx.drawImage(bitmap as CanvasImageSource, 0, 0, size, size);
-  const { data } = ctx.getImageData(0, 0, size, size);
-  return extractFromPixels(data);
-}
-
-/**
  * Run k-means in a Web Worker so the ~50–150 ms clustering pass doesn't
  * block the main thread on slower devices. Falls back to the synchronous
  * path when `Worker` is unavailable (jsdom tests, SSR) — same output, same
@@ -106,7 +90,7 @@ export function extractFromPixelsAsync(data: Uint8ClampedArray): Promise<Colors4
  * Pixels with alpha < 128 are dropped before clustering. Throws if no
  * opaque pixels remain.
  *
- * This is the testable entry point — `extractColorsFromBitmap` wraps this
+ * This is the testable entry point — `extractColorsFromFile` wraps this
  * with a 96×96 Canvas downsample step.
  */
 export function extractFromPixels(data: Uint8ClampedArray): Colors4 {
