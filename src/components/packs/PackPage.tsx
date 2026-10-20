@@ -20,6 +20,19 @@ export function PackPage() {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const eligibility = pack ? canPurchasePack(pack) : { kind: "missing-variant" as const };
   const buyEnabled = eligibility.kind === "buyable";
+  // One path for both Buy buttons. A failed load is logged and the button
+  // comes back, so a second click retries (checkout.ts forgets the failure).
+  const startCheckout = async () => {
+    if (!pack || eligibility.kind !== "buyable" || checkoutLoading) return;
+    setCheckoutLoading(true);
+    try {
+      await openCheckout({ variantId: eligibility.variantId, packSlug: pack.slug });
+    } catch (err) {
+      console.error("[checkout] could not open", err);
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
   const ctaRef = useRef<HTMLDivElement>(null);
   const ctaVisible = useInView(ctaRef);
 
@@ -95,18 +108,7 @@ export function PackPage() {
                     type="button"
                     disabled={checkoutLoading}
                     title="Open checkout"
-                    onClick={async () => {
-                      if (eligibility.kind !== "buyable") return;
-                      setCheckoutLoading(true);
-                      try {
-                        await openCheckout({
-                          variantId: eligibility.variantId,
-                          packSlug: pack.slug,
-                        });
-                      } finally {
-                        setCheckoutLoading(false);
-                      }
-                    }}
+                    onClick={startCheckout}
                     className={`${BUY_BUTTON} cursor-pointer ${
                       checkoutLoading ? "opacity-80 cursor-wait" : ""
                     }`}
@@ -159,11 +161,7 @@ export function PackPage() {
         <StickyBuyBar
           price={pack.priceEur}
           href={buyEnabled ? undefined : pack.etsyUrl}
-          onCheckout={
-            buyEnabled && eligibility.kind === "buyable"
-              ? () => openCheckout({ variantId: eligibility.variantId, packSlug: pack.slug })
-              : undefined
-          }
+          onCheckout={buyEnabled ? startCheckout : undefined}
         />
       )}
       <Footer />
