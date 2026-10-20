@@ -1,6 +1,5 @@
 import { composeWallpaper, paintWallpaper } from "@/lib/download/compose";
-import { wallpaperFilename } from "@/lib/download/filename";
-import { encodeWithFallback, exportFormatLabel, type EncodeFormat } from "@/lib/download/encode";
+import { exportCanvas, exportFormat } from "@/lib/download/export";
 import { browserDownloadSink, type Sink } from "@/lib/download/sink";
 import {
   DEFAULT_CONTRAST,
@@ -12,14 +11,6 @@ import {
 import { DEVICE_SIZES } from "@/lib/palettes";
 import { useFittedGradientCanvas } from "@/lib/useGradientCanvas";
 import type { AdjustmentSpec, EngineCanvasProps, WallpaperEngine } from "./types";
-
-const FORMATS: EncodeFormat[] = [
-  { type: "image/webp", quality: 0.95 },
-  { type: "image/jpeg", quality: 0.95 },
-];
-
-/** Let the browser paint the progress bar before the next heavy synchronous step. */
-const nextFrame = () => new Promise<void>((r) => requestAnimationFrame(() => r()));
 
 /** Sliders of the Canvas2D pipeline: the full set, since v1 renders every one of them. */
 const ADJUSTMENTS: readonly AdjustmentSpec[] = [
@@ -96,22 +87,18 @@ export function createCanvas2DEngine(sink: Sink = browserDownloadSink): Wallpape
     paintThumbnail(canvas, params, { w, h }) {
       paintWallpaper(canvas, { ...params, w, h });
     },
-    exportFormat: () => exportFormatLabel(FORMATS),
+    exportFormat,
     async exportWallpaper(params, device, onProgress) {
       const size = DEVICE_SIZES[device];
-      onProgress?.(0.05);
-      await nextFrame();
-      // Rendering is one synchronous call, so progress moves by stage rather
-      // than by pixel: render ≈ 60 %, encode ≈ 35 %, hand-off the rest.
-      const canvas = composeWallpaper({ ...params, w: size.w, h: size.h });
-      onProgress?.(0.65);
-      await nextFrame();
-      const { blob, ext } = await encodeWithFallback(canvas, FORMATS);
-      onProgress?.(0.95);
-      const filename = wallpaperFilename(device, params.seed, ext);
-      await sink(blob, filename);
-      onProgress?.(1);
-      return { filename, bytes: blob.size };
+      const file = await exportCanvas(() => composeWallpaper({ ...params, w: size.w, h: size.h }), {
+        device,
+        seed: params.seed,
+        sink,
+        onProgress,
+      });
+      // composeWallpaper always returns a canvas, so this never happens.
+      if (!file) throw new Error("Canvas2D export produced no canvas");
+      return file;
     },
   };
 }

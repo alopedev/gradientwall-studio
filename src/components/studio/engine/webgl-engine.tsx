@@ -1,6 +1,5 @@
 import { paintWallpaper } from "@/lib/download/compose";
-import { wallpaperFilename } from "@/lib/download/filename";
-import { encodeWithFallback, exportFormatLabel, type EncodeFormat } from "@/lib/download/encode";
+import { exportCanvas, exportFormat } from "@/lib/download/export";
 import { browserDownloadSink, type Sink } from "@/lib/download/sink";
 import { DEFAULT_MAX_DIM, DEFAULT_MAX_DPR, pixelKey } from "@/lib/fitted-canvas";
 import {
@@ -17,16 +16,9 @@ import { useFittedCanvas } from "@/lib/useFittedCanvas";
 import { canvas2DEngine } from "./canvas2d-engine";
 import type { AdjustmentSpec, EngineCanvasProps, WallpaperEngine } from "./types";
 
-const FORMATS: EncodeFormat[] = [
-  { type: "image/webp", quality: 0.95 },
-  { type: "image/jpeg", quality: 0.95 },
-];
-
 /** Longest preview side and DPR cap, same budget as the Canvas2D preview. */
 const MAX_DIM = DEFAULT_MAX_DIM;
 const MAX_DPR = DEFAULT_MAX_DPR;
-
-const nextFrame = () => new Promise<void>((r) => requestAnimationFrame(() => r()));
 
 const toV2 = (p: RenderParams): V2Params => ({
   colors: p.colors,
@@ -131,25 +123,19 @@ export function createWebGLEngine(deps: WebGLEngineDeps = {}): WallpaperEngine {
         fallback.paintThumbnail(canvas, params, size);
       }
     },
-    exportFormat: () => exportFormatLabel(FORMATS),
+    exportFormat,
     async exportWallpaper(params, device, onProgress) {
       if (engineOf(params) === "v1") return fallback.exportWallpaper(params, device, onProgress);
       const size = DEVICE_SIZES[device];
-      onProgress?.(0.05);
-      await nextFrame();
-      const canvas = renderWallpaperV2(toV2(params), size.w, size.h, {
-        supported,
-        renderer: deps.renderer,
-      });
-      if (!canvas) return fallback.exportWallpaper(params, device, onProgress);
-      onProgress?.(0.65);
-      await nextFrame();
-      const { blob, ext } = await encodeWithFallback(canvas, FORMATS);
-      onProgress?.(0.95);
-      const filename = wallpaperFilename(device, params.seed, ext);
-      await sink(blob, filename);
-      onProgress?.(1);
-      return { filename, bytes: blob.size };
+      const file = await exportCanvas(
+        () =>
+          renderWallpaperV2(toV2(params), size.w, size.h, {
+            supported,
+            renderer: deps.renderer,
+          }),
+        { device, seed: params.seed, sink, onProgress },
+      );
+      return file ?? fallback.exportWallpaper(params, device, onProgress);
     },
   };
 }
