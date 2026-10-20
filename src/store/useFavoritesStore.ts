@@ -1,15 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import type { FavoriteConfig } from "@/lib/look";
-import type { ActiveMask, GradientConfig } from "@/lib/palettes";
-
-/**
- * Shape histórico del legacy `gw_history` localStorage key. Solo usado en
- * `migrateLegacyHistory()` abajo; el store v1 que escribía esto ya no existe
- * tras el cutover de Fase 5, pero el localStorage del usuario puede aún
- * contener un valor antiguo y queremos importarlo.
- */
-type LegacyHistoryItem = GradientConfig & { active?: ActiveMask };
+import type { ActiveMask } from "@/lib/palettes";
 
 /**
  * useFavoritesStore — galería persistente del Studio v2.
@@ -21,9 +13,9 @@ type LegacyHistoryItem = GradientConfig & { active?: ActiveMask };
  * con schema versionado para que cambios futuros del shape no corrompan los
  * datos del usuario.
  *
- * Key namespace: `gw:favorites:v1`. El uso de `v1` en el nombre evita choques
- * con cualquier `gw_history` o futuras versiones; el migration handler abajo
- * se encarga de la transición one-time.
+ * Key namespace: `gw:favorites:v1`. El `v1` del nombre deja sitio a futuras
+ * versiones del shape. El `gw_history` del Studio antiguo no se importa
+ * (decidido 2026-10-20: la web no tuvo usuarios reales con ese historial).
  *
  * Cap 24 con drop FIFO (al pinear cuando ya hay 24, el más antiguo cae). El
  * número se elige para que la tira muestre 6-8 thumbnails simultáneos con
@@ -87,35 +79,6 @@ const storage = createJSONStorage(() => {
     setItem: (k, v) => void mem.set(k, String(v)),
   } satisfies Storage;
 });
-
-/**
- * Migration one-time desde `gw_history` (v1) → `gw:favorites:v1`. Lee el JSON
- * legacy, deserializa, convierte cada HistoryItem en FavoriteItem y los pinea.
- * Se ejecuta una sola vez en el primer mount del shell v2; si falla por parse
- * o por shape inesperado, descarta silenciosamente (los datos legacy quedan en
- * su key original, no se pierden).
- *
- * Diseñado defensivamente: cualquier error → no migration, lista vacía. El
- * usuario perderá la importación automática pero podrá volver a pinear
- * manualmente sin riesgo de corrupción.
- */
-export function migrateLegacyHistory(): FavoriteItem[] {
-  if (typeof localStorage === "undefined") return [];
-  try {
-    const raw = localStorage.getItem("gw_history");
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as { state?: { history?: LegacyHistoryItem[] } };
-    const history = parsed?.state?.history;
-    if (!Array.isArray(history) || history.length === 0) return [];
-    return history.map((h) => ({
-      id: generateId(),
-      config: h,
-      createdAt: Date.now(),
-    }));
-  } catch {
-    return [];
-  }
-}
 
 export const useFavoritesStore = create<FavoritesState>()(
   persist(

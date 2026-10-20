@@ -69,7 +69,7 @@ These files import nothing from React, Zustand, or components. Keep them that wa
 ### 2. State (`src/store/`)
 Tres Zustand stores + coordinator (Studio v2):
 - `useConfigStore` — current Studio config (device, colors, active mask, style, blur, grain, seed, lightAngle, density, contrast, vibrance). Setters atómicos, `applySurprise()` (motor mejorado de Fase 1), `applyRemix()` (variación cercana).
-- `useFavoritesStore` — persistido en `localStorage` key `gw:favorites:v1`. API `pin/unpin/reorder/clear`, cap 24 FIFO. `migrateLegacyHistory()` existe pero **no está conectado** (nadie lo llama): importar el `gw_history` antiguo es una decisión pendiente.
+- `useFavoritesStore` — persistido en `localStorage` key `gw:favorites:v1`. API `pin/unpin/reorder/clear`, cap 24 FIFO. El `gw_history` del Studio antiguo no se importa (decidido 2026-10-20).
 - `useLookHistoryStore` — wallpapers que el visitante dejó atrás (cap 30, efímero): `record()` antes de un gesto que reemplaza el wallpaper, `back()/forward()` para los botones ‹ › del dock. Los sliders y la rueda de color no graban (un arrastre llenaría la lista).
 - `coordinator.ts` — los gestos que reemplazan el wallpaper entero y graban antes en el historial: `shuffleWallpaper()`, `remixWallpaper()`, `loadLook(look)` y `applyPalette(i)` (silent no-op para índices fuera de rango). Las operaciones legacy `save/loadHistoryItem/removeHistoryItem` se eliminaron en el cutover de Fase 5.
 
@@ -203,7 +203,7 @@ El Studio v2 es ahora el único Studio (cutover Fase 5 completado). Mini-framewo
 
 **Stores**:
 - `useConfigStore` — `applySurprise()`, `applyRemix()`, setters atómicos.
-- `useFavoritesStore` — persist `gw:favorites:v1`, API pin/unpin/reorder/clear, migración one-time desde `gw_history` legacy.
+- `useFavoritesStore` — persist `gw:favorites:v1`, API pin/unpin/reorder/clear.
 
 **Motor de generación (capa nueva, Fase 1)** en `src/lib/gradient/`:
 - `curated-seeds.ts` — 80 seeds aprobados. `pickCuratedSeed(rng?)`, `pickCuratedSeedExcluding(prev, rng?)`.
