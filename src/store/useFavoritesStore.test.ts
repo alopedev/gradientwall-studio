@@ -1,12 +1,7 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from "vitest";
 import { engineOf, type Colors4, type GradientConfig } from "@/lib/palettes";
-import {
-  FAVORITES_STORAGE_KEY,
-  MAX_FAVORITES,
-  migrateLegacyHistory,
-  useFavoritesStore,
-} from "./useFavoritesStore";
+import { FAVORITES_STORAGE_KEY, MAX_FAVORITES, useFavoritesStore } from "./useFavoritesStore";
 
 const baseConfig = (overrides: Partial<GradientConfig> = {}): GradientConfig => ({
   colors: ["#001122", "#334455", "#667788", "#aabbcc"] as Colors4,
@@ -24,7 +19,6 @@ const baseConfig = (overrides: Partial<GradientConfig> = {}): GradientConfig => 
 describe("useFavoritesStore — pin / unpin / reorder / clear / FIFO cap", () => {
   beforeEach(() => {
     useFavoritesStore.getState().clear();
-    localStorage.removeItem("gw_history");
   });
 
   it("starts empty", () => {
@@ -105,41 +99,5 @@ describe("useFavoritesStore — pin / unpin / reorder / clear / FIFO cap", () =>
     expect(raw).toBeTruthy();
     const parsed = JSON.parse(raw!);
     expect(parsed.state.items[0].config.seed).toBe(42);
-  });
-});
-
-describe("migrateLegacyHistory", () => {
-  beforeEach(() => {
-    localStorage.removeItem("gw_history");
-  });
-
-  it("returns [] when no legacy history present", () => {
-    expect(migrateLegacyHistory()).toHaveLength(0);
-  });
-
-  it("returns [] when legacy JSON is malformed", () => {
-    localStorage.setItem("gw_history", "not-json-{");
-    expect(migrateLegacyHistory()).toHaveLength(0);
-  });
-
-  it("returns [] when shape is unexpected (no state.history)", () => {
-    localStorage.setItem("gw_history", JSON.stringify({ state: { other: "thing" } }));
-    expect(migrateLegacyHistory()).toHaveLength(0);
-  });
-
-  it("imports each HistoryItem as a FavoriteItem with new id + createdAt", () => {
-    const legacy = {
-      state: {
-        history: [baseConfig({ seed: 100 }), baseConfig({ seed: 200 })],
-      },
-    };
-    localStorage.setItem("gw_history", JSON.stringify(legacy));
-    const migrated = migrateLegacyHistory();
-    expect(migrated).toHaveLength(2);
-    expect(migrated[0].config.seed).toBe(100);
-    expect(migrated[1].config.seed).toBe(200);
-    expect(migrated[0].id).toBeTruthy();
-    expect(migrated[0].id).not.toBe(migrated[1].id);
-    expect(typeof migrated[0].createdAt).toBe("number");
   });
 });
