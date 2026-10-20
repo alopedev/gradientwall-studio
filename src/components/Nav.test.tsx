@@ -83,7 +83,7 @@ describe("<Nav />", () => {
     const menu = screen.getByRole("region", { name: /packs/i });
     for (const pack of getPacks()) {
       const link = within(menu).getByRole("link", { name: new RegExp(pack.name, "i") });
-      expect(link).toHaveAttribute("href", `/packs/${pack.slug}`);
+      expect(link).toHaveAttribute("href", `/packs/${pack.slug}/`);
       expect(link).toHaveTextContent(`${pack.previews.length} wallpapers`);
       expect(link).toHaveTextContent(`€${pack.priceEur.toFixed(2)}`);
     }

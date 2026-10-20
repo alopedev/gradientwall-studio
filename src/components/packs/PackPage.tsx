@@ -8,7 +8,7 @@ import { Footer } from "../Footer";
 import { inkButton } from "../ui/InkButton";
 import { MorePacks } from "./MorePacks";
 import { PageMeta } from "../PageMeta";
-import { buildPackPage } from "@/lib/seo/pages";
+import { buildPackPage, packPath } from "@/lib/seo/pages";
 import { PackShowcase } from "./PackShowcase";
 import { PackSpecs } from "./PackSpecs";
 
@@ -29,7 +29,7 @@ export function PackPage() {
         <PageMeta
           title="Pack not found"
           description="The pack you're looking for has moved or doesn't exist. Browse the full GradientWall catalog instead."
-          path={`/packs/${slug}`}
+          path={packPath(slug ?? "")}
           noindex
         />
         <Nav />

@@ -71,8 +71,16 @@ export function LockScreen() {
       aria-hidden
       className="@container pointer-events-none absolute inset-x-0 top-[10%] z-10 text-center font-sans text-white [text-shadow:0_1px_12px_rgba(0,0,0,0.3)]"
     >
-      <div className="text-[5.2cqi] font-medium">{today.replace(",", "")}</div>
-      <div className="text-[24cqi] font-bold leading-none tracking-[-0.03em]">9:41</div>
+      {/* Drawn with CSS `content`, not as text: this sits inside the pack card's
+          link, and crawlers would read the date and time as its anchor text. */}
+      <div
+        data-text={today.replace(",", "")}
+        className="text-[5.2cqi] font-medium before:content-[attr(data-text)]"
+      />
+      <div
+        data-text="9:41"
+        className="text-[24cqi] font-bold leading-none tracking-[-0.03em] before:content-[attr(data-text)]"
+      />
     </div>
   );
 }

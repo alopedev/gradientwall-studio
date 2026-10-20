@@ -9,6 +9,7 @@
 export const SITE_ORIGIN = "https://gradientwall-studio.netlify.app";
 export const SITE_NAME = "GradientWall";
 export const DEFAULT_OG_IMAGE = "/og-default.jpg";
+export const DEFAULT_OG_SIZE = { width: 1200, height: 630 };
 export const DEFAULT_OG_ALT =
   "GradientWall — liquid gradient in coral, periwinkle and indigo, with the text Free gradient wallpaper generator";
 
@@ -22,22 +23,33 @@ export interface SeoPack {
   previews: unknown[];
   seoTitle?: string;
   seoDescription?: string;
-  cover: { kind: string; url?: string; alt?: string };
+  cover: { kind: string; url?: string; alt?: string; width?: number; height?: number };
   lemonSqueezyVariantId?: string;
 }
 
 export interface SeoPage {
-  /** Path-only URL, e.g. `/packs/acrylic`. */
+  /** Path-only URL with its trailing slash, e.g. `/packs/acrylic/` (see `packPath`). */
   path: string;
   title: string;
   description: string;
   ogType: "website" | "product";
   ogImage?: string;
   ogImageAlt?: string;
+  /** Pixel size of `ogImage`; leave out when unknown. */
+  ogImageSize?: { width: number; height: number };
   jsonLd?: Record<string, unknown>[];
   noindex: boolean;
   /** Crawlable content injected into `#root` before React mounts. */
   shell: { h1: string; text: string; links?: { href: string; label: string }[] };
+}
+
+/**
+ * URL of a pack page. Netlify serves the prerendered `packs/<slug>/index.html`
+ * at `/packs/<slug>/` and 301-redirects the slashless URL there, so links and
+ * canonicals use this form.
+ */
+export function packPath(slug: string): string {
+  return `/packs/${slug}/`;
 }
 
 /** `Title — GradientWall`, unless the title already carries the brand. */
@@ -72,12 +84,14 @@ export const HOME_JSON_LD: Record<string, unknown>[] = [
     logo: `${SITE_ORIGIN}/icon-512.png`,
     description:
       "GradientWall makes gradient wallpapers: a free online generator plus curated wallpaper packs.",
+    sameAs: ["https://gradientwall.etsy.com"],
   },
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: SITE_NAME,
-    url: SITE_ORIGIN,
+    alternateName: ["Gradient Wall", "GradientWall Studio"],
+    url: `${SITE_ORIGIN}/`,
   },
   {
     "@context": "https://schema.org",
@@ -106,7 +120,7 @@ export const NOT_FOUND_PAGE: SeoPage = {
 };
 
 export const RECOVER_PAGE: SeoPage = {
-  path: "/recover",
+  path: "/recover/",
   title: "Recover your download link",
   description: "Lost your download email? Recover it with your order ID.",
   ogType: "website",
@@ -118,7 +132,7 @@ export const RECOVER_PAGE: SeoPage = {
 };
 
 export const PRIVACY_PAGE: SeoPage = {
-  path: "/privacy",
+  path: "/privacy/",
   title: "Privacy",
   description:
     "What GradientWall does with your email and order data, who handles it, and how to exercise your rights.",
@@ -132,7 +146,8 @@ export const PRIVACY_PAGE: SeoPage = {
 
 /** Product + BreadcrumbList JSON-LD for a pack page. */
 export function buildPackJsonLd(pack: SeoPack): Record<string, unknown>[] {
-  const url = `${SITE_ORIGIN}/packs/${pack.slug}`;
+  const url = `${SITE_ORIGIN}${packPath(pack.slug)}`;
+  const image = pack.cover.kind === "image" && pack.cover.url ? [absoluteUrl(pack.cover.url)] : [];
   return [
     {
       "@context": "https://schema.org",
@@ -140,6 +155,7 @@ export function buildPackJsonLd(pack: SeoPack): Record<string, unknown>[] {
       name: pack.name,
       description: pack.description,
       url,
+      ...(image.length ? { image } : {}),
       brand: { "@type": "Brand", name: SITE_NAME },
       offers: {
         "@type": "Offer",
@@ -153,9 +169,8 @@ export function buildPackJsonLd(pack: SeoPack): Record<string, unknown>[] {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: SITE_NAME, item: SITE_ORIGIN },
-        { "@type": "ListItem", position: 2, name: "Packs", item: `${SITE_ORIGIN}/#packs` },
-        { "@type": "ListItem", position: 3, name: pack.name, item: url },
+        { "@type": "ListItem", position: 1, name: SITE_NAME, item: `${SITE_ORIGIN}/` },
+        { "@type": "ListItem", position: 2, name: pack.name, item: url },
       ],
     },
   ];
@@ -165,12 +180,14 @@ export function buildPackJsonLd(pack: SeoPack): Record<string, unknown>[] {
 export function buildPackPage(pack: SeoPack): SeoPage {
   const cover = pack.cover.kind === "image" ? pack.cover : undefined;
   return {
-    path: `/packs/${pack.slug}`,
+    path: packPath(pack.slug),
     title: pack.seoTitle ?? `${pack.name} — pack of ${pack.previews.length} wallpapers`,
     description: pack.seoDescription ?? pack.description,
     ogType: "product",
     ogImage: cover?.url,
     ogImageAlt: cover?.alt ?? `${pack.name} — ${pack.tagline}`,
+    ogImageSize:
+      cover?.width && cover.height ? { width: cover.width, height: cover.height } : undefined,
     jsonLd: buildPackJsonLd(pack),
     noindex: !isPackIndexable(pack),
     shell: {
@@ -181,23 +198,28 @@ export function buildPackPage(pack: SeoPack): SeoPage {
   };
 }
 
-export function buildHomePage(): SeoPage {
+export function buildHomePage(packs: Pick<SeoPack, "slug" | "name">[] = []): SeoPage {
   return {
     path: "/",
     title: HOME_TITLE,
     description: HOME_DESCRIPTION,
     ogType: "website",
     ogImageAlt: DEFAULT_OG_ALT,
+    ogImageSize: DEFAULT_OG_SIZE,
     jsonLd: HOME_JSON_LD,
     noindex: false,
     shell: {
       h1: "Free gradient wallpaper generator",
       text: "Design your own gradient wallpaper for phone, tablet or desktop. Shuffle until something feels right, tweak the colours, and download it in high resolution. No account, no watermark.",
+      links: [
+        ...packs.map((p) => ({ href: packPath(p.slug), label: `${p.name} wallpaper pack` })),
+        { href: PRIVACY_PAGE.path, label: "Privacy" },
+      ],
     },
   };
 }
 
 /** Every page that gets its own prerendered HTML file (excluding the 404). */
 export function buildSeoPages(packs: SeoPack[]): SeoPage[] {
-  return [buildHomePage(), ...packs.map(buildPackPage), RECOVER_PAGE, PRIVACY_PAGE];
+  return [buildHomePage(packs), ...packs.map(buildPackPage), RECOVER_PAGE, PRIVACY_PAGE];
 }

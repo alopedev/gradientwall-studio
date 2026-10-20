@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import { AnimatePresence, m } from "motion/react";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { getPacks } from "@/lib/packs";
+import { packPath } from "@/lib/seo/pages";
 import { paletteName } from "@/lib/palette-name";
 import { useConfigStore } from "@/store/useConfigStore";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
@@ -331,7 +332,7 @@ function PacksMenu({ width, onNavigate }: { width: number; onNavigate: () => voi
           {packs.map((pack) => (
             <a
               key={pack.slug}
-              href={`/packs/${pack.slug}`}
+              href={packPath(pack.slug)}
               className="group flex min-w-0 flex-col gap-2 rounded-2xl p-1.5 transition-colors duration-150 hover:bg-ink/[0.07] focus-ring"
             >
               <span className="block aspect-[4/3] overflow-hidden rounded-xl shadow-[inset_0_0_0_1px_rgba(18,18,18,0.12)]">

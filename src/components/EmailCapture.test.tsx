@@ -40,7 +40,7 @@ describe("EmailCapture", () => {
   it("links the privacy page from the consent line", () => {
     render(<EmailCapture source="footer" heading="Hi" />);
     const link = screen.getByRole("link", { name: /privacy/i });
-    expect(link.getAttribute("href")).toBe("/privacy");
+    expect(link.getAttribute("href")).toBe("/privacy/");
   });
 
   it("shows the reason and keeps the form when the server refuses", async () => {

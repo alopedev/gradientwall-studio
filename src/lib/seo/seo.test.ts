@@ -8,7 +8,11 @@ import {
   fullTitle,
   HOME_DESCRIPTION,
   HOME_TITLE,
+  HOME_JSON_LD,
   NOT_FOUND_PAGE,
+  PRIVACY_PAGE,
+  packPath,
+  RECOVER_PAGE,
   type SeoPack,
 } from "./pages";
 import {
@@ -46,11 +50,11 @@ describe("seo pages", () => {
   });
 
   it("prerenders the privacy page, indexable and with its own h1", () => {
-    const page = buildSeoPages(packs).find((p) => p.path === "/privacy");
+    const page = buildSeoPages(packs).find((p) => p.path === "/privacy/");
     expect(page).toBeDefined();
     expect(page?.noindex).toBe(false);
     expect(page?.shell.h1).toBe("Privacy");
-    expect(renderSitemap(buildSeoPages(packs))).toContain("/privacy</loc>");
+    expect(renderSitemap(buildSeoPages(packs))).toContain("/privacy/</loc>");
   });
 
   it("produces one unique path per page", () => {
@@ -64,9 +68,9 @@ describe("renderPage", () => {
     const html = renderPage(TEMPLATE, buildPackPage(packs[0]));
     expect(html).toContain(`<title>${packs[0].name}`);
     expect(html).toContain(
-      `<link rel="canonical" href="https://gradientwall-studio.netlify.app/packs/${packs[0].slug}" />`,
+      `<link rel="canonical" href="https://gradientwall-studio.netlify.app/packs/${packs[0].slug}/" />`,
     );
-    expect(html).toContain('<meta name="robots" content="noindex,nofollow" />');
+    expect(html).toContain('<meta name="robots" content="noindex" />');
     expect(html).toContain(`<h1>${packs[0].name}</h1>`);
     expect(html).toContain('<meta name="theme-color" />');
   });
@@ -109,7 +113,67 @@ describe("sitemap and output paths", () => {
     expect(outputFile(buildHomePage())).toBe("index.html");
     expect(outputFile(NOT_FOUND_PAGE)).toBe("404.html");
     expect(outputFile(buildPackPage(packs[0]))).toBe(`packs/${packs[0].slug}/index.html`);
+    expect(outputFile(PRIVACY_PAGE)).toBe("privacy/index.html");
     expect(absoluteUrl("/x")).toBe("https://gradientwall-studio.netlify.app/x");
     expect(absoluteUrl("https://a.b/c")).toBe("https://a.b/c");
+  });
+});
+
+// Netlify serves `dir/index.html` at `/dir/` and 301-redirects `/dir` there
+// ("Pretty URLs"), so every canonical, sitemap entry and internal link must
+// carry the trailing slash or it points at a redirect.
+describe("trailing slashes", () => {
+  it("gives every prerendered page a path that ends in a slash", () => {
+    for (const page of [...buildSeoPages(packs), RECOVER_PAGE]) {
+      expect(page.path.endsWith("/"), page.path).toBe(true);
+    }
+    expect(packPath("dessau")).toBe("/packs/dessau/");
+  });
+
+  it("writes slash URLs into the sitemap and the pack breadcrumb", () => {
+    const xml = renderSitemap(buildSeoPages(packs).map((p) => ({ ...p, noindex: false })));
+    for (const loc of xml.match(/<loc>[^<]+<\/loc>/g) ?? []) {
+      expect(loc).toMatch(/\/<\/loc>$/);
+    }
+    const crumbs = JSON.stringify(buildPackPage(packs[0]).jsonLd);
+    expect(crumbs).toContain(`/packs/${packs[0].slug}/"`);
+    expect(crumbs).not.toContain("#packs");
+  });
+});
+
+describe("head tags for search and link previews", () => {
+  it("lets crawlers follow links on noindex pages", () => {
+    expect(renderHeadTags(RECOVER_PAGE)).toContain('content="noindex"');
+    expect(renderHeadTags(RECOVER_PAGE)).not.toContain("nofollow");
+  });
+
+  it("declares British English, the copy's locale", () => {
+    expect(renderHeadTags(buildHomePage())).toContain('og:locale" content="en_GB"');
+  });
+
+  it("gives the share image its size and type", () => {
+    const home = renderHeadTags(buildHomePage());
+    expect(home).toContain('og:image:width" content="1200"');
+    expect(home).toContain('og:image:height" content="630"');
+    expect(home).toContain('og:image:type" content="image/jpeg"');
+    const pack = renderHeadTags(buildPackPage(packs[1]));
+    expect(pack).toContain('og:image:width" content="2080"');
+    expect(pack).toContain('og:image:type" content="image/png"');
+  });
+
+  it("names the site and links the Etsy shop in the home structured data", () => {
+    const json = JSON.stringify(HOME_JSON_LD);
+    expect(json).toContain('"alternateName"');
+    expect(json).toContain("https://gradientwall.etsy.com");
+  });
+
+  it("gives each pack Product an absolute image", () => {
+    const product = buildPackPage(packs[0]).jsonLd?.[0] as { image?: string[] };
+    expect(product.image?.[0]).toBe(absoluteUrl(packs[0].cover.url ?? ""));
+  });
+
+  it("links the home shell to every pack", () => {
+    const hrefs = (buildHomePage(packs).shell.links ?? []).map((l) => l.href);
+    for (const pack of packs) expect(hrefs).toContain(packPath(pack.slug));
   });
 });

@@ -4,8 +4,8 @@ Allow: /
 # Don't index serverless function endpoints — they're not human-readable pages.
 Disallow: /.netlify/
 
-# /recover is a tool, not content — no value indexing it.
-Disallow: /recover
+# /recover is kept out of the index with a noindex meta tag, not here: a
+# Disallow would stop crawlers from ever reading that tag.
 
 # Post-checkout page: per-order, nothing to index.
 Disallow: /packs/*/success

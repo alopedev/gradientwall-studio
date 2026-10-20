@@ -1,4 +1,5 @@
 import { AI_DISCLOSURE, ETSY_PURCHASES_URL, ETSY_SHOP_URL } from "@/lib/copy";
+import { PRIVACY_PAGE } from "@/lib/seo/pages";
 import { isNewsletterEnabled } from "@/lib/newsletter/subscribe";
 import { useConfigStore } from "@/store/useConfigStore";
 import { EmailCapture } from "./EmailCapture";
@@ -18,7 +19,7 @@ const MAKE: FooterLink[] = [
 
 const HELP: FooterLink[] = [
   { label: "Find your download", href: ETSY_PURCHASES_URL, external: true },
-  { label: "Privacy", href: "/privacy" },
+  { label: "Privacy", href: PRIVACY_PAGE.path },
 ];
 
 export function Footer() {
@@ -89,9 +90,9 @@ function Wordmark() {
 function FooterCol({ title, links }: { title: string; links: FooterLink[] }) {
   return (
     <nav aria-label={title}>
-      <h4 className="m-0 mb-2 font-sans text-[11px] font-medium tracking-[0.22em] uppercase text-ink-dim">
+      <h2 className="m-0 mb-2 font-sans text-[11px] font-medium tracking-[0.22em] uppercase text-ink-dim">
         {title}
-      </h4>
+      </h2>
       <ul className="flex flex-col gap-0 list-none p-0 m-0">
         {links.map((l) => (
           <li key={l.label}>

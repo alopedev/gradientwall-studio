@@ -65,4 +65,13 @@ describe("security headers", () => {
   it("lets the Lemon Squeezy checkout overlay open", () => {
     expect(csp().get("frame-src")).toContain("https://*.lemonsqueezy.com");
   });
+
+  it("caches the hashed build files for a year and serves the manifest as JSON", () => {
+    expect(headersFor("/static/*").get("cache-control")).toBe(
+      "public, max-age=31536000, immutable",
+    );
+    expect(headersFor("/manifest.webmanifest").get("content-type")).toBe(
+      "application/manifest+json",
+    );
+  });
 });

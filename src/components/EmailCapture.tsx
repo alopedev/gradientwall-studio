@@ -7,6 +7,7 @@ import {
   type SubscribeSource,
   subscribeEmail,
 } from "@/lib/newsletter/subscribe";
+import { PRIVACY_PAGE } from "@/lib/seo/pages";
 
 type State =
   | { kind: "idle" }
@@ -123,7 +124,7 @@ export function EmailCapture({ source, heading, lead, size = "md", className }: 
           </div>
           <p id={`${id}-note`} className="m-0 mt-2.5 font-sans text-[12px] text-ink-dim">
             {CONSENT_TEXT}{" "}
-            <a href="/privacy" className="underline underline-offset-2 hover:text-ink">
+            <a href={PRIVACY_PAGE.path} className="underline underline-offset-2 hover:text-ink">
               Privacy
             </a>
           </p>

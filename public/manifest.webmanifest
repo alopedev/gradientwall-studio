@@ -1,7 +1,7 @@
 {
   "name": "GradientWall",
   "short_name": "GradientWall",
-  "description": "Cinematic gradient wallpapers — make your own in the studio, or get one of our curated packs.",
+  "description": "Free gradient wallpaper generator for phone, tablet and desktop, plus curated wallpaper packs.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

@@ -58,6 +58,11 @@ function seoPlugin(): Plugin {
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), seoPlugin()],
+  build: {
+    // Hashed bundles go to /static/ (cached for a year in public/_headers), apart
+    // from public/assets/, whose pack images keep their names across builds.
+    assetsDir: "static",
+  },
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
