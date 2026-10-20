@@ -1,6 +1,8 @@
-import { type CSSProperties, useRef } from "react";
-import { Link } from "react-router-dom";
-import { m, useInView } from "motion/react";
+import { type CSSProperties, type MouseEvent, useRef } from "react";
+import { flushSync } from "react-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useInView } from "motion/react";
+import { isPlainClick, runPageTransition } from "@/lib/page-transition";
 import { isPhoneAndDesktop, type Pack } from "@/lib/packs";
 import { fanPieces } from "@/lib/packs/showcase";
 import { LockScreen, PhoneFrame } from "./DeviceFrames";
@@ -11,7 +13,8 @@ const FILL = "absolute inset-0 block h-full w-full object-cover";
 /**
  * Catalog card: the pack as a stack of phones over its own blurred colours.
  * Hover or keyboard focus fans the stack open to show the designs inside; on
- * touch screens (no hover) it opens once the card is on screen.
+ * touch screens (no hover) it opens once the card is on screen. Opening the
+ * pack morphs the front phone and the name into the pack page (A1).
  */
 export function PackCard({ pack }: { pack: Pack }) {
   const ref = useRef<HTMLAnchorElement>(null);
@@ -19,10 +22,34 @@ export function PackCard({ pack }: { pack: Pack }) {
   const open = inView && !canHover();
   const fan = fanPieces(pack);
   const price = `€${pack.priceEur.toFixed(2)}`;
+  const to = `/packs/${pack.slug}`;
+  const navigate = useNavigate();
+
+  const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    const doc = document as Document & { startViewTransition?: unknown };
+    if (!isPlainClick(e) || typeof doc.startViewTransition !== "function") return;
+    e.preventDefault();
+    const card = e.currentTarget;
+    void runPageTransition({
+      update: () => flushSync(() => navigate(to)),
+      ready: () => document.querySelector(PACK_PAGE_PHONE) !== null,
+      reducedMotion: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches,
+      shared: [
+        {
+          name: "pack-phone",
+          source: card.querySelector("[data-vt-src=phone]"),
+          dest: PACK_PAGE_PHONE,
+        },
+        { name: "pack-title", source: card.querySelector("h3"), dest: "[data-vt=pack-title]" },
+      ],
+    });
+  };
+
   return (
     <Link
       ref={ref}
-      to={`/packs/${pack.slug}`}
+      to={to}
+      onClick={onClick}
       data-open={open || undefined}
       className="group relative flex h-full min-h-[500px] flex-col overflow-hidden rounded-sharp border-2 border-ink bg-bg-2 transition-colors duration-300 hover:bg-[#cfcec9]"
     >
@@ -33,6 +60,7 @@ export function PackCard({ pack }: { pack: Pack }) {
               key={offset}
               className="absolute bottom-0 left-[33%] w-[34%] origin-[50%_120%] shadow-[0_24px_40px_-24px_rgba(0,0,0,0.45)] transition-transform duration-700 ease-[cubic-bezier(0.2,0.8,0.2,1)] motion-reduce:transition-none [transform:var(--rest)] group-hover:[transform:var(--open)] group-focus-visible:[transform:var(--open)] group-data-[open]:[transform:var(--open)]"
               style={fanStyle(offset)}
+              data-vt-src={offset === 0 ? "phone" : undefined}
             >
               <PackCover
                 cover={cover}
@@ -48,12 +76,7 @@ export function PackCard({ pack }: { pack: Pack }) {
       </div>
 
       <div className="relative z-10 p-5 sm:p-6">
-        <m.h3
-          layoutId={`pack-${pack.slug}-title`}
-          className="display-head text-[clamp(32px,3.4vw,48px)] text-ink"
-        >
-          {pack.name}
-        </m.h3>
+        <h3 className="display-head w-fit text-[clamp(32px,3.4vw,48px)] text-ink">{pack.name}</h3>
         <p className="m-0 mt-2 font-sans text-[16px] leading-snug text-ink-dim">{pack.tagline}</p>
         <ul className="m-0 mt-2 flex list-none flex-wrap p-0 font-sans text-[14px] text-ink-dim [&>li+li]:before:px-1.5 [&>li+li]:before:content-['·']">
           <li>{designCount(pack.previews.length)}</li>
@@ -74,6 +97,9 @@ export function PackCard({ pack }: { pack: Pack }) {
     </Link>
   );
 }
+
+/** The pack page's phone, where the card's front phone lands. */
+const PACK_PAGE_PHONE = "[data-vt=pack-phone]";
 
 /**
  * Where one phone sits, stacked (`--rest`: a slight tilt, like a deck) and

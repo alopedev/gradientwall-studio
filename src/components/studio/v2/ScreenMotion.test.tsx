@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as v2 from "@/lib/gradient-v2";
 import { BACKDROP_MIN_FRAME_MS, screenMotionSize } from "@/lib/gradient-v2";
 import type { Colors4, RenderParams } from "@/lib/palettes";
+import { useMotionStore } from "@/store/useMotionStore";
 import { SCREEN_MOTION_HOLD_MS, ScreenMotion } from "./ScreenMotion";
 
 const gpu = vi.hoisted(() => ({ inView: true, supported: true, create: vi.fn() }));
@@ -59,6 +60,7 @@ function setMotion(reduce: boolean) {
 }
 
 beforeEach(() => {
+  useMotionStore.setState({ paused: false });
   gpu.inView = true;
   gpu.supported = true;
   lost = false;
@@ -187,6 +189,19 @@ describe("ScreenMotion", () => {
     expect(opts.time).toBe(0);
     for (let t = 0; t < SCREEN_MOTION_HOLD_MS; t += 40) tick(40);
     expect(opaque(canvas)).toBe(true);
+  });
+
+  it("holds still while the visitor has paused motion, and drifts again on play", () => {
+    renderMotion();
+    for (let t = 0; t < SCREEN_MOTION_HOLD_MS + 200; t += 40) tick(40);
+    const drawn = draw.mock.calls.length;
+    act(() => useMotionStore.getState().togglePaused());
+    for (let t = 0; t < 400; t += 40) tick(40);
+    expect(draw).toHaveBeenCalledTimes(drawn);
+    act(() => useMotionStore.getState().togglePaused());
+    tick(40);
+    tick(40);
+    expect(draw.mock.calls.length).toBeGreaterThan(drawn);
   });
 
   it("stops drawing while the Studio is out of view", () => {

@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PALETTES } from "@/lib/palettes";
 import { useConfigStore } from "@/store";
 import { useLookHistoryStore } from "@/store/useLookHistoryStore";
+import { useMotionStore } from "@/store/useMotionStore";
 import { Hero } from "./Hero";
 
 // jsdom has no WebGL2, so the real ScreenMotion renders nothing; a stand-in shows where it goes.
@@ -18,6 +19,7 @@ describe("Hero", () => {
     act(() => {
       useConfigStore.setState(INITIAL, true);
       useLookHistoryStore.setState({ past: [], future: [] });
+      useMotionStore.setState({ paused: false });
     });
   });
 
@@ -59,6 +61,17 @@ describe("Hero", () => {
     const float = container.querySelector("[data-float]");
     expect(float?.className).toMatch(/motion-safe:animate-float\b/);
     expect(float?.className).not.toMatch(/(^|\s)animate-/);
+  });
+
+  it("lets the visitor pause the floating phone where it is, and play it again", () => {
+    const { container, getByRole } = render(<Hero />);
+    const float = () => container.querySelector("[data-float]")?.className ?? "";
+    expect(float()).not.toMatch(/animation-play-state:paused/);
+    fireEvent.click(getByRole("button", { name: "Pause motion" }));
+    expect(useMotionStore.getState().paused).toBe(true);
+    expect(float()).toMatch(/\[animation-play-state:paused\]/);
+    fireEvent.click(getByRole("button", { name: "Play motion" }));
+    expect(float()).not.toMatch(/animation-play-state:paused/);
   });
 
   it("shuffles the wallpaper, and steps back to the previous one", () => {

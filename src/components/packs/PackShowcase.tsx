@@ -103,6 +103,7 @@ export function PackShowcase({
             )}
             {shown !== "desktop" && (
               <PhoneFrame
+                data-vt="pack-phone"
                 className={`relative z-10 shadow-[0_30px_50px_-24px_rgba(0,0,0,0.45)] ${
                   shown === "both"
                     ? "-mb-[1%] -ml-[18%] w-[30%] sm:-ml-[7%] sm:w-[min(17%,190px)]"

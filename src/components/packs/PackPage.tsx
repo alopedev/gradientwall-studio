@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { m } from "motion/react";
 import { describeContents, getPackBySlug } from "@/lib/packs";
 import { canPurchasePack, openCheckout } from "@/lib/store";
 import { AI_DISCLOSURE } from "@/lib/copy";
@@ -8,7 +7,6 @@ import { Nav } from "../Nav";
 import { Footer } from "../Footer";
 import { inkButton } from "../ui/InkButton";
 import { MorePacks } from "./MorePacks";
-import { MagneticButton } from "../ui/MagneticButton";
 import { PageMeta } from "../PageMeta";
 import { buildPackPage } from "@/lib/seo/pages";
 import { PackShowcase } from "./PackShowcase";
@@ -72,12 +70,12 @@ export function PackPage() {
               <span className="block mb-2 font-sans text-[11px] tracking-[0.22em] uppercase text-ink-dim">
                 Pack · {pack.style}
               </span>
-              <m.h1
-                layoutId={`pack-${pack.slug}-title`}
-                className="display-head text-[clamp(56px,8vw,120px)] text-ink"
+              <h1
+                data-vt="pack-title"
+                className="display-head w-fit text-[clamp(56px,8vw,120px)] text-ink"
               >
                 {pack.name}
-              </m.h1>
+              </h1>
               <div className="mt-3 max-w-[40ch] font-sans text-[clamp(15px,1.6vw,18px)] font-light text-ink-dim leading-snug">
                 {pack.tagline}
               </div>
@@ -93,41 +91,37 @@ export function PackPage() {
                   €{pack.priceEur.toFixed(2)}
                 </span>
                 {buyEnabled ? (
-                  <MagneticButton>
-                    <button
-                      type="button"
-                      disabled={checkoutLoading}
-                      title="Open checkout"
-                      onClick={async () => {
-                        if (eligibility.kind !== "buyable") return;
-                        setCheckoutLoading(true);
-                        try {
-                          await openCheckout({
-                            variantId: eligibility.variantId,
-                            packSlug: pack.slug,
-                          });
-                        } finally {
-                          setCheckoutLoading(false);
-                        }
-                      }}
-                      className={`${BUY_BUTTON} cursor-pointer ${
-                        checkoutLoading ? "opacity-80 cursor-wait" : ""
-                      }`}
-                    >
-                      {checkoutLoading ? "Loading…" : "Buy now"}
-                    </button>
-                  </MagneticButton>
+                  <button
+                    type="button"
+                    disabled={checkoutLoading}
+                    title="Open checkout"
+                    onClick={async () => {
+                      if (eligibility.kind !== "buyable") return;
+                      setCheckoutLoading(true);
+                      try {
+                        await openCheckout({
+                          variantId: eligibility.variantId,
+                          packSlug: pack.slug,
+                        });
+                      } finally {
+                        setCheckoutLoading(false);
+                      }
+                    }}
+                    className={`${BUY_BUTTON} cursor-pointer ${
+                      checkoutLoading ? "opacity-80 cursor-wait" : ""
+                    }`}
+                  >
+                    {checkoutLoading ? "Loading…" : "Buy now"}
+                  </button>
                 ) : (
-                  <MagneticButton>
-                    <a
-                      href={pack.etsyUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={BUY_BUTTON}
-                    >
-                      Get it on Etsy <span aria-hidden>↗</span>
-                    </a>
-                  </MagneticButton>
+                  <a
+                    href={pack.etsyUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={BUY_BUTTON}
+                  >
+                    Get it on Etsy <span aria-hidden>↗</span>
+                  </a>
                 )}
               </div>
             )

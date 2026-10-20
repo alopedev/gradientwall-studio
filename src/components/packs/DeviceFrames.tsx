@@ -15,10 +15,17 @@ interface FrameProps {
   style?: CSSProperties;
 }
 
+interface PhoneProps extends FrameProps {
+  /** Marks the phone for a page transition (see lib/page-transition). */
+  "data-vt"?: string;
+  "data-vt-src"?: string;
+}
+
 /** Phone bezel at the 1290:2796 aspect of a modern iPhone, with a dynamic island. */
-export function PhoneFrame({ children, className = "", style }: FrameProps) {
+export function PhoneFrame({ children, className = "", style, ...marks }: PhoneProps) {
   return (
     <div
+      {...marks}
       data-device="phone"
       className={`${/\babsolute\b/.test(className) ? "" : "relative"} aspect-[1290/2796] rounded-[15%/7%] ${BEZEL} ${className}`}
       style={style}

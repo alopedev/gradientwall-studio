@@ -11,6 +11,8 @@ import { useWallpaperEngine } from "../studio/engine";
 import { ScreenMotion } from "../studio/v2/ScreenMotion";
 import { BauhausMarks } from "../ui/BauhausMarks";
 import { InkButton } from "../ui/InkButton";
+import { MotionToggle } from "../ui/MotionToggle";
+import { useMotionStore } from "@/store/useMotionStore";
 import { PAGE_COLUMN } from "../ui/layout";
 
 /**
@@ -30,6 +32,8 @@ export function Hero() {
   const canBack = useLookHistoryStore((s) => s.past.length > 0);
   const canForward = useLookHistoryStore((s) => s.future.length > 0);
   const [spins, setSpins] = useState(0);
+  // Paused, the phone stops where it is instead of snapping back to rest.
+  const hold = useMotionStore((s) => s.paused) ? "[animation-play-state:paused]" : "";
 
   const shuffle = () => {
     shuffleWallpaper();
@@ -66,7 +70,7 @@ export function Hero() {
           <figure className="relative m-0 justify-self-center">
             <div
               data-float
-              className="relative w-[clamp(150px,min(15vw,calc((100svh-490px)/2.14)),224px)] motion-safe:animate-float"
+              className={`relative w-[clamp(150px,min(15vw,calc((100svh-490px)/2.14)),224px)] motion-safe:animate-float ${hold}`}
             >
               <div
                 role="img"
@@ -94,8 +98,9 @@ export function Hero() {
             {/* The shadow stays on the paper and shrinks as the phone rises. */}
             <div
               aria-hidden
-              className="mx-auto mt-3 h-[16px] w-[110%] -translate-x-[4.5%] rounded-[50%] bg-[radial-gradient(closest-side,rgb(30_28_24/0.3),transparent)] motion-safe:animate-float-shadow"
+              className={`mx-auto mt-3 h-[16px] w-[110%] -translate-x-[4.5%] rounded-[50%] bg-[radial-gradient(closest-side,rgb(30_28_24/0.3),transparent)] motion-safe:animate-float-shadow ${hold}`}
             />
+            <MotionToggle className="absolute -right-14 bottom-0" />
           </figure>
 
           <div className="flex flex-col items-center gap-3 md:items-start md:justify-self-start">

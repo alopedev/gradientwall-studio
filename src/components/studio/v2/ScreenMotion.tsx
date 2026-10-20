@@ -10,6 +10,7 @@ import {
   type V2Renderer,
 } from "@/lib/gradient-v2";
 import { engineOf, type RenderParams } from "@/lib/palettes";
+import { useMotionStore } from "@/store/useMotionStore";
 
 /** What the visitor and their browser allow, read once on mount. */
 function readEnv() {
@@ -34,9 +35,9 @@ function whenIdle(cb: () => void, timeout = 1500): () => void {
 
 /**
  * How long a new wallpaper stays still before it starts to drift: the circular
- * reveal (`DeviceStage`, 900 ms) plays on the still canvas underneath meanwhile.
+ * reveal (`DeviceStage`, at most `REVEAL_MS`) plays on the still canvas underneath meanwhile.
  */
-export const SCREEN_MOTION_HOLD_MS = 1000;
+export const SCREEN_MOTION_HOLD_MS = 500;
 
 /**
  * The wallpaper on the Studio's device screen, drifting slowly (identity B,
@@ -93,8 +94,10 @@ export function ScreenMotion({ params }: { params: RenderParams }) {
     });
   }, [enabled]);
 
+  const paused = useMotionStore((s) => s.paused);
   const v2 = engineOf(params) === "v2";
-  const active = enabled && v2 && !failed && inView && !hidden;
+  // Paused, the last frame stays on screen; play resumes from the same time.
+  const active = enabled && v2 && !failed && inView && !hidden && !paused;
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!active || !renderer || !canvas) return;

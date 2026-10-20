@@ -4,6 +4,7 @@ import { SegmentedControl, type SegmentOption } from "@/components/ui/SegmentedC
 import { paletteName } from "@/lib/palette-name";
 import { type Device, DEVICE_SIZES } from "@/lib/palettes";
 import { useConfigStore } from "@/store";
+import { MotionToggle } from "@/components/ui/MotionToggle";
 import { useWallpaperEngine } from "../engine";
 
 const DEVICE_OPTIONS: readonly SegmentOption<Device>[] = [
@@ -27,7 +28,7 @@ const DEVICE_OPTIONS: readonly SegmentOption<Device>[] = [
   },
 ];
 
-/** Studio name + current look on the left, device switch on the right. */
+/** Studio name + current look on the left; pause and the device switch on the right. */
 export function StudioTopBar() {
   const engine = useWallpaperEngine();
   const colors = useConfigStore((s) => s.colors);
@@ -63,12 +64,15 @@ export function StudioTopBar() {
           </AnimatePresence>
         </div>
       </div>
-      <SegmentedControl
-        ariaLabel="Device"
-        value={device}
-        onChange={setDevice}
-        options={DEVICE_OPTIONS}
-      />
+      <div className="flex shrink-0 items-center gap-2">
+        <MotionToggle />
+        <SegmentedControl
+          ariaLabel="Device"
+          value={device}
+          onChange={setDevice}
+          options={DEVICE_OPTIONS}
+        />
+      </div>
       <span className="sr-only">Export size {DEVICE_SIZES[device].label}</span>
     </header>
   );
