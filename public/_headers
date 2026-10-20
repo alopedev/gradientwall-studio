@@ -1,0 +1,17 @@
+# Security headers for every static file Netlify serves (functions set their
+# own). Guarded by src/lib/security/headers.test.ts.
+#
+# CSP, source by source:
+# - script: our bundle + Lemon Squeezy's lemon.js (app. redirects to assets.)
+# - style: inline styles (lemon.js injects a <style>, React/motion set style
+#   attributes, the prerendered intro has one) + the Google Fonts stylesheet
+# - img: data:/blob: for canvas downloads and thumbnails
+# - worker: the colour-extraction worker
+# - frame: the Lemon Squeezy checkout overlay
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://app.lemonsqueezy.com https://assets.lemonsqueezy.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; frame-src https://*.lemonsqueezy.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Strict-Transport-Security: max-age=31536000
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), usb=()

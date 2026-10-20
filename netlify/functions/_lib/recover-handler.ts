@@ -1,5 +1,5 @@
 import { type RecoverEnv, readRecoverEnv } from "./env";
-import { failureResponse, json, methodNotAllowed } from "./http";
+import { failureResponse, json, methodNotAllowed, rejectNonJson } from "./http";
 import { type Catalog, getCatalog } from "./catalog";
 import { createLoopsClient, type LoopsClient } from "./loops";
 import { fetchOrderEmail, type LSOrderLookup } from "./ls-api";
@@ -42,6 +42,8 @@ const GENERIC_OK = {
 export function createRecoverHandler(deps: RecoverHandlerDeps) {
   return async (req: Request): Promise<Response> => {
     if (req.method !== "POST") return methodNotAllowed();
+    const notJson = rejectNonJson(req);
+    if (notJson) return notJson;
 
     const input = parseInput(await req.json().catch(() => undefined));
     if (!input) return json({ ok: false, error: "Bad JSON" }, 400);

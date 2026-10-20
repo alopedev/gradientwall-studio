@@ -7,6 +7,13 @@ import { packZipKey, presignDownloadUrl } from "./r2";
 
 const PRESIGN_TTL_SECONDS = 60 * 5; // 5 minutes — enough to start the download
 
+/**
+ * Every answer spends or reports on a download, so no cache may keep it (a
+ * cached 302 would hand out the presigned URL again for free), and the
+ * tokened URL is never sent on as a Referer.
+ */
+const NO_STORE = { "cache-control": "no-store", "referrer-policy": "no-referrer" };
+
 export interface DownloadHandlerDeps {
   readEnv: () => DownloadEnv;
   store: () => OrderStore;
@@ -56,12 +63,17 @@ export function createDownloadHandler(deps: DownloadHandlerDeps) {
           { ok: false, reason: result.reason },
           result.status,
           // Contention on the order record is transient: tell clients to retry.
-          result.status === 503 ? { "retry-after": "1" } : {},
+          result.status === 503 ? { ...NO_STORE, "retry-after": "1" } : NO_STORE,
         );
       }
-      return Response.redirect(result.redirectUrl, 302);
+      return new Response(null, {
+        status: 302,
+        headers: { ...NO_STORE, location: result.redirectUrl },
+      });
     } catch (err) {
-      return failureResponse("download", err);
+      const res = failureResponse("download", err);
+      for (const [k, v] of Object.entries(NO_STORE)) res.headers.set(k, v);
+      return res;
     }
   };
 }

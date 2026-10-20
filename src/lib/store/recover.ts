@@ -11,7 +11,7 @@ export interface RecoverOptions {
   endpoint?: string;
 }
 
-const DEFAULT_ENDPOINT = "/.netlify/functions/recover-link";
+const DEFAULT_ENDPOINT = "/api/recover-link";
 
 /**
  * Submits a recover request to the backend. The Function always returns 200

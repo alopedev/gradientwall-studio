@@ -16,7 +16,7 @@ describe("subscribeEmail", () => {
     const out = await subscribeEmail({ email: "  a@b.co ", source: "footer" });
     expect(out).toEqual({ kind: "ok" });
     expect(fetchSpy).toHaveBeenCalledWith(
-      "/.netlify/functions/subscribe",
+      "/api/subscribe",
       expect.objectContaining({
         method: "POST",
         body: JSON.stringify({

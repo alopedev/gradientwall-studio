@@ -10,7 +10,7 @@ export interface SubscribeOptions {
   endpoint?: string;
 }
 
-const DEFAULT_ENDPOINT = "/.netlify/functions/subscribe";
+const DEFAULT_ENDPOINT = "/api/subscribe";
 
 /**
  * The wording shown next to the button. It is also sent with the address and

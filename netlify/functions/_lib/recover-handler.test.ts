@@ -76,6 +76,19 @@ describe("recover handler", () => {
     expect(res.status).toBe(405);
   });
 
+  it("answers 415 to a body not sent as JSON, without touching the order", async () => {
+    const res = await handler()(
+      new Request("https://gradientwall.test/api/recover-link", {
+        method: "POST",
+        headers: { "content-type": "text/plain" },
+        body: JSON.stringify(real),
+      }),
+    );
+    expect(res.status).toBe(415);
+    expect(lookupOrderEmail).not.toHaveBeenCalled();
+    expect(loops.sent).toHaveLength(0);
+  });
+
   it("answers 400 to bodies that are not a JSON object", async () => {
     for (const body of ["{nope", "null", "[]", '"text"', "42", ""]) {
       const res = await handler()(post(body));
