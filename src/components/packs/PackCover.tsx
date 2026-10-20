@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { paintWallpaper } from "@/lib/download/compose";
 import type { PackCover as PackCoverType } from "@/lib/packs";
+import { coverDisplayWidth, srcSetFor } from "@/lib/responsive-image";
 
 interface Props {
   cover: PackCoverType;
@@ -12,6 +13,11 @@ interface Props {
   priority?: boolean;
   /** Pure decoration (a blurred glow): hidden from assistive tech, so it adds no extra "image" of the pack. */
   decorative?: boolean;
+  /**
+   * Largest CSS size of the frame the image fills ([width, height]). With it the
+   * browser picks a WebP variant that size instead of the full file.
+   */
+  box?: readonly [number, number];
 }
 
 /**
@@ -28,11 +34,21 @@ export function PackCover({
   className,
   priority = false,
   decorative = false,
+  box,
 }: Props) {
   if (cover.kind === "image") {
+    const srcSet = box && srcSetFor(cover.url, cover.width);
+    const sizes =
+      srcSet && box && cover.width && cover.height
+        ? `${coverDisplayWidth(cover.width / cover.height, box)}px`
+        : undefined;
     return (
       <img
         src={cover.url}
+        srcSet={srcSet}
+        sizes={sizes}
+        // React 18 has no fetchPriority prop; the lowercase attribute passes through.
+        {...(priority ? { fetchpriority: "high" } : {})}
         alt={decorative ? "" : cover.alt}
         aria-hidden={decorative || undefined}
         width={cover.width}

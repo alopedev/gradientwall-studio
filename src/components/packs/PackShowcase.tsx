@@ -98,7 +98,14 @@ export function PackShowcase({
                     : "w-full sm:w-[min(80%,900px)]"
                 }`}
               >
-                <PackCover cover={renders.desktop} w={1280} h={800} className={FILL} priority />
+                <PackCover
+                  cover={renders.desktop}
+                  w={1280}
+                  h={800}
+                  box={[900, 563]}
+                  className={FILL}
+                  priority
+                />
               </LaptopFrame>
             )}
             {shown !== "desktop" && (
@@ -110,7 +117,14 @@ export function PackShowcase({
                     : "w-[58%] sm:w-[min(36%,250px)]"
                 }`}
               >
-                <PackCover cover={renders.phone!} w={720} h={1560} className={FILL} priority />
+                <PackCover
+                  cover={renders.phone!}
+                  w={720}
+                  h={1560}
+                  box={[250, 540]}
+                  className={FILL}
+                  priority
+                />
                 <LockScreen />
               </PhoneFrame>
             )}
@@ -254,7 +268,13 @@ function Rail({
                 : "opacity-60"
             }`}
           >
-            <PackCover cover={art} w={240} h={landscape ? 135 : 400} className={FILL} />
+            <PackCover
+              cover={art}
+              w={240}
+              h={landscape ? 135 : 400}
+              box={landscape ? [120, 68] : [56, 100]}
+              className={FILL}
+            />
           </button>
         );
       })}

@@ -198,10 +198,12 @@ export function __resetSharedRendererV2ForTests(): void {
 }
 
 let supported: boolean | null = null;
+let rendererName = "";
 
 /** Test-only. */
 export function __resetWebGL2ProbeForTests(): void {
   supported = null;
+  rendererName = "";
 }
 
 /** Cached WebGL2 probe. False in jsdom and on browsers without WebGL2. */
@@ -210,12 +212,29 @@ export function isWebGL2Supported(): boolean {
   try {
     const gl = document.createElement("canvas").getContext("webgl2");
     supported = !!gl;
+    if (gl) rendererName = readRendererName(gl);
     // Give the probe's context back at once: browsers cap live contexts per page.
     gl?.getExtension("WEBGL_lose_context")?.loseContext();
   } catch {
     supported = false;
   }
   return supported;
+}
+
+/** The GPU's name, or "" when the browser hides it (never fails the probe). */
+function readRendererName(gl: WebGL2RenderingContext): string {
+  try {
+    const info = gl.getExtension("WEBGL_debug_renderer_info");
+    return String(gl.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : gl.RENDERER) ?? "");
+  } catch {
+    return "";
+  }
+}
+
+/** Name of the WebGL2 renderer found by `isWebGL2Supported` ("" if none or hidden). */
+export function webglRendererName(): string {
+  isWebGL2Supported();
+  return rendererName;
 }
 
 /**

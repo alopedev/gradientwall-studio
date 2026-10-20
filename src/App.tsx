@@ -1,19 +1,32 @@
-import { useEffect, useLayoutEffect } from "react";
+import { lazy, Suspense, useEffect, useLayoutEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { LazyMotion, MotionConfig, AnimatePresence } from "motion/react";
 import { Hero } from "./components/hero/Hero";
 import { Nav } from "./components/Nav";
 import { StudioShell } from "./components/studio/v2/StudioShell";
 import { PacksSection } from "./components/packs/PacksSection";
-import { PackPage } from "./components/packs/PackPage";
-import { PackPurchaseSuccess } from "./components/packs/PackPurchaseSuccess";
-import { RecoverForm } from "./components/RecoverForm";
-import { PrivacyPage } from "./components/PrivacyPage";
 import { Footer } from "./components/Footer";
 import { PageMeta } from "./components/PageMeta";
 import { buildHomePage } from "./lib/seo/pages";
 import { LenisProvider, useLenis } from "./components/ui/LenisProvider";
 import { ScrollProgress } from "./components/ui/ScrollProgress";
+
+// Every page but the home is its own chunk, so the home (where most visits
+// land) doesn't download them. The pack page chunk is fetched once the home is
+// idle, so opening a pack (and its view-transition morph) doesn't wait on it.
+const loadPackPage = () => import("./components/packs/PackPage");
+const PackPage = lazy(() => loadPackPage().then((m) => ({ default: m.PackPage })));
+const PackPurchaseSuccess = lazy(() =>
+  import("./components/packs/PackPurchaseSuccess").then((m) => ({
+    default: m.PackPurchaseSuccess,
+  })),
+);
+const RecoverForm = lazy(() =>
+  import("./components/RecoverForm").then((m) => ({ default: m.RecoverForm })),
+);
+const PrivacyPage = lazy(() =>
+  import("./components/PrivacyPage").then((m) => ({ default: m.PrivacyPage })),
+);
 
 // Async-load domMax features so the motion feature bundle (layout, drag,
 // animation) code-splits out of the critical path. The `m` components render
@@ -48,14 +61,16 @@ function RoutesShell() {
     <>
       <ScrollToTop />
       <AnimatePresence mode="wait" initial={false}>
-        <Routes location={location} key={location.pathname}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/packs/:slug" element={<PackPage />} />
-          <Route path="/packs/:slug/success" element={<PackPurchaseSuccess />} />
-          <Route path="/recover" element={<RecoverForm />} />
-          <Route path="/privacy" element={<PrivacyPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        <Suspense fallback={null} key={location.pathname}>
+          <Routes location={location}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/packs/:slug" element={<PackPage />} />
+            <Route path="/packs/:slug/success" element={<PackPurchaseSuccess />} />
+            <Route path="/recover" element={<RecoverForm />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
       </AnimatePresence>
     </>
   );
@@ -100,6 +115,11 @@ function HomePage() {
     if (!el) return;
     requestAnimationFrame(() => el.scrollIntoView({ behavior: "instant", block: "start" }));
   }, [hash]);
+
+  useEffect(() => {
+    const idle = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 2000));
+    idle(() => void loadPackPage());
+  }, []);
 
   return (
     <>

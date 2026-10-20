@@ -18,6 +18,7 @@ export {
   createRendererV2,
   getSharedRendererV2,
   isWebGL2Supported,
+  webglRendererName,
   paintV2,
   type DrawOptions,
   type RendererOptions,
@@ -30,5 +31,6 @@ export {
   SCREEN_MOTION_MAX_PIXELS,
   screenMotionSize,
   frameDue,
+  isSoftwareRenderer,
   shouldRunBackdrop,
 } from "./backdrop";

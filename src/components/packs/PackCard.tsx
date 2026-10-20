@@ -67,6 +67,7 @@ export function PackCard({ pack }: { pack: Pack }) {
                 cover={cover}
                 w={480}
                 h={1040}
+                box={[160, 300]}
                 className={FILL}
                 decorative={offset !== 0}
               />

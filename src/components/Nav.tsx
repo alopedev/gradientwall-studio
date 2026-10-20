@@ -339,6 +339,7 @@ function PacksMenu({ width, onNavigate }: { width: number; onNavigate: () => voi
                 <PackCover
                   cover={pack.cover}
                   decorative
+                  box={[170, 128]}
                   className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                 />
               </span>

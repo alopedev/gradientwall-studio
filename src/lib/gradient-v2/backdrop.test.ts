@@ -5,11 +5,12 @@ import {
   SCREEN_MOTION_MAX_PIXELS,
   frameDue,
   screenMotionSize,
+  isSoftwareRenderer,
   shouldRunBackdrop,
 } from "./backdrop";
 
 describe("shouldRunBackdrop", () => {
-  const ok = { webgl2: true, reducedMotion: false, saveData: false };
+  const ok = { webgl2: true, softwareGl: false, reducedMotion: false, saveData: false };
   it("runs when the GPU path works and the visitor hasn't asked for less", () => {
     expect(shouldRunBackdrop(ok)).toBe(true);
   });
@@ -17,8 +18,27 @@ describe("shouldRunBackdrop", () => {
     ["no WebGL2", { ...ok, webgl2: false }],
     ["reduced motion", { ...ok, reducedMotion: true }],
     ["data saver", { ...ok, saveData: true }],
+    ["a CPU-emulated GPU", { ...ok, softwareGl: true }],
   ])("stays on the static ambient with %s", (_n, input) => {
     expect(shouldRunBackdrop(input)).toBe(false);
+  });
+});
+
+describe("isSoftwareRenderer", () => {
+  it.each([
+    "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "llvmpipe (LLVM 15.0.7, 256 bits)",
+    "Microsoft Basic Render Driver",
+    "Google SwiftShader",
+  ])("spots %s", (name) => {
+    expect(isSoftwareRenderer(name)).toBe(true);
+  });
+  it.each([
+    "ANGLE (Apple, ANGLE Metal Renderer: Apple M2, Unspecified Version)",
+    "Adreno (TM) 740",
+    "",
+  ])("trusts %s", (name) => {
+    expect(isSoftwareRenderer(name)).toBe(false);
   });
 });
 

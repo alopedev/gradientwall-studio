@@ -24,3 +24,7 @@
 
 /manifest.webmanifest
   Content-Type: application/manifest+json
+
+# Self-hosted fonts (src/index.css). Not hashed, so a month rather than forever.
+/fonts/*
+  Cache-Control: public, max-age=2592000

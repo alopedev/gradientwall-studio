@@ -14,6 +14,7 @@ import { InkButton } from "../ui/InkButton";
 import { MotionToggle } from "../ui/MotionToggle";
 import { useMotionStore } from "@/store/useMotionStore";
 import { PAGE_COLUMN } from "../ui/layout";
+import { HERO_PHONE_IMAGE } from "@/lib/seo/pages";
 
 /**
  * The first screen: the headline, a photographed phone floating over the paper
@@ -86,8 +87,10 @@ export function Hero() {
                 <LockScreen />
               </div>
               <img
-                src="/assets/hero/phone.webp"
+                src={HERO_PHONE_IMAGE}
                 alt=""
+                // Preloaded in the prerendered head; React 18 has no fetchPriority prop.
+                {...{ fetchpriority: "high" }}
                 width={599}
                 height={1283}
                 className="relative block h-auto w-full select-none"

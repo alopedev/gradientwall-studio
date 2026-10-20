@@ -102,6 +102,7 @@ export function DownloadHelp({ device, filename, bytes, onClose }: Props) {
                   cover={pack.previews[0]}
                   w={240}
                   h={520}
+                  box={[46, 96]}
                   decorative
                   className="h-24 w-[46px] rounded-[9px] border-[3px] border-ink object-cover"
                 />
