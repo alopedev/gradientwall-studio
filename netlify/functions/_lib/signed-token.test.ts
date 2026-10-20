@@ -1,4 +1,5 @@
 // @vitest-environment node
+import { SignJWT } from "jose";
 import { describe, it, expect } from "vitest";
 import { issueDownloadToken, verifyDownloadToken } from "./signed-token";
 
@@ -56,5 +57,18 @@ describe("signed-token", () => {
     // guarantees the claims when the signature checks out.
     const result = await verifyDownloadToken(token, SECRET);
     expect(result.ok).toBe(true);
+  });
+
+  it("only accepts HS256, even with the right secret", async () => {
+    // Pinning the algorithm closes the door on alg-confusion tricks for good.
+    const token = await new SignJWT({ ...PAYLOAD })
+      .setProtectedHeader({ alg: "HS512" })
+      .setIssuer("gradientwall")
+      .setAudience("gradientwall-download")
+      .setIssuedAt()
+      .setExpirationTime("1m")
+      .sign(new TextEncoder().encode(SECRET));
+    const result = await verifyDownloadToken(token, SECRET);
+    expect(result).toEqual({ ok: false, reason: "invalid" });
   });
 });
