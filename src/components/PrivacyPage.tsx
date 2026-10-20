@@ -74,19 +74,17 @@ export function PrivacyPage() {
 
           <Section title="Purchases">
             <p>
-              Packs are sold through Lemon Squeezy, which takes the payment and issues the receipt.
-              We receive your email and the order, and keep them to send your download link and let
-              you recover it. Legal basis: the contract of sale. Orders are kept while the download
-              link is valid and as long as accounting rules require.
+              Packs are sold on our Etsy shop. Etsy takes the payment, delivers the files and
+              handles your order under its own privacy policy. We only see the order details Etsy
+              shares with sellers, and use them only to help with that order.
             </p>
           </Section>
 
           <Section title="Who handles your data for us">
             <p>
-              Supabase (database, in the EU) stores the email list and the orders. Netlify hosts the
-              site and runs the functions that receive the form. Lemon Squeezy handles payments. A
-              transactional email service sends your download link. We do not sell your data and do
-              not use it for advertising.
+              Supabase (database, in the EU) stores the email list. Netlify hosts the site and runs
+              the functions that receive the form. Etsy handles purchases. We do not sell your data
+              and do not use it for advertising.
             </p>
           </Section>
 

@@ -192,7 +192,7 @@ export function buildHomePage(): SeoPage {
     noindex: false,
     shell: {
       h1: "Free gradient wallpaper generator",
-      text: "Design your own gradient wallpaper for phone, tablet or desktop. Shuffle until something feels right, tweak the colors, and download it in high resolution. No account, no watermark.",
+      text: "Design your own gradient wallpaper for phone, tablet or desktop. Shuffle until something feels right, tweak the colours, and download it in high resolution. No account, no watermark.",
     },
   };
 }

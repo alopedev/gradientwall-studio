@@ -11,7 +11,7 @@ const INITIAL = useConfigStore.getState();
 const DUSK = PALETTES[0];
 
 const pick = (n: number, hex: string) =>
-  fireEvent.change(screen.getByLabelText(`Color ${n}`), { target: { value: hex } });
+  fireEvent.change(screen.getByLabelText(`Colour ${n}`), { target: { value: hex } });
 
 describe("ColorEditor", () => {
   beforeEach(() => {
@@ -25,7 +25,9 @@ describe("ColorEditor", () => {
 
   it("offers a color picker for each of the four colors, set to the current palette", () => {
     render(<ColorEditor onMessage={vi.fn()} />);
-    const inputs = [1, 2, 3, 4].map((n) => screen.getByLabelText(`Color ${n}`) as HTMLInputElement);
+    const inputs = [1, 2, 3, 4].map(
+      (n) => screen.getByLabelText(`Colour ${n}`) as HTMLInputElement,
+    );
     expect(inputs.map((i) => i.type)).toEqual(["color", "color", "color", "color"]);
     expect(inputs.map((i) => i.value)).toEqual(DUSK.colors.map((c) => c.toLowerCase()));
   });

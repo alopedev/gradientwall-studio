@@ -44,7 +44,7 @@ describe("StudioShell", () => {
     expect(getByLabelText("Device")).toBeTruthy();
     expect(getByLabelText("Style")).toBeTruthy();
     expect(getByLabelText("Palette")).toBeTruthy();
-    expect(getByLabelText(/favorites — empty/i)).toBeTruthy();
+    expect(getByLabelText(/favourites — empty/i)).toBeTruthy();
   });
 
   it("paints the wallpaper into a framed screen", () => {
@@ -57,7 +57,7 @@ describe("StudioShell", () => {
     const { queryAllByRole, getByRole } = render(<StudioShell />);
     expect(queryAllByRole("heading", { level: 1 })).toHaveLength(0);
     const h2 = getByRole("heading", { level: 2 });
-    expect(h2.textContent).toBe("make it yours.");
+    expect(h2.textContent).toBe("shuffle, tweak, download.");
     expect(h2.className).toMatch(/display-head/);
     expect(h2.querySelector("[class*='serif'], em, i")).toBeNull();
   });

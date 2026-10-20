@@ -35,7 +35,7 @@ describe("PrivacyPage", () => {
   it("covers purchases and who processes the data", () => {
     renderPage();
     const text = document.body.textContent ?? "";
-    expect(text).toMatch(/Lemon Squeezy/);
+    expect(text).toMatch(/Etsy/);
     expect(text).toMatch(/Supabase/);
     expect(text).toMatch(/Netlify/);
   });

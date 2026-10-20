@@ -52,7 +52,7 @@ const isTypingTarget = (t: EventTarget | null): boolean => {
 
 const TABS = [
   { id: "style", label: "Style" },
-  { id: "colors", label: "Colors" },
+  { id: "colors", label: "Colours" },
   { id: "adjust", label: "Adjust" },
 ] as const;
 type Tab = (typeof TABS)[number]["id"];
@@ -111,7 +111,7 @@ export function StudioInspector({ keysActive }: Props) {
     } catch {
       // Storage blocked: show the hint this once per visit.
     }
-    say("Found one you like? Tap the heart to keep it.");
+    say("Found one you like? Keep it with the heart.");
   }, [spins, say]);
 
   const shuffle = () => {

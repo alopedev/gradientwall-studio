@@ -27,7 +27,7 @@ export function SaveButton({ onMessage }: Props) {
     }
     useFavoritesStore.getState().pin(toFavoriteConfig(look));
     setBurst((n) => n + 1);
-    onMessage("Saved. Tap it below to come back to it.");
+    onMessage("Saved. Find it below.");
   };
 
   return (

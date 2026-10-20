@@ -27,8 +27,8 @@ describe("FavoritesStrip", () => {
 
   it("renders empty state when no items are pinned", () => {
     render(<FavoritesStrip />);
-    expect(screen.getByLabelText(/favorites — empty/i)).toBeTruthy();
-    expect(screen.getByText(/tap the heart to keep a wallpaper/i)).toBeTruthy();
+    expect(screen.getByLabelText(/favourites — empty/i)).toBeTruthy();
+    expect(screen.getByText(/keep a wallpaper with the heart button/i)).toBeTruthy();
   });
 
   it("shows how many wallpapers are saved", () => {
@@ -36,7 +36,7 @@ describe("FavoritesStrip", () => {
       useFavoritesStore.getState().pin(baseConfig(1, ["#001122", "#334455", "#667788", "#aabbcc"]));
     });
     render(<FavoritesStrip />);
-    expect(screen.getByLabelText("Favorites").textContent).toMatch(/Saved\s*1/);
+    expect(screen.getByLabelText("Favourites").textContent).toMatch(/Saved\s*1/);
   });
 
   it("renders one thumbnail per pinned item", () => {
@@ -45,7 +45,7 @@ describe("FavoritesStrip", () => {
       useFavoritesStore.getState().pin(baseConfig(2, ["#112233", "#445566", "#778899", "#bbccdd"]));
     });
     render(<FavoritesStrip />);
-    const items = screen.getAllByLabelText(/load favorite wallpaper/i);
+    const items = screen.getAllByLabelText(/load favourite wallpaper/i);
     expect(items).toHaveLength(2);
   });
 
@@ -56,7 +56,7 @@ describe("FavoritesStrip", () => {
     });
     const user = userEvent.setup();
     render(<FavoritesStrip />);
-    await user.click(screen.getByLabelText(/load favorite wallpaper/i));
+    await user.click(screen.getByLabelText(/load favourite wallpaper/i));
     expect(useConfigStore.getState().colors).toEqual(targetColors);
     expect(useConfigStore.getState().seed).toBe(999);
   });
@@ -71,7 +71,7 @@ describe("FavoritesStrip", () => {
     const onStage = useConfigStore.getState().seed;
     const user = userEvent.setup();
     render(<FavoritesStrip />);
-    await user.click(screen.getByLabelText(/load favorite wallpaper/i));
+    await user.click(screen.getByLabelText(/load favourite wallpaper/i));
     expect(useLookHistoryStore.getState().past.map((l) => l.seed)).toEqual([onStage]);
   });
 
@@ -82,7 +82,7 @@ describe("FavoritesStrip", () => {
     const user = userEvent.setup();
     render(<FavoritesStrip />);
     expect(useFavoritesStore.getState().items).toHaveLength(1);
-    await user.click(screen.getByLabelText(/remove from favorites/i));
+    await user.click(screen.getByLabelText(/remove from favourites/i));
     expect(useFavoritesStore.getState().items).toHaveLength(0);
   });
 });

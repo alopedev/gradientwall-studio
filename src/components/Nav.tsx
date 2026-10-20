@@ -418,8 +418,8 @@ function ActionsIsland() {
         href="/#studio"
         className={`${inkButton({ variant: "primary" })} rounded-[2px]! min-h-11 px-5 text-[0.82rem]`}
       >
-        <span className="md:hidden">Make one →</span>
-        <span className="hidden md:inline">Make a wallpaper →</span>
+        <span className="md:hidden">Studio →</span>
+        <span className="hidden md:inline">Open the Studio →</span>
       </a>
     </div>
   );
