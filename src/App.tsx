@@ -1,6 +1,6 @@
 import { lazy, type ReactNode, Suspense, useEffect, useLayoutEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { LazyMotion, MotionConfig, AnimatePresence } from "motion/react";
+import { AnimatePresence, domMax, LazyMotion, MotionConfig } from "motion/react";
 import { Hero } from "./components/hero/Hero";
 import { Nav } from "./components/Nav";
 import {
@@ -12,8 +12,7 @@ import { Footer } from "./components/Footer";
 import { PageMeta } from "./components/PageMeta";
 import { buildHomePage } from "./lib/seo/pages";
 import { LANDINGS } from "./lib/seo/landings";
-import { useFavoritesStore } from "./store/useFavoritesStore";
-import { useMotionStore } from "./store/useMotionStore";
+import { loadSavedPrefs } from "./store/page-start";
 import { LenisProvider, useLenis } from "./components/ui/LenisProvider";
 import { ScrollProgress } from "./components/ui/ScrollProgress";
 
@@ -37,13 +36,12 @@ const PrivacyPage = lazy(() =>
   import("./components/PrivacyPage").then((m) => ({ default: m.PrivacyPage })),
 );
 
-// Async-load domMax features so the motion feature bundle (layout, drag,
-// animation) code-splits out of the critical path. The `m` components render
-// in their initial state until features resolve — fine for our scroll reveals
-// (whileInView fires below the fold) and acceptable for the hero entrance
-// (features resolve within ~10-30ms after main bundle). domMax is required
-// because PillTabs uses layoutId for its sliding thumb.
-const loadFeatures = () => import("motion/react").then((mod) => mod.domMax);
+// Motion features ship in the main bundle, not as a lazy chunk: when a lazy
+// chunk resolves it updates LazyMotion's context, and an update that reaches a
+// part of the prerendered page still hydrating (the Studio, a lazy route)
+// makes React throw that part away and redraw it (error #421). domMax is
+// required because PillTabs uses layoutId for its sliding thumb.
+const loadFeatures = domMax;
 
 export default function App() {
   return (
@@ -68,10 +66,7 @@ export function AppFrame({ children }: { children: ReactNode }) {
 export function AppContent() {
   // Saved favorites and the motion pause load once the prerendered page has
   // hydrated, so the first render matches the HTML.
-  useEffect(() => {
-    void useFavoritesStore.persist.rehydrate();
-    void useMotionStore.persist.rehydrate();
-  }, []);
+  useEffect(() => loadSavedPrefs(), []);
   return (
     <LenisProvider>
       <ScrollProgress />

@@ -27,3 +27,20 @@ describe("entry-server render", () => {
     expect(html).not.toContain(today);
   });
 });
+
+describe("entry-server starting look", () => {
+  it("draws a landing's own look into its HTML, and not into the next page's", async () => {
+    const aurora = await render("/aurora-gradient-wallpapers/");
+    // The Studio's style picker marks the selected style.
+    const pressed = (html: string, label: string) =>
+      new RegExp(
+        `aria-pressed="true"[^>]*>(?:<span[^>]*></span>)?<span[^>]*><span class="">${label}<`,
+      ).test(html);
+    expect(pressed(aurora, "Aurora")).toBe(true);
+    expect(pressed(aurora, "Mesh")).toBe(false);
+    const { useConfigStore } = await import("./store");
+    const home = await render("/");
+    expect(useConfigStore.getState().style).toBe("mesh");
+    expect(pressed(home, "Mesh")).toBe(true);
+  });
+});
