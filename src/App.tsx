@@ -8,6 +8,7 @@ import { PacksSection } from "./components/packs/PacksSection";
 import { Footer } from "./components/Footer";
 import { PageMeta } from "./components/PageMeta";
 import { buildHomePage } from "./lib/seo/pages";
+import { LANDINGS } from "./lib/seo/landings";
 import { LenisProvider, useLenis } from "./components/ui/LenisProvider";
 import { ScrollProgress } from "./components/ui/ScrollProgress";
 
@@ -23,6 +24,9 @@ const PackPurchaseSuccess = lazy(() =>
 );
 const RecoverForm = lazy(() =>
   import("./components/RecoverForm").then((m) => ({ default: m.RecoverForm })),
+);
+const LandingPage = lazy(() =>
+  import("./components/landing/LandingPage").then((m) => ({ default: m.LandingPage })),
 );
 const PrivacyPage = lazy(() =>
   import("./components/PrivacyPage").then((m) => ({ default: m.PrivacyPage })),
@@ -66,6 +70,13 @@ function RoutesShell() {
             <Route path="/" element={<HomePage />} />
             <Route path="/packs/:slug" element={<PackPage />} />
             <Route path="/packs/:slug/success" element={<PackPurchaseSuccess />} />
+            {LANDINGS.map((landing) => (
+              <Route
+                key={landing.slug}
+                path={`/${landing.slug}`}
+                element={<LandingPage landing={landing} />}
+              />
+            ))}
             <Route path="/recover" element={<RecoverForm />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />

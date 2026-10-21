@@ -1,5 +1,5 @@
 import { AI_DISCLOSURE, ETSY_PURCHASES_URL, ETSY_SHOP_URL } from "@/lib/copy";
-import { PRIVACY_PAGE } from "@/lib/seo/pages";
+import { landingLinks, PRIVACY_PAGE } from "@/lib/seo/pages";
 import { isNewsletterEnabled } from "@/lib/newsletter/subscribe";
 import { useConfigStore } from "@/store/useConfigStore";
 import { EmailCapture } from "./EmailCapture";
@@ -17,6 +17,14 @@ const MAKE: FooterLink[] = [
   { label: "Etsy shop", href: ETSY_SHOP_URL, external: true },
 ];
 
+/** The landings, so every page links to them. */
+const WALLPAPERS: FooterLink[] = landingLinks().map(({ href, label }) => ({
+  href,
+  label: label
+    .replace(" Gradient Wallpapers for Desktop", " desktop")
+    .replace(" Gradient Wallpapers", ""),
+}));
+
 const HELP: FooterLink[] = [
   { label: "Find your download", href: ETSY_PURCHASES_URL, external: true },
   { label: "Privacy", href: PRIVACY_PAGE.path },
@@ -25,7 +33,7 @@ const HELP: FooterLink[] = [
 export function Footer() {
   return (
     <footer className="mx-auto max-w-[1600px] px-[clamp(24px,5vw,80px)] pt-20 border-t border-ink">
-      <div className="grid grid-cols-2 gap-x-8 gap-y-12 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)] md:gap-x-12 pb-14">
+      <div className="grid grid-cols-2 gap-x-8 gap-y-12 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] md:gap-x-12 pb-14">
         <Reveal className="col-span-2 md:col-span-1">
           {isNewsletterEnabled() ? (
             <EmailCapture
@@ -43,6 +51,9 @@ export function Footer() {
         </Reveal>
         <Reveal delay={0.08}>
           <FooterCol title="Make" links={MAKE} />
+        </Reveal>
+        <Reveal delay={0.11}>
+          <FooterCol title="Gradient wallpapers" links={WALLPAPERS} />
         </Reveal>
         <Reveal delay={0.14}>
           <FooterCol title="Help" links={HELP} />

@@ -11,14 +11,14 @@ const STEPS: Record<Device, [string, string][]> = {
   mobile: [
     [
       "On iPhone",
-      "Files › Downloads › open it › Share › Save Image. Then Photos › Share › Use as Wallpaper.",
+      "Tap Save Image (or find it in Files › Downloads). Then Photos › Share › Use as Wallpaper.",
     ],
     ["On Android", "Open it in Photos or Gallery › Use as › Wallpaper."],
   ],
   tablet: [
     [
       "On iPad",
-      "Files › Downloads › open it › Share › Save Image. Then Photos › Share › Use as Wallpaper.",
+      "Tap Save Image (or find it in Files › Downloads). Then Photos › Share › Use as Wallpaper.",
     ],
     ["On Android", "Open it in Photos or Gallery › Use as › Wallpaper."],
   ],
@@ -37,7 +37,8 @@ interface Props {
 
 /**
  * Shown after the first download of a visit: the file, how to set it as a
- * wallpaper (on iPhone a download lands in Files, not Photos), and the packs
+ * wallpaper (on iPhone the share sheet's Save Image puts it in Photos; a
+ * fallback download lands in Files), and the packs
  * for whoever wants more. A modal `<dialog>`, so focus, Escape and the
  * backdrop come from the browser.
  */

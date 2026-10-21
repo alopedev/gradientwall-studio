@@ -4,6 +4,8 @@
  * Vite build (prerender + sitemap in `vite.config.ts`) and tests.
  */
 
+import { LANDINGS, landingPath, type Landing } from "./landings";
+
 // Temporary: gradientwall.com lapsed and was taken by a domain reseller. Switch
 // back here (and in public/robots.txt) once the site has its own domain.
 export const SITE_ORIGIN = "https://gradientwall-studio.netlify.app";
@@ -206,6 +208,51 @@ export function buildPackPage(pack: SeoPack): SeoPage {
   };
 }
 
+/** SEO data for a landing. Shared by `LandingPage` (runtime) and the prerender. */
+export function buildLandingPage(landing: Landing): SeoPage {
+  const url = `${SITE_ORIGIN}${landingPath(landing.slug)}`;
+  const text = [landing.description, ...landing.guides.flatMap((g) => g.body)].join(" ");
+  return {
+    path: landingPath(landing.slug),
+    title: landing.title,
+    description: landing.description,
+    ogType: "website",
+    preloadImage: HERO_PHONE_IMAGE,
+    jsonLd: [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: landing.title,
+        description: landing.description,
+        url,
+        isPartOf: { "@type": "WebSite", name: SITE_NAME, url: `${SITE_ORIGIN}/` },
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: SITE_NAME, item: `${SITE_ORIGIN}/` },
+          { "@type": "ListItem", position: 2, name: landing.title, item: url },
+        ],
+      },
+    ],
+    noindex: false,
+    shell: {
+      h1: landing.h1,
+      text,
+      links: [{ href: "/", label: "Free gradient wallpaper generator" }, ...landingLinks(landing)],
+    },
+  };
+}
+
+/** Links to every landing, for crawlable shells and the footer. */
+export function landingLinks(except?: Landing): { href: string; label: string }[] {
+  return LANDINGS.filter((l) => l !== except).map((l) => ({
+    href: landingPath(l.slug),
+    label: l.title.replace(/^Free /, ""),
+  }));
+}
+
 export function buildHomePage(packs: Pick<SeoPack, "slug" | "name">[] = []): SeoPage {
   return {
     path: "/",
@@ -222,6 +269,7 @@ export function buildHomePage(packs: Pick<SeoPack, "slug" | "name">[] = []): Seo
       text: "Design your own gradient wallpaper for phone, tablet or desktop. Shuffle until something feels right, tweak the colours, and download it in high resolution. No account, no watermark.",
       links: [
         ...packs.map((p) => ({ href: packPath(p.slug), label: `${p.name} wallpaper pack` })),
+        ...landingLinks(),
         { href: PRIVACY_PAGE.path, label: "Privacy" },
       ],
     },
@@ -230,5 +278,11 @@ export function buildHomePage(packs: Pick<SeoPack, "slug" | "name">[] = []): Seo
 
 /** Every page that gets its own prerendered HTML file (excluding the 404). */
 export function buildSeoPages(packs: SeoPack[]): SeoPage[] {
-  return [buildHomePage(packs), ...packs.map(buildPackPage), RECOVER_PAGE, PRIVACY_PAGE];
+  return [
+    buildHomePage(packs),
+    ...packs.map(buildPackPage),
+    ...LANDINGS.map(buildLandingPage),
+    RECOVER_PAGE,
+    PRIVACY_PAGE,
+  ];
 }

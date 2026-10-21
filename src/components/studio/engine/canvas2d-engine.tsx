@@ -1,6 +1,6 @@
 import { composeWallpaper, paintWallpaper } from "@/lib/download/compose";
 import { exportCanvas, exportFormat } from "@/lib/download/export";
-import { browserDownloadSink, type Sink } from "@/lib/download/sink";
+import { defaultSink, type Sink } from "@/lib/download/sink";
 import {
   DEFAULT_CONTRAST,
   DEFAULT_LIGHT_ANGLE,
@@ -74,7 +74,7 @@ function Canvas2DCanvas({ params, device, className, onBeforePaint }: EngineCanv
  * Current engine: the Canvas2D mesh/liquid/aurora pipeline. Thin adapter over
  * `src/lib/gradient` and `src/lib/download`, which stay untouched.
  */
-export function createCanvas2DEngine(sink: Sink = browserDownloadSink): WallpaperEngine {
+export function createCanvas2DEngine(sink: Sink = defaultSink): WallpaperEngine {
   return {
     id: "canvas2d",
     styles: [

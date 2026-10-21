@@ -1,6 +1,6 @@
 import { paintWallpaper } from "@/lib/download/compose";
 import { exportCanvas, exportFormat } from "@/lib/download/export";
-import { browserDownloadSink, type Sink } from "@/lib/download/sink";
+import { defaultSink, type Sink } from "@/lib/download/sink";
 import { DEFAULT_MAX_DIM, DEFAULT_MAX_DPR, pixelKey } from "@/lib/fitted-canvas";
 import {
   isWebGL2Supported,
@@ -65,7 +65,7 @@ export interface WebGLEngineDeps {
  * go through `fallback`, so a saved wallpaper always looks the way it was saved.
  */
 export function createWebGLEngine(deps: WebGLEngineDeps = {}): WallpaperEngine {
-  const sink = deps.sink ?? browserDownloadSink;
+  const sink = deps.sink ?? defaultSink;
   const fallback = deps.fallback ?? canvas2DEngine;
   const supported = deps.supported ?? isWebGL2Supported;
   const renderer = () => deps.renderer?.();

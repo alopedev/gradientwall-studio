@@ -118,6 +118,9 @@ describe("ExportButton", () => {
     expect(within(help).getByText("On iPhone")).toBeTruthy();
     expect(within(help).getByText("On Android")).toBeTruthy();
     expect(help.textContent).toMatch(/Use as Wallpaper/);
+    // On iPhone the share sheet's Save Image puts it in Photos (Files only as a fallback).
+    expect(help.textContent).toMatch(/Save Image/);
+    expect(help.textContent).not.toMatch(/Files › Downloads › open it/);
     const packs = within(help).getByRole("link", { name: /see the packs/i });
     expect(packs.getAttribute("href")).toBe("#packs");
     expect(help.textContent).toMatch(/€5\.99 each on Etsy/);
