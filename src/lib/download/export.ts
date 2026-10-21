@@ -1,7 +1,7 @@
 import type { Device } from "../palettes";
 import { encodeWithFallback, exportFormatLabel, type EncodeFormat } from "./encode";
 import { wallpaperFilename } from "./filename";
-import { browserDownloadSink, type Sink } from "./sink";
+import { defaultSink, type Sink } from "./sink";
 
 /**
  * WebP 95 %, JPEG 95 % where the browser has no WebP encoder. For grainy
@@ -20,7 +20,7 @@ export interface ExportedFile {
 export interface ExportCanvasOptions {
   device: Device;
   seed: number;
-  /** Where the file goes. Default: a browser download. */
+  /** Where the file goes. Default: the share sheet on iOS, a download elsewhere. */
   sink?: Sink;
   /** Called with 0..1 as the export moves from stage to stage. */
   onProgress?: (fraction: number) => void;
@@ -45,7 +45,7 @@ export function exportFormat(): string {
  */
 export async function exportCanvas(
   render: () => HTMLCanvasElement | null,
-  { device, seed, sink = browserDownloadSink, onProgress }: ExportCanvasOptions,
+  { device, seed, sink = defaultSink, onProgress }: ExportCanvasOptions,
 ): Promise<ExportedFile | null> {
   onProgress?.(0.05);
   await nextFrame();

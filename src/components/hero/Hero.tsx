@@ -22,7 +22,13 @@ import { HERO_PHONE_IMAGE } from "@/lib/seo/pages";
  * whose screen is transparent; the wallpaper canvas sits behind that hole. The
  * screen box below is measured on that photo, so a new photo needs new numbers.
  */
-export function Hero() {
+export function Hero({
+  title = "make a gradient wallpaper. free, in 5K.",
+  subtitle = "shuffle until it's yours.",
+}: {
+  title?: string;
+  subtitle?: string;
+} = {}) {
   const engine = useWallpaperEngine();
   const params = useRenderParams();
   const colors = useConfigStore((s) => s.colors);
@@ -42,10 +48,10 @@ export function Hero() {
           id="hero-title"
           className="display-head mx-auto max-w-[20ch] text-balance text-center text-[clamp(34px,3.3vw,52px)] text-ink md:max-w-none"
         >
-          make a gradient wallpaper. free, in 5K.
+          {title}
         </h1>
         <p className="mx-auto mt-3 max-w-[30ch] text-balance text-center font-sans text-[16px] text-ink-dim">
-          shuffle until it's yours.
+          {subtitle}
         </p>
 
         {/* Room above the phone for the width ruler and its label, plus the float
