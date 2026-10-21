@@ -100,4 +100,15 @@ describe("useFavoritesStore — pin / unpin / reorder / clear / FIFO cap", () =>
     const parsed = JSON.parse(raw!);
     expect(parsed.state.items[0].config.seed).toBe(42);
   });
+
+  it("loads saved favorites only when asked (App does it after hydrating the prerendered page)", async () => {
+    useFavoritesStore.getState().pin(baseConfig({ seed: 7 }));
+    const saved = localStorage.getItem(FAVORITES_STORAGE_KEY)!;
+    useFavoritesStore.setState({ items: [] });
+    localStorage.setItem(FAVORITES_STORAGE_KEY, saved);
+    expect(useFavoritesStore.persist.getOptions().skipHydration).toBe(true);
+    expect(useFavoritesStore.getState().items).toHaveLength(0);
+    await useFavoritesStore.persist.rehydrate();
+    expect(useFavoritesStore.getState().items[0].config.seed).toBe(7);
+  });
 });

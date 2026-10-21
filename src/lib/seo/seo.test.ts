@@ -108,6 +108,12 @@ describe("renderPage", () => {
     expect(() => renderPage("<html></html>", buildHomePage())).toThrow(/root/);
   });
 
+  it("puts the prerendered app into #root, marked for hydration, instead of the hidden shell", () => {
+    const html = renderPage(TEMPLATE, buildHomePage(), "<section><h1>real</h1></section>");
+    expect(html).toContain('<div id="root" data-ssr><section><h1>real</h1></section></div>');
+    expect(html).not.toContain("data-prerender style");
+  });
+
   it("canonicalises the 404 page to the home", () => {
     expect(renderHeadTags(NOT_FOUND_PAGE)).toContain(
       'href="https://gradientwall-studio.netlify.app/"',

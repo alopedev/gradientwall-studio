@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+import { type CSSProperties, type ReactNode, useEffect, useState } from "react";
 
 /**
  * Pure-CSS device bezels used to show wallpapers the way buyers will see them.
@@ -61,11 +61,14 @@ export function LaptopFrame({ children, className = "", style }: FrameProps) {
 
 /** The time on top of the phone render, so the wallpaper reads as a lock screen. */
 export function LockScreen() {
-  const today = new Date().toLocaleDateString("en-GB", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  });
+  // Filled after mount, like the Studio's lock screen: the prerendered HTML
+  // never bakes in the day it was built.
+  const [today, setToday] = useState("");
+  useEffect(() => {
+    setToday(
+      new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }),
+    );
+  }, []);
   return (
     <div
       aria-hidden

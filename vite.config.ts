@@ -1,9 +1,11 @@
-import { defineConfig, type Plugin } from "vitest/config";
+import { build, type Plugin } from "vite";
+import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { fileURLToPath, URL } from "node:url";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { pathToFileURL } from "node:url";
 import { buildHomePage, buildSeoPages, NOT_FOUND_PAGE, type SeoPack } from "./src/lib/seo/pages";
 import {
   outputFile,
@@ -24,6 +26,11 @@ import {
  * The data comes from `src/lib/seo/pages.ts`, the same module `PageMeta` uses
  * at runtime, and the pack list from `src/data/packs.json`, so adding a pack to
  * the manifest is the only step needed to get its page prerendered.
+ *
+ * Each page's `#root` holds the page itself, rendered by `src/entry-server.tsx`
+ * (a second, SSR build of the same app), so the hero paints from the HTML and
+ * `main.tsx` hydrates it instead of drawing it from scratch. The 404 keeps the
+ * hidden shell: its app only redirects home.
  */
 function seoPlugin(): Plugin {
   const readPacks = () =>
@@ -31,26 +38,49 @@ function seoPlugin(): Plugin {
       readFileSync(fileURLToPath(new URL("./src/data/packs.json", import.meta.url)), "utf8"),
     ) as SeoPack[];
   let outDir = "dist";
+  let root = process.cwd();
+  let mode = "production";
+  let isSsrBuild = false;
+
+  /** Build `entry-server.tsx` for Node and load its `render`. */
+  async function loadRenderer(): Promise<(url: string) => Promise<string>> {
+    const ssrDir = join(root, "node_modules/.prerender");
+    rmSync(ssrDir, { recursive: true, force: true });
+    await build({
+      root,
+      mode,
+      logLevel: "warn",
+      build: { ssr: "src/entry-server.tsx", outDir: ssrDir, emptyOutDir: true },
+    });
+    const mod = await import(pathToFileURL(join(ssrDir, "entry-server.js")).href);
+    return mod.render;
+  }
 
   return {
     name: "gradientwall-seo",
     configResolved(config) {
       outDir = fileURLToPath(new URL(config.build.outDir, `file://${config.root}/`));
+      root = config.root;
+      mode = config.mode;
+      isSsrBuild = Boolean(config.build.ssr);
     },
     // Dev server + build: fill the marker block with the home page tags.
     transformIndexHtml(html) {
       return replaceHeadBlock(html, renderHeadTags(buildHomePage()));
     },
-    closeBundle() {
-      // Runs for `vite build` only (vitest has no bundle to post-process).
-      if (!existsSync(join(outDir, "index.html"))) return;
+    async closeBundle() {
+      // Runs for the client `vite build` only (vitest has no bundle to
+      // post-process, and the SSR build below must not recurse).
+      if (isSsrBuild || !existsSync(join(outDir, "index.html"))) return;
       const template = readFileSync(join(outDir, "index.html"), "utf8");
       const pages = buildSeoPages(readPacks());
-      for (const page of [...pages, NOT_FOUND_PAGE]) {
+      const render = await loadRenderer();
+      for (const page of pages) {
         const file = join(outDir, outputFile(page));
         mkdirSync(dirname(file), { recursive: true });
-        writeFileSync(file, renderPage(template, page));
+        writeFileSync(file, renderPage(template, page, await render(page.path)));
       }
+      writeFileSync(join(outDir, outputFile(NOT_FOUND_PAGE)), renderPage(template, NOT_FOUND_PAGE));
       writeFileSync(join(outDir, "sitemap.xml"), renderSitemap(pages));
     },
   };
@@ -63,6 +93,9 @@ export default defineConfig({
     // from public/assets/, whose pack images keep their names across builds.
     assetsDir: "static",
   },
+  // The prerender's SSR build: react-router-dom's Node entry is CommonJS that
+  // re-exports react-router, so bundle both and pick their ESM files.
+  ssr: { noExternal: [/react-router/], resolve: { conditions: ["module-sync"] } },
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),

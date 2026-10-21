@@ -114,6 +114,8 @@ export const useFavoritesStore = create<FavoritesState>()(
     }),
     {
       name: FAVORITES_STORAGE_KEY,
+      // Read after the first render (App), so it matches the prerendered HTML.
+      skipHydration: true,
       storage,
       version: FAVORITES_SCHEMA_VERSION,
       partialize: (s) => ({ items: s.items }),

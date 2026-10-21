@@ -78,8 +78,9 @@ export function renderHeadTags(page: SeoPage): string {
 }
 
 /**
- * Crawlable content for `#root`. Visually hidden: React replaces it on mount
- * (`createRoot`, no hydration), so it never flashes nor mismatches.
+ * Crawlable fallback for `#root` when a page has no prerendered app (the 404).
+ * Visually hidden: React replaces it on mount (`createRoot`), so it never
+ * flashes nor mismatches.
  */
 export function renderShell(page: SeoPage): string {
   const { h1, text, links = [] } = page.shell;
@@ -101,12 +102,19 @@ export function replaceHeadBlock(html: string, tags: string): string {
   return `${html.slice(0, start)}${HEAD_START}\n${tags}\n    ${HEAD_END}${html.slice(end + HEAD_END.length)}`;
 }
 
-/** Swap the SEO head block and the `#root` placeholder of a built `index.html`. */
-export function renderPage(template: string, page: SeoPage): string {
+/**
+ * Swap the SEO head block and the `#root` placeholder of a built `index.html`.
+ * With `appHtml` (the page rendered by `entry-server.tsx`) `#root` holds the
+ * real page, marked `data-ssr` so `main.tsx` hydrates it; without, the shell.
+ */
+export function renderPage(template: string, page: SeoPage, appHtml?: string): string {
   if (!template.includes(ROOT_EMPTY)) {
     throw new Error(`index.html is missing ${ROOT_EMPTY}`);
   }
-  return replaceHeadBlock(template, renderHeadTags(page)).replace(ROOT_EMPTY, renderShell(page));
+  const root =
+    appHtml === undefined ? renderShell(page) : `<div id="root" data-ssr>${appHtml}</div>`;
+  // A function, so `$` in the page's HTML is never read as a replacement pattern.
+  return replaceHeadBlock(template, renderHeadTags(page)).replace(ROOT_EMPTY, () => root);
 }
 
 /** Sitemap with every indexable page. No `lastmod`: a fake build date is worse than none. */

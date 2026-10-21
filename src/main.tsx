@@ -1,5 +1,5 @@
 import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
+import { createRoot, hydrateRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 import { validateCatalog } from "./lib/store";
@@ -9,8 +9,12 @@ if (import.meta.env.DEV) {
   if (issues.length) console.warn("[catalog]", issues);
 }
 
-createRoot(document.getElementById("root")!).render(
+const root = document.getElementById("root")!;
+const app = (
   <StrictMode>
     <App />
-  </StrictMode>,
+  </StrictMode>
 );
+// Prerendered pages (vite.config.ts) carry the page in #root: reuse it.
+if (root.hasAttribute("data-ssr")) hydrateRoot(root, app);
+else createRoot(root).render(app);

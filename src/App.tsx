@@ -1,14 +1,19 @@
-import { lazy, Suspense, useEffect, useLayoutEffect } from "react";
+import { lazy, type ReactNode, Suspense, useEffect, useLayoutEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { LazyMotion, MotionConfig, AnimatePresence } from "motion/react";
 import { Hero } from "./components/hero/Hero";
 import { Nav } from "./components/Nav";
-import { StudioShell } from "./components/studio/v2/StudioShell";
+import {
+  LazyStudioShell as StudioShell,
+  loadStudioShell,
+} from "./components/studio/v2/LazyStudioShell";
 import { PacksSection } from "./components/packs/PacksSection";
 import { Footer } from "./components/Footer";
 import { PageMeta } from "./components/PageMeta";
 import { buildHomePage } from "./lib/seo/pages";
 import { LANDINGS } from "./lib/seo/landings";
+import { useFavoritesStore } from "./store/useFavoritesStore";
+import { useMotionStore } from "./store/useMotionStore";
 import { LenisProvider, useLenis } from "./components/ui/LenisProvider";
 import { ScrollProgress } from "./components/ui/ScrollProgress";
 
@@ -42,16 +47,36 @@ const loadFeatures = () => import("motion/react").then((mod) => mod.domMax);
 
 export default function App() {
   return (
+    <AppFrame>
+      <BrowserRouter>
+        <AppContent />
+      </BrowserRouter>
+    </AppFrame>
+  );
+}
+
+/** Everything around the router: motion features and preferences. */
+export function AppFrame({ children }: { children: ReactNode }) {
+  return (
     <LazyMotion features={loadFeatures} strict>
-      <MotionConfig reducedMotion="user">
-        <BrowserRouter>
-          <LenisProvider>
-            <ScrollProgress />
-            <RoutesShell />
-          </LenisProvider>
-        </BrowserRouter>
-      </MotionConfig>
+      <MotionConfig reducedMotion="user">{children}</MotionConfig>
     </LazyMotion>
+  );
+}
+
+/** Everything inside the router. The prerender renders it under a StaticRouter. */
+export function AppContent() {
+  // Saved favorites and the motion pause load once the prerendered page has
+  // hydrated, so the first render matches the HTML.
+  useEffect(() => {
+    void useFavoritesStore.persist.rehydrate();
+    void useMotionStore.persist.rehydrate();
+  }, []);
+  return (
+    <LenisProvider>
+      <ScrollProgress />
+      <RoutesShell />
+    </LenisProvider>
   );
 }
 
@@ -119,17 +144,28 @@ function HomePage() {
   // fragment (e.g. /#packs from the pack page back-link). Without this, hash
   // anchors only work for in-page clicks, not cross-route navigations.
   const { hash } = useLocation();
+  // The Studio is its own chunk, so `#studio` may mount a few frames late:
+  // keep looking for up to ~2 s.
   useEffect(() => {
     if (!hash) return;
     const id = hash.slice(1);
-    const el = document.getElementById(id);
-    if (!el) return;
-    requestAnimationFrame(() => el.scrollIntoView({ behavior: "instant", block: "start" }));
+    let raf = 0;
+    let tries = 120;
+    const find = () => {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: "instant", block: "start" });
+      else if (tries-- > 0) raf = requestAnimationFrame(find);
+    };
+    raf = requestAnimationFrame(find);
+    return () => cancelAnimationFrame(raf);
   }, [hash]);
 
   useEffect(() => {
     const idle = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 2000));
-    idle(() => void loadPackPage());
+    idle(() => {
+      void loadPackPage();
+      void loadStudioShell();
+    });
   }, []);
 
   return (

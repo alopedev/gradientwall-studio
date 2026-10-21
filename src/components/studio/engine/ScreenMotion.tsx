@@ -56,10 +56,12 @@ export const SCREEN_MOTION_HOLD_MS = 500;
  * it renders nothing and the still wallpaper is all there is.
  */
 export function ScreenMotion({ params }: { params: RenderParams }) {
-  const [enabled] = useState(() => shouldRunBackdrop(readEnv()));
+  // Decided after mount: the prerendered HTML and the first client render match.
+  const [enabled, setEnabled] = useState(false);
+  useEffect(() => setEnabled(shouldRunBackdrop(readEnv())), []);
   const [failed, setFailed] = useState(false);
   const [shown, setShown] = useState(false);
-  const [hidden, setHidden] = useState(() => document.hidden);
+  const [hidden, setHidden] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [renderer, setRenderer] = useState<V2Renderer | null>(null);
@@ -81,6 +83,7 @@ export function ScreenMotion({ params }: { params: RenderParams }) {
 
   useEffect(() => {
     const onVisibility = () => setHidden(document.hidden);
+    onVisibility();
     document.addEventListener("visibilitychange", onVisibility);
     return () => document.removeEventListener("visibilitychange", onVisibility);
   }, []);
