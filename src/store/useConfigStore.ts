@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { create } from "zustand";
+import { useStore } from "zustand";
+import { createStore } from "zustand/vanilla";
 import { clamp } from "@/lib/color";
 import { useShallow } from "zustand/react/shallow";
 import {
@@ -86,7 +87,7 @@ type RafPatch = Partial<
   Pick<ConfigState, "blur" | "grain" | "lightAngle" | "density" | "contrast" | "vibrance">
 >;
 
-export const useConfigStore = create<ConfigState>()((set) => {
+const configStore = createStore<ConfigState>()((set) => {
   const rafSet = makeRafBatcher<RafPatch>(set);
   return {
     device: "mobile",
@@ -165,6 +166,19 @@ export const useConfigStore = create<ConfigState>()((set) => {
       }),
   };
 });
+
+// Server rendering and hydration read the store's current state, not the one
+// it was created with (zustand's default): the prerender and `main.tsx` put
+// each page on its starting look (`store/page-start.ts`) before rendering, so
+// both draw the same wallpaper.
+Object.assign(configStore, { getServerState: configStore.getState });
+
+/** The config store as a hook, `useConfigStore(selector)`, plus its API (`getState`, `setState`…). */
+export const useConfigStore = Object.assign(
+  <T = ConfigState>(selector?: (state: ConfigState) => T): T =>
+    useStore(configStore, selector ?? ((s) => s as T)),
+  configStore,
+);
 
 /**
  * Pure resolver — builds a renderer-ready `RenderParams` from the config

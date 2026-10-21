@@ -8,7 +8,7 @@ import { Hero } from "../hero/Hero";
 import { Nav } from "../Nav";
 import { PacksSection } from "../packs/PacksSection";
 import { PageMeta } from "../PageMeta";
-import { StudioShell } from "../studio/v2/StudioShell";
+import { LazyStudioShell as StudioShell } from "../studio/v2/LazyStudioShell";
 import { PAGE_COLUMN } from "../ui/layout";
 
 /**

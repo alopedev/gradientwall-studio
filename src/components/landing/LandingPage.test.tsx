@@ -26,14 +26,15 @@ function renderLanding(slug: string) {
 describe("LandingPage", () => {
   beforeEach(() => act(() => useConfigStore.setState(INITIAL, true)));
 
-  it("is the home's hero with the landing's own headline, then the Studio and the packs", () => {
+  it("is the home's hero with the landing's own headline, then the Studio and the packs", async () => {
     renderLanding(iphone.slug);
     const h1s = screen.getAllByRole("heading", { level: 1 });
     expect(h1s).toHaveLength(1);
     expect(h1s[0].textContent).toBe(iphone.h1);
     expect(h1s[0].nextElementSibling?.textContent).toBe(iphone.subtitle);
     expect(screen.getByRole("img", { name: /current wallpaper on a phone/i })).toBeTruthy();
-    expect(screen.getByTestId("studio")).toBeTruthy();
+    // The Studio is its own chunk (LazyStudioShell).
+    expect(await screen.findByTestId("studio")).toBeTruthy();
     expect(screen.getByTestId("packs")).toBeTruthy();
   });
 

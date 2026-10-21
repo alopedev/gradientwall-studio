@@ -1,6 +1,6 @@
 import { Check, Download } from "lucide-react";
 import { m } from "motion/react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { InkButton } from "@/components/ui/InkButton";
 import { DEVICE_SIZES } from "@/lib/palettes";
 import { useConfigStore, useRenderParams } from "@/store";
@@ -44,8 +44,11 @@ export function ExportButton({ onMessage, primary = false, className = "" }: Pro
   const device = useConfigStore((s) => s.device);
   const params = useRenderParams();
   const sizeLabel = DEVICE_SIZES[device].label;
-  const format = engine.exportFormat();
-  const spec = `${sizeLabel}, ${format}`;
+  // Asked after mount: the encoder is the visitor's browser's, which the
+  // prerendered HTML can't know.
+  const [format, setFormat] = useState<string | null>(null);
+  useEffect(() => setFormat(engine.exportFormat()), [engine]);
+  const spec = format ? `${sizeLabel}, ${format}` : sizeLabel;
   const [phase, setPhase] = useState<Phase>("idle");
   const [progress, setProgress] = useState(0);
   const resetTimer = useRef<ReturnType<typeof setTimeout>>();
@@ -116,7 +119,7 @@ export function ExportButton({ onMessage, primary = false, className = "" }: Pro
               {phase === "done" && "Downloaded"}
             </span>
             <span className="text-[0.64rem] font-normal tracking-[0.04em] opacity-65">
-              {`${sizeLabel} · ${format}`}
+              {format ? `${sizeLabel} · ${format}` : sizeLabel}
             </span>
           </span>
         </span>

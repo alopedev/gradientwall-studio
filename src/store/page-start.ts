@@ -1,0 +1,45 @@
+import { LANDINGS, landingPath } from "@/lib/seo/landings";
+import { useConfigStore } from "./useConfigStore";
+import { useFavoritesStore } from "./useFavoritesStore";
+import { useMotionStore } from "./useMotionStore";
+
+/**
+ * Put the Studio on the look a page starts with (a landing's style, device or
+ * grain) before it renders. The prerender calls it per page and `main.tsx`
+ * before hydrating, so both render the same wallpaper.
+ */
+export function startLookFor(pathname: string): void {
+  const path = pathname.endsWith("/") ? pathname : `${pathname}/`;
+  const look = LANDINGS.find((l) => landingPath(l.slug) === path)?.look;
+  if (look) useConfigStore.setState(look);
+}
+
+/** After the page has loaded and gone idle: React has hydrated by then. */
+function whenSettled(cb: () => void): void {
+  const idle = () =>
+    typeof requestIdleCallback === "function"
+      ? requestIdleCallback(cb, { timeout: 3000 })
+      : setTimeout(cb, 500);
+  if (document.readyState === "complete") idle();
+  else window.addEventListener("load", idle, { once: true });
+}
+
+/**
+ * Load the saved favorites and motion pause. Not at startup: an update that
+ * reaches a part of the page React is still hydrating makes it throw that part
+ * away and draw it again (error #421). So only stores with something saved,
+ * and only once the page has `later` settled.
+ */
+export function loadSavedPrefs(later: (cb: () => void) => void = whenSettled): void {
+  const saved = [useFavoritesStore, useMotionStore].filter((store) => {
+    try {
+      return localStorage.getItem(store.persist.getOptions().name ?? "") !== null;
+    } catch {
+      return false;
+    }
+  });
+  if (!saved.length) return;
+  later(() => {
+    for (const store of saved) void store.persist.rehydrate();
+  });
+}

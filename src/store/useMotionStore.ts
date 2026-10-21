@@ -20,6 +20,8 @@ export const useMotionStore = create<MotionState>()(
     }),
     {
       name: "gw:motion:v1",
+      // Read after the first render (App), so it matches the prerendered HTML.
+      skipHydration: true,
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({ paused: s.paused }),
     },
