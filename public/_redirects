@@ -1,3 +1,5 @@
+# The site's own domain since October 2026: the Netlify address moves there.
+https://gradientwall-studio.netlify.app/*  https://gradientwall.app/:splat  301!
 # Impasto's URL was /packs/acrylic until October 2026.
 /packs/acrylic    /packs/impasto/          301
 /packs/acrylic/*  /packs/impasto/:splat    301

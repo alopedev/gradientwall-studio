@@ -14,6 +14,7 @@ import {
   PRIVACY_PAGE,
   packPath,
   RECOVER_PAGE,
+  SITE_ORIGIN,
   type SeoPack,
 } from "./pages";
 import {
@@ -82,7 +83,7 @@ describe("renderPage", () => {
     const html = renderPage(TEMPLATE, buildPackPage(packs[0]));
     expect(html).toContain(`<title>${packs[0].name}`);
     expect(html).toContain(
-      `<link rel="canonical" href="https://gradientwall-studio.netlify.app/packs/${packs[0].slug}/" />`,
+      `<link rel="canonical" href="https://gradientwall.app/packs/${packs[0].slug}/" />`,
     );
     expect(html).toContain('<meta name="robots" content="index,follow" />');
     expect(html).toContain(`<h1>${packs[0].name}</h1>`);
@@ -115,16 +116,14 @@ describe("renderPage", () => {
   });
 
   it("canonicalises the 404 page to the home", () => {
-    expect(renderHeadTags(NOT_FOUND_PAGE)).toContain(
-      'href="https://gradientwall-studio.netlify.app/"',
-    );
+    expect(renderHeadTags(NOT_FOUND_PAGE)).toContain('href="https://gradientwall.app/"');
   });
 });
 
 describe("sitemap and output paths", () => {
   it("lists only indexable pages, with absolute URLs", () => {
     const xml = renderSitemap(buildSeoPages(packs));
-    expect(xml).toContain("<loc>https://gradientwall-studio.netlify.app/</loc>");
+    expect(xml).toContain("<loc>https://gradientwall.app/</loc>");
     expect(xml).not.toContain("/recover");
     expect(xml).not.toContain("/legal/");
   });
@@ -134,7 +133,7 @@ describe("sitemap and output paths", () => {
     expect(outputFile(NOT_FOUND_PAGE)).toBe("404.html");
     expect(outputFile(buildPackPage(packs[0]))).toBe(`packs/${packs[0].slug}/index.html`);
     expect(outputFile(PRIVACY_PAGE)).toBe("privacy/index.html");
-    expect(absoluteUrl("/x")).toBe("https://gradientwall-studio.netlify.app/x");
+    expect(absoluteUrl("/x")).toBe("https://gradientwall.app/x");
     expect(absoluteUrl("https://a.b/c")).toBe("https://a.b/c");
   });
 });
@@ -206,6 +205,25 @@ describe("pack slugs", () => {
     const toml = readFileSync("netlify.toml", "utf8");
     expect(redirects).toMatch(/^\/packs\/acrylic\/?\*?\s+\/packs\/impasto\/\s+301/m);
     expect(toml).toContain('from = "/packs/acrylic/*"');
+  });
+});
+
+describe("site origin", () => {
+  it("is the own domain, in robots.txt too", () => {
+    expect(SITE_ORIGIN).toBe("https://gradientwall.app");
+    expect(readFileSync("public/robots.txt", "utf8")).toContain(
+      `Sitemap: ${SITE_ORIGIN}/sitemap.xml`,
+    );
+  });
+
+  it("sends the old Netlify address to the own domain, in both redirect files", () => {
+    const redirects = readFileSync("public/_redirects", "utf8");
+    const toml = readFileSync("netlify.toml", "utf8");
+    expect(redirects).toMatch(
+      /^https:\/\/gradientwall-studio\.netlify\.app\/\*\s+https:\/\/gradientwall\.app\/:splat\s+301!/m,
+    );
+    expect(toml).toContain('from = "https://gradientwall-studio.netlify.app/*"');
+    expect(toml).toContain('to = "https://gradientwall.app/:splat"');
   });
 });
 
