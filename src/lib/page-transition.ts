@@ -33,6 +33,8 @@ interface ViewTransitionLike {
 export interface TransitionDoc {
   startViewTransition?: (update: () => Promise<void> | void) => ViewTransitionLike;
   querySelector: (selector: string) => Element | null;
+  /** Carries `data-vt` (the kind) while a transition runs. */
+  documentElement?: Element;
 }
 
 /** One element that morphs: `source` on the old page, the `dest` selector on the new one. */
@@ -46,8 +48,14 @@ export interface PageTransitionOptions {
   doc?: TransitionDoc;
   /** Navigate. Must render the new route synchronously (wrap it in `flushSync`). */
   update: () => void;
+  /** Without the API, run this instead of `update` (e.g. a smooth scroll). Defaults to `update`. */
+  fallback?: () => void;
   /** True once the new page is in the DOM; the snapshot of it waits for this. */
   ready: () => boolean;
+  /** Runs once the new page is ready, before its snapshot (e.g. scroll to the target). */
+  settle?: () => void;
+  /** Set as `data-vt` on the root while it runs: CSS picks the page animation by it. */
+  kind?: string;
   shared: SharedElement[];
   /** Cross-fade the pages only: nothing flies across the screen. */
   reducedMotion?: boolean;
@@ -75,15 +83,20 @@ function waitFor(check: () => boolean, timeoutMs: number): Promise<void> {
 export async function runPageTransition({
   doc = document as unknown as TransitionDoc,
   update,
+  fallback = update,
   ready,
+  settle,
+  kind,
   shared,
   reducedMotion = false,
   timeoutMs = 1000,
 }: PageTransitionOptions): Promise<void> {
   if (typeof doc.startViewTransition !== "function") {
-    update();
+    fallback();
     return;
   }
+  const root = doc.documentElement;
+  if (kind) root?.setAttribute("data-vt", kind);
   const morphing = reducedMotion ? [] : shared;
   for (const s of morphing) setName(s.source, s.name);
   const dests: Element[] = [];
@@ -92,6 +105,9 @@ export async function runPageTransition({
     update();
     // The route mounts after AnimatePresence lets the old one go: wait for it.
     await waitFor(ready, timeoutMs);
+    settle?.();
+    // On the same page the source is still there: only the destination may carry the name now.
+    for (const s of morphing) setName(s.source, "");
     for (const s of morphing) {
       const dest = doc.querySelector(s.dest);
       if (!dest) continue;
@@ -107,5 +123,6 @@ export async function runPageTransition({
   } finally {
     for (const s of morphing) setName(s.source, "");
     for (const d of dests) setName(d, "");
+    if (kind) root?.removeAttribute("data-vt");
   }
 }

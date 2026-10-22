@@ -1,5 +1,5 @@
 import { Heart } from "lucide-react";
-import { Reorder } from "motion/react";
+import { AnimatePresence, Reorder } from "motion/react";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { FavoriteThumbnail } from "./FavoriteThumbnail";
 
@@ -32,16 +32,19 @@ export function FavoritesStrip() {
           axis="x"
           values={items}
           onReorder={(reordered) => reorder(reordered.map((it) => it.id))}
-          className="m-0 flex min-w-0 items-center gap-2.5 overflow-x-auto overflow-y-hidden p-1.5 [scrollbar-width:none] @max-[760px]:max-w-full"
+          className="gw-reveal-on-scroll m-0 flex min-w-0 items-center gap-2.5 overflow-x-auto overflow-y-hidden p-1.5 [scrollbar-width:none] @max-[760px]:max-w-full"
           style={{
             scrollSnapType: "x proximity",
             overscrollBehaviorX: "contain",
             WebkitOverflowScrolling: "touch",
           }}
         >
-          {items.map((item) => (
-            <FavoriteThumbnail key={item.id} item={item} />
-          ))}
+          {/* A new save pops in and a removed one shrinks away; the rest slide over. */}
+          <AnimatePresence initial={false}>
+            {items.map((item) => (
+              <FavoriteThumbnail key={item.id} item={item} />
+            ))}
+          </AnimatePresence>
         </Reorder.Group>
       )}
     </section>

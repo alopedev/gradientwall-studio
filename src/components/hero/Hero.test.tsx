@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, fireEvent, render } from "@testing-library/react";
+import { act, fireEvent, render as rtlRender } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PALETTES } from "@/lib/palettes";
 import { useConfigStore } from "@/store";
@@ -7,6 +7,11 @@ import { useLookHistoryStore } from "@/store/useLookHistoryStore";
 import { useMotionStore } from "@/store/useMotionStore";
 import { EngineProvider, webglEngine } from "../studio/engine";
 import { Hero } from "./Hero";
+import type { ReactElement } from "react";
+import { MemoryRouter } from "react-router-dom";
+
+/** The links in it navigate, so it renders inside a router, as in the app. */
+const render = (ui: ReactElement) => rtlRender(ui, { wrapper: MemoryRouter });
 
 // jsdom has no WebGL2, so the real ScreenMotion renders nothing; a stand-in shows where it goes.
 vi.mock("../studio/engine/ScreenMotion", () => ({
@@ -110,7 +115,7 @@ describe("Hero", () => {
 
   it("sends visitors who want more control down to the Studio", () => {
     const { getByRole } = render(<Hero />);
-    expect(getByRole("link", { name: /customise it/i }).getAttribute("href")).toBe("#studio");
+    expect(getByRole("link", { name: /customise it/i }).getAttribute("href")).toBe("/#studio");
   });
 
   it("tells phone visitors what it costs and points to the packs", () => {
@@ -119,7 +124,7 @@ describe("Hero", () => {
     // On wider screens the column beside the phone already says it.
     expect(line.closest(".md\\:hidden")).not.toBeNull();
     const packs = getByRole("link", { name: /or get a hand-picked pack, €5\.99/i });
-    expect(packs.getAttribute("href")).toBe("#packs");
+    expect(packs.getAttribute("href")).toBe("/#packs");
     expect(packs.closest(".md\\:hidden")).not.toBeNull();
   });
 });

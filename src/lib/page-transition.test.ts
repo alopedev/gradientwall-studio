@@ -122,4 +122,80 @@ describe("runPageTransition", () => {
     finish();
     await expect(done).resolves.toBeUndefined();
   });
+
+  it("runs the fallback instead of the update when the browser has no view transitions", async () => {
+    const update = vi.fn();
+    const fallback = vi.fn();
+    await runPageTransition({
+      doc: { querySelector: () => null },
+      update,
+      fallback,
+      ready: () => true,
+      shared: [],
+    });
+    expect(fallback).toHaveBeenCalledOnce();
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("marks the root with its kind while it runs, so CSS can pick the animation", async () => {
+    const { doc, finish } = fakeDoc();
+    const root = document.createElement("html");
+    doc.documentElement = root;
+    let kindAtUpdate: string | null = null;
+    const done = runPageTransition({
+      doc,
+      kind: "scroll-down",
+      update: () => {
+        kindAtUpdate = root.getAttribute("data-vt");
+      },
+      ready: () => true,
+      shared: [],
+    });
+    expect(root.getAttribute("data-vt")).toBe("scroll-down");
+    await vi.waitFor(() => expect(kindAtUpdate).toBe("scroll-down"));
+    finish();
+    await done;
+    expect(root.hasAttribute("data-vt")).toBe(false);
+  });
+
+  it("settles the new page once it is ready, before naming the destinations", async () => {
+    document.body.innerHTML = "";
+    const source = el();
+    const { doc, finish } = fakeDoc();
+    const order: string[] = [];
+    const done = runPageTransition({
+      doc,
+      update: () => {
+        el({ "data-dest": "screen" });
+        order.push("update");
+      },
+      ready: () => true,
+      settle: () => {
+        const dest = document.querySelector<HTMLElement>("[data-dest]");
+        order.push(`settle:${dest?.style.viewTransitionName ?? "?"}`);
+      },
+      shared: [{ name: "studio-screen", source, dest: "[data-dest=screen]" }],
+    });
+    await vi.waitFor(() => expect(order).toEqual(["update", "settle:"]));
+    finish();
+    await done;
+  });
+
+  it("takes the name off a source still on the page, so only the destination carries it", async () => {
+    document.body.innerHTML = "";
+    const source = el();
+    el({ "data-dest": "screen" });
+    const { doc, finish } = fakeDoc();
+    const done = runPageTransition({
+      doc,
+      update: () => undefined,
+      ready: () => true,
+      shared: [{ name: "studio-screen", source, dest: "[data-dest=screen]" }],
+    });
+    const dest = document.querySelector<HTMLElement>("[data-dest]")!;
+    await vi.waitFor(() => expect(dest.style.viewTransitionName).toBe("studio-screen"));
+    expect(source.style.viewTransitionName).toBe("");
+    finish();
+    await done;
+  });
 });

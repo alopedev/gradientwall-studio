@@ -281,6 +281,74 @@ body::before {
   width: auto;
   height: 100%;
 }
+/* A link to a section on the same page (SectionLink): the page moves as one
+   sheet, up when the section is below and down when it is above, while the
+   wallpaper in view flies into the Studio's screen. The nav keeps its own
+   layer (site-nav), so it stays put. Reduced motion sets no kind: a fade. */
+:root[data-vt="scroll-down"]::view-transition-old(root) {
+  animation: gw-vt-out-up 0.42s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+:root[data-vt="scroll-down"]::view-transition-new(root) {
+  animation: gw-vt-in-up 0.42s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+:root[data-vt="scroll-up"]::view-transition-old(root) {
+  animation: gw-vt-out-down 0.42s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+:root[data-vt="scroll-up"]::view-transition-new(root) {
+  animation: gw-vt-in-down 0.42s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+::view-transition-group(studio-screen) {
+  animation-duration: 0.55s;
+  animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+@keyframes gw-vt-out-up {
+  to {
+    opacity: 0;
+    transform: translateY(-12%);
+  }
+}
+@keyframes gw-vt-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12%);
+  }
+}
+@keyframes gw-vt-out-down {
+  to {
+    opacity: 0;
+    transform: translateY(12%);
+  }
+}
+@keyframes gw-vt-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-12%);
+  }
+}
+/* Dialogs (the help after a download) rise in over a fading backdrop instead of
+   appearing in one frame. */
+.gw-dialog[open] {
+  animation: gw-dialog-in 0.24s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.gw-dialog[open]::backdrop {
+  animation: gw-backdrop-in 0.24s ease-out;
+}
+@keyframes gw-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+}
+@keyframes gw-backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+/* Plain links that load a whole page (e.g. typed URLs, old tabs) cross-fade too,
+   where the browser supports it. */
+@view-transition {
+  navigation: auto;
+}
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(*),
   ::view-transition-old(*),

@@ -52,6 +52,7 @@ export function PackCard({ pack }: { pack: Pack }) {
       ref={ref}
       to={to}
       onClick={onClick}
+      data-pack-card={pack.slug}
       data-open={open || undefined}
       className="group relative flex h-full min-h-[500px] flex-col overflow-hidden rounded-sharp border-2 border-ink bg-bg-2 transition-colors duration-300 hover:bg-[#cfcec9]"
     >

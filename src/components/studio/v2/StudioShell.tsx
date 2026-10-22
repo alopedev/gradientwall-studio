@@ -54,7 +54,10 @@ export function StudioShell() {
 
           {/* Anchor target: "Open the Studio" lands on the frame (just under the nav). */}
           <div id="studio" className="@container mx-auto w-full max-w-[1500px] scroll-mt-[76px]">
+            {/* Focused on arrival from a link, so Space works at once (SectionLink). */}
             <div
+              data-studio-frame
+              tabIndex={-1}
               data-device={device}
               onPointerEnter={() => setHovered(true)}
               onPointerLeave={() => setHovered(false)}
@@ -62,17 +65,16 @@ export function StudioShell() {
               onBlurCapture={(e) => {
                 if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false);
               }}
-              className="relative isolate grid h-[clamp(620px,calc(100svh_-_150px),860px)] grid-cols-[minmax(0,1fr)_300px] grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-sharp border-2 border-ink bg-bg-2 [grid-template-areas:'top_panel''stage_panel''saved_panel'] @max-[760px]:h-auto @max-[760px]:grid-cols-1 @max-[760px]:grid-rows-[auto_clamp(300px,calc(100svh_-_440px),520px)_auto_auto] @max-[760px]:[grid-template-areas:'top''stage''panel''saved'] @max-[760px]:data-[device=desktop]:grid-rows-[auto_330px_auto_auto]"
+              className="relative isolate grid outline-none h-[clamp(620px,calc(100svh_-_150px),860px)] grid-cols-[minmax(0,1fr)_300px] grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-sharp border-2 border-ink bg-bg-2 [grid-template-areas:'top_panel''stage_panel''saved_panel'] @max-[760px]:h-auto @max-[760px]:grid-cols-1 @max-[760px]:grid-rows-[auto_clamp(300px,calc(100svh_-_440px),520px)_auto_auto] @max-[760px]:[grid-template-areas:'top''stage''panel''saved'] @max-[760px]:data-[device=desktop]:grid-rows-[auto_330px_auto_auto]"
             >
               <m.div {...enter(0)} className="[grid-area:top]">
                 <StudioTopBar />
               </m.div>
-              <m.div
-                {...enter(0.05)}
-                className="relative z-[1] grid min-h-0 place-items-center px-6 pb-4 pt-2 [container-type:size] [grid-area:stage] @max-[760px]:px-4 @max-[760px]:pb-5"
-              >
+              {/* No entrance of its own: the wallpaper flying in from a link (SectionLink)
+                  is how it arrives, and a fade here would show through that flight. */}
+              <div className="relative z-[1] grid min-h-0 place-items-center px-6 pb-4 pt-2 [container-type:size] [grid-area:stage] @max-[760px]:px-4 @max-[760px]:pb-5">
                 <DeviceStage />
-              </m.div>
+              </div>
               <StudioInspector keysActive={inView && (hovered || focused)} />
               <m.div {...enter(0.3)} className="min-w-0 [grid-area:saved]">
                 <FavoritesStrip />

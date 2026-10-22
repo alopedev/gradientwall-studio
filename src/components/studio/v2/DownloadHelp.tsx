@@ -65,7 +65,7 @@ export function DownloadHelp({ device, filename, bytes, onClose }: Props) {
       aria-labelledby={titleId}
       onClose={onClose}
       onClick={(e) => e.target === e.currentTarget && onClose()}
-      className="m-auto w-[min(620px,calc(100vw-32px))] rounded-sharp border-2 border-ink bg-bg p-0 text-ink shadow-[0_30px_60px_rgb(0_0_0/0.3)] backdrop:bg-ink/40"
+      className="gw-dialog m-auto w-[min(620px,calc(100vw-32px))] rounded-sharp border-2 border-ink bg-bg p-0 text-ink shadow-[0_30px_60px_rgb(0_0_0/0.3)] backdrop:bg-ink/40"
     >
       <div className="grid gap-5 p-5 sm:p-7">
         <div className="flex items-start justify-between gap-4">

@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { SectionLink } from "./ui/SectionLink";
 import { Nav } from "./Nav";
 import { Footer } from "./Footer";
 import { inkButton } from "./ui/InkButton";
@@ -40,12 +40,12 @@ export function RecoverForm() {
       <Nav />
       <main className="min-h-screen pt-[120px] pb-[clamp(60px,9vw,120px)]">
         <section className="mx-auto max-w-[560px] px-[clamp(24px,5vw,80px)]">
-          <Link
-            to="/#packs"
+          <SectionLink
+            to="packs"
             className="inline-flex min-h-11 items-center gap-1.5 mb-2 font-sans text-[11px] tracking-[0.18em] uppercase text-ink-dim hover:text-ink"
           >
             ← All packs
-          </Link>
+          </SectionLink>
           <span className="block mb-4 font-sans text-[11px] tracking-[0.22em] uppercase text-ink-dim">
             Recover download
           </span>

@@ -1,5 +1,4 @@
 import { useEffect, useMemo } from "react";
-import { Link } from "react-router-dom";
 import type { Landing, LandingGuide } from "@/lib/seo/landings";
 import { buildLandingPage, landingLinks } from "@/lib/seo/pages";
 import { useConfigStore } from "@/store";
@@ -10,6 +9,7 @@ import { PacksSection } from "../packs/PacksSection";
 import { PageMeta } from "../PageMeta";
 import { LazyStudioShell as StudioShell } from "../studio/v2/LazyStudioShell";
 import { PAGE_COLUMN } from "../ui/layout";
+import { PageLink } from "../ui/PageLink";
 
 /**
  * A landing (`lib/seo/landings.ts`): the home's hero with the landing's own
@@ -111,12 +111,12 @@ function MoreLandings({ landing }: { landing: Landing }) {
       <ul className="m-0 flex list-none flex-wrap gap-2.5 p-0">
         {landingLinks(landing).map((l) => (
           <li key={l.href}>
-            <Link
+            <PageLink
               to={l.href}
               className="inline-flex min-h-11 items-center rounded-sharp border-2 border-ink px-3.5 font-sans text-[14px] font-medium text-ink hover:bg-ink hover:text-paper focus-ring"
             >
               {l.label}
-            </Link>
+            </PageLink>
           </li>
         ))}
       </ul>

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render as rtlRender, screen, within } from "@testing-library/react";
 import { Nav } from "./Nav";
 import { PAGE_COLUMN } from "./ui/layout";
 import { getPacks } from "@/lib/packs";
@@ -7,6 +7,11 @@ import { paletteName } from "@/lib/palette-name";
 import type { Colors4 } from "@/lib/palettes";
 import { useConfigStore } from "@/store/useConfigStore";
 import { type FavoriteItem, useFavoritesStore } from "@/store/useFavoritesStore";
+import type { ReactElement } from "react";
+import { MemoryRouter } from "react-router-dom";
+
+/** The links in it navigate, so it renders inside a router, as in the app. */
+const render = (ui: ReactElement) => rtlRender(ui, { wrapper: MemoryRouter });
 
 describe("<Nav />", () => {
   beforeEach(() => {

@@ -6,6 +6,11 @@ import Lenis from "lenis";
 // the provider's effect runs) can still reach the live Lenis instance.
 const LenisRefContext = createContext<{ current: Lenis | null }>({ current: null });
 
+/** The ref to the live Lenis instance: read `.current` when it is needed (a click), not at render. */
+export function useLenisRef(): { current: Lenis | null } {
+  return useContext(LenisRefContext);
+}
+
 /** Returns the live Lenis instance, or null if reduced-motion or pre-mount. */
 export function useLenis(): Lenis | null {
   return useContext(LenisRefContext).current;

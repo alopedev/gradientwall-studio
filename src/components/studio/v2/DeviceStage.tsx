@@ -171,6 +171,8 @@ export function DeviceStage() {
       <m.div
         layout
         ref={screenRef}
+        // Where a wallpaper flying to the Studio lands (SectionLink).
+        data-vt="studio-screen"
         role="img"
         aria-label={`Wallpaper preview on a ${device === "desktop" ? "monitor" : device === "tablet" ? "tablet" : "phone"}`}
         onDragOver={onDragOver}

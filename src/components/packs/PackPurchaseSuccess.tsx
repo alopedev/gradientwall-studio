@@ -1,4 +1,6 @@
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { PageLink } from "../ui/PageLink";
+import { SectionLink } from "../ui/SectionLink";
 import { getPackBySlug } from "@/lib/packs";
 import { Nav } from "../Nav";
 import { Footer } from "../Footer";
@@ -47,12 +49,12 @@ export function PackPurchaseSuccess() {
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3 mb-12">
-            <Link to="/#packs" className={`${inkButton({ variant: "primary" })} px-6`}>
+            <SectionLink to="packs" className={`${inkButton({ variant: "primary" })} px-6`}>
               ← Browse more packs
-            </Link>
-            <Link to={RECOVER_PAGE.path} className={`${inkButton({ variant: "ghost" })} px-6`}>
+            </SectionLink>
+            <PageLink to={RECOVER_PAGE.path} className={`${inkButton({ variant: "ghost" })} px-6`}>
               Email didn't arrive?
-            </Link>
+            </PageLink>
           </div>
 
           <div className="font-sans text-[11px] text-ink-dim leading-relaxed">

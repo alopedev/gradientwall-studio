@@ -10,6 +10,7 @@ import { BauhausMarks } from "../ui/BauhausMarks";
 import { MotionToggle } from "../ui/MotionToggle";
 import { useMotionStore } from "@/store/useMotionStore";
 import { PAGE_COLUMN } from "../ui/layout";
+import { SectionLink } from "../ui/SectionLink";
 import { HERO_PHONE_IMAGE } from "@/lib/seo/pages";
 
 /**
@@ -63,12 +64,12 @@ export function Hero({
               Free gradient wallpapers made in your browser, sized for your screen. Up to 5120 ×
               2880, no account, no watermark.
             </p>
-            <a
-              href="#studio"
+            <SectionLink
+              to="studio"
               className="font-sans text-[14px] font-medium text-ink underline underline-offset-4 focus-ring"
             >
               Customise it ↓
-            </a>
+            </SectionLink>
           </div>
 
           <figure className="relative m-0 justify-self-center">
@@ -79,6 +80,8 @@ export function Hero({
               <div
                 role="img"
                 aria-label="The current wallpaper on a phone"
+                // Flies into the Studio's screen when a link leads there (SectionLink).
+                data-vt-src="hero-screen"
                 className="absolute inset-x-[4.34%] inset-y-[1.71%] overflow-hidden rounded-[13.5%/6%] bg-ink"
               >
                 <engine.Canvas
@@ -125,12 +128,12 @@ export function Hero({
               <p className="m-0 max-w-[26ch] text-balance font-sans text-[16px] leading-snug text-ink-dim">
                 No account, no watermark.
               </p>
-              <a
-                href="#packs"
+              <SectionLink
+                to="packs"
                 className="inline-flex min-h-11 items-center font-sans text-[15px] font-semibold text-ink underline underline-offset-4 focus-ring"
               >
                 Or get a hand-picked pack, {FROM_PRICE} →
-              </a>
+              </SectionLink>
             </div>
           </div>
         </div>
