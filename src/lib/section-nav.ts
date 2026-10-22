@@ -17,6 +17,15 @@ export function scrollKind(top: number): "scroll-down" | "scroll-up" | undefined
   return top > 0 ? "scroll-down" : "scroll-up";
 }
 
+/**
+ * True when a section `top` px from the top of a viewport `vh` tall is
+ * already where the visitor is looking: a link to it then only settles it
+ * into place, without replaying the page transition.
+ */
+export function alreadyThere(top: number, vh: number): boolean {
+  return Math.abs(top) < vh * 0.5;
+}
+
 interface Box {
   top: number;
   bottom: number;

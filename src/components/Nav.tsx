@@ -13,7 +13,7 @@ import { BrandMark, Logo } from "./ui/Logo";
 import { PageLink } from "./ui/PageLink";
 import { SectionLink } from "./ui/SectionLink";
 
-type Section = "studio" | "packs";
+type Section = "packs";
 
 /** The home section that fills the middle of the screen, if any. */
 function useSectionInView(): Section | null {
@@ -30,7 +30,7 @@ function useSectionInView(): Section | null {
       },
       { rootMargin: "-40% 0px -40% 0px" },
     );
-    for (const id of ["studio", "packs"]) {
+    for (const id of ["packs"]) {
       const el = document.getElementById(id);
       if (el) io.observe(el);
     }
@@ -102,7 +102,7 @@ const CLOSE_DELAY_MS = 160;
 const ISLAND_PADDING_X = 8;
 
 /**
- * Studio link + Packs button with a sliding highlight. Packs opens on hover
+ * The Packs button with its highlight (the Studio has the CTA on the right). Packs opens on hover
  * (mouse) or click (touch, keyboard): the island itself widens and grows a
  * panel with each pack, like a dynamic island.
  */
@@ -196,7 +196,6 @@ function SectionsIsland() {
           open={open}
           buttonRef={buttonRef}
           onHover={setHovered}
-          onStudioHover={closeMenu}
           onPacksHover={openMenu}
           onPacksClick={() => (open ? closeMenu() : openMenu())}
         />
@@ -213,7 +212,6 @@ function SectionLinks({
   open,
   buttonRef,
   onHover,
-  onStudioHover,
   onPacksHover,
   onPacksClick,
 }: {
@@ -221,7 +219,6 @@ function SectionLinks({
   open: boolean;
   buttonRef: React.RefObject<HTMLButtonElement>;
   onHover: (s: Section) => void;
-  onStudioHover: () => void;
   onPacksHover: () => void;
   onPacksClick: () => void;
 }) {
@@ -259,18 +256,6 @@ function SectionLinks({
           className="absolute top-1 bottom-1 rounded-[2px] bg-ink/[0.1] transition-[left,width,opacity] duration-300 ease-[cubic-bezier(0.3,1.25,0.5,1)]"
           style={{ left: pill?.left ?? 0, width: pill?.width ?? 0, opacity: pill ? 1 : 0 }}
         />
-        <SectionLink
-          to="studio"
-          data-section="studio"
-          aria-current={highlighted === "studio" ? "location" : undefined}
-          onPointerEnter={() => {
-            onHover("studio");
-            onStudioHover();
-          }}
-          className={`${item} max-sm:hidden`}
-        >
-          Studio
-        </SectionLink>
         <button
           ref={buttonRef}
           type="button"

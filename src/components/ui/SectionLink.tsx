@@ -4,7 +4,7 @@ import { flushSync } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { prefersReducedMotion } from "@/lib/motion";
 import { isPlainClick, runPageTransition, type SharedElement } from "@/lib/page-transition";
-import { onScreen, scrollKind } from "@/lib/section-nav";
+import { alreadyThere, onScreen, scrollKind } from "@/lib/section-nav";
 import { useLenisRef } from "./LenisProvider";
 
 export type Section = "studio" | "packs";
@@ -82,12 +82,14 @@ export function useGoToSection() {
       const here = document.getElementById(id);
       if (here) {
         history.replaceState(history.state, "", `#${id}`);
-        if (!studio) {
+        const top = here.getBoundingClientRect().top;
+        if (!studio || alreadyThere(top, window.innerHeight)) {
           glide(here, lenis);
+          arrive();
           return;
         }
         void runPageTransition({
-          kind: reducedMotion ? undefined : scrollKind(here.getBoundingClientRect().top),
+          kind: reducedMotion ? undefined : scrollKind(top),
           update: () => jump(here, lenis),
           fallback: () => glide(here, lenis),
           ready: () => true,

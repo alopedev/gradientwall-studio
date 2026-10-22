@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { onScreen, scrollKind } from "./section-nav";
+import { alreadyThere, onScreen, scrollKind } from "./section-nav";
 
 describe("scrollKind", () => {
   it("moves the page up when the target is further down", () => {
@@ -38,5 +38,18 @@ describe("onScreen", () => {
 
   it("is false for a hidden box", () => {
     expect(onScreen(box(200, 0, 0), 800)).toBe(false);
+  });
+});
+
+describe("alreadyThere", () => {
+  it("is true when the section already sits near the top of the screen", () => {
+    expect(alreadyThere(0, 800)).toBe(true);
+    expect(alreadyThere(-150, 800)).toBe(true);
+    expect(alreadyThere(200, 800)).toBe(true);
+  });
+
+  it("is false when the section is a screen or more away", () => {
+    expect(alreadyThere(900, 800)).toBe(false);
+    expect(alreadyThere(-600, 800)).toBe(false);
   });
 });
