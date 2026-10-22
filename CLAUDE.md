@@ -135,6 +135,7 @@ Every page is prerendered (SSG) and hydrated. `seoPlugin` in `vite.config.ts` po
 - Pack pages are indexable once the pack can be bought: an `etsyUrl` (today; the Product `Offer.url` then points at the Etsy listing) or a `lemonSqueezyVariantId`.
 - URLs carry a trailing slash (`packPath(slug)` → `/packs/impasto/`, `/privacy/`): Netlify serves `dir/index.html` there and 301-redirects the slashless form, so canonicals, sitemap and internal links use the slash. Impasto's old `/packs/acrylic` 301s to `/packs/impasto/` (`_redirects` + `netlify.toml`); its R2 ZIP key follows the slug (`packs/impasto/impasto.zip`) when the own store opens.
 - Plan and research: `/mnt/project-files/web-plan/seo-2026-10-20/`.
+- Domain: `https://gradientwall.app` (bought on Netlify 2026-10-22, Netlify DNS). `SITE_ORIGIN` in `pages.ts` and the `Sitemap:` line of `public/robots.txt` carry it; `gradientwall-studio.netlify.app` 301s there (`_redirects` + `netlify.toml`).
 - Per-page copy is English. `public/og-default.jpg` (1200×630) is the default share image.
 
 ## Design system — non-obvious rules

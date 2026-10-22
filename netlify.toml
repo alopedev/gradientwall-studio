@@ -7,6 +7,13 @@
 # 404 (served from the prerendered 404.html, whose React app then redirects
 # the visitor home). Only the post-checkout page has no prerendered file and
 # needs the SPA fallback. `public/_redirects` mirrors this block.
+# The site's own domain since October 2026: the Netlify address moves there.
+[[redirects]]
+  from = "https://gradientwall-studio.netlify.app/*"
+  to = "https://gradientwall.app/:splat"
+  status = 301
+  force = true
+
 # Impasto's URL was /packs/acrylic until October 2026.
 [[redirects]]
   from = "/packs/acrylic"
