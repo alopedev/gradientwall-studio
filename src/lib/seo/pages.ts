@@ -13,7 +13,7 @@ export const SITE_NAME = "GradientWall";
 export const DEFAULT_OG_IMAGE = "/og-default.jpg";
 export const DEFAULT_OG_SIZE = { width: 1200, height: 630 };
 export const DEFAULT_OG_ALT =
-  "GradientWall — liquid gradient in coral, periwinkle and indigo, with the text Free gradient wallpaper generator";
+  "The GradientWall logo, a black window with a gradient circle, above the words Free gradient wallpaper generator";
 
 /** The minimal slice of a pack the SEO layer needs. */
 export interface SeoPack {
