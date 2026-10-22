@@ -62,7 +62,7 @@ Four concentric layers: **pure render → state → React views → backend func
 - `useGradientCanvas.ts` — `useFittedGradientCanvas` (DPR + ResizeObserver + rAF coalesced), the v1 live preview.
 - `color-extract.ts` — k-means color extraction for a photo dropped on the Studio device (`DeviceStage`).
 - `motion.ts` — easing constants, plus `prefersReducedMotion()` and `saveDataOn()`: the one place that reads those browser settings.
-- `page-transition.ts` — `runPageTransition`: a route change as a View Transition, with shared elements named on the old page before the snapshot and on the new one once it mounts. `PackCard` uses it so the front phone and the name fly into the pack page (`data-vt=pack-phone|pack-title`); BrowserRouter has no built-in hook, and browsers without the API just navigate. Durations live in `index.css` (`::view-transition-*`).
+- `page-transition.ts` — `runPageTransition`: a route change as a View Transition, with shared elements named on the old page before the snapshot and on the new one once it mounts. `PackCard` uses it so the front phone and the name fly into the pack page (`data-vt=pack-phone|pack-title`); BrowserRouter has no built-in hook, and browsers without the API just navigate. Durations live in `index.css` (`::view-transition-*`). `components/ui/SectionLink` (links to `/#studio`, `/#packs`: same page → the page slides as one sheet, `data-vt=scroll-*`, and the wallpaper in view flies into the Studio screen `data-vt=studio-screen`; packs glide; other page → home with cross-fade) and `ui/PageLink` (cross-fade to another route) use it too; the nav keeps its own layer (`site-nav`). Use them instead of a bare `<a href="/#…">` or `<Link>`.
 
 These files import nothing from React, Zustand, or components. Keep them that way.
 
