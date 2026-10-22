@@ -31,6 +31,11 @@ function Studio() {
   );
 }
 
+/** Place the section two screens down (jsdom lays nothing out). */
+function farBelow(el: HTMLElement) {
+  vi.spyOn(el, "getBoundingClientRect").mockReturnValue({ top: 1600 } as DOMRect);
+}
+
 const scrolls: { id: string; opts: ScrollIntoViewOptions | undefined }[] = [];
 
 beforeEach(() => {
@@ -62,12 +67,31 @@ describe("SectionLink", () => {
         <Studio />
       </MemoryRouter>,
     );
+    farBelow(document.getElementById("studio")!);
     fireEvent.click(screen.getByRole("link"));
     expect(start).toHaveBeenCalledOnce();
     await vi.waitFor(() =>
       expect(document.activeElement?.hasAttribute("data-studio-frame")).toBe(true),
     );
     expect(scrolls).toEqual([{ id: "studio", opts: { block: "start", behavior: "instant" } }]);
+  });
+
+  it("doesn't replay the transition when the Studio is already on screen", async () => {
+    const start = fakeViewTransitions();
+    render(
+      <MemoryRouter>
+        <SectionLink to="studio">Open the Studio</SectionLink>
+        <Studio />
+      </MemoryRouter>,
+    );
+    // jsdom lays nothing out: every box sits at the top, as an in-view Studio would.
+    vi.spyOn(window, "innerHeight", "get").mockReturnValue(800);
+    fireEvent.click(screen.getByRole("link"));
+    expect(start).not.toHaveBeenCalled();
+    expect(scrolls).toEqual([{ id: "studio", opts: { block: "start", behavior: "smooth" } }]);
+    await vi.waitFor(() =>
+      expect(document.activeElement?.hasAttribute("data-studio-frame")).toBe(true),
+    );
   });
 
   it("glides to the Studio where view transitions are missing", async () => {
@@ -77,6 +101,7 @@ describe("SectionLink", () => {
         <Studio />
       </MemoryRouter>,
     );
+    farBelow(document.getElementById("studio")!);
     fireEvent.click(screen.getByRole("link"));
     expect(scrolls).toEqual([{ id: "studio", opts: { block: "start", behavior: "smooth" } }]);
     await vi.waitFor(() =>

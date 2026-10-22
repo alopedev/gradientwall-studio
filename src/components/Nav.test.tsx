@@ -18,10 +18,11 @@ describe("<Nav />", () => {
     act(() => useFavoritesStore.setState({ items: [] }));
   });
 
-  it("renders brand, Studio link, Packs menu button and the CTA", () => {
+  it("renders brand, Packs menu button and the CTA, with no second Studio link in the middle", () => {
     render(<Nav />);
     expect(screen.getByRole("link", { name: /gradientwall/i })).toHaveAttribute("href", "/");
-    expect(screen.getByRole("link", { name: /^studio$/i })).toHaveAttribute("href", "/#studio");
+    // "Open the Studio" on the right already leads there (Àlex, 2026-10-22).
+    expect(screen.queryByRole("link", { name: /^studio$/i })).toBeNull();
     expect(screen.getByRole("button", { name: /^packs$/i })).toHaveAttribute(
       "aria-expanded",
       "false",
@@ -105,16 +106,6 @@ describe("<Nav />", () => {
     fireEvent.keyDown(document, { key: "Escape" });
     expect(button).toHaveAttribute("aria-expanded", "false");
     expect(button).toHaveFocus();
-  });
-
-  it("closes the Packs menu when the pointer moves on to Studio, and highlights Studio", () => {
-    render(<Nav />);
-    const button = screen.getByRole("button", { name: /^packs$/i });
-    fireEvent.click(button);
-    const studio = screen.getByRole("link", { name: /^studio$/i });
-    fireEvent.pointerEnter(studio);
-    expect(button).toHaveAttribute("aria-expanded", "false");
-    expect(studio).toHaveAttribute("aria-current", "location");
   });
 
   it("keeps the highlight measured against the links, not the widening island", () => {
