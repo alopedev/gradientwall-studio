@@ -23,11 +23,14 @@ function Where() {
 
 function Studio() {
   return (
-    <div id="studio">
-      <div data-studio-frame tabIndex={-1}>
-        <div data-vt="studio-screen" />
+    <section data-testid="studio-section">
+      <h2>shuffle, tweak, download.</h2>
+      <div id="studio">
+        <div data-studio-frame tabIndex={-1}>
+          <div data-vt="studio-screen" />
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -41,12 +44,16 @@ const scrolls: { id: string; opts: ScrollIntoViewOptions | undefined }[] = [];
 beforeEach(() => {
   scrolls.length = 0;
   Element.prototype.scrollIntoView = function (this: Element, opts?: unknown) {
-    scrolls.push({ id: this.id, opts: opts as ScrollIntoViewOptions });
+    scrolls.push({
+      id: this.id || this.tagName.toLowerCase(),
+      opts: opts as ScrollIntoViewOptions,
+    });
   };
 });
 
 afterEach(() => {
   delete (document as unknown as Doc).startViewTransition;
+  vi.restoreAllMocks();
 });
 
 describe("SectionLink", () => {
@@ -92,6 +99,21 @@ describe("SectionLink", () => {
     await vi.waitFor(() =>
       expect(document.activeElement?.hasAttribute("data-studio-frame")).toBe(true),
     );
+  });
+
+  it("lands on phones with the Studio's heading in view, not cut under the nav", async () => {
+    const start = fakeViewTransitions();
+    vi.spyOn(window, "innerWidth", "get").mockReturnValue(390);
+    render(
+      <MemoryRouter>
+        <SectionLink to="studio">Studio</SectionLink>
+        <Studio />
+      </MemoryRouter>,
+    );
+    farBelow(document.getElementById("studio")!);
+    fireEvent.click(screen.getByRole("link"));
+    expect(start).toHaveBeenCalledOnce();
+    await vi.waitFor(() => expect(scrolls.map((s) => s.id)).toEqual(["section"]));
   });
 
   it("glides to the Studio where view transitions are missing", async () => {

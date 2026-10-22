@@ -47,6 +47,19 @@ function glide(el: HTMLElement, lenis: Lenis | null): void {
   else el.scrollIntoView({ block: "start", behavior: prefersReducedMotion() ? "auto" : "smooth" });
 }
 
+/** Below this width the Studio stacks its heading over the frame (`lg` in StudioShell). */
+const STACKED_PX = 1024;
+
+/**
+ * Where the page lands. On a stacked (phone) layout the Studio's heading sits
+ * just above the frame, so landing on the frame leaves it cut under the nav:
+ * land on the whole section instead.
+ */
+function landingFor(el: HTMLElement): HTMLElement {
+  if (el.id !== "studio" || window.innerWidth >= STACKED_PX) return el;
+  return el.closest<HTMLElement>("section") ?? el;
+}
+
 function focusStudio(): void {
   document.querySelector<HTMLElement>(STUDIO_FRAME)?.focus({ preventScroll: true });
 }
@@ -84,14 +97,15 @@ export function useGoToSection() {
         history.replaceState(history.state, "", `#${id}`);
         const top = here.getBoundingClientRect().top;
         if (!studio || alreadyThere(top, window.innerHeight)) {
-          glide(here, lenis);
+          glide(landingFor(here), lenis);
           arrive();
           return;
         }
+        const land = landingFor(here);
         void runPageTransition({
           kind: reducedMotion ? undefined : scrollKind(top),
-          update: () => jump(here, lenis),
-          fallback: () => glide(here, lenis),
+          update: () => jump(land, lenis),
+          fallback: () => glide(land, lenis),
           ready: () => true,
           reducedMotion,
           shared: morph,
@@ -105,7 +119,7 @@ export function useGoToSection() {
         ready: () => document.getElementById(id) !== null,
         settle: () => {
           const el = document.getElementById(id);
-          if (el) jump(el, lenisRef.current);
+          if (el) jump(landingFor(el), lenisRef.current);
         },
         reducedMotion,
         shared: morph,
