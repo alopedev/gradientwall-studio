@@ -41,6 +41,8 @@ export interface Landing {
   /** Visible headline, lowercase like the home's. */
   h1: string;
   subtitle: string;
+  /** Its link in the footer's "Free gradient wallpapers" column. */
+  footerLabel: string;
   look: LandingLook;
   guides: LandingGuide[];
 }
@@ -88,6 +90,7 @@ export const LANDINGS: Landing[] = [
       "Make a gradient wallpaper for your iPhone in seconds: shuffle, tweak the colours, save it to Photos. Free, sharp on every iPhone, no account.",
     h1: "iphone gradient wallpapers, free.",
     subtitle: "shuffle until it's yours, then download it below.",
+    footerLabel: "iPhone wallpapers",
     look: { device: "mobile" },
     guides: [
       { heading: "set it in two steps.", body: [], steps: IPHONE_STEPS },
@@ -106,6 +109,7 @@ export const LANDINGS: Landing[] = [
       "Make a 4K gradient wallpaper for your desktop: shuffle, change the colours and download it at 5120 × 2880, sharp on 4K and 5K screens. Free.",
     h1: "4k gradient wallpapers for your desktop.",
     subtitle: "made at 5120 × 2880, sharp on any 4K or 5K screen.",
+    footerLabel: "4K desktop wallpapers",
     look: { device: "desktop" },
     guides: [
       {
@@ -136,6 +140,7 @@ export const LANDINGS: Landing[] = [
       "Make a mesh gradient wallpaper: soft blends of four colours, shuffled until one feels right. Download it for phone or desktop, free.",
     h1: "mesh gradient wallpapers, free.",
     subtitle: "four colours, blended softly. shuffle for a new mix.",
+    footerLabel: "Mesh gradients",
     look: { style: "mesh" },
     guides: [
       {
@@ -154,6 +159,7 @@ export const LANDINGS: Landing[] = [
       "Make an aurora gradient wallpaper: bands of light that glow across a dark sky. Shuffle, change the colours and download it free.",
     h1: "aurora gradient wallpapers, free.",
     subtitle: "bands of light across the screen. shuffle for new ones.",
+    footerLabel: "Aurora gradients",
     look: { style: "aurora" },
     guides: [
       {
@@ -172,6 +178,7 @@ export const LANDINGS: Landing[] = [
       "Make a grainy gradient wallpaper: smooth colour with a fine film grain that hides banding. Set the grain yourself and download it free.",
     h1: "grainy gradient wallpapers, free.",
     subtitle: "smooth colour with a fine film grain.",
+    footerLabel: "Grainy gradients",
     look: { grain: 85 },
     guides: [
       {
