@@ -7,6 +7,7 @@ import { useConfigStore, useRenderParams } from "@/store";
 import { useWallpaperEngine } from "../engine";
 import { DownloadHelp } from "./DownloadHelp";
 import { emitPrint } from "./print";
+import { track } from "@/lib/analytics";
 import type { ToastAction } from "./toast";
 
 const HELP_SEEN_KEY = "gw:download-help";
@@ -63,6 +64,7 @@ export function ExportButton({ onMessage, primary = false, className = "" }: Pro
     try {
       const { filename, bytes } = await engine.exportWallpaper(params, device, setProgress);
       emitPrint("done");
+      track("download", { device });
       if (!helpSeen()) {
         markHelpSeen();
         setHelp({ filename, bytes });

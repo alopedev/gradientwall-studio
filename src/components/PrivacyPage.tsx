@@ -108,6 +108,15 @@ export function PrivacyPage() {
             </p>
           </Section>
 
+          <Section title="Visit counting">
+            <p>
+              We count visits with Umami, which uses no cookies and keeps no personal data: only
+              which page was opened, where the visit came from, the browser and country, and a few
+              clicks (downloading a wallpaper, opening Etsy, joining the list). Nothing is stored on
+              your device and nothing identifies you.
+            </p>
+          </Section>
+
           <Section title="On your device">
             <p>
               The Studio saves your favourites in your browser's local storage. They never leave

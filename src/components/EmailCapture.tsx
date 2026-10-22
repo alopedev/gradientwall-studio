@@ -7,6 +7,7 @@ import {
   type SubscribeSource,
   subscribeEmail,
 } from "@/lib/newsletter/subscribe";
+import { track } from "@/lib/analytics";
 import { PRIVACY_PAGE } from "@/lib/seo/pages";
 
 type State =
@@ -50,6 +51,7 @@ export function EmailCapture({ source, heading, lead, size = "md", className }: 
     if (state.kind === "submitting") return;
     setState({ kind: "submitting" });
     const result = await subscribeEmail({ email, source, website });
+    if (result.kind === "ok") track("email-signup", { source });
     setState(
       result.kind === "ok" ? { kind: "done" } : { kind: "error", message: ERRORS[result.reason] },
     );
