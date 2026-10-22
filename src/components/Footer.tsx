@@ -4,16 +4,20 @@ import { isNewsletterEnabled } from "@/lib/newsletter/subscribe";
 import { useConfigStore } from "@/store/useConfigStore";
 import { EmailCapture } from "./EmailCapture";
 import { Reveal } from "./ui/Reveal";
+import { PageLink } from "./ui/PageLink";
+import { SectionLink } from "./ui/SectionLink";
 
 interface FooterLink {
   label: string;
   href: string;
   external?: boolean;
+  /** A home section: the link animates the trip (SectionLink). */
+  section?: "studio" | "packs";
 }
 
 const MAKE: FooterLink[] = [
-  { label: "Studio", href: "/#studio" },
-  { label: "Packs", href: "/#packs" },
+  { label: "Studio", href: "/#studio", section: "studio" },
+  { label: "Packs", href: "/#packs", section: "packs" },
   { label: "Etsy shop", href: ETSY_SHOP_URL, external: true },
 ];
 
@@ -107,11 +111,7 @@ function FooterCol({ title, links }: { title: string; links: FooterLink[] }) {
       <ul className="flex flex-col gap-0 list-none p-0 m-0">
         {links.map((l) => (
           <li key={l.label}>
-            <a
-              href={l.href}
-              {...(l.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-              className="group relative inline-block py-2.5 focus-ring text-[14px] text-ink-dim hover:text-ink transition-colors duration-150"
-            >
+            <FooterAnchor link={l}>
               {l.label}
               {l.external && (
                 <span aria-hidden className="ml-1 text-ink-dim">
@@ -122,10 +122,35 @@ function FooterCol({ title, links }: { title: string; links: FooterLink[] }) {
                 aria-hidden
                 className="absolute left-0 right-0 bottom-1.5 h-px origin-left scale-x-0 bg-[color:var(--color-accent)] transition-transform duration-200 ease-out group-hover:scale-x-100"
               />
-            </a>
+            </FooterAnchor>
           </li>
         ))}
       </ul>
     </nav>
+  );
+}
+
+/** A section of the home, another page of the site, or an outside link (new tab). */
+function FooterAnchor({ link, children }: { link: FooterLink; children: React.ReactNode }) {
+  const className =
+    "group relative inline-block py-2.5 focus-ring text-[14px] text-ink-dim hover:text-ink transition-colors duration-150";
+  if (link.section) {
+    return (
+      <SectionLink to={link.section} className={className}>
+        {children}
+      </SectionLink>
+    );
+  }
+  if (link.external) {
+    return (
+      <a href={link.href} target="_blank" rel="noopener noreferrer" className={className}>
+        {children}
+      </a>
+    );
+  }
+  return (
+    <PageLink to={link.href} className={className}>
+      {children}
+    </PageLink>
   );
 }

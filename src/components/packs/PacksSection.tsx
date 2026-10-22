@@ -17,7 +17,7 @@ export function PacksSection() {
   return (
     <section
       id="packs"
-      className="relative mx-auto max-w-[1600px] px-[clamp(24px,5vw,80px)] pt-[clamp(24px,3vw,40px)] pb-[clamp(60px,9vw,120px)] border-t border-ink"
+      className="relative mx-auto max-w-[1600px] scroll-mt-[64px] px-[clamp(24px,5vw,80px)] pt-[clamp(24px,3vw,40px)] pb-[clamp(60px,9vw,120px)] border-t border-ink"
     >
       <Reveal className="grid md:grid-cols-2 gap-6 md:gap-12 items-end mb-8">
         <div>

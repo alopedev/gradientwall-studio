@@ -10,6 +10,8 @@ import { PackCover } from "./packs/PackCover";
 import { inkButton } from "./ui/InkButton";
 import { PAGE_COLUMN } from "./ui/layout";
 import { BrandMark, Logo } from "./ui/Logo";
+import { PageLink } from "./ui/PageLink";
+import { SectionLink } from "./ui/SectionLink";
 
 type Section = "studio" | "packs";
 
@@ -65,7 +67,8 @@ export function Nav() {
   return (
     <nav
       aria-label="Main"
-      style={{ paddingTop: "max(12px, env(safe-area-inset-top))" }}
+      // Its own view-transition layer: it stays put while pages slide and fade under it.
+      style={{ paddingTop: "max(12px, env(safe-area-inset-top))", viewTransitionName: "site-nav" }}
       className="pointer-events-none fixed inset-x-0 top-0 z-50"
     >
       <div data-nav-column className={PAGE_COLUMN}>
@@ -75,14 +78,14 @@ export function Nav() {
           style={scrolled ? PAPER : BARE}
           className="pointer-events-auto relative flex items-start justify-between gap-2 rounded-sharp transition-[background-color,box-shadow] duration-300"
         >
-          <a
-            href="/"
+          <PageLink
+            to="/"
             className="flex h-14 items-center rounded-sharp pl-4 pr-5 max-sm:px-[15px] text-ink focus-ring"
           >
             <Logo size={26} className="max-sm:hidden" />
             <BrandMark size={26} className="sm:hidden" />
             <span className="sr-only">gradientwall</span>
-          </a>
+          </PageLink>
 
           <SectionsIsland />
 
@@ -256,8 +259,8 @@ function SectionLinks({
           className="absolute top-1 bottom-1 rounded-[2px] bg-ink/[0.1] transition-[left,width,opacity] duration-300 ease-[cubic-bezier(0.3,1.25,0.5,1)]"
           style={{ left: pill?.left ?? 0, width: pill?.width ?? 0, opacity: pill ? 1 : 0 }}
         />
-        <a
-          href="/#studio"
+        <SectionLink
+          to="studio"
           data-section="studio"
           aria-current={highlighted === "studio" ? "location" : undefined}
           onPointerEnter={() => {
@@ -267,7 +270,7 @@ function SectionLinks({
           className={`${item} max-sm:hidden`}
         >
           Studio
-        </a>
+        </SectionLink>
         <button
           ref={buttonRef}
           type="button"
@@ -330,9 +333,9 @@ function PacksMenu({ width, onNavigate }: { width: number; onNavigate: () => voi
       <div style={{ width }} className="flex-none">
         <div className="grid grid-cols-3 gap-2.5 px-3 pt-1 max-[480px]:grid-cols-2">
           {packs.map((pack) => (
-            <a
+            <PageLink
               key={pack.slug}
-              href={packPath(pack.slug)}
+              to={packPath(pack.slug)}
               className="group flex min-w-0 flex-col gap-2 rounded-2xl p-1.5 transition-colors duration-150 hover:bg-ink/[0.07] focus-ring"
             >
               <span className="block aspect-[4/3] overflow-hidden rounded-xl shadow-[inset_0_0_0_1px_rgba(18,18,18,0.12)]">
@@ -349,13 +352,14 @@ function PacksMenu({ width, onNavigate }: { width: number; onNavigate: () => voi
                   {pack.previews.length} wallpapers · €{pack.priceEur.toFixed(2)}
                 </span>
               </span>
-            </a>
+            </PageLink>
           ))}
-          <a
-            href="/#studio"
+          <SectionLink
+            to="studio"
             className="group flex min-w-0 flex-col gap-2 rounded-2xl p-1.5 transition-colors duration-150 hover:bg-ink/[0.07] focus-ring max-[480px]:col-span-2"
           >
             <span
+              data-vt-src="your-own"
               className="block aspect-[4/3] rounded-xl max-[480px]:aspect-[3/1] shadow-[inset_0_0_0_1px_rgba(18,18,18,0.12)] transition-[background] duration-500"
               style={{
                 background: `conic-gradient(from 210deg, ${colors.join(", ")}, ${colors[0]})`,
@@ -365,15 +369,15 @@ function PacksMenu({ width, onNavigate }: { width: number; onNavigate: () => voi
               <span className="text-[13px] font-medium text-ink">Your own</span>
               <span className="text-[11px] text-ink-dim">Free in the Studio</span>
             </span>
-          </a>
+          </SectionLink>
         </div>
         <div className="flex justify-end px-4 pb-3 pt-1">
-          <a
-            href="/#packs"
+          <SectionLink
+            to="packs"
             className="inline-flex min-h-9 items-center px-1 font-sans text-[11px] font-medium uppercase tracking-[0.14em] text-ink-dim hover:text-ink focus-ring"
           >
             All packs →
-          </a>
+          </SectionLink>
         </div>
       </div>
     </m.div>
@@ -390,8 +394,8 @@ function ActionsIsland() {
 
   return (
     <div className="flex h-14 items-center gap-1 rounded-sharp p-1.5">
-      <a
-        href="/#studio"
+      <SectionLink
+        to="studio"
         aria-label={`Current palette: ${name}`}
         className={`${chip} max-md:hidden`}
       >
@@ -406,8 +410,12 @@ function ActionsIsland() {
           ))}
         </span>
         <span>{name}</span>
-      </a>
-      <a href="/#studio" aria-label={`${savedCount} saved`} className={`${chip} max-md:hidden`}>
+      </SectionLink>
+      <SectionLink
+        to="studio"
+        aria-label={`${savedCount} saved`}
+        className={`${chip} max-md:hidden`}
+      >
         <svg aria-hidden="true" viewBox="0 0 24 24" className="size-3.5 text-rose">
           <path
             fill="currentColor"
@@ -415,14 +423,14 @@ function ActionsIsland() {
           />
         </svg>
         <span className="tabular-nums">{savedCount}</span>
-      </a>
-      <a
-        href="/#studio"
+      </SectionLink>
+      <SectionLink
+        to="studio"
         className={`${inkButton({ variant: "primary" })} rounded-[2px]! min-h-11 px-5 text-[0.82rem]`}
       >
         <span className="md:hidden">Studio →</span>
         <span className="hidden md:inline">Open the Studio →</span>
-      </a>
+      </SectionLink>
     </div>
   );
 }

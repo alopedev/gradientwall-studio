@@ -1,8 +1,8 @@
-import { Link } from "react-router-dom";
 import { getPacks } from "@/lib/packs";
 import { useRenderParams } from "@/store";
 import { useWallpaperEngine } from "../studio/engine";
 import { inkButton } from "../ui/InkButton";
+import { SectionLink } from "../ui/SectionLink";
 import { PackCard } from "./PackCard";
 
 /**
@@ -36,8 +36,12 @@ function StudioCard() {
   const engine = useWallpaperEngine();
   const params = useRenderParams();
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-sharp border-2 border-ink">
-      <div className="relative min-h-[220px] flex-1 bg-bg-2">
+    <div
+      data-vt-scope
+      className="flex h-full flex-col overflow-hidden rounded-sharp border-2 border-ink"
+    >
+      {/* Flies into the Studio's screen on the way there. */}
+      <div data-vt-src="studio-card" className="relative min-h-[220px] flex-1 bg-bg-2">
         <engine.Canvas
           params={params}
           device="desktop"
@@ -51,9 +55,9 @@ function StudioCard() {
             Free, in your browser, no account.
           </p>
         </div>
-        <Link to="/#studio" className={`${inkButton({ variant: "primary" })} px-5`}>
+        <SectionLink to="studio" className={`${inkButton({ variant: "primary" })} px-5`}>
           Open the Studio <span aria-hidden>→</span>
-        </Link>
+        </SectionLink>
       </div>
     </div>
   );

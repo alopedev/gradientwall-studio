@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import type { SharedElement } from "@/lib/page-transition";
+import { SectionLink } from "../ui/SectionLink";
 import { describeContents, getPackBySlug } from "@/lib/packs";
 import { canPurchasePack, openCheckout } from "@/lib/store";
 import { AI_DISCLOSURE } from "@/lib/copy";
@@ -56,9 +58,9 @@ export function PackPage() {
           <p className="font-sans text-[15px] text-ink-dim mb-8 max-w-[42ch]">
             The pack you're looking for has moved or doesn't exist. Browse the full catalog instead.
           </p>
-          <Link to="/#packs" className={`${inkButton({ variant: "primary" })} px-6`}>
+          <SectionLink to="packs" className={`${inkButton({ variant: "primary" })} px-6`}>
             ← Back to packs
-          </Link>
+          </SectionLink>
         </main>
         <Footer />
       </>
@@ -74,12 +76,13 @@ export function PackPage() {
           pack={pack}
           header={
             <>
-              <Link
-                to="/#packs"
+              <SectionLink
+                to="packs"
+                shared={() => backToCard(pack.slug)}
                 className="inline-flex min-h-11 items-center gap-1.5 font-sans text-[11px] tracking-[0.18em] uppercase text-ink-dim hover:text-ink transition-colors"
               >
                 ← All packs
-              </Link>
+              </SectionLink>
               <span className="block mb-2 font-sans text-[11px] tracking-[0.22em] uppercase text-ink-dim">
                 Pack · {pack.style}
               </span>
@@ -209,3 +212,23 @@ function StickyBuyBar({
 }
 
 const BUY_BUTTON = `${inkButton({ variant: "primary" })} px-6`;
+
+/**
+ * Back to the catalog, A1 in reverse: the phone and the name fly from this
+ * page into the pack's own card.
+ */
+function backToCard(slug: string): SharedElement[] {
+  const card = `[data-pack-card="${slug}"]`;
+  return [
+    {
+      name: "pack-phone",
+      source: document.querySelector<HTMLElement>("[data-vt=pack-phone]"),
+      dest: `${card} [data-vt-src=phone]`,
+    },
+    {
+      name: "pack-title",
+      source: document.querySelector<HTMLElement>("[data-vt=pack-title]"),
+      dest: `${card} h3`,
+    },
+  ];
+}

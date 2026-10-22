@@ -1,4 +1,5 @@
 import { ArrowRight, Check, LoaderCircle } from "lucide-react";
+import { m } from "motion/react";
 import { type FormEvent, type ReactNode, useId, useState } from "react";
 import {
   CONSENT_TEXT,
@@ -73,13 +74,23 @@ export function EmailCapture({ source, heading, lead, size = "md", className }: 
       </p>
       {lead && <p className="m-0 mt-2 font-sans text-[14px] text-ink-dim">{lead}</p>}
       {state.kind === "done" ? (
-        <p
+        <m.p
           role="status"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.28, ease: [0.2, 0.7, 0.2, 1] }}
           className="m-0 mt-5 inline-flex items-center gap-2 font-sans text-[14px] text-ink/80"
         >
-          <Check className="size-[18px] text-good" strokeWidth={2.4} aria-hidden />
+          <m.span
+            initial={{ scale: 0.4 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 480, damping: 16, delay: 0.08 }}
+            className="inline-flex"
+          >
+            <Check className="size-[18px] text-good" strokeWidth={2.4} aria-hidden />
+          </m.span>
           You're on the list. Thanks!
-        </p>
+        </m.p>
       ) : (
         <form onSubmit={onSubmit} aria-labelledby={`${id}-h`} className="mt-4">
           <div className="flex max-w-[440px] items-center border-b border-ink/25 transition-colors duration-150 focus-within:border-primary">
@@ -131,9 +142,15 @@ export function EmailCapture({ source, heading, lead, size = "md", className }: 
             </a>
           </p>
           {state.kind === "error" && (
-            <p role="alert" className="m-0 mt-2 font-sans text-[13px] text-red-300">
+            <m.p
+              role="alert"
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.18 }}
+              className="m-0 mt-2 font-sans text-[13px] text-red-300"
+            >
               {state.message}
-            </p>
+            </m.p>
           )}
         </form>
       )}

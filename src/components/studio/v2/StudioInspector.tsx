@@ -180,16 +180,29 @@ export function StudioInspector({ keysActive }: Props) {
                   aria-selected={tab === t.id}
                   aria-controls={`${tabsId}-panel`}
                   onClick={() => setTab(t.id)}
-                  className="min-h-10 rounded-[2px] font-sans text-[0.86rem] font-medium text-ink-dim outline-none transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent aria-selected:bg-ink aria-selected:text-bg"
+                  className="relative min-h-10 rounded-[2px] font-sans text-[0.86rem] font-medium text-ink-dim outline-none transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent aria-selected:text-bg"
                 >
-                  {t.label}
+                  {/* One ink fill that slides between the tabs, like the device switch. */}
+                  {tab === t.id && (
+                    <m.span
+                      layoutId={`${tabsId}-tab`}
+                      aria-hidden
+                      transition={{ type: "spring", stiffness: 420, damping: 32 }}
+                      className="absolute inset-0 rounded-[2px] bg-ink"
+                    />
+                  )}
+                  <span className="relative">{t.label}</span>
                 </button>
               ))}
             </div>
-            <div
+            <m.div
+              key={tab}
               role="tabpanel"
               id={`${tabsId}-panel`}
               aria-labelledby={`${tabsId}-${tab}`}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.18, ease: [0.2, 0.7, 0.2, 1] }}
               className="grid gap-3"
             >
               {tab === "style" && styleControl}
@@ -202,7 +215,7 @@ export function StudioInspector({ keysActive }: Props) {
                 </>
               )}
               {tab === "adjust" && <AdjustPanel />}
-            </div>
+            </m.div>
           </>
         ) : (
           <>

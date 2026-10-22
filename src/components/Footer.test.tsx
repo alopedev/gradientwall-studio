@@ -1,8 +1,13 @@
 // @vitest-environment jsdom
-import { render, screen } from "@testing-library/react";
+import { render as rtlRender, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AI_DISCLOSURE, ETSY_SHOP_URL } from "@/lib/copy";
 import { Footer } from "./Footer";
+import type { ReactElement } from "react";
+import { MemoryRouter } from "react-router-dom";
+
+/** The links in it navigate, so it renders inside a router, as in the app. */
+const render = (ui: ReactElement) => rtlRender(ui, { wrapper: MemoryRouter });
 
 describe("Footer", () => {
   afterEach(() => vi.unstubAllEnvs());

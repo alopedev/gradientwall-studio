@@ -48,7 +48,11 @@ export function FavoriteThumbnail({ item }: Props) {
       value={item}
       dragListener={false}
       dragControls={controls}
-      className="gw-reveal-on-scroll group relative shrink-0"
+      initial={{ opacity: 0, scale: 0.4 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.4, transition: { duration: 0.15 } }}
+      transition={{ type: "spring", stiffness: 420, damping: 26 }}
+      className="group relative shrink-0"
       style={{ width: THUMB_W, height: THUMB_H, scrollSnapAlign: "start" }}
     >
       <button
