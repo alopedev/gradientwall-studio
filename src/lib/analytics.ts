@@ -8,8 +8,8 @@
  * (public/_headers).
  */
 
-/** Umami Cloud website id. Empty = analytics off (no script, no requests). */
-export const UMAMI_WEBSITE_ID = "";
+/** Umami Cloud website id (not a secret: it is in every page). Empty = analytics off. */
+export const UMAMI_WEBSITE_ID = "4ecc4386-7200-482f-b0bb-4b37ec3f8a9f";
 
 /** Only visits on this host count, so deploy previews and localhost don't. */
 export const ANALYTICS_DOMAIN = "gradientwall.app";
