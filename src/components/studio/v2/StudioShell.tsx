@@ -38,7 +38,11 @@ export function StudioShell() {
 
   return (
     <RevealContext.Provider value={revealRef}>
-      <section ref={sectionRef} className="relative isolate overflow-hidden border-t border-ink">
+      {/* scroll-mt: on phones a link lands here (SectionLink), heading just under the nav. */}
+      <section
+        ref={sectionRef}
+        className="relative isolate scroll-mt-[60px] overflow-hidden border-t border-ink"
+      >
         <div
           className={`${PAGE_COLUMN} grid gap-8 pb-[clamp(32px,5vw,72px)] pt-[clamp(48px,6vw,88px)] lg:min-h-[100svh] lg:grid-cols-[minmax(300px,0.72fr)_minmax(0,1.6fr)] lg:items-center lg:gap-10`}
         >

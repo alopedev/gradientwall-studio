@@ -297,6 +297,20 @@ body::before {
 :root[data-vt="scroll-up"]::view-transition-new(root) {
   animation: gw-vt-in-down 0.42s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
+/* On a phone the old and new pages fill the same narrow column: fading both at
+   once stacks two headlines and two phones. There the old page leaves first
+   and the new one comes in after, while the wallpaper flies between them. */
+@media (max-width: 760px) {
+  :root[data-vt="scroll-down"]::view-transition-old(root),
+  :root[data-vt="scroll-up"]::view-transition-old(root) {
+    animation-duration: 0.2s;
+  }
+  :root[data-vt="scroll-down"]::view-transition-new(root),
+  :root[data-vt="scroll-up"]::view-transition-new(root) {
+    animation-duration: 0.32s;
+    animation-delay: 0.18s;
+  }
+}
 ::view-transition-group(studio-screen) {
   animation-duration: 0.55s;
   animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
