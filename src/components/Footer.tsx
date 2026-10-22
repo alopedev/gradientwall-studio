@@ -1,5 +1,6 @@
 import { AI_DISCLOSURE, ETSY_PURCHASES_URL, ETSY_SHOP_URL } from "@/lib/copy";
-import { landingLinks, PRIVACY_PAGE } from "@/lib/seo/pages";
+import { LANDINGS, landingPath } from "@/lib/seo/landings";
+import { PRIVACY_PAGE } from "@/lib/seo/pages";
 import { isNewsletterEnabled } from "@/lib/newsletter/subscribe";
 import { useConfigStore } from "@/store/useConfigStore";
 import { EmailCapture } from "./EmailCapture";
@@ -22,11 +23,9 @@ const MAKE: FooterLink[] = [
 ];
 
 /** The landings, so every page links to them. */
-const WALLPAPERS: FooterLink[] = landingLinks().map(({ href, label }) => ({
-  href,
-  label: label
-    .replace(" Gradient Wallpapers for Desktop", " desktop")
-    .replace(" Gradient Wallpapers", ""),
+const WALLPAPERS: FooterLink[] = LANDINGS.map((l) => ({
+  href: landingPath(l.slug),
+  label: l.footerLabel,
 }));
 
 const HELP: FooterLink[] = [
@@ -57,7 +56,7 @@ export function Footer() {
           <FooterCol title="Make" links={MAKE} />
         </Reveal>
         <Reveal delay={0.11}>
-          <FooterCol title="Gradient wallpapers" links={WALLPAPERS} />
+          <FooterCol title="Free gradient wallpapers" links={WALLPAPERS} />
         </Reveal>
         <Reveal delay={0.14}>
           <FooterCol title="Help" links={HELP} />

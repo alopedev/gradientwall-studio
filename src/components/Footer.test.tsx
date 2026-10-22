@@ -25,6 +25,22 @@ describe("Footer", () => {
     expect(help.textContent).toMatch(/Find your download.*Privacy/);
   });
 
+  it("links every landing under a title that says what they are", () => {
+    render(<Footer />);
+    const col = screen.getByRole("navigation", { name: "Free gradient wallpapers" });
+    const links = [...col.querySelectorAll("a")].map((a) => [
+      a.textContent,
+      a.getAttribute("href"),
+    ]);
+    expect(links).toEqual([
+      ["iPhone wallpapers", "/iphone-gradient-wallpapers/"],
+      ["4K desktop wallpapers", "/4k-gradient-wallpapers/"],
+      ["Mesh gradients", "/mesh-gradient-wallpapers/"],
+      ["Aurora gradients", "/aurora-gradient-wallpapers/"],
+      ["Grainy gradients", "/grainy-gradient-wallpapers/"],
+    ]);
+  });
+
   it("opens the Etsy shop in a new tab", () => {
     render(<Footer />);
     const etsy = screen.getByRole("link", { name: /Etsy shop/ });
