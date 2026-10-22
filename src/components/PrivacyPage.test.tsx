@@ -32,6 +32,13 @@ describe("PrivacyPage", () => {
     expect(screen.getByRole("link", { name: /aepd\.es/i })).toBeTruthy();
   });
 
+  it("says how visits are counted, without cookies", () => {
+    renderPage();
+    const text = document.body.textContent ?? "";
+    expect(text).toMatch(/Umami/);
+    expect(text).toMatch(/no cookies/i);
+  });
+
   it("covers purchases and who processes the data", () => {
     renderPage();
     const text = document.body.textContent ?? "";

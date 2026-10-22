@@ -13,6 +13,7 @@ import { PageMeta } from "./components/PageMeta";
 import { buildHomePage } from "./lib/seo/pages";
 import { LANDINGS } from "./lib/seo/landings";
 import { loadSavedPrefs } from "./store/page-start";
+import { startAnalytics } from "./lib/analytics";
 import { LenisProvider, useLenis } from "./components/ui/LenisProvider";
 import { ScrollProgress } from "./components/ui/ScrollProgress";
 
@@ -67,6 +68,8 @@ export function AppContent() {
   // Saved favorites and the motion pause load once the prerendered page has
   // hydrated, so the first render matches the HTML.
   useEffect(() => loadSavedPrefs(), []);
+  // Visit counting starts after hydration too (see lib/analytics).
+  useEffect(() => startAnalytics(), []);
   return (
     <LenisProvider>
       <ScrollProgress />

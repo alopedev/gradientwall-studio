@@ -59,7 +59,12 @@ describe("security headers", () => {
     expect(scripts.filter((s) => s !== "'self'")).toEqual([
       "https://app.lemonsqueezy.com",
       "https://assets.lemonsqueezy.com",
+      "https://cloud.umami.is",
     ]);
+  });
+
+  it("lets the Umami tracker post visits and nothing else leave the page", () => {
+    expect(csp().get("connect-src")).toEqual(["'self'", "https://gateway.umami.is"]);
   });
 
   it("lets the Lemon Squeezy checkout overlay open", () => {
