@@ -6,9 +6,9 @@
 
 import { LANDINGS, landingPath, type Landing } from "./landings";
 
-// Temporary: gradientwall.com lapsed and was taken by a domain reseller. Switch
-// back here (and in public/robots.txt) once the site has its own domain.
-export const SITE_ORIGIN = "https://gradientwall-studio.netlify.app";
+// Also in public/robots.txt, and the old Netlify address 301s here
+// (public/_redirects + netlify.toml).
+export const SITE_ORIGIN = "https://gradientwall.app";
 export const SITE_NAME = "GradientWall";
 export const DEFAULT_OG_IMAGE = "/og-default.jpg";
 export const DEFAULT_OG_SIZE = { width: 1200, height: 630 };
