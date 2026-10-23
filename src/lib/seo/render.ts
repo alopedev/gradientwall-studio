@@ -3,6 +3,7 @@ import {
   DEFAULT_OG_IMAGE,
   DEFAULT_OG_SIZE,
   fullTitle,
+  ROBOTS_INDEX,
   SITE_NAME,
   SITE_ORIGIN,
   type SeoPage,
@@ -42,7 +43,7 @@ export function renderHeadTags(page: SeoPage): string {
     `<title>${title}</title>`,
     `<meta name="description" content="${description}" />`,
     `<link rel="canonical" href="${url}" />`,
-    `<meta name="robots" content="${page.noindex ? "noindex" : "index,follow"}" />`,
+    `<meta name="robots" content="${page.noindex ? "noindex" : ROBOTS_INDEX}" />`,
     `<meta property="og:type" content="${page.ogType}" />`,
     `<meta property="og:site_name" content="${SITE_NAME}" />`,
     `<meta property="og:title" content="${title}" />`,
@@ -117,12 +118,23 @@ export function renderPage(template: string, page: SeoPage, appHtml?: string): s
   return replaceHeadBlock(template, renderHeadTags(page)).replace(ROOT_EMPTY, () => root);
 }
 
-/** Sitemap with every indexable page. No `lastmod`: a fake build date is worse than none. */
+/**
+ * Sitemap with every indexable page and the images on it (Google's image
+ * sitemap extension). No `lastmod`: a fake build date is worse than none.
+ */
 export function renderSitemap(pages: SeoPage[]): string {
   const urls = pages
     .filter((p) => !p.noindex)
-    .map((p) => `  <url>\n    <loc>${SITE_ORIGIN}${p.path}</loc>\n  </url>`);
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>\n`;
+    .map((p) => {
+      const images = (p.images ?? []).map(
+        (src) =>
+          `    <image:image>\n      <image:loc>${escapeHtml(absoluteUrl(src))}</image:loc>\n    </image:image>`,
+      );
+      return [`  <url>`, `    <loc>${SITE_ORIGIN}${p.path}</loc>`, ...images, `  </url>`].join(
+        "\n",
+      );
+    });
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urls.join("\n")}\n</urlset>\n`;
 }
 
 /** Output path (relative to `dist/`) for a page. */

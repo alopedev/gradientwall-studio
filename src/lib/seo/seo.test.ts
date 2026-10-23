@@ -85,7 +85,7 @@ describe("renderPage", () => {
     expect(html).toContain(
       `<link rel="canonical" href="https://gradientwall.app/packs/${packs[0].slug}/" />`,
     );
-    expect(html).toContain('<meta name="robots" content="index,follow" />');
+    expect(html).toContain('<meta name="robots" content="index,follow,max-image-preview:large" />');
     expect(html).toContain(`<h1>${packs[0].name}</h1>`);
     expect(html).toContain('<meta name="theme-color" />');
   });
@@ -126,6 +126,30 @@ describe("sitemap and output paths", () => {
     expect(xml).toContain("<loc>https://gradientwall.app/</loc>");
     expect(xml).not.toContain("/recover");
     expect(xml).not.toContain("/legal/");
+  });
+
+  it("lists each pack's images under its page, so Google Images finds them", () => {
+    const xml = renderSitemap(buildSeoPages(packs));
+    expect(xml).toContain('xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"');
+    const pack = packs[0];
+    const entry = xml
+      .split("<url>")
+      .find((u) => u.includes(`<loc>${SITE_ORIGIN}${packPath(pack.slug)}</loc>`));
+    expect(entry).toBeDefined();
+    const first = (pack.previews[0] as { url: string }).url;
+    expect(entry).toContain(`<image:image>\n      <image:loc>${SITE_ORIGIN}${first}</image:loc>`);
+    // One entry per file, even when the cover is also a preview.
+    const locs = entry?.match(/<image:loc>[^<]+<\/image:loc>/g) ?? [];
+    expect(new Set(locs).size).toBe(locs.length);
+  });
+
+  it("adds desktop renders of a piece to the image list", () => {
+    const page = buildPackPage({
+      ...packs[0],
+      cover: { kind: "image", url: "/c.jpg" },
+      previews: [{ kind: "image", url: "/a.png", desktop: { url: "/a-desktop.png" } }],
+    });
+    expect(page.images).toEqual(["/c.jpg", "/a.png", "/a-desktop.png"]);
   });
 
   it("maps paths to files", () => {
