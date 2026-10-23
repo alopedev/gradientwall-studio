@@ -12,6 +12,7 @@ import {
   HOME_JSON_LD,
   NOT_FOUND_PAGE,
   PRIVACY_PAGE,
+  packImages,
   packPath,
   RECOVER_PAGE,
   SITE_ORIGIN,
@@ -62,6 +63,28 @@ describe("seo pages", () => {
     const own = { ...pack, lemonSqueezyVariantId: "123" };
     const ownOffer = (buildPackPage(own).jsonLd?.[0] as { offers: { url: string } }).offers;
     expect(ownOffer.url).toBe(absoluteUrl(packPath(pack.slug)));
+  });
+
+  it("marks every pack image as licensable from its Etsy listing", () => {
+    for (const pack of packs) {
+      const images = (buildPackPage(pack).jsonLd ?? []).filter((d) => d["@type"] === "ImageObject");
+      expect(
+        images.map((i) => i.contentUrl),
+        pack.slug,
+      ).toEqual(packImages(pack).map(absoluteUrl));
+      for (const image of images) {
+        expect(image.license).toBe(pack.etsyUrl);
+        expect(image.acquireLicensePage).toBe(pack.etsyUrl);
+        expect(image.creditText).toBe("GradientWall");
+        expect(image.creator).toEqual({ "@type": "Organization", name: "GradientWall" });
+      }
+    }
+  });
+
+  it("leaves pack images unlicensed while the pack has no listing", () => {
+    const pack = { ...packs[0], etsyUrl: undefined };
+    const types = (buildPackPage(pack).jsonLd ?? []).map((d) => d["@type"]);
+    expect(types).not.toContain("ImageObject");
   });
 
   it("prerenders the privacy page, indexable and with its own h1", () => {

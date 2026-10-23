@@ -190,7 +190,26 @@ export function buildPackJsonLd(pack: SeoPack): Record<string, unknown>[] {
         { "@type": "ListItem", position: 2, name: pack.name, item: url },
       ],
     },
+    ...packImageLicences(pack),
   ];
+}
+
+/**
+ * One `ImageObject` per pack image, licensed from the Etsy listing, so Google
+ * Images can badge them "Licensable". None until the pack has a listing.
+ */
+function packImageLicences(pack: SeoPack): Record<string, unknown>[] {
+  if (!pack.etsyUrl) return [];
+  return packImages(pack).map((src) => ({
+    "@context": "https://schema.org",
+    "@type": "ImageObject",
+    contentUrl: absoluteUrl(src),
+    creator: { "@type": "Organization", name: SITE_NAME },
+    creditText: SITE_NAME,
+    copyrightNotice: `© ${SITE_NAME}`,
+    license: pack.etsyUrl,
+    acquireLicensePage: pack.etsyUrl,
+  }));
 }
 
 /** Every image file of a pack (cover, each piece and its desktop render), once each. */

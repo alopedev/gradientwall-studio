@@ -17,70 +17,70 @@
       {
         "kind": "image",
         "url": "/assets/packs/acrylic/01.jpg",
-        "alt": "Impasto wallpaper 01",
+        "alt": "Abstract acrylic paint wallpaper with thick turquoise, coral pink and yellow brushstrokes",
         "width": 1600,
         "height": 900
       },
       {
         "kind": "image",
         "url": "/assets/packs/acrylic/02.jpg",
-        "alt": "Impasto wallpaper 02",
+        "alt": "Orange, magenta and violet acrylic strokes on a black wallpaper",
         "width": 1600,
         "height": 900
       },
       {
         "kind": "image",
         "url": "/assets/packs/acrylic/03.jpg",
-        "alt": "Impasto wallpaper 03",
+        "alt": "Pastel impasto wallpaper: soft pink, cream, mint and lilac paint waves",
         "width": 1600,
         "height": 900
       },
       {
         "kind": "image",
         "url": "/assets/packs/acrylic/04.jpg",
-        "alt": "Impasto wallpaper 04",
+        "alt": "Orange and purple paint strokes with gold flecks on navy, acrylic wallpaper",
         "width": 1600,
         "height": 900
       },
       {
         "kind": "image",
         "url": "/assets/packs/acrylic/05.jpg",
-        "alt": "Impasto wallpaper 05",
+        "alt": "Flowing pink, mint, lilac and butter-yellow acrylic paint",
         "width": 1600,
         "height": 900
       },
       {
         "kind": "image",
         "url": "/assets/packs/acrylic/06.jpg",
-        "alt": "Impasto wallpaper 06",
+        "alt": "A bold orange paint swirl with teal strokes on black",
         "width": 1600,
         "height": 900
       },
       {
         "kind": "image",
         "url": "/assets/packs/acrylic/07.jpg",
-        "alt": "Impasto wallpaper 07",
+        "alt": "Aqua, peach and pink brushstrokes on cream, pastel acrylic wallpaper",
         "width": 1600,
         "height": 900
       },
       {
         "kind": "image",
         "url": "/assets/packs/acrylic/08.jpg",
-        "alt": "Impasto wallpaper 08",
+        "alt": "Swirling teal, red and orange paint on dark navy",
         "width": 1600,
         "height": 900
       },
       {
         "kind": "image",
         "url": "/assets/packs/acrylic/09.jpg",
-        "alt": "Impasto wallpaper 09",
+        "alt": "Diagonal lilac, pale blue and yellow palette-knife strokes",
         "width": 1600,
         "height": 900
       },
       {
         "kind": "image",
         "url": "/assets/packs/acrylic/10.jpg",
-        "alt": "Impasto wallpaper 10",
+        "alt": "Glossy emerald green and white acrylic paint swirls",
         "width": 1600,
         "height": 900
       }
@@ -108,12 +108,12 @@
       {
         "kind": "image",
         "url": "/assets/packs/dessau/01_kreise.png",
-        "alt": "Dessau 01 Kreise — phone wallpaper",
+        "alt": "Bauhaus phone wallpaper: a red circle and a cream half-circle on cobalt blue, crossed by a thin black line",
         "width": 1170,
         "height": 2080,
         "desktop": {
           "url": "/assets/packs/dessau/01_kreise-desktop.png",
-          "alt": "Dessau 01 Kreise — desktop wallpaper",
+          "alt": "Bauhaus desktop wallpaper: a red circle and a cream half-circle on cobalt blue, crossed by a thin black line",
           "width": 2080,
           "height": 1170
         }
@@ -121,12 +121,12 @@
       {
         "kind": "image",
         "url": "/assets/packs/dessau/02_rot.png",
-        "alt": "Dessau 02 Rot — phone wallpaper",
+        "alt": "Bauhaus phone wallpaper: a mustard circle over a black half-circle on vermilion red, with a thin white line",
         "width": 1170,
         "height": 2080,
         "desktop": {
           "url": "/assets/packs/dessau/02_rot-desktop.png",
-          "alt": "Dessau 02 Rot — desktop wallpaper",
+          "alt": "Bauhaus desktop wallpaper: a mustard circle over a black half-circle on vermilion red, with a thin white line",
           "width": 2080,
           "height": 1170
         }
@@ -134,12 +134,12 @@
       {
         "kind": "image",
         "url": "/assets/packs/dessau/03_schwarz.png",
-        "alt": "Dessau 03 Schwarz — phone wallpaper",
+        "alt": "Bauhaus phone wallpaper: a cream half-circle with blue and red circles on black, and a thin yellow line",
         "width": 1170,
         "height": 2080,
         "desktop": {
           "url": "/assets/packs/dessau/03_schwarz-desktop.png",
-          "alt": "Dessau 03 Schwarz — desktop wallpaper",
+          "alt": "Bauhaus desktop wallpaper: a cream half-circle with blue and red circles on black, and a thin yellow line",
           "width": 2080,
           "height": 1170
         }
@@ -147,12 +147,12 @@
       {
         "kind": "image",
         "url": "/assets/packs/dessau/04_gelb.png",
-        "alt": "Dessau 04 Gelb — phone wallpaper",
+        "alt": "Bauhaus phone wallpaper: a large cobalt circle and a small red circle on mustard yellow, with a thin black line",
         "width": 1170,
         "height": 2080,
         "desktop": {
           "url": "/assets/packs/dessau/04_gelb-desktop.png",
-          "alt": "Dessau 04 Gelb — desktop wallpaper",
+          "alt": "Bauhaus desktop wallpaper: a large cobalt circle and a small red circle on mustard yellow, with a thin black line",
           "width": 2080,
           "height": 1170
         }
@@ -160,12 +160,12 @@
       {
         "kind": "image",
         "url": "/assets/packs/dessau/05_sonne.png",
-        "alt": "Dessau 05 Sonne — phone wallpaper",
+        "alt": "Bauhaus phone wallpaper: a sun split black and mustard over vermilion red and cream",
         "width": 1170,
         "height": 2080,
         "desktop": {
           "url": "/assets/packs/dessau/05_sonne-desktop.png",
-          "alt": "Dessau 05 Sonne — desktop wallpaper",
+          "alt": "Bauhaus desktop wallpaper: a sun split black and mustard over vermilion red and cream",
           "width": 2080,
           "height": 1170
         }
@@ -173,12 +173,12 @@
       {
         "kind": "image",
         "url": "/assets/packs/dessau/06_halbkreise.png",
-        "alt": "Dessau 06 Halbkreise — phone wallpaper",
+        "alt": "Bauhaus phone wallpaper: a black half-circle and a red dot on mustard yellow, beside a cobalt band",
         "width": 1170,
         "height": 2080,
         "desktop": {
           "url": "/assets/packs/dessau/06_halbkreise-desktop.png",
-          "alt": "Dessau 06 Halbkreise — desktop wallpaper",
+          "alt": "Bauhaus desktop wallpaper: a black half-circle and a red dot on mustard yellow, beside a cobalt band",
           "width": 2080,
           "height": 1170
         }
