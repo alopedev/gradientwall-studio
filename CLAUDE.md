@@ -191,7 +191,7 @@ The home no longer ships a background video (the 41 MB hero loop was removed); t
 
 - **Env vars**: see `.env.example`. Required for prod: `VITE_LEMONSQUEEZY_STORE`, `PUBLIC_SITE_URL`, `JWT_SECRET`, `LS_WEBHOOK_SECRET`, `LS_API_KEY`, `LOOPS_API_KEY`, `LOOPS_TRANSACTIONAL_ID`, `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_PACKS`. Optional: `SUPABASE_URL` + `SUPABASE_SECRET_KEY` to store orders in Supabase instead of Blobs. Set in Netlify dashboard.
 - **Pack assets**: each pack ships as `gw-packs/packs/{slug}/{slug}.zip` in Cloudflare R2 (private bucket). The download Function presigns a 5-minute GET URL.
-- **Setup runbook**: `docs/SETUP-WEEK2.md` is the step-by-step for Lemon Squeezy + Loops + R2 + Netlify wiring. Treat as the authoritative source for any account-side configuration.
+- **Setup runbook**: `docs/SETUP-WEEK2.md` is the step-by-step for Lemon Squeezy + Loops + R2 + Netlify wiring. Treat as the authoritative source for any account-side configuration if the own store is ever reactivated (it is off; packs sell on Etsy).
 - **Adding a pack**: edit `src/data/packs.json`, upload the ZIP to R2 at the canonical key, add `lemonSqueezyVariantId` once the LS product exists. PackPage's Buy button enables automatically when both the variant ID and `VITE_LEMONSQUEEZY_STORE` are present.
 
 ## Running the dev server from Claude Code

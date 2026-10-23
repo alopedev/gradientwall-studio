@@ -1,5 +1,7 @@
 # PRD — GradientWall: Tienda de Packs + Rediseño de IA
 
+> **OBSOLETO (2026-10-23).** Los packs se venden en Etsy (`gradientwall.etsy.com`) a 5,99 € con IVA; la tienda propia con Lemon Squeezy se descartó el 2026-10-20. El precio de 4,99 € y el checkout propio de este PRD ya no aplican. Se conserva como histórico. Estado actual: `CLAUDE.md` ("Current focus").
+
 > **Deprecaciones posteriores al PRD** (mantener el resto del documento como histórico de intención):
 > - **Newsletter eliminada del scope** (2026-05). User stories 25–27, componente `NewsletterForm`, handler `newsletter-subscribe`, audience `newsletter_subscribers` y env vars asociadas dejan de aplicar. Ver `docs/adr/0004-newsletter-removed.md`.
 

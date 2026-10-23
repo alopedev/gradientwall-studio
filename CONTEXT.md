@@ -1,6 +1,6 @@
 # GradientWall
 
-Studio gratuito de wallpapers gradient + tienda de packs curados (4.99€, pago único, sin cuenta, entrega por email). Este glosario fija el vocabulario que comparten frontend (`src/`) y backend (`netlify/functions/`); todo lo que no esté aquí es jerga local.
+Studio gratuito de wallpapers gradient + packs curados (5,99 € con IVA). **Hoy los packs se venden en Etsy** (`gradientwall.etsy.com`); la tienda propia (Lemon Squeezy, pago único, sin cuenta, entrega por email) está construida pero apagada desde 2026-10-20, y los términos de Order, Token o Delivery describen ese código, no la venta actual. Este glosario fija el vocabulario que comparten frontend (`src/`) y backend (`netlify/functions/`); todo lo que no esté aquí es jerga local.
 
 ## Language
 
@@ -29,7 +29,7 @@ _Avoid_: "Style" sin calificador — es ambiguo (ver Flagged ambiguities).
 ### Tienda (catálogo y compra)
 
 **Pack**:
-Colección curada de 10 wallpapers vendida como una sola unidad a 4.99€. Identificado por `slug` estable.
+Colección curada de 10 wallpapers vendida como una sola unidad a 5,99 € con IVA (hoy en Etsy). Identificado por `slug` estable.
 
 **PackCategory**:
 Género visual de un Pack, usado como filtro del catálogo. Valores actuales: `gradient` / `acrylic` / `fluted` / `photo`. En código aparece como el campo `style` de `Pack` y como `PackStyle` (`src/lib/packs/types.ts:4`); el glosario lo refiere como **PackCategory** para no chocar con **RenderStyle**. La etiqueta `gradient` es **transitoria**: hoy todos los packs son gradients, así que la categoría solo cobra utilidad cuando entren packs con assets externos (acrylic/fluted/photo). Revisar el set de valores en ese momento.
