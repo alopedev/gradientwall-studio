@@ -81,6 +81,14 @@ describe("seo pages", () => {
     }
   });
 
+  it("puts the search line of a pack page in its h1, after the name", () => {
+    const dessau = packs.find((p) => p.slug === "dessau")!;
+    expect(buildPackPage(dessau).shell.h1).toBe(
+      "Dessau: Bauhaus wallpapers for iPhone and desktop",
+    );
+    expect(buildPackPage({ ...dessau, headline: undefined }).shell.h1).toBe("Dessau");
+  });
+
   it("leaves pack images unlicensed while the pack has no listing", () => {
     const pack = { ...packs[0], etsyUrl: undefined };
     const types = (buildPackPage(pack).jsonLd ?? []).map((d) => d["@type"]);
@@ -109,7 +117,7 @@ describe("renderPage", () => {
       `<link rel="canonical" href="https://gradientwall.app/packs/${packs[0].slug}/" />`,
     );
     expect(html).toContain('<meta name="robots" content="index,follow,max-image-preview:large" />');
-    expect(html).toContain(`<h1>${packs[0].name}</h1>`);
+    expect(html).toContain(`<h1>${packs[0].name}: ${packs[0].headline}</h1>`);
     expect(html).toContain('<meta name="theme-color" />');
   });
 

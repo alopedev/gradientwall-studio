@@ -62,6 +62,8 @@ export interface Pack {
   phoneAndDesktop?: boolean;
   /** Etsy listing the web sends buyers to while it has no checkout of its own. */
   etsyUrl?: string;
+  /** Second line of the pack page's h1: what the pack is, in the words people search with. */
+  headline?: string;
   /** Page `<title>` for the pack route (the brand is appended). Defaults to the name + count. */
   seoTitle?: string;
   /** Meta description, ≤155 characters. Defaults to `description`, which is too long for a snippet. */

@@ -32,9 +32,14 @@ describe("PackPage", () => {
   it("opens on the pack's own hero: title, price and buy link over the devices", () => {
     renderPack("dessau");
     const hero = screen.getByRole("region", { name: /dessau wallpapers/i });
-    const h1 = within(hero).getByRole("heading", { level: 1, name: "Dessau" });
-    expect(h1.className).toMatch(/display-head/);
-    expect(h1.className).not.toMatch(/serif|italic/);
+    const h1 = within(hero).getByRole("heading", {
+      level: 1,
+      name: "Dessau Bauhaus wallpapers for iPhone and desktop",
+    });
+    const name = within(h1).getByText("Dessau");
+    expect(name.className).toMatch(/display-head/);
+    expect(name.className).not.toMatch(/serif|italic/);
+    expect(name).toHaveAttribute("data-vt", "pack-title");
     expect(within(hero).getByText("€5.99")).toBeInTheDocument();
     expect(within(hero).getByRole("link", { name: /get it on etsy/i })).toBeInTheDocument();
   });

@@ -86,11 +86,21 @@ export function PackPage() {
               <span className="block mb-2 font-sans text-[11px] tracking-[0.22em] uppercase text-ink-dim">
                 Pack · {pack.style}
               </span>
-              <h1
-                data-vt="pack-title"
-                className="display-head w-fit text-[clamp(56px,8vw,120px)] text-ink"
-              >
-                {pack.name}
+              <h1>
+                <span
+                  data-vt="pack-title"
+                  className="block display-head w-fit text-[clamp(56px,8vw,120px)] text-ink"
+                >
+                  {pack.name}
+                </span>
+                {pack.headline && (
+                  <>
+                    {" "}
+                    <span className="mt-2 block display-head text-[clamp(20px,2.4vw,30px)] text-ink-dim">
+                      {pack.headline}
+                    </span>
+                  </>
+                )}
               </h1>
               <div className="mt-3 max-w-[40ch] font-sans text-[clamp(15px,1.6vw,18px)] font-light text-ink-dim leading-snug">
                 {pack.tagline}

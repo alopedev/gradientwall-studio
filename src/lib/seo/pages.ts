@@ -32,6 +32,7 @@ export interface SeoPack {
   seoDescription?: string;
   cover: { kind: string; url?: string; alt?: string; width?: number; height?: number };
   lemonSqueezyVariantId?: string;
+  headline?: string;
   /** Etsy listing, while the pack is sold there instead of here. */
   etsyUrl?: string;
 }
@@ -237,7 +238,7 @@ export function buildPackPage(pack: SeoPack): SeoPage {
     images: packImages(pack),
     noindex: !isPackIndexable(pack),
     shell: {
-      h1: pack.name,
+      h1: pack.headline ? `${pack.name}: ${pack.headline}` : pack.name,
       text: `${pack.tagline} ${pack.description}`,
       links: [{ href: "/", label: "Free gradient wallpaper generator" }],
     },
