@@ -18,9 +18,9 @@ npm run check       # typecheck + lint + test — el "ready to commit" del proye
 
 Test infra: **Vitest**. Default environment is `jsdom` (for React component tests with @testing-library); files under `netlify/**/*.test.ts` use `// @vitest-environment node` so jose / crypto / process behave as at runtime. The setup file `src/test-setup.ts` early-outs when `typeof window === "undefined"` so node-env tests don't crash importing DOM-ware. Snapshot files live next to the test under `__snapshots__/` and are committed — regression guard on the core gradient math.
 
-## Current focus — Etsy (since 2026-09-24)
+## Current focus — traffic to the Etsy packs (since 2026-10-23)
 
-The active channel is the **Etsy shop `gradientwall.etsy.com`**, not the web store below. The web (Studio + Lemon Squeezy store) is parked, not deleted; `PROJECT_LAUNCH.md` is obsolete. Its future is an open decision — don't invest in it unless asked.
+The web is live at `https://gradientwall.app` (launched 2026-10-22) and its job is to send visitors to the **Etsy shop `gradientwall.etsy.com`**, where the packs are sold. Goal: 10 Etsy sales from the web and 1,000 visits/month from Google + Pinterest before 2026-12-31. The own store (Lemon Squeezy) and the email list are out of scope: their code stays but is off. `PROJECT_LAUNCH.md` is obsolete. Business context and priorities live outside the repo, in `/mnt/project-files/contexto/`.
 
 - Published packs: **Impasto** (10 acrylic, from `public/assets/packs/acrylic/`) and **Dessau** (6 Bauhaus, from `public/assets/packs/dessau/`). One listing doc per pack in `docs/etsy/<product>.md` (title, description, tags, attributes, listing id); shop policies in `docs/etsy/shop-policies.md`.
 - `scripts/etsy-pack.sh <source> [product]` → upscale with Upscayl + export 4K/5K/phone JPGs + ZIPs into `etsy-out/<product>/` (gitignored). Two modes, auto-detected: **crop** (16:9 `NN.jpg` originals, phone cropped from the center — fine for texture) and **split** (`NN_<name>.png` 9:16 + `NN_<name>-desktop.png` 16:9 — for composed art). Upscayl model differs per mode; both validated visually, don't swap them.
@@ -29,7 +29,7 @@ The active channel is the **Etsy shop `gradientwall.etsy.com`**, not the web sto
 
 ## What this project is
 
-GradientWall — an interactive wallpaper studio plus a digital store for curated wallpaper packs. Free Studio + paid packs (5.99€ each for the real ones, same as Etsy, VAT included; single payment, no account, email-delivered).
+GradientWall — an interactive wallpaper studio plus a showcase for curated wallpaper packs. Free Studio + paid packs (5.99€ each, VAT included), bought on Etsy today. The own checkout below (Lemon Squeezy, email-delivered download) is built but not in use.
 
 Architecture of information: **Nav → Hero (headline + floating phone with the live wallpaper + ‹ Shuffle ›) → Packs → Studio → Footer** on the home, with separate routes for `/packs/:slug`, `/packs/:slug/success`, `/recover`. The old "Gallery" of community-made wallpapers was removed in the Semana 1 refactor — its slot is now the Packs catalog.
 
