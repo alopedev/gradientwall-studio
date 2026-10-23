@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { PackCover as PackCoverType } from "@/lib/packs";
-import { coverDisplayWidth, srcSetFor } from "@/lib/responsive-image";
+import { coverDisplayWidth, phoneCropFor, srcSetFor } from "@/lib/responsive-image";
 import { useWallpaperEngine } from "../studio/engine";
 
 interface Props {
@@ -37,6 +37,22 @@ export function PackCover({
   box,
 }: Props) {
   if (cover.kind === "image") {
+    const crop = box && phoneCropFor(cover, box);
+    if (crop) {
+      return (
+        <img
+          src={crop.url}
+          {...(priority ? { fetchpriority: "high" } : {})}
+          alt={decorative ? "" : cover.alt}
+          aria-hidden={decorative || undefined}
+          width={crop.width}
+          height={crop.height}
+          className={className}
+          loading={priority ? "eager" : "lazy"}
+          decoding="async"
+        />
+      );
+    }
     const srcSet = box && srcSetFor(cover.url, cover.width);
     const sizes =
       srcSet && box && cover.width && cover.height

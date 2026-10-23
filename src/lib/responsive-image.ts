@@ -31,3 +31,31 @@ export function srcSetFor(url: string, width: number | undefined): string | unde
 export function coverDisplayWidth(aspect: number, [w, h]: readonly [number, number]): number {
   return Math.round(aspect > w / h ? h * aspect : w);
 }
+
+/**
+ * Centre crop of a landscape pack image at a phone's shape, written by
+ * `scripts/pack-variants.sh` (`01.jpg` → `01-phone.webp`). A catalog phone
+ * shows only that middle strip, so it skips the 1280 px landscape file.
+ */
+export const PHONE_CROP = { width: 480, height: 900 } as const;
+
+export function phoneCropUrl(url: string): string {
+  return `${url.replace(/\.[^./]+$/, "")}-phone.webp`;
+}
+
+/**
+ * The crop to use for an image in `box` ([w, h] CSS px), or null when the
+ * crop doesn't fit: a portrait file, the desktop half of a phone + desktop
+ * pair (it has a phone file of its own, so no crop is written), a box wider
+ * than the crop's shape, or a box so tall the crop would be soft at 2×.
+ */
+export function phoneCropFor(
+  img: { url: string; width?: number; height?: number },
+  [w, h]: readonly [number, number],
+): { url: string; width: number; height: number } | null {
+  if (!img.width || !img.height || img.width <= img.height) return null;
+  if (/-desktop\.\w+$/.test(img.url)) return null;
+  if (img.height < PHONE_CROP.height || img.width < PHONE_CROP.width) return null;
+  if (w / h > PHONE_CROP.width / PHONE_CROP.height || h * 2 > PHONE_CROP.height) return null;
+  return { url: phoneCropUrl(img.url), ...PHONE_CROP };
+}
