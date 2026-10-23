@@ -12,6 +12,11 @@ export const SITE_ORIGIN = "https://gradientwall.app";
 export const SITE_NAME = "GradientWall";
 export const DEFAULT_OG_IMAGE = "/og-default.jpg";
 export const DEFAULT_OG_SIZE = { width: 1200, height: 630 };
+/**
+ * Robots value of every indexable page. `max-image-preview:large` lets Google
+ * show big previews in Images and Discover, the main way wallpapers are found.
+ */
+export const ROBOTS_INDEX = "index,follow,max-image-preview:large";
 export const DEFAULT_OG_ALT =
   "The GradientWall logo, a black window with a gradient circle, above the words Free gradient wallpaper generator";
 
@@ -44,6 +49,8 @@ export interface SeoPage {
   /** The page's largest image (its LCP), fetched before the app's JS asks for it. */
   preloadImage?: string;
   jsonLd?: Record<string, unknown>[];
+  /** Images shown on the page, listed under it in the sitemap for Google Images. */
+  images?: string[];
   noindex: boolean;
   /** Crawlable content injected into `#root` before React mounts. */
   shell: { h1: string; text: string; links?: { href: string; label: string }[] };
@@ -186,6 +193,15 @@ export function buildPackJsonLd(pack: SeoPack): Record<string, unknown>[] {
   ];
 }
 
+/** Every image file of a pack (cover, each piece and its desktop render), once each. */
+export function packImages(pack: SeoPack): string[] {
+  const urls = [pack.cover.url];
+  for (const piece of pack.previews as { url?: string; desktop?: { url?: string } }[]) {
+    urls.push(piece.url, piece.desktop?.url);
+  }
+  return [...new Set(urls.filter((u): u is string => Boolean(u)))];
+}
+
 /** SEO data for a pack page. Shared by `PackPage` (runtime) and the prerender. */
 export function buildPackPage(pack: SeoPack): SeoPage {
   const cover = pack.cover.kind === "image" ? pack.cover : undefined;
@@ -199,6 +215,7 @@ export function buildPackPage(pack: SeoPack): SeoPage {
     ogImageSize:
       cover?.width && cover.height ? { width: cover.width, height: cover.height } : undefined,
     jsonLd: buildPackJsonLd(pack),
+    images: packImages(pack),
     noindex: !isPackIndexable(pack),
     shell: {
       h1: pack.name,

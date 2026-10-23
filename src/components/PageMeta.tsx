@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { absoluteUrl, DEFAULT_OG_IMAGE, fullTitle } from "@/lib/seo/pages";
+import { absoluteUrl, DEFAULT_OG_IMAGE, fullTitle, ROBOTS_INDEX } from "@/lib/seo/pages";
 
 export interface PageMetaProps {
   /** Full page title (without site suffix; the suffix is appended automatically). */
@@ -51,7 +51,7 @@ export function PageMeta({
 
     apply.push(setMeta("name", "description", description));
     apply.push(setLink("canonical", canonical));
-    apply.push(setMeta("name", "robots", noindex ? "noindex,nofollow" : "index,follow"));
+    apply.push(setMeta("name", "robots", noindex ? "noindex,nofollow" : ROBOTS_INDEX));
 
     apply.push(setMeta("property", "og:title", pageTitle));
     apply.push(setMeta("property", "og:description", description));
