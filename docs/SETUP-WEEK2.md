@@ -1,5 +1,7 @@
 # Setup — Semana 2 (Checkout + entrega de packs)
 
+> **OBSOLETO (2026-10-23).** Los packs se venden en Etsy (`gradientwall.etsy.com`) a 5,99 € con IVA; la tienda propia con Lemon Squeezy se descartó el 2026-10-20. Esta guía solo sirve si algún día se reactiva la tienda propia (y el precio sería 5,99 €). Se conserva como histórico. Estado actual: `CLAUDE.md` ("Current focus").
+
 Esta guía cubre el setup manual de las cuentas externas necesarias para que
 la tienda funcione end-to-end. El código ya está implementado y testeado —
 solo falta cablearlo a las cuentas reales.

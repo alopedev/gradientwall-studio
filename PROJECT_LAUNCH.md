@@ -1,5 +1,7 @@
 # GradientWall — contrato de lanzamiento
 
+> **OBSOLETO (2026-10-23).** Los packs se venden en Etsy (`gradientwall.etsy.com`) a 5,99 € con IVA; la tienda propia con Lemon Squeezy se descartó el 2026-10-20. Este checklist (fecha 2026-06-09, precio 4,99 €) ya no aplica. Se conserva como histórico. Estado actual: `CLAUDE.md` ("Current focus").
+
 **Fecha objetivo: 2026-06-09 (lunes)**
 
 Plan cerrado de aquí al go-live. La regla operativa es: **lo que no esté en este checklist NO se toca**. Si aparece un impulso de iterar fuera del scope (re-rediseñar Studio, reescribir Hero, generar 3 packs más, "limpiar" el copy otra vez), la respuesta por defecto es *post-launch*.
