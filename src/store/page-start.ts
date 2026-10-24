@@ -1,5 +1,6 @@
 import { pickLook, withSharedLook } from "@/lib/look";
 import { decodeLookParam, LOOK_PARAM } from "@/lib/look-url";
+import { ALL_ACTIVE } from "@/lib/palettes";
 import { LANDINGS, landingPath } from "@/lib/seo/landings";
 import { loadLook } from "./coordinator";
 import { useConfigStore } from "./useConfigStore";
@@ -7,14 +8,16 @@ import { useFavoritesStore } from "./useFavoritesStore";
 import { useMotionStore } from "./useMotionStore";
 
 /**
- * Put the Studio on the look a page starts with (a landing's style, device or
- * grain) before it renders. The prerender calls it per page and `main.tsx`
+ * Put the Studio on the look a page starts with (a landing's style, device,
+ * grain or colours) before it renders. The prerender calls it per page and `main.tsx`
  * before hydrating, so both render the same wallpaper.
  */
 export function startLookFor(pathname: string): void {
   const path = pathname.endsWith("/") ? pathname : `${pathname}/`;
   const look = LANDINGS.find((l) => landingPath(l.slug) === path)?.look;
-  if (look) useConfigStore.setState(look);
+  if (!look) return;
+  // New colours bring every slot back on, as picking a palette does.
+  useConfigStore.setState(look.colors ? { ...look, active: [...ALL_ACTIVE] } : look);
 }
 
 /** After the page has loaded and gone idle: React has hydrated by then. */

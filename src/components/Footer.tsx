@@ -1,5 +1,5 @@
 import { AI_DISCLOSURE, ETSY_PURCHASES_URL, ETSY_SHOP_URL } from "@/lib/copy";
-import { LANDINGS, landingPath } from "@/lib/seo/landings";
+import { GUIDES, LANDINGS, landingPath } from "@/lib/seo/landings";
 import { LICENCE_PAGE, PRIVACY_PAGE } from "@/lib/seo/pages";
 import { isNewsletterEnabled } from "@/lib/newsletter/subscribe";
 import { useConfigStore } from "@/store/useConfigStore";
@@ -22,13 +22,14 @@ const MAKE: FooterLink[] = [
   { label: "Etsy shop", href: ETSY_SHOP_URL, external: true },
 ];
 
-/** The landings, so every page links to them. */
-const WALLPAPERS: FooterLink[] = LANDINGS.map((l) => ({
+/** The landings, so every page links to them; the how-to guides go under Help. */
+const WALLPAPERS: FooterLink[] = LANDINGS.filter((l) => !l.guide).map((l) => ({
   href: landingPath(l.slug),
   label: l.footerLabel,
 }));
 
 const HELP: FooterLink[] = [
+  ...GUIDES.map((l) => ({ href: landingPath(l.slug), label: l.footerLabel })),
   { label: "Find your download", href: ETSY_PURCHASES_URL, external: true },
   { label: "Privacy", href: PRIVACY_PAGE.path },
   { label: "Licence", href: LICENCE_PAGE.path },

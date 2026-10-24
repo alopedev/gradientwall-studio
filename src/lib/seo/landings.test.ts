@@ -1,13 +1,20 @@
 import { describe, expect, it } from "vitest";
 import packs from "@/data/packs.json";
-import { getLanding, IPHONE_SCREENS, LANDINGS, landingPath } from "./landings";
+import {
+  GUIDES,
+  getLanding,
+  IPHONE_SCREENS,
+  LANDINGS,
+  landingPath,
+  MACBOOK_SCREENS,
+} from "./landings";
 import { buildHomePage, buildLandingPage, buildSeoPages, fullTitle, type SeoPack } from "./pages";
 import { outputFile, renderSitemap } from "./render";
 
 describe("landings", () => {
   it("are few, each with its own path, title, headline and description", () => {
     expect(LANDINGS.length).toBeGreaterThan(0);
-    expect(LANDINGS.length).toBeLessThan(10);
+    expect(LANDINGS.length).toBeLessThan(20);
     for (const key of ["slug", "title", "h1", "description", "subtitle"] as const) {
       expect(new Set(LANDINGS.map((l) => l[key])).size).toBe(LANDINGS.length);
     }
@@ -51,7 +58,7 @@ describe("landings", () => {
   });
 
   it("list their gallery for Google Images: sitemap, share image and licensable ImageObjects", () => {
-    for (const l of LANDINGS) {
+    for (const l of LANDINGS.filter((x) => !x.guide)) {
       const page = buildLandingPage(l);
       expect(page.images?.length).toBeGreaterThanOrEqual(12);
       expect(page.ogImage).toBe(`/assets/gallery/${l.slug}/og.jpg`);
@@ -75,9 +82,24 @@ describe("landings", () => {
   });
 
   it("list iPhone screens as Apple's specs give them", () => {
-    expect(IPHONE_SCREENS).toContainEqual(["iPhone 17 Pro Max · 16 Pro Max", "1320 × 2868"]);
+    expect(IPHONE_SCREENS).toContainEqual([
+      "iPhone 18 Pro Max · 17 Pro Max · 16 Pro Max",
+      "1320 × 2868",
+    ]);
     expect(IPHONE_SCREENS).toContainEqual(["iPhone Air", "1260 × 2736"]);
-    expect(IPHONE_SCREENS).toContainEqual(["iPhone 16e", "1170 × 2532"]);
+    expect(IPHONE_SCREENS).toContainEqual(["iPhone 17e · 16e", "1170 × 2532"]);
+  });
+
+  it("put the how-to guides under /guides/", () => {
+    expect(GUIDES.map((g) => landingPath(g.slug))).toEqual([
+      "/guides/iphone-wallpaper-size/",
+      "/guides/iphone-gradient-wallpaper-not-working/",
+    ]);
+  });
+
+  it("list MacBook screens as Apple's specs give them", () => {
+    expect(MACBOOK_SCREENS).toContainEqual(['MacBook Air 13"', "2560 × 1664"]);
+    expect(MACBOOK_SCREENS).toContainEqual(['MacBook Pro 16"', "3456 × 2234"]);
   });
 
   it("finds a landing by slug", () => {

@@ -38,7 +38,22 @@ describe("Footer", () => {
       ["Mesh gradients", "/mesh-gradient-wallpapers/"],
       ["Aurora gradients", "/aurora-gradient-wallpapers/"],
       ["Grainy gradients", "/grainy-gradient-wallpapers/"],
+      ["Aura gradients", "/aura-gradient-wallpapers/"],
+      ["Liquid gradients", "/liquid-gradient-wallpapers/"],
+      ["Dark gradients", "/dark-gradient-wallpapers/"],
+      ["Burgundy gradients", "/burgundy-gradient-wallpapers/"],
+      ["Orange gradients", "/orange-gradient-wallpapers/"],
+      ["MacBook wallpapers", "/macbook-gradient-wallpapers/"],
+      ["Matching sets", "/matching-iphone-mac-wallpapers/"],
     ]);
+  });
+
+  it("lists the how-to guides under Help", () => {
+    render(<Footer />);
+    const col = screen.getByRole("navigation", { name: "Help" });
+    const hrefs = [...col.querySelectorAll("a")].map((a) => a.getAttribute("href"));
+    expect(hrefs).toContain("/guides/iphone-wallpaper-size/");
+    expect(hrefs).toContain("/guides/iphone-gradient-wallpaper-not-working/");
   });
 
   it("opens the Etsy shop in a new tab", () => {
