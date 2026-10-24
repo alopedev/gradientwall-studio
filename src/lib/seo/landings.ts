@@ -36,6 +36,15 @@ export interface LandingGuide {
   sizesLabel?: string;
 }
 
+/** The footer groups the wallpaper pages so the column stays short and says what they are. */
+export const FOOTER_GROUPS = [
+  { id: "device", title: "By device" },
+  { id: "style", title: "By style" },
+  { id: "colour", title: "By colour" },
+] as const;
+
+export type FooterGroup = (typeof FOOTER_GROUPS)[number]["id"];
+
 export interface Landing {
   slug: string;
   /** `<title>` without the brand, ≤ 50 characters so the suffix still fits. */
@@ -44,8 +53,13 @@ export interface Landing {
   /** Visible headline, lowercase like the home's. */
   h1: string;
   subtitle: string;
-  /** Its link in the footer's "Free gradient wallpapers" column. */
+  /**
+   * Its link text in the footer. A wallpaper page's is short ("Mesh"), since
+   * it sits under its group's heading ("By style"); a guide's stands alone.
+   */
   footerLabel: string;
+  /** Where a wallpaper page sits in the footer's "Free gradient wallpapers" column. */
+  footerGroup?: FooterGroup;
   look: LandingLook;
   guides: LandingGuide[];
   /** A how-to page: listed under Help in the footer instead of with the wallpapers. */
@@ -105,7 +119,8 @@ export const LANDINGS: Landing[] = [
       "Make a gradient wallpaper for your iPhone in seconds: shuffle, tweak the colours, save it to Photos. Free, sharp on every iPhone, no account.",
     h1: "iphone gradient wallpapers, free.",
     subtitle: "shuffle until it's yours, then download it below.",
-    footerLabel: "iPhone wallpapers",
+    footerLabel: "iPhone",
+    footerGroup: "device",
     look: { device: "mobile" },
     guides: [
       { heading: "set it in two steps.", body: [], steps: IPHONE_STEPS },
@@ -124,7 +139,8 @@ export const LANDINGS: Landing[] = [
       "Make a 4K gradient wallpaper for your desktop: shuffle, change the colours and download it at 5120 × 2880, sharp on 4K and 5K screens. Free.",
     h1: "4k gradient wallpapers for your desktop.",
     subtitle: "made at 5120 × 2880, sharp on any 4K or 5K screen.",
-    footerLabel: "4K desktop wallpapers",
+    footerLabel: "4K desktop",
+    footerGroup: "device",
     look: { device: "desktop" },
     guides: [
       {
@@ -155,7 +171,8 @@ export const LANDINGS: Landing[] = [
       "Make a mesh gradient wallpaper: soft blends of four colours, shuffled until one feels right. Download it for phone or desktop, free.",
     h1: "mesh gradient wallpapers, free.",
     subtitle: "four colours, blended softly. shuffle for a new mix.",
-    footerLabel: "Mesh gradients",
+    footerLabel: "Mesh",
+    footerGroup: "style",
     look: { style: "mesh" },
     guides: [
       {
@@ -174,7 +191,8 @@ export const LANDINGS: Landing[] = [
       "Make an aurora gradient wallpaper: bands of light that glow across a dark sky. Shuffle, change the colours and download it free.",
     h1: "aurora gradient wallpapers, free.",
     subtitle: "bands of light across the screen. shuffle for new ones.",
-    footerLabel: "Aurora gradients",
+    footerLabel: "Aurora",
+    footerGroup: "style",
     look: { style: "aurora" },
     guides: [
       {
@@ -193,7 +211,8 @@ export const LANDINGS: Landing[] = [
       "Make a grainy gradient wallpaper: smooth colour with a fine film grain that hides banding. Set the grain yourself and download it free.",
     h1: "grainy gradient wallpapers, free.",
     subtitle: "smooth colour with a fine film grain.",
-    footerLabel: "Grainy gradients",
+    footerLabel: "Grainy",
+    footerGroup: "style",
     look: { grain: 85 },
     guides: [
       {
@@ -212,7 +231,8 @@ export const LANDINGS: Landing[] = [
       "Make an aura gradient wallpaper: soft colour that glows from the middle, with a fine grain. Pick your colours and download it for iPhone or Mac, free.",
     h1: "aura gradient wallpapers, made by you.",
     subtitle: "colour with no edges, glowing from the middle.",
-    footerLabel: "Aura gradients",
+    footerLabel: "Aura",
+    footerGroup: "style",
     look: { style: "mesh", grain: 55 },
     guides: [
       {
@@ -233,7 +253,8 @@ export const LANDINGS: Landing[] = [
       "Make a liquid gradient wallpaper: colour that swirls and folds like poured paint. Shuffle until it flows right, then download it in 4K or for iPhone.",
     h1: "liquid gradient wallpapers, free.",
     subtitle: "colour that swirls like poured paint.",
-    footerLabel: "Liquid gradients",
+    footerLabel: "Liquid",
+    footerGroup: "style",
     look: { style: "liquid" },
     guides: [
       {
@@ -253,7 +274,8 @@ export const LANDINGS: Landing[] = [
       "Make a dark gradient wallpaper: near-black colour with a soft glow, grained so it never bands. For iPhone OLED screens and 4K desktops, free.",
     h1: "dark gradient wallpapers, free.",
     subtitle: "near-black, with just enough colour.",
-    footerLabel: "Dark gradients",
+    footerLabel: "Dark",
+    footerGroup: "colour",
     look: { grain: 70, colors: ["#05030f", "#120d2e", "#3b2a8a", "#8b5cf6"] },
     guides: [
       {
@@ -273,7 +295,8 @@ export const LANDINGS: Landing[] = [
       "Make a burgundy gradient wallpaper to match the iPhone 18 Pro: deep wine reds, shuffled and tweaked until they suit you. Free, for phone and Mac.",
     h1: "burgundy gradient wallpapers.",
     subtitle: "deep wine reds, to match your phone or not.",
-    footerLabel: "Burgundy gradients",
+    footerLabel: "Burgundy",
+    footerGroup: "colour",
     look: { device: "mobile", colors: ["#1a0508", "#4a0e1c", "#7b1e34", "#c2566b"] },
     guides: [
       {
@@ -294,7 +317,8 @@ export const LANDINGS: Landing[] = [
       "Make an orange gradient wallpaper, from soft apricot to the deep Cosmic Orange of the iPhone 17 Pro. Shuffle, tweak, download it free for any screen.",
     h1: "orange gradient wallpapers.",
     subtitle: "from soft apricot to cosmic orange.",
-    footerLabel: "Orange gradients",
+    footerLabel: "Orange",
+    footerGroup: "colour",
     look: { device: "mobile", colors: ["#1a0a03", "#7a2e0b", "#f26a1b", "#ffb36b"] },
     guides: [
       {
@@ -315,7 +339,8 @@ export const LANDINGS: Landing[] = [
       "Make a gradient wallpaper for your MacBook: made at 5K, so it stays sharp on the Air, Pro and Neo. Shuffle, pick colours, set it in two clicks.",
     h1: "gradient wallpapers for your macbook.",
     subtitle: "made at 5k, sharp on every macbook screen.",
-    footerLabel: "MacBook wallpapers",
+    footerLabel: "MacBook",
+    footerGroup: "device",
     look: { device: "desktop" },
     guides: [
       {
@@ -347,6 +372,7 @@ export const LANDINGS: Landing[] = [
     h1: "matching wallpapers for iphone and mac.",
     subtitle: "one look, every screen, each at its own size.",
     footerLabel: "Matching sets",
+    footerGroup: "device",
     look: { device: "mobile" },
     guides: [
       {
@@ -375,7 +401,8 @@ export const LANDINGS: Landing[] = [
       "Make a blue gradient wallpaper, from pale sky to deep navy. Shuffle, tweak the colours and download it for iPhone or a 4K desktop, free.",
     h1: "blue gradient wallpapers, free.",
     subtitle: "from pale sky to deep navy.",
-    footerLabel: "Blue gradients",
+    footerLabel: "Blue",
+    footerGroup: "colour",
     look: { colors: ["#020b1f", "#0b3a75", "#2a7de1", "#9fd3ff"] },
     guides: [
       {
@@ -395,7 +422,8 @@ export const LANDINGS: Landing[] = [
       "Make a purple gradient wallpaper: violet, lavender or deep plum, blended softly. Shuffle, change the colours and download it for iPhone or desktop, free.",
     h1: "purple gradient wallpapers, free.",
     subtitle: "violet, lavender and plum, blended softly.",
-    footerLabel: "Purple gradients",
+    footerLabel: "Purple",
+    footerGroup: "colour",
     look: { colors: ["#12051f", "#3b0f6b", "#8b5cf6", "#e9d5ff"] },
     guides: [
       {
@@ -415,7 +443,8 @@ export const LANDINGS: Landing[] = [
       "Make a pink gradient wallpaper, from blush and peach to hot pink. Shuffle, pick your colours and save it to your iPhone or Mac in seconds, free.",
     h1: "pink gradient wallpapers, free.",
     subtitle: "blush, peach and hot pink.",
-    footerLabel: "Pink gradients",
+    footerLabel: "Pink",
+    footerGroup: "colour",
     look: { colors: ["#3d0a24", "#c2185b", "#f48fb1", "#ffe4ec"] },
     guides: [
       {
@@ -435,7 +464,8 @@ export const LANDINGS: Landing[] = [
       "Make a pastel gradient wallpaper: soft pink, mint, lilac and baby blue melting together. Shuffle until it feels calm, then download it free.",
     h1: "pastel gradient wallpapers, free.",
     subtitle: "soft colours, melting together.",
-    footerLabel: "Pastel gradients",
+    footerLabel: "Pastel",
+    footerGroup: "colour",
     look: { colors: ["#ffd6e0", "#c8e7ff", "#d9f2e6", "#e7d6ff"] },
     guides: [
       {
@@ -455,7 +485,8 @@ export const LANDINGS: Landing[] = [
       "Make a blur gradient wallpaper: soft colour with no edges, out of focus on purpose. Light, dark or black, for iPhone and 4K desktops, free.",
     h1: "blur gradient wallpapers, free.",
     subtitle: "soft focus, nothing sharp.",
-    footerLabel: "Blur gradients",
+    footerLabel: "Blur",
+    footerGroup: "style",
     look: { grain: 15 },
     guides: [
       {
