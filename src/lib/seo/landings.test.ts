@@ -14,7 +14,7 @@ import { outputFile, renderSitemap } from "./render";
 describe("landings", () => {
   it("are few, each with its own path, title, headline and description", () => {
     expect(LANDINGS.length).toBeGreaterThan(0);
-    expect(LANDINGS.length).toBeLessThan(20);
+    expect(LANDINGS.length).toBeLessThan(30);
     for (const key of ["slug", "title", "h1", "description", "subtitle"] as const) {
       expect(new Set(LANDINGS.map((l) => l[key])).size).toBe(LANDINGS.length);
     }
@@ -94,12 +94,18 @@ describe("landings", () => {
     expect(GUIDES.map((g) => landingPath(g.slug))).toEqual([
       "/guides/iphone-wallpaper-size/",
       "/guides/iphone-gradient-wallpaper-not-working/",
+      "/guides/macbook-wallpaper-size/",
     ]);
   });
 
   it("list MacBook screens as Apple's specs give them", () => {
     expect(MACBOOK_SCREENS).toContainEqual(['MacBook Air 13"', "2560 × 1664"]);
     expect(MACBOOK_SCREENS).toContainEqual(['MacBook Pro 16"', "3456 × 2234"]);
+    expect(MACBOOK_SCREENS).toContainEqual(["MacBook Neo", "2408 × 1506"]);
+    expect(MACBOOK_SCREENS).toContainEqual([
+      'MacBook Air 13" (M1) · MacBook Pro 13"',
+      "2560 × 1600",
+    ]);
   });
 
   it("finds a landing by slug", () => {
