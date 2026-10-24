@@ -22,6 +22,14 @@ describe("startLookFor", () => {
     expect(useConfigStore.getState().grain).toBe(85);
   });
 
+  it("starts a colour landing on its colours, with every slot on", () => {
+    useConfigStore.setState({ active: [true, false, true, true] });
+    startLookFor("/burgundy-gradient-wallpapers/");
+    const s = useConfigStore.getState();
+    expect(s.colors).toEqual(getLanding("burgundy-gradient-wallpapers")!.look.colors);
+    expect(s.active).toEqual([true, true, true, true]);
+  });
+
   it("leaves other pages on the default look", () => {
     startLookFor("/packs/impasto/");
     expect(useConfigStore.getState().style).toBe(INITIAL.style);
