@@ -1,4 +1,7 @@
+import { pickLook, withSharedLook } from "@/lib/look";
+import { decodeLookParam, LOOK_PARAM } from "@/lib/look-url";
 import { LANDINGS, landingPath } from "@/lib/seo/landings";
+import { loadLook } from "./coordinator";
 import { useConfigStore } from "./useConfigStore";
 import { useFavoritesStore } from "./useFavoritesStore";
 import { useMotionStore } from "./useMotionStore";
@@ -42,4 +45,18 @@ export function loadSavedPrefs(later: (cb: () => void) => void = whenSettled): v
   later(() => {
     for (const store of saved) void store.persist.rehydrate();
   });
+}
+
+/**
+ * Open the wallpaper a link carries (`?w=`, see `lib/look-url`), e.g. from a
+ * gallery image or a pin. Only once the page has settled, like the saved
+ * prefs: the prerendered HTML can't know the query string.
+ */
+export function loadLinkedLook(
+  search: string = window.location.search,
+  later: (cb: () => void) => void = whenSettled,
+): void {
+  const shared = decodeLookParam(new URLSearchParams(search).get(LOOK_PARAM) ?? "");
+  if (!shared) return;
+  later(() => loadLook(withSharedLook(pickLook(useConfigStore.getState()), shared)));
 }

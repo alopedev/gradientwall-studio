@@ -1,6 +1,6 @@
 import { AI_DISCLOSURE, ETSY_PURCHASES_URL, ETSY_SHOP_URL } from "@/lib/copy";
 import { LANDINGS, landingPath } from "@/lib/seo/landings";
-import { PRIVACY_PAGE } from "@/lib/seo/pages";
+import { LICENCE_PAGE, PRIVACY_PAGE } from "@/lib/seo/pages";
 import { isNewsletterEnabled } from "@/lib/newsletter/subscribe";
 import { useConfigStore } from "@/store/useConfigStore";
 import { EmailCapture } from "./EmailCapture";
@@ -31,6 +31,7 @@ const WALLPAPERS: FooterLink[] = LANDINGS.map((l) => ({
 const HELP: FooterLink[] = [
   { label: "Find your download", href: ETSY_PURCHASES_URL, external: true },
   { label: "Privacy", href: PRIVACY_PAGE.path },
+  { label: "Licence", href: LICENCE_PAGE.path },
 ];
 
 export function Footer() {

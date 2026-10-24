@@ -12,7 +12,8 @@ import { Footer } from "./components/Footer";
 import { PageMeta } from "./components/PageMeta";
 import { buildHomePage } from "./lib/seo/pages";
 import { LANDINGS } from "./lib/seo/landings";
-import { loadSavedPrefs } from "./store/page-start";
+import { loadLinkedLook, loadSavedPrefs } from "./store/page-start";
+import { useScrollToHash } from "./components/ui/useScrollToHash";
 import { startAnalytics } from "./lib/analytics";
 import { LenisProvider, useLenis } from "./components/ui/LenisProvider";
 import { ScrollProgress } from "./components/ui/ScrollProgress";
@@ -32,6 +33,9 @@ const RecoverForm = lazy(() =>
 );
 const LandingPage = lazy(() =>
   import("./components/landing/LandingPage").then((m) => ({ default: m.LandingPage })),
+);
+const LicencePage = lazy(() =>
+  import("./components/LicencePage").then((m) => ({ default: m.LicencePage })),
 );
 const PrivacyPage = lazy(() =>
   import("./components/PrivacyPage").then((m) => ({ default: m.PrivacyPage })),
@@ -68,6 +72,8 @@ export function AppContent() {
   // Saved favorites and the motion pause load once the prerendered page has
   // hydrated, so the first render matches the HTML.
   useEffect(() => loadSavedPrefs(), []);
+  // A wallpaper in the link (`?w=`) goes on the Studio at the same moment.
+  useEffect(() => loadLinkedLook(), []);
   // Visit counting starts after hydration too (see lib/analytics).
   useEffect(() => startAnalytics(), []);
   return (
@@ -102,6 +108,7 @@ function RoutesShell() {
             ))}
             <Route path="/recover" element={<RecoverForm />} />
             <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/licence" element={<LicencePage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
@@ -138,25 +145,7 @@ function ScrollToTop() {
 const HOME_PAGE = buildHomePage();
 
 function HomePage() {
-  // Scroll to the hash target on mount or when navigation lands here with a
-  // fragment (e.g. /#packs from the pack page back-link). Without this, hash
-  // anchors only work for in-page clicks, not cross-route navigations.
-  const { hash } = useLocation();
-  // The Studio is its own chunk, so `#studio` may mount a few frames late:
-  // keep looking for up to ~2 s.
-  useEffect(() => {
-    if (!hash) return;
-    const id = hash.slice(1);
-    let raf = 0;
-    let tries = 120;
-    const find = () => {
-      const el = document.getElementById(id);
-      if (el) el.scrollIntoView({ behavior: "instant", block: "start" });
-      else if (tries-- > 0) raf = requestAnimationFrame(find);
-    };
-    raf = requestAnimationFrame(find);
-    return () => cancelAnimationFrame(raf);
-  }, [hash]);
+  useScrollToHash();
 
   useEffect(() => {
     const idle = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 2000));

@@ -61,6 +61,32 @@ describe("LandingPage", () => {
     expect(useConfigStore.getState().style).toBe("aurora");
   });
 
+  it("shows its gallery under the hero: real images, each with Download and Edit in Studio", () => {
+    renderLanding(iphone.slug);
+    const gallery = screen.getByRole("region", { name: /iphone gradient wallpapers to download/i });
+    const imgs = within(gallery).getAllByRole("img");
+    expect(imgs).toHaveLength(12);
+    expect(imgs[0].getAttribute("alt")).toBe("Olive and lemon mesh gradient iPhone wallpaper");
+    expect(imgs[0].getAttribute("src")).toMatch(
+      /^\/assets\/gallery\/iphone-gradient-wallpapers\/.+\.jpg$/,
+    );
+    expect(within(gallery).getAllByRole("button", { name: /^Download / })).toHaveLength(12);
+    const edit = within(gallery).getAllByRole("link", { name: "Edit in Studio" })[0];
+    expect(edit.getAttribute("href")).toMatch(
+      /^\/iphone-gradient-wallpapers\/\?w=mesh-\d+-.+#studio$/,
+    );
+  });
+
+  it("opens a gallery wallpaper in the Studio", () => {
+    renderLanding(iphone.slug);
+    const gallery = screen.getByRole("region", { name: /iphone gradient wallpapers to download/i });
+    act(() => within(gallery).getAllByRole("link", { name: "Edit in Studio" })[1].click());
+    const s = useConfigStore.getState();
+    expect(s.style).toBe("liquid");
+    expect(s.engine).toBe("v2");
+    expect(s.device).toBe("mobile");
+  });
+
   it("links to the other landings, not to itself", () => {
     renderLanding(iphone.slug);
     const nav = screen.getByRole("navigation", { name: /more gradient wallpapers/i });
