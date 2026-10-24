@@ -4,7 +4,7 @@ import { getLanding, landingPath } from "@/lib/seo/landings";
 import { FAVORITES_STORAGE_KEY, useFavoritesStore } from "./useFavoritesStore";
 import { useConfigStore } from "./useConfigStore";
 import { useMotionStore } from "./useMotionStore";
-import { loadSavedPrefs, startLookFor } from "./page-start";
+import { loadLinkedLook, loadSavedPrefs, startLookFor } from "./page-start";
 
 const INITIAL = useConfigStore.getState();
 
@@ -58,5 +58,29 @@ describe("loadSavedPrefs", () => {
     await Promise.resolve();
     expect(useMotionStore.getState().paused).toBe(true);
     expect(localStorage.getItem(FAVORITES_STORAGE_KEY)).toBeNull();
+  });
+});
+
+describe("loadLinkedLook", () => {
+  beforeEach(() => useConfigStore.setState(INITIAL, true));
+  const now = (cb: () => void) => cb();
+
+  it("puts the wallpaper in ?w= on the Studio, once the page has settled", () => {
+    let later: (() => void) | undefined;
+    loadLinkedLook("?w=aurora-77-2b1055.7597de.ff6e7f.ffd86e-90-60", (cb) => {
+      later = cb;
+    });
+    expect(useConfigStore.getState().seed).toBe(INITIAL.seed);
+    later?.();
+    const s = useConfigStore.getState();
+    expect(s).toMatchObject({ style: "aurora", seed: 77, lightAngle: 90, grain: 60, engine: "v2" });
+    expect(s.colors).toEqual(["#2b1055", "#7597de", "#ff6e7f", "#ffd86e"]);
+    expect(s.device).toBe(INITIAL.device);
+  });
+
+  it("ignores pages without a valid look in the link", () => {
+    loadLinkedLook("", now);
+    loadLinkedLook("?w=nonsense", now);
+    expect(useConfigStore.getState().seed).toBe(INITIAL.seed);
   });
 });

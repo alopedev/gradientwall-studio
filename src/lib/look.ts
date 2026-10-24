@@ -13,6 +13,7 @@ import {
   type RenderParams,
   type Style,
 } from "@/lib/palettes";
+import type { SharedLook } from "@/lib/look-url";
 
 /**
  * A "look" is everything that draws the wallpaper on screen, with every field
@@ -133,4 +134,18 @@ export function isSameLook(a: Look, b: Look): boolean {
     a.contrast === b.contrast &&
     a.vibrance === b.vibrance
   );
+}
+
+/** A look from a link (`lib/look-url`) on top of the current one: drawn by v2, all four colours on. */
+export function withSharedLook(look: Look, shared: SharedLook): Look {
+  return {
+    ...look,
+    engine: "v2",
+    colors: [...shared.colors] as Colors4,
+    active: [...ALL_ACTIVE] as ActiveMask,
+    style: shared.style,
+    seed: shared.seed,
+    lightAngle: shared.lightAngle,
+    grain: shared.grain,
+  };
 }

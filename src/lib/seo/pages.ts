@@ -4,6 +4,7 @@
  * Vite build (prerender + sitemap in `vite.config.ts`) and tests.
  */
 
+import { galleryFor, GALLERY_DIR } from "./gallery";
 import { LANDINGS, landingPath, type Landing } from "./landings";
 
 // Also in public/robots.txt, and the old Netlify address 301s here
@@ -160,6 +161,39 @@ export const PRIVACY_PAGE: SeoPage = {
   },
 };
 
+export const LICENCE_PAGE: SeoPage = {
+  path: "/licence/",
+  title: "Licence",
+  description:
+    "How you may use the wallpapers you download from GradientWall: free for your own screens, not for resale.",
+  ogType: "website",
+  noindex: false,
+  shell: {
+    h1: "Licence",
+    text: "How you may use the wallpapers you download from GradientWall: free for your own screens, not for resale.",
+  },
+};
+
+/**
+ * Google Images "Licensable" data for a free wallpaper: who made it and where
+ * its terms are. Both licence links point at our own page; packs bought on
+ * Etsy carry their own terms there.
+ */
+export function imageObjectJsonLd(image: { src: string; alt: string }): Record<string, unknown> {
+  const licence = `${SITE_ORIGIN}${LICENCE_PAGE.path}`;
+  return {
+    "@context": "https://schema.org",
+    "@type": "ImageObject",
+    contentUrl: absoluteUrl(image.src),
+    name: image.alt,
+    license: licence,
+    acquireLicensePage: licence,
+    creditText: SITE_NAME,
+    creator: { "@type": "Organization", name: SITE_NAME, url: `${SITE_ORIGIN}/` },
+    copyrightNotice: SITE_NAME,
+  };
+}
+
 /** Product + BreadcrumbList JSON-LD for a pack page. */
 export function buildPackJsonLd(pack: SeoPack): Record<string, unknown>[] {
   const url = `${SITE_ORIGIN}${packPath(pack.slug)}`;
@@ -229,11 +263,21 @@ export function buildPackPage(pack: SeoPack): SeoPage {
 export function buildLandingPage(landing: Landing): SeoPage {
   const url = `${SITE_ORIGIN}${landingPath(landing.slug)}`;
   const text = [landing.description, ...landing.guides.flatMap((g) => g.body)].join(" ");
+  const gallery = galleryFor(landing);
   return {
     path: landingPath(landing.slug),
     title: landing.title,
     description: landing.description,
     ogType: "website",
+    // The share image is the gallery's first wallpaper, drawn at 1200 × 630.
+    ...(gallery.length
+      ? {
+          ogImage: `${GALLERY_DIR}/${landing.slug}/og.jpg`,
+          ogImageAlt: gallery[0].alt,
+          ogImageSize: DEFAULT_OG_SIZE,
+        }
+      : {}),
+    images: gallery.map((g) => g.src),
     preloadImage: HERO_PHONE_IMAGE,
     jsonLd: [
       {
@@ -252,6 +296,7 @@ export function buildLandingPage(landing: Landing): SeoPage {
           { "@type": "ListItem", position: 2, name: landing.title, item: url },
         ],
       },
+      ...gallery.map(imageObjectJsonLd),
     ],
     noindex: false,
     shell: {
@@ -288,6 +333,7 @@ export function buildHomePage(packs: Pick<SeoPack, "slug" | "name">[] = []): Seo
         ...packs.map((p) => ({ href: packPath(p.slug), label: `${p.name} wallpaper pack` })),
         ...landingLinks(),
         { href: PRIVACY_PAGE.path, label: "Privacy" },
+        { href: LICENCE_PAGE.path, label: "Licence" },
       ],
     },
   };
@@ -301,5 +347,6 @@ export function buildSeoPages(packs: SeoPack[]): SeoPage[] {
     ...LANDINGS.map(buildLandingPage),
     RECOVER_PAGE,
     PRIVACY_PAGE,
+    LICENCE_PAGE,
   ];
 }

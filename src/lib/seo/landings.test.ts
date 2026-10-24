@@ -50,6 +50,25 @@ describe("landings", () => {
     expect(hrefs).toHaveLength(LANDINGS.length);
   });
 
+  it("list their gallery for Google Images: sitemap, share image and licensable ImageObjects", () => {
+    for (const l of LANDINGS) {
+      const page = buildLandingPage(l);
+      expect(page.images?.length).toBeGreaterThanOrEqual(12);
+      expect(page.ogImage).toBe(`/assets/gallery/${l.slug}/og.jpg`);
+      expect(page.ogImageSize).toEqual({ width: 1200, height: 630 });
+      const objects = (page.jsonLd ?? []).filter((d) => d["@type"] === "ImageObject");
+      expect(objects).toHaveLength(page.images?.length ?? 0);
+      expect(objects[0]).toMatchObject({
+        license: "https://gradientwall.app/licence/",
+        acquireLicensePage: "https://gradientwall.app/licence/",
+        creditText: "GradientWall",
+      });
+      expect(String(objects[0].contentUrl)).toMatch(
+        /^https:\/\/gradientwall\.app\/assets\/gallery\//,
+      );
+    }
+  });
+
   it("are linked from the home's crawlable shell", () => {
     const hrefs = (buildHomePage().shell.links ?? []).map((x) => x.href);
     for (const l of LANDINGS) expect(hrefs).toContain(landingPath(l.slug));

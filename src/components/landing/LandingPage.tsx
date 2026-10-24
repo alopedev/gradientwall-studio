@@ -4,20 +4,23 @@ import { buildLandingPage, landingLinks } from "@/lib/seo/pages";
 import { useConfigStore } from "@/store";
 import { Footer } from "../Footer";
 import { Hero } from "../hero/Hero";
+import { useScrollToHash } from "../ui/useScrollToHash";
 import { Nav } from "../Nav";
 import { PacksSection } from "../packs/PacksSection";
 import { PageMeta } from "../PageMeta";
 import { LazyStudioShell as StudioShell } from "../studio/v2/LazyStudioShell";
 import { PAGE_COLUMN } from "../ui/layout";
 import { PageLink } from "../ui/PageLink";
+import { LandingGallery } from "./LandingGallery";
 
 /**
  * A landing (`lib/seo/landings.ts`): the home's hero with the landing's own
- * headline and starting look, a short guide written for its search, then the
- * Studio and the packs, as on the home.
+ * headline and starting look, its gallery of wallpapers, a short guide written
+ * for its search, then the Studio and the packs, as on the home.
  */
 export function LandingPage({ landing }: { landing: Landing }) {
   const seo = useMemo(() => buildLandingPage(landing), [landing]);
+  useScrollToHash();
 
   // Start on the landing's look once; after that the visitor's choices rule.
   useEffect(() => {
@@ -33,6 +36,7 @@ export function LandingPage({ landing }: { landing: Landing }) {
       <PageMeta {...seo} />
       <Nav />
       <Hero title={landing.h1} subtitle={landing.subtitle} />
+      <LandingGallery landing={landing} />
       <section className={`${PAGE_COLUMN} border-t border-ink py-[clamp(48px,6vw,88px)]`}>
         <div className="grid gap-14 md:grid-cols-2">
           {landing.guides.map((guide) => (
