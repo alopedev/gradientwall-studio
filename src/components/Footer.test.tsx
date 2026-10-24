@@ -45,6 +45,11 @@ describe("Footer", () => {
       ["Orange gradients", "/orange-gradient-wallpapers/"],
       ["MacBook wallpapers", "/macbook-gradient-wallpapers/"],
       ["Matching sets", "/matching-iphone-mac-wallpapers/"],
+      ["Blue gradients", "/blue-gradient-wallpapers/"],
+      ["Purple gradients", "/purple-gradient-wallpapers/"],
+      ["Pink gradients", "/pink-gradient-wallpapers/"],
+      ["Pastel gradients", "/pastel-gradient-wallpapers/"],
+      ["Blur gradients", "/blur-gradient-wallpapers/"],
     ]);
   });
 
@@ -54,6 +59,7 @@ describe("Footer", () => {
     const hrefs = [...col.querySelectorAll("a")].map((a) => a.getAttribute("href"));
     expect(hrefs).toContain("/guides/iphone-wallpaper-size/");
     expect(hrefs).toContain("/guides/iphone-gradient-wallpaper-not-working/");
+    expect(hrefs).toContain("/guides/macbook-wallpaper-size/");
   });
 
   it("opens the Etsy shop in a new tab", () => {

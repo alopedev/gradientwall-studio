@@ -68,6 +68,7 @@ export const MACBOOK_SCREENS: [string, string][] = [
   ['MacBook Pro 14"', "3024 × 1964"],
   ['MacBook Air 15"', "2880 × 1864"],
   ['MacBook Air 13"', "2560 × 1664"],
+  ['MacBook Air 13" (M1) · MacBook Pro 13"', "2560 × 1600"],
   ["MacBook Neo", "2408 × 1506"],
 ];
 
@@ -368,6 +369,106 @@ export const LANDINGS: Landing[] = [
     ],
   },
   {
+    slug: "blue-gradient-wallpapers",
+    title: "Free Blue Gradient Wallpapers",
+    description:
+      "Make a blue gradient wallpaper, from pale sky to deep navy. Shuffle, tweak the colours and download it for iPhone or a 4K desktop, free.",
+    h1: "blue gradient wallpapers, free.",
+    subtitle: "from pale sky to deep navy.",
+    footerLabel: "Blue gradients",
+    look: { colors: ["#020b1f", "#0b3a75", "#2a7de1", "#9fd3ff"] },
+    guides: [
+      {
+        heading: "blue, without the cold.",
+        body: [
+          "Blue sits well behind white app icons and text: dark enough for them to read, quiet enough not to fight them. Deep blues stay calm on the screen at night.",
+          "Navy into teal feels deep, like water; sky into white feels light, like air. One warm colour, a little peach or gold, keeps a blue gradient from looking cold.",
+        ],
+      },
+      SET_IT,
+    ],
+  },
+  {
+    slug: "purple-gradient-wallpapers",
+    title: "Free Purple Gradient Wallpapers",
+    description:
+      "Make a purple gradient wallpaper: violet, lavender or deep plum, blended softly. Shuffle, change the colours and download it for iPhone or desktop, free.",
+    h1: "purple gradient wallpapers, free.",
+    subtitle: "violet, lavender and plum, blended softly.",
+    footerLabel: "Purple gradients",
+    look: { colors: ["#12051f", "#3b0f6b", "#8b5cf6", "#e9d5ff"] },
+    guides: [
+      {
+        heading: "between blue and red.",
+        body: [
+          "Purple mixes the calm of blue with the warmth of red, so where it leans sets the mood: towards blue it reads as violet and cool, towards red as plum or magenta.",
+          "Lavender, a purple lifted with white, makes a soft, light wallpaper. Deep violet against near-black is the opposite: dark, with a glow that suits an OLED screen.",
+        ],
+      },
+      SET_IT,
+    ],
+  },
+  {
+    slug: "pink-gradient-wallpapers",
+    title: "Free Pink Gradient Wallpapers",
+    description:
+      "Make a pink gradient wallpaper, from blush and peach to hot pink. Shuffle, pick your colours and save it to your iPhone or Mac in seconds, free.",
+    h1: "pink gradient wallpapers, free.",
+    subtitle: "blush, peach and hot pink.",
+    footerLabel: "Pink gradients",
+    look: { colors: ["#3d0a24", "#c2185b", "#f48fb1", "#ffe4ec"] },
+    guides: [
+      {
+        heading: "soft or loud, by its neighbours.",
+        body: [
+          "Pink changes most with the colours beside it. Next to peach and cream it's soft, like blush. Next to orange or violet it gets loud, and starts to glow.",
+          "Dark pinks, raspberry and wine, are easier on white icons than pale ones. If your Home Screen labels get lost, swap the palest colour for one a shade deeper.",
+        ],
+      },
+      SET_IT,
+    ],
+  },
+  {
+    slug: "pastel-gradient-wallpapers",
+    title: "Free Pastel Gradient Wallpapers",
+    description:
+      "Make a pastel gradient wallpaper: soft pink, mint, lilac and baby blue melting together. Shuffle until it feels calm, then download it free.",
+    h1: "pastel gradient wallpapers, free.",
+    subtitle: "soft colours, melting together.",
+    footerLabel: "Pastel gradients",
+    look: { colors: ["#ffd6e0", "#c8e7ff", "#d9f2e6", "#e7d6ff"] },
+    guides: [
+      {
+        heading: "light, but not washed out.",
+        body: [
+          "A pastel is a colour with a lot of white in it. Four of them together can turn to mush, so pick ones far apart on the colour wheel, like pink, mint and lilac, and let one be a shade stronger than the rest.",
+          "White icon labels can get lost on a very light wallpaper. If yours do, swap the palest colour for one a little deeper.",
+        ],
+      },
+      SET_IT,
+    ],
+  },
+  {
+    slug: "blur-gradient-wallpapers",
+    title: "Blur Gradient Wallpapers, Free and in 4K",
+    description:
+      "Make a blur gradient wallpaper: soft colour with no edges, out of focus on purpose. Light, dark or black, for iPhone and 4K desktops, free.",
+    h1: "blur gradient wallpapers, free.",
+    subtitle: "soft focus, nothing sharp.",
+    footerLabel: "Blur gradients",
+    look: { grain: 15 },
+    guides: [
+      {
+        heading: "nothing sharp behind your icons.",
+        body: [
+          "A blurred wallpaper has no edges for the eye to catch on, so it goes to the clock and the icons instead. It's why iOS offers to blur your photo on the Home Screen.",
+          "This page starts with the grain turned down, so the colour reads as pure soft focus. If a dark blur shows faint steps of colour, turn the Grain slider up a little: it smooths them out.",
+        ],
+      },
+      SET_IT,
+    ],
+  },
+  {
     slug: "guides/iphone-wallpaper-size",
     title: "iPhone Wallpaper Size for Every Model (2026)",
     description:
@@ -440,6 +541,46 @@ export const LANDINGS: Landing[] = [
         heading: "turn the home screen gradient off.",
         body: [
           "If your Home Screen shows a plain gradient instead of your photo, it's set to a colour. Go to Settings › Wallpaper, tap Customize under the Home Screen, then choose the photo instead of a colour, or Blur to soften it.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "guides/macbook-wallpaper-size",
+    title: "MacBook Wallpaper Size for Every Model (2026)",
+    description:
+      "The exact wallpaper size for every MacBook, from the Neo to the 16-inch Pro, in pixels and as a ratio. Checked against Apple's specs, October 2026.",
+    h1: "macbook wallpaper sizes, every model.",
+    subtitle: "pixels and ratio, from apple's own specs.",
+    footerLabel: "MacBook wallpaper sizes",
+    guide: true,
+    look: { device: "desktop" },
+    guides: [
+      {
+        heading: "the sizes.",
+        body: [
+          "Each MacBook's built-in screen in pixels, from Apple's own specs. A wallpaper this size or larger stays sharp.",
+        ],
+        sizes: MACBOOK_SCREENS,
+        sizesLabel: "Every MacBook screen size",
+      },
+      {
+        heading: "the ratio, and why 5k fits them all.",
+        body: [
+          "Recent MacBook Air and Pro screens are about 1.54 times as wide as they are tall, a little taller than 16:10 because of the strip around the camera notch. The Neo and the older 13-inch models are exactly 16:10.",
+          "A 16:9 image, like the Studio's 5120 × 2880 download, is wider than all of them. macOS fills the screen and trims about 7% from each side, so keep anything important away from the left and right edges.",
+          "Making your own in Canva or Photoshop? Use 3456 × 2234, the 16-inch Pro's screen, and it will be sharp on every MacBook.",
+        ],
+      },
+      {
+        heading: "set it in two clicks.",
+        body: [],
+        steps: [
+          { text: "Right-click the image › Set Desktop Picture." },
+          {
+            text: "Or System Settings › Wallpaper › Add Photo.",
+            note: "Choose Fill Screen so it covers the whole display.",
+          },
         ],
       },
     ],
