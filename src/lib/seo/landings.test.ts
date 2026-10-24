@@ -20,6 +20,12 @@ describe("landings", () => {
     }
   });
 
+  it("each wallpaper page has a footer group; the guides have none", () => {
+    for (const l of LANDINGS) {
+      expect(Boolean(l.footerGroup), l.slug).toBe(!l.guide);
+    }
+  });
+
   it("fit search results: title with the brand ≤ 60 characters, description ≤ 160", () => {
     for (const l of LANDINGS) {
       expect(fullTitle(l.title).length, l.slug).toBeLessThanOrEqual(60);

@@ -25,31 +25,49 @@ describe("Footer", () => {
     expect(help.textContent).toMatch(/Find your download.*Privacy/);
   });
 
-  it("links every landing under a title that says what they are", () => {
+  it("links every landing, grouped by device, style and colour", () => {
     render(<Footer />);
     const col = screen.getByRole("navigation", { name: "Free gradient wallpapers" });
-    const links = [...col.querySelectorAll("a")].map((a) => [
-      a.textContent,
-      a.getAttribute("href"),
+    const groups = [...col.querySelectorAll("h3")].map((h) => [
+      h.textContent,
+      [...(h.nextElementSibling?.querySelectorAll("a") ?? [])].map((a) => [
+        a.textContent,
+        a.getAttribute("href"),
+      ]),
     ]);
-    expect(links).toEqual([
-      ["iPhone wallpapers", "/iphone-gradient-wallpapers/"],
-      ["4K desktop wallpapers", "/4k-gradient-wallpapers/"],
-      ["Mesh gradients", "/mesh-gradient-wallpapers/"],
-      ["Aurora gradients", "/aurora-gradient-wallpapers/"],
-      ["Grainy gradients", "/grainy-gradient-wallpapers/"],
-      ["Aura gradients", "/aura-gradient-wallpapers/"],
-      ["Liquid gradients", "/liquid-gradient-wallpapers/"],
-      ["Dark gradients", "/dark-gradient-wallpapers/"],
-      ["Burgundy gradients", "/burgundy-gradient-wallpapers/"],
-      ["Orange gradients", "/orange-gradient-wallpapers/"],
-      ["MacBook wallpapers", "/macbook-gradient-wallpapers/"],
-      ["Matching sets", "/matching-iphone-mac-wallpapers/"],
-      ["Blue gradients", "/blue-gradient-wallpapers/"],
-      ["Purple gradients", "/purple-gradient-wallpapers/"],
-      ["Pink gradients", "/pink-gradient-wallpapers/"],
-      ["Pastel gradients", "/pastel-gradient-wallpapers/"],
-      ["Blur gradients", "/blur-gradient-wallpapers/"],
+    expect(groups).toEqual([
+      [
+        "By device",
+        [
+          ["iPhone", "/iphone-gradient-wallpapers/"],
+          ["4K desktop", "/4k-gradient-wallpapers/"],
+          ["MacBook", "/macbook-gradient-wallpapers/"],
+          ["Matching sets", "/matching-iphone-mac-wallpapers/"],
+        ],
+      ],
+      [
+        "By style",
+        [
+          ["Mesh", "/mesh-gradient-wallpapers/"],
+          ["Aurora", "/aurora-gradient-wallpapers/"],
+          ["Grainy", "/grainy-gradient-wallpapers/"],
+          ["Aura", "/aura-gradient-wallpapers/"],
+          ["Liquid", "/liquid-gradient-wallpapers/"],
+          ["Blur", "/blur-gradient-wallpapers/"],
+        ],
+      ],
+      [
+        "By colour",
+        [
+          ["Dark", "/dark-gradient-wallpapers/"],
+          ["Burgundy", "/burgundy-gradient-wallpapers/"],
+          ["Orange", "/orange-gradient-wallpapers/"],
+          ["Blue", "/blue-gradient-wallpapers/"],
+          ["Purple", "/purple-gradient-wallpapers/"],
+          ["Pink", "/pink-gradient-wallpapers/"],
+          ["Pastel", "/pastel-gradient-wallpapers/"],
+        ],
+      ],
     ]);
   });
 

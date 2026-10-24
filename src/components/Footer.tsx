@@ -1,5 +1,5 @@
 import { AI_DISCLOSURE, ETSY_PURCHASES_URL, ETSY_SHOP_URL } from "@/lib/copy";
-import { GUIDES, LANDINGS, landingPath } from "@/lib/seo/landings";
+import { FOOTER_GROUPS, GUIDES, LANDINGS, landingPath } from "@/lib/seo/landings";
 import { LICENCE_PAGE, PRIVACY_PAGE } from "@/lib/seo/pages";
 import { isNewsletterEnabled } from "@/lib/newsletter/subscribe";
 import { useConfigStore } from "@/store/useConfigStore";
@@ -22,10 +22,16 @@ const MAKE: FooterLink[] = [
   { label: "Etsy shop", href: ETSY_SHOP_URL, external: true },
 ];
 
-/** The landings, so every page links to them; the how-to guides go under Help. */
-const WALLPAPERS: FooterLink[] = LANDINGS.filter((l) => !l.guide).map((l) => ({
-  href: landingPath(l.slug),
-  label: l.footerLabel,
+/**
+ * The wallpaper pages, so every page links to them, grouped so the column
+ * stays short and says what they are; the how-to guides go under Help.
+ */
+const WALLPAPER_GROUPS = FOOTER_GROUPS.map((g) => ({
+  title: g.title,
+  links: LANDINGS.filter((l) => l.footerGroup === g.id).map((l) => ({
+    href: landingPath(l.slug),
+    label: l.footerLabel,
+  })),
 }));
 
 const HELP: FooterLink[] = [
@@ -38,7 +44,7 @@ const HELP: FooterLink[] = [
 export function Footer() {
   return (
     <footer className="mx-auto max-w-[1600px] px-[clamp(24px,5vw,80px)] pt-20 border-t border-ink">
-      <div className="grid grid-cols-2 gap-x-8 gap-y-12 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] md:gap-x-12 pb-14">
+      <div className="grid grid-cols-2 gap-x-8 gap-y-12 md:grid-cols-[minmax(0,1.2fr)_minmax(0,0.7fr)_minmax(0,1.7fr)_minmax(0,1fr)] md:gap-x-12 pb-14">
         <Reveal className="col-span-2 md:col-span-1">
           {isNewsletterEnabled() ? (
             <EmailCapture
@@ -57,8 +63,8 @@ export function Footer() {
         <Reveal delay={0.08}>
           <FooterCol title="Make" links={MAKE} />
         </Reveal>
-        <Reveal delay={0.11}>
-          <FooterCol title="Free gradient wallpapers" links={WALLPAPERS} />
+        <Reveal delay={0.11} className="col-span-2 md:col-span-1 md:order-none order-last">
+          <WallpaperCol />
         </Reveal>
         <Reveal delay={0.14}>
           <FooterCol title="Help" links={HELP} />
@@ -103,12 +109,49 @@ function Wordmark() {
   );
 }
 
+/** One heading per group, its links side by side and wrapping. */
+function WallpaperCol() {
+  const title = "Free gradient wallpapers";
+  return (
+    <nav aria-label={title}>
+      <h2 className={COL_TITLE}>{title}</h2>
+      <div className="flex flex-col gap-3">
+        {WALLPAPER_GROUPS.map((g) => (
+          <div key={g.title}>
+            <h3 className="m-0 font-sans text-[13px] font-semibold text-ink">{g.title}</h3>
+            <ul className="flex flex-wrap gap-x-4 list-none p-0 m-0">
+              {g.links.map((l) => (
+                <li key={l.href}>
+                  <FooterAnchor link={l} compact>
+                    {l.label}
+                    <Underline />
+                  </FooterAnchor>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
+const COL_TITLE =
+  "m-0 mb-2 font-sans text-[11px] font-medium tracking-[0.22em] uppercase text-ink-dim";
+
+function Underline() {
+  return (
+    <span
+      aria-hidden
+      className="absolute left-0 right-0 bottom-1.5 h-px origin-left scale-x-0 bg-[color:var(--color-accent)] transition-transform duration-200 ease-out group-hover:scale-x-100"
+    />
+  );
+}
+
 function FooterCol({ title, links }: { title: string; links: FooterLink[] }) {
   return (
     <nav aria-label={title}>
-      <h2 className="m-0 mb-2 font-sans text-[11px] font-medium tracking-[0.22em] uppercase text-ink-dim">
-        {title}
-      </h2>
+      <h2 className={COL_TITLE}>{title}</h2>
       <ul className="flex flex-col gap-0 list-none p-0 m-0">
         {links.map((l) => (
           <li key={l.label}>
@@ -119,10 +162,7 @@ function FooterCol({ title, links }: { title: string; links: FooterLink[] }) {
                   ↗
                 </span>
               )}
-              <span
-                aria-hidden
-                className="absolute left-0 right-0 bottom-1.5 h-px origin-left scale-x-0 bg-[color:var(--color-accent)] transition-transform duration-200 ease-out group-hover:scale-x-100"
-              />
+              <Underline />
             </FooterAnchor>
           </li>
         ))}
@@ -132,9 +172,17 @@ function FooterCol({ title, links }: { title: string; links: FooterLink[] }) {
 }
 
 /** A section of the home, another page of the site, or an outside link (new tab). */
-function FooterAnchor({ link, children }: { link: FooterLink; children: React.ReactNode }) {
-  const className =
-    "group relative inline-block py-2.5 focus-ring text-[14px] text-ink-dim hover:text-ink transition-colors duration-150";
+function FooterAnchor({
+  link,
+  compact,
+  children,
+}: {
+  link: FooterLink;
+  /** Inline in a wrapping row: less vertical padding, still a 32px+ target. */
+  compact?: boolean;
+  children: React.ReactNode;
+}) {
+  const className = `group relative inline-block ${compact ? "py-1.5" : "py-2.5"} focus-ring text-[14px] text-ink-dim hover:text-ink transition-colors duration-150`;
   if (link.section) {
     return (
       <SectionLink to={link.section} className={className}>
