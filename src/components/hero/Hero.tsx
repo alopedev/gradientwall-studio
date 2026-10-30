@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { getPacks, type Pack } from "@/lib/packs";
-import { heroPackPeek, pieceRenders } from "@/lib/packs/showcase";
+import { heroPackPeek, nextHeroPackPeek, pieceRenders } from "@/lib/packs/showcase";
 import { paletteName } from "@/lib/palette-name";
 import { DEVICE_SIZES } from "@/lib/palettes";
 import { shuffleWallpaper, useConfigStore, useRenderParams } from "@/store";
@@ -42,6 +42,9 @@ export function Hero({
   // The shuffle count a pack piece is showing for; stepping through the history clears it.
   const [peekAt, setPeekAt] = useState(0);
   const peek = heroPackPeek(PACKS, peekAt);
+  // From the first shuffle on, the next pack piece waits on the screen, loaded but
+  // transparent, so the fifth shuffle shows it at once instead of downloading it then.
+  const piece = peek ?? (spins > 0 ? nextHeroPackPeek(PACKS, spins) : null);
   // Paused, the phone stops where it is instead of snapping back to rest.
   const hold = useMotionStore((s) => s.paused) ? "[animation-play-state:paused]" : "";
 
@@ -104,11 +107,15 @@ export function Hero({
                   className="absolute inset-0 size-full object-cover"
                 />
                 {engine.Motion && <engine.Motion params={params} />}
-                {peek && (
+                {piece && (
                   <PackCover
-                    cover={peek.cover}
+                    cover={piece.cover}
+                    // The screen of the largest phone above: 224 px wide, 150 px on phones.
                     box={[224, 486]}
-                    className="absolute inset-0 size-full object-cover"
+                    phoneBox={[137, 310]}
+                    eager
+                    decorative={!peek}
+                    className={`absolute inset-0 size-full object-cover ${peek ? "" : "opacity-0"}`}
                   />
                 )}
                 <LockScreen />

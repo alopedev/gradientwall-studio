@@ -145,7 +145,31 @@ describe("Hero", () => {
 
     fireEvent.click(shuffle);
     expect(peekLink()).toBeNull();
+    expect(screen.querySelector("img:not([aria-hidden])")).toBeNull();
+  });
+
+  it("loads the next pack piece, hidden, from the first shuffle on", () => {
+    const { getByRole } = render(<Hero />);
+    const shuffle = getByRole("button", { name: /shuffle: generate another wallpaper/i });
+    const screen = getByRole("img", { name: /on a phone/i });
+    // A visitor who never shuffles downloads nothing extra.
     expect(screen.querySelector("img")).toBeNull();
+
+    fireEvent.click(shuffle);
+    const ahead = screen.querySelector("img");
+    expect(ahead?.getAttribute("src")).toBe("/assets/packs/acrylic/01.jpg");
+    expect(ahead?.getAttribute("loading")).toBe("eager");
+    expect(ahead?.getAttribute("aria-hidden")).toBe("true");
+    expect(ahead?.className).toMatch(/\bopacity-0\b/);
+
+    for (let i = 0; i < 4; i++) fireEvent.click(shuffle);
+    // The fifth shuffle shows that same image, so it is already there.
+    expect(screen.querySelector("img")).toBe(ahead);
+    expect(ahead?.getAttribute("aria-hidden")).toBeNull();
+    expect(ahead?.className).not.toMatch(/\bopacity-0\b/);
+
+    fireEvent.click(shuffle);
+    expect(screen.querySelector("img")?.getAttribute("src")).toMatch(/dessau\/01_kreise/);
   });
 
   it("drops the pack piece when the visitor steps back to a gradient", () => {

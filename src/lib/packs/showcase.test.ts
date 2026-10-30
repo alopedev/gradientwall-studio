@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { getPackBySlug } from "./index";
 import {
   heroPackPeek,
+  nextHeroPackPeek,
   PACK_PEEK_EVERY,
   coverRenders,
   fanPieces,
@@ -207,5 +208,18 @@ describe("heroPackPeek", () => {
 
   it("shows nothing when there are no packs", () => {
     expect(heroPackPeek([], 5)).toBeNull();
+  });
+});
+
+describe("nextHeroPackPeek", () => {
+  const packs = [getPackBySlug("impasto")!, getPackBySlug("dessau")!];
+
+  it("is the piece the next fifth shuffle will show", () => {
+    for (const n of [0, 1, 4]) expect(nextHeroPackPeek(packs, n)).toEqual(heroPackPeek(packs, 5));
+    for (const n of [5, 6, 9]) expect(nextHeroPackPeek(packs, n)).toEqual(heroPackPeek(packs, 10));
+  });
+
+  it("is nothing when there are no packs", () => {
+    expect(nextHeroPackPeek([], 3)).toBeNull();
   });
 });

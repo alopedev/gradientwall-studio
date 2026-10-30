@@ -141,3 +141,11 @@ export function heroPackPeek(packs: readonly Pack[], spins: number): PackPeek | 
   const piece = pack.previews[Math.floor(k / packs.length) % pack.previews.length];
   return { pack, piece, cover: pieceRenders(piece).phone! };
 }
+
+/**
+ * The piece the next peek after `spins` shuffles will show: the hero loads it
+ * ahead, hidden, so the fifth shuffle doesn't wait for the download.
+ */
+export function nextHeroPackPeek(packs: readonly Pack[], spins: number): PackPeek | null {
+  return heroPackPeek(packs, (Math.floor(spins / PACK_PEEK_EVERY) + 1) * PACK_PEEK_EVERY);
+}

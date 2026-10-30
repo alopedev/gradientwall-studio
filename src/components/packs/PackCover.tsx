@@ -11,6 +11,8 @@ interface Props {
   className?: string;
   /** Load now instead of lazily: for the one image the page is built around. */
   priority?: boolean;
+  /** Load now at normal priority: an image shown later that should be ready by then. */
+  eager?: boolean;
   /** Pure decoration (a blurred glow): hidden from assistive tech, so it adds no extra "image" of the pack. */
   decorative?: boolean;
   /**
@@ -18,7 +20,15 @@ interface Props {
    * browser picks a WebP variant that size instead of the full file.
    */
   box?: readonly [number, number];
+  /**
+   * The same frame's largest CSS size on phones (under Tailwind's `md`), when it
+   * is smaller there: phones then get a file sized for it, such as the centre crop.
+   */
+  phoneBox?: readonly [number, number];
 }
+
+/** Phones, as Tailwind's `max-md:` reads them. */
+const PHONE_MEDIA = "(max-width: 767px)";
 
 /**
  * Renders a pack cover regardless of source — gradient (drawn by the wallpaper engine
@@ -33,10 +43,13 @@ export function PackCover({
   h = 720,
   className,
   priority = false,
+  eager = false,
   decorative = false,
   box,
+  phoneBox,
 }: Props) {
   if (cover.kind === "image") {
+    const loading = priority || eager ? "eager" : "lazy";
     const crop = box && phoneCropFor(cover, box);
     if (crop) {
       return (
@@ -48,17 +61,24 @@ export function PackCover({
           width={crop.width}
           height={crop.height}
           className={className}
-          loading={priority ? "eager" : "lazy"}
+          loading={loading}
           decoding="async"
         />
       );
     }
     const srcSet = box && srcSetFor(cover.url, cover.width);
+    const aspect = cover.width && cover.height ? cover.width / cover.height : undefined;
     const sizes =
-      srcSet && box && cover.width && cover.height
-        ? `${coverDisplayWidth(cover.width / cover.height, box)}px`
+      srcSet && box && aspect
+        ? [
+            phoneBox && `${PHONE_MEDIA} ${coverDisplayWidth(aspect, phoneBox)}px`,
+            `${coverDisplayWidth(aspect, box)}px`,
+          ]
+            .filter(Boolean)
+            .join(", ")
         : undefined;
-    return (
+    const phoneCrop = phoneBox && phoneCropFor(cover, phoneBox);
+    const img = (
       <img
         src={cover.url}
         srcSet={srcSet}
@@ -70,9 +90,21 @@ export function PackCover({
         width={cover.width}
         height={cover.height}
         className={className}
-        loading={priority ? "eager" : "lazy"}
+        loading={loading}
         decoding="async"
       />
+    );
+    if (!phoneCrop) return img;
+    return (
+      <picture>
+        <source
+          media={PHONE_MEDIA}
+          srcSet={phoneCrop.url}
+          width={phoneCrop.width}
+          height={phoneCrop.height}
+        />
+        {img}
+      </picture>
     );
   }
   return <GradientCover cover={cover} w={w} h={h} className={className} decorative={decorative} />;
