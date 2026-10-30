@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { getPackBySlug } from "./index";
 import {
+  heroPackPeek,
+  PACK_PEEK_EVERY,
   coverRenders,
   fanPieces,
   pieceName,
@@ -173,5 +175,37 @@ describe("fanPieces", () => {
     const fan = fanPieces(getPackBySlug("impasto")!);
     expect(fan).toHaveLength(5);
     expect(fan[2].cover).toMatchObject({ url: "/assets/packs/acrylic/01.jpg" });
+  });
+});
+
+describe("heroPackPeek", () => {
+  const packs = [getPackBySlug("impasto")!, getPackBySlug("dessau")!];
+
+  it("shows a gradient on most shuffles and a pack piece on every fifth", () => {
+    expect(PACK_PEEK_EVERY).toBe(5);
+    for (const n of [0, 1, 2, 3, 4, 6, 9]) expect(heroPackPeek(packs, n), String(n)).toBeNull();
+    expect(heroPackPeek(packs, 5)).not.toBeNull();
+    expect(heroPackPeek(packs, 10)).not.toBeNull();
+  });
+
+  it("takes turns between the packs, then moves on to each pack's next piece", () => {
+    const at = (n: number) => {
+      const peek = heroPackPeek(packs, n)!;
+      return [peek.pack.slug, peek.pack.previews.indexOf(peek.piece)];
+    };
+    expect(at(5)).toEqual(["impasto", 0]);
+    expect(at(10)).toEqual(["dessau", 0]);
+    expect(at(15)).toEqual(["impasto", 1]);
+    expect(at(20)).toEqual(["dessau", 1]);
+  });
+
+  it("gives the phone render of the piece", () => {
+    const dessau = heroPackPeek(packs, 10)!;
+    expect(dessau.cover.kind).toBe("image");
+    expect(dessau.cover.kind === "image" && dessau.cover.desktop).toBeFalsy();
+  });
+
+  it("shows nothing when there are no packs", () => {
+    expect(heroPackPeek([], 5)).toBeNull();
   });
 });

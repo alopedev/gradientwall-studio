@@ -118,13 +118,42 @@ describe("Hero", () => {
     expect(getByRole("link", { name: /customise it/i }).getAttribute("href")).toBe("/#studio");
   });
 
-  it("tells phone visitors what it costs and points to the packs", () => {
-    const { getByText, getByRole } = render(<Hero />);
-    const line = getByText(/^no account, no watermark\./i);
-    // On wider screens the column beside the phone already says it.
-    expect(line.closest(".md\\:hidden")).not.toBeNull();
-    const packs = getByRole("link", { name: /or get a hand-picked pack, €5\.99/i });
-    expect(packs.getAttribute("href")).toBe("/#packs");
-    expect(packs.closest(".md\\:hidden")).not.toBeNull();
+  it("shows phone visitors both packs under the shuffle, each linking to its page", () => {
+    const { getByRole } = render(<Hero />);
+    const group = getByRole("region", { name: /or get a hand-picked pack · €5\.99/i });
+    // On wider screens the packs section shows right under the hero.
+    expect(group.closest(".md\\:hidden")).not.toBeNull();
+    const impasto = getByRole("link", { name: /impasto.*10 designs/i });
+    expect(impasto.getAttribute("href")).toBe("/packs/impasto/");
+    expect(getByRole("link", { name: /dessau.*6 designs/i }).getAttribute("href")).toBe(
+      "/packs/dessau/",
+    );
+  });
+
+  it("shows a pack piece on every fifth shuffle, with a link to its pack", () => {
+    const { getByRole, queryByRole } = render(<Hero />);
+    const shuffle = getByRole("button", { name: /shuffle: generate another wallpaper/i });
+    const peekLink = () => queryByRole("link", { name: /from the .* pack/i });
+    for (let i = 0; i < 4; i++) fireEvent.click(shuffle);
+    expect(peekLink()).toBeNull();
+
+    fireEvent.click(shuffle);
+    expect(peekLink()?.textContent).toMatch(/from the impasto pack · see all 10/i);
+    expect(peekLink()?.getAttribute("href")).toBe("/packs/impasto/");
+    const screen = getByRole("img", { name: /on a phone/i });
+    expect(screen.querySelector("img")?.getAttribute("alt")).toMatch(/acrylic/i);
+
+    fireEvent.click(shuffle);
+    expect(peekLink()).toBeNull();
+    expect(screen.querySelector("img")).toBeNull();
+  });
+
+  it("drops the pack piece when the visitor steps back to a gradient", () => {
+    const { getByRole, queryByRole } = render(<Hero />);
+    const shuffle = getByRole("button", { name: /shuffle: generate another wallpaper/i });
+    for (let i = 0; i < 5; i++) fireEvent.click(shuffle);
+    expect(queryByRole("link", { name: /from the .* pack/i })).not.toBeNull();
+    fireEvent.click(getByRole("button", { name: /previous wallpaper/i }));
+    expect(queryByRole("link", { name: /from the .* pack/i })).toBeNull();
   });
 });

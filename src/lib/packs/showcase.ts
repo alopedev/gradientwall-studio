@@ -118,3 +118,26 @@ export function packSpecs(pack: Pick<Pack, "previews" | "phoneAndDesktop">): Pac
     licence,
   ];
 }
+
+/** The hero shows a pack piece instead of a new gradient on every this-many shuffles. */
+export const PACK_PEEK_EVERY = 5;
+
+export interface PackPeek {
+  pack: Pack;
+  piece: PackCover;
+  /** The piece's phone render, what the hero's screen shows. */
+  cover: PackCover;
+}
+
+/**
+ * Which pack piece the hero's phone shows after `spins` shuffles, or null for
+ * a gradient. Each peek goes to the next pack in turn; once every pack has
+ * had one, each moves on to its next piece.
+ */
+export function heroPackPeek(packs: readonly Pack[], spins: number): PackPeek | null {
+  if (!packs.length || spins <= 0 || spins % PACK_PEEK_EVERY) return null;
+  const k = spins / PACK_PEEK_EVERY - 1;
+  const pack = packs[k % packs.length];
+  const piece = pack.previews[Math.floor(k / packs.length) % pack.previews.length];
+  return { pack, piece, cover: pieceRenders(piece).phone! };
+}
