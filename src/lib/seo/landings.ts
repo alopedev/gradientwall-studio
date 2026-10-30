@@ -333,6 +333,72 @@ export const LANDINGS: Landing[] = [
     ],
   },
   {
+    slug: "glacier-gradient-wallpapers",
+    title: "Glacier Blue Wallpapers for iPhone 18 Pro",
+    description:
+      "Make a glacier blue gradient wallpaper to suit the iPhone 18 Pro: pale ice, silver and cold blue, shuffled until it's yours. Free, for phone and Mac.",
+    h1: "glacier blue gradient wallpapers.",
+    subtitle: "pale ice and cold blue, to suit your phone.",
+    footerLabel: "Glacier",
+    footerGroup: "colour",
+    look: { device: "mobile", colors: ["#0c1a2b", "#3d6a8f", "#a9cbe3", "#eef6fb"] },
+    guides: [
+      {
+        heading: "ice that still has colour.",
+        body: [
+          "Glacier is one of the four iPhone 18 Pro finishes, next to Burgundy, Silver and Black. A glacier gradient keeps to that cold end: pale ice, a little silver, a blue that deepens towards the edge.",
+          "Pale wallpapers wash out white icons and text, so leave one darker colour in, a slate or deep sea blue, and the clock stays easy to read.",
+          "These are gradients made in the Studio, not Apple's official wallpaper.",
+        ],
+      },
+      { heading: "set it in two steps.", body: [], steps: IPHONE_STEPS },
+    ],
+  },
+  {
+    slug: "green-gradient-wallpapers",
+    title: "Green Gradient Wallpapers, Sage Green Too",
+    description:
+      "Make a green gradient wallpaper, from soft sage, like the iPhone 17 finish, to deep forest and mint. Shuffle, tweak, download it free for any screen.",
+    h1: "green gradient wallpapers.",
+    subtitle: "from soft sage to deep forest.",
+    footerLabel: "Green",
+    footerGroup: "colour",
+    look: { device: "mobile", colors: ["#0d1f17", "#2f5d46", "#8fb39a", "#e3eee2"] },
+    guides: [
+      {
+        heading: "green you can look at all day.",
+        body: [
+          "Sage is green with grey in it, and it's one of the iPhone 17 colours. On a screen it's restful: it doesn't glare at night and it sits quietly behind your apps.",
+          "For more depth, run it down into forest or bottle green. For something brighter, add mint or a touch of lemon. Next to green, a warm peach or cream keeps it from looking flat.",
+          "These are gradients made in the Studio, not Apple's official wallpaper.",
+        ],
+      },
+      { heading: "set it in two steps.", body: [], steps: IPHONE_STEPS },
+    ],
+  },
+  {
+    slug: "gold-gradient-wallpapers",
+    title: "Gold Gradient Wallpapers for iPhone and Mac",
+    description:
+      "Make a gold gradient wallpaper: champagne, honey and warm amber on a deep base, for the holidays or every day. Free for iPhone, Android and 4K desktops.",
+    h1: "gold gradient wallpapers.",
+    subtitle: "champagne, honey and amber, on a dark base.",
+    footerLabel: "Gold",
+    footerGroup: "colour",
+    look: { device: "mobile", colors: ["#1a1206", "#6b4a12", "#c9962e", "#f6e2a8"] },
+    guides: [
+      {
+        heading: "gold needs a dark side.",
+        body: [
+          "A screen can't show metal, only colour, so gold on a wallpaper comes from contrast: a bright honey or champagne glow next to a deep brown or ink base. Without the dark part it reads as plain yellow.",
+          "Light Gold is one of the iPhone Air colours; a pale champagne gradient suits it. For the holidays, gold next to deep green or ink black looks festive without being loud.",
+          "These are gradients made in the Studio, not Apple's official wallpaper.",
+        ],
+      },
+      SET_IT,
+    ],
+  },
+  {
     slug: "macbook-gradient-wallpapers",
     title: "Free Gradient Wallpapers for MacBook",
     description:
