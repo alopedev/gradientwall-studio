@@ -2,7 +2,9 @@ import { hslToHex, lerp } from "../color";
 import type { Colors4 } from "../palettes";
 
 /**
- * Generador de paletas armónicas para `generateSurprise` (Studio v2).
+ * Generador de paletas armónicas. Sin uso en el Shuffle desde 2026-10-31
+ * (`generateSurprise` usa `designerColors` de `palette-library.ts`); se
+ * conserva, como `harmonic-edit.ts`, porque `lib/gradient/` no se borra sin permiso.
  *
  * El `randomColors()` actual de `spec.ts` se mantiene intocable (lo usan
  * snapshots y la `randomize()` legacy del store). Esta capa nueva produce

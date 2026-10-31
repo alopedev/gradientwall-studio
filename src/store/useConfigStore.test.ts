@@ -81,7 +81,7 @@ describe("useConfigStore", () => {
       const after = useConfigStore.getState();
       // seed always changes — applySurprise excludes the previous one.
       expect(after.seed).not.toBe(before.seed);
-      // colors come from randomHarmonicColors → 4 hex strings.
+      // colors come from designerColors → 4 hex strings.
       for (const c of after.colors) expect(c).toMatch(/^#[0-9a-f]{6}$/i);
     });
 

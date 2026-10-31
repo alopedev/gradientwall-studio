@@ -3,9 +3,11 @@ import {
   clamp,
   contrastRatio,
   hexToHsl,
+  hexToOklch,
   hexToRgb,
   hslToHex,
   lerp,
+  oklchToHex,
   parseHex,
   relativeLuminance,
   rgbToHex,
@@ -79,5 +81,38 @@ describe("relativeLuminance / contrastRatio (WCAG 2)", () => {
 
   it("matches a known WCAG pair (#767676 on white is the 4.5:1 threshold)", () => {
     expect(contrastRatio("#767676", "#ffffff")).toBeCloseTo(4.54, 2);
+  });
+});
+
+describe("hexToOklch / oklchToHex", () => {
+  it("puts black at L 0 and white at L 1, both without chroma", () => {
+    const [lb, cb] = hexToOklch("#000000");
+    const [lw, cw] = hexToOklch("#ffffff");
+    expect(lb).toBeCloseTo(0, 4);
+    expect(cb).toBeCloseTo(0, 4);
+    expect(lw).toBeCloseTo(1, 3);
+    expect(cw).toBeLessThan(0.001);
+  });
+
+  it("matches a known OKLCH value (#ff0000 is about 0.628 0.258 29°)", () => {
+    const [l, c, h] = hexToOklch("#ff0000");
+    expect(l).toBeCloseTo(0.628, 2);
+    expect(c).toBeCloseTo(0.258, 2);
+    expect(h).toBeCloseTo(29.2, 0);
+  });
+
+  it("round-trips sRGB colours to the same hex", () => {
+    for (const hex of ["#2b1055", "#7597de", "#ff6e7f", "#ffd86e", "#0d0d0d", "#4cc9f0"]) {
+      expect(oklchToHex(...hexToOklch(hex))).toBe(hex);
+    }
+  });
+
+  it("keeps an out-of-gamut colour's lightness and hue by lowering its chroma", () => {
+    const hex = oklchToHex(0.9, 0.4, 145); // far too saturated for sRGB
+    expect(hex).toMatch(/^#[0-9a-f]{6}$/);
+    const [l, c, h] = hexToOklch(hex);
+    expect(l).toBeCloseTo(0.9, 1);
+    expect(c).toBeLessThan(0.4);
+    expect(Math.abs(h - 145)).toBeLessThan(6);
   });
 });
