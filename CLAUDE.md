@@ -24,6 +24,7 @@ The web is live at `https://gradientwall.app` (launched 2026-10-22) and its job 
 
 - Published packs: **Impasto** (10 acrylic, from `public/assets/packs/acrylic/`) and **Dessau** (6 Bauhaus, from `public/assets/packs/dessau/`). One listing doc per pack in `docs/etsy/<product>.md` (title, description, tags, attributes, listing id); shop policies in `docs/etsy/shop-policies.md`.
 - `scripts/etsy-pack.sh <source> [product]` → upscale with Upscayl + export 4K/5K/phone JPGs + ZIPs into `etsy-out/<product>/` (gitignored). Two modes, auto-detected: **crop** (16:9 `NN.jpg` originals, phone cropped from the center — fine for texture) and **split** (`NN_<name>.png` 9:16 + `NN_<name>-desktop.png` 16:9 — for composed art). Upscayl model differs per mode; both validated visually, don't swap them.
+- **Marble** (12 liquid marble, pending on Etsy) is the first pack drawn by our own v2 engine, no AI: its looks live in `src/lib/packs/engine-packs.ts` and `scripts/render-engine-pack.mjs <slug>` (dev server + Playwright) renders them natively at phone/4K/5K into the same `etsy-out/<product>/` layout, so no Upscayl and it can run anywhere. Listing doc `docs/etsy/marble.md`.
 - `scripts/etsy-listing/render.sh <product>` → the 6 listing photos (3000×2250) from `listing.html`; per-pack copy and image picks live in its `PACKS` object.
 - Pack artwork is generated with GPT Image from per-piece prompts (AI use is declared on the listing). Code-generated art was tried for Dessau and rejected on quality.
 
