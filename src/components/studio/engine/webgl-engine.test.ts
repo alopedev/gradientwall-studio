@@ -209,12 +209,18 @@ describe("what the first screen downloads", () => {
   it("keeps the v1 engine and the download code out of the engine's static imports", async () => {
     const { readFileSync } = await import("node:fs");
     const files = ["webgl-engine.tsx", "index.ts", "context.tsx"].map((f) =>
-      readFileSync(new URL(`./${f}`, import.meta.url), "utf8"),
+      readFileSync(`${process.cwd()}/src/components/studio/engine/${f}`, "utf8"),
     );
     const staticImports = files.flatMap((src) =>
       [...src.matchAll(/^import\s+(?!type\b)[^;]*?from\s+"([^"]+)"/gms)].map((m) => m[1]),
     );
-    for (const heavy of ["./canvas2d-engine", "@/lib/download/compose", "@/lib/download/export", "@/lib/download/sink", "./webgl-export"]) {
+    for (const heavy of [
+      "./canvas2d-engine",
+      "@/lib/download/compose",
+      "@/lib/download/export",
+      "@/lib/download/sink",
+      "./webgl-export",
+    ]) {
       expect(staticImports, heavy).not.toContain(heavy);
     }
   });

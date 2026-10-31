@@ -84,14 +84,23 @@ export interface WallpaperEngine {
    * an engine without one leaves the still canvas on its own.
    */
   Motion?: ComponentType<{ params: RenderParams }>;
-  /** Synchronous small render for the favorites strip and gradient pack covers. */
+  /**
+   * Small render for the favorites strip and gradient pack covers. Synchronous
+   * for v2; a v1 look may paint a moment later, once the v1 engine has loaded
+   * (the promise says when; callers may ignore it).
+   */
   paintThumbnail: (
     canvas: HTMLCanvasElement,
     params: RenderParams,
     size: { w: number; h: number },
-  ) => void;
+  ) => void | Promise<void>;
   /** File format a download will have in this browser ("WebP", or "JPEG" without a WebP encoder). */
   exportFormat: () => string;
+  /**
+   * Start loading a part that isn't in the first screen's JS before it is
+   * needed: the Download pipeline ("export") or the v1 engine ("v1").
+   */
+  prefetch?: (what: "export" | "v1") => void;
   /** Full-resolution render + encode + save. */
   exportWallpaper: (
     params: RenderParams,

@@ -3,7 +3,8 @@ import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useConfigStore } from "@/store";
-import { canvas2DEngine, EngineProvider, type WallpaperEngine } from "../engine";
+import { EngineProvider, type WallpaperEngine } from "../engine";
+import { canvas2DEngine } from "../engine/canvas2d-engine";
 import { ExportButton } from "./ExportButton";
 import { onPrint, type PrintEvent } from "./print";
 

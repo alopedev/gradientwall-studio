@@ -1,16 +1,8 @@
 import type { Device } from "../palettes";
-import { encodeWithFallback, exportFormatLabel, type EncodeFormat } from "./encode";
+import { encodeWithFallback } from "./encode";
+import { FORMATS } from "./format";
 import { wallpaperFilename } from "./filename";
 import { defaultSink, type Sink } from "./sink";
-
-/**
- * WebP 95 %, JPEG 95 % where the browser has no WebP encoder. For grainy
- * gradients WebP 95 % looks the same as lossless at a fraction of PNG's size.
- */
-const FORMATS: EncodeFormat[] = [
-  { type: "image/webp", quality: 0.95 },
-  { type: "image/jpeg", quality: 0.95 },
-];
 
 export interface ExportedFile {
   filename: string;
@@ -28,11 +20,6 @@ export interface ExportCanvasOptions {
 
 /** Let the browser paint the progress bar before the next heavy synchronous step. */
 const nextFrame = () => new Promise<void>((r) => requestAnimationFrame(() => r()));
-
-/** "WebP" or "JPEG": what `exportCanvas` will write in this browser. */
-export function exportFormat(): string {
-  return exportFormatLabel(FORMATS);
-}
 
 /**
  * Render → encode → save, the Download button's whole pipeline. Each engine
@@ -60,3 +47,5 @@ export async function exportCanvas(
   onProgress?.(1);
   return { filename, bytes: blob.size };
 }
+
+export { exportFormat } from "./format";

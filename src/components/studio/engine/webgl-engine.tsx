@@ -1,21 +1,22 @@
-import { paintWallpaper } from "@/lib/download/compose";
-import { exportCanvas, exportFormat } from "@/lib/download/export";
-import { defaultSink, type Sink } from "@/lib/download/sink";
+import { useEffect, useState } from "react";
+import { exportFormat } from "@/lib/download/format";
+import type { Sink } from "@/lib/download/sink";
 import { DEFAULT_MAX_DIM, DEFAULT_MAX_DPR, pixelKey } from "@/lib/fitted-canvas";
 import {
   isWebGL2Supported,
   paintV2,
   V2_DEFAULT_GRAIN,
   V2_DEFAULT_LIGHT_ANGLE,
-  renderWallpaperV2,
   type V2Params,
   type V2Renderer,
 } from "@/lib/gradient-v2";
 import { DEFAULT_ROTATION, DEVICE_SIZES, engineOf, type RenderParams } from "@/lib/palettes";
 import { useFittedCanvas } from "@/lib/useFittedCanvas";
-import { canvas2DEngine } from "./canvas2d-engine";
+import { lazy } from "./lazy";
 import { ScreenMotion } from "./ScreenMotion";
 import type { AdjustmentSpec, EngineCanvasProps, LookOption, WallpaperEngine } from "./types";
+import { V1_ADJUSTMENTS } from "./v1-adjustments";
+import type { V2Exporter } from "./webgl-export";
 
 /** Longest preview side and DPR cap, same budget as the Canvas2D preview. */
 const MAX_DIM = DEFAULT_MAX_DIM;
@@ -88,8 +89,13 @@ const LOOK_OPTIONS: readonly LookOption[] = [
 
 export interface WebGLEngineDeps {
   sink?: Sink;
-  /** Engine for favorites saved before v2 and for browsers without WebGL2. */
-  fallback?: WallpaperEngine;
+  /**
+   * Engine for favorites saved before v2 and for browsers without WebGL2.
+   * Loaded the first time one of those shows up, not with the page.
+   */
+  loadFallback?: () => Promise<WallpaperEngine>;
+  /** The Download pipeline, loaded on the first Download or ahead of it. */
+  loadExporter?: () => Promise<V2Exporter>;
   supported?: () => boolean;
   renderer?: () => V2Renderer;
 }
@@ -97,13 +103,24 @@ export interface WebGLEngineDeps {
 /**
  * The v2 engine (WebGL2 shader in `src/lib/gradient-v2`). Favorites saved
  * with v1 (`engine` absent or "v1") and browsers where the GPU path can't run
- * go through `fallback`, so a saved wallpaper always looks the way it was saved.
+ * go through the v1 engine, so a saved wallpaper always looks the way it was
+ * saved. The v1 engine and the Download pipeline load on demand: the first
+ * screen only carries the shader preview.
  */
 export function createWebGLEngine(deps: WebGLEngineDeps = {}): WallpaperEngine {
-  const sink = deps.sink ?? defaultSink;
-  const fallback = deps.fallback ?? canvas2DEngine;
+  const fallback = lazy(
+    deps.loadFallback ?? (() => import("./canvas2d-engine").then((m) => m.canvas2DEngine)),
+  );
+  const exporter = lazy(deps.loadExporter ?? (() => import("./webgl-export")));
   const supported = deps.supported ?? isWebGL2Supported;
   const renderer = () => deps.renderer?.();
+
+  /** Run `use` with the v1 engine: now when it has loaded, else once it arrives. */
+  const withFallback = (use: (f: WallpaperEngine) => void): void | Promise<void> => {
+    const ready = fallback.get();
+    if (ready) return use(ready);
+    return fallback.load().then(use);
+  };
 
   /** Paint v2 into `canvas`; false when the GPU path failed and v1 should paint instead. */
   const tryPaint = (canvas: HTMLCanvasElement, p: RenderParams, w: number, h: number) => {
@@ -128,7 +145,9 @@ export function createWebGLEngine(deps: WebGLEngineDeps = {}): WallpaperEngine {
         contentKey: pixelKey(params, "v2"),
         beforePaint: onBeforePaint,
         paint: (canvas, { w, h }) => {
-          if (!tryPaint(canvas, params, w, h)) paintWallpaper(canvas, { ...params, w, h });
+          if (!tryPaint(canvas, params, w, h)) {
+            void withFallback((f) => f.paintThumbnail(canvas, params, { w, h }));
+          }
         },
       },
       [params],
@@ -137,8 +156,26 @@ export function createWebGLEngine(deps: WebGLEngineDeps = {}): WallpaperEngine {
     return <canvas ref={ref} className={className} />;
   }
 
+  /**
+   * A v1 favorite: the same bare canvas until the v1 engine arrives, then its
+   * own preview. v1 looks only come from saved favorites and links, which load
+   * after hydration, so the server and the first client render never differ.
+   */
+  function V1Canvas(props: EngineCanvasProps) {
+    const [v1, setV1] = useState(fallback.get);
+    useEffect(() => {
+      if (v1) return;
+      let live = true;
+      fallback.load().then((f) => live && setV1(() => f));
+      return () => {
+        live = false;
+      };
+    }, [v1]);
+    return v1 ? <v1.Canvas {...props} /> : <canvas className={props.className} />;
+  }
+
   function EngineCanvas(props: EngineCanvasProps) {
-    if (engineOf(props.params) === "v1") return <fallback.Canvas {...props} />;
+    if (engineOf(props.params) === "v1") return <V1Canvas {...props} />;
     return <WebGLCanvas {...props} />;
   }
 
@@ -152,7 +189,7 @@ export function createWebGLEngine(deps: WebGLEngineDeps = {}): WallpaperEngine {
     ],
     // Favorites saved with v1 keep the v1 sliders: that is the renderer drawing them.
     adjustmentsFor: (params) => {
-      if (engineOf(params) === "v1") return fallback.adjustmentsFor(params);
+      if (engineOf(params) === "v1") return V1_ADJUSTMENTS;
       return params.style === "aurora" ? AURORA_ADJUSTMENTS : ADJUSTMENTS;
     },
     // Only the shader draws materials; a v1 favorite keeps the plain style switch.
@@ -161,22 +198,26 @@ export function createWebGLEngine(deps: WebGLEngineDeps = {}): WallpaperEngine {
     Motion: ScreenMotion,
     paintThumbnail(canvas, params, size) {
       if (engineOf(params) === "v1" || !tryPaint(canvas, params, size.w, size.h)) {
-        fallback.paintThumbnail(canvas, params, size);
+        return withFallback((f) => f.paintThumbnail(canvas, params, size));
       }
     },
     exportFormat,
+    prefetch(what) {
+      void (what === "export" ? exporter.load() : fallback.load());
+    },
     async exportWallpaper(params, device, onProgress) {
-      if (engineOf(params) === "v1") return fallback.exportWallpaper(params, device, onProgress);
-      const size = DEVICE_SIZES[device];
-      const file = await exportCanvas(
-        () =>
-          renderWallpaperV2(toV2(params), size.w, size.h, {
-            supported,
-            renderer: deps.renderer,
-          }),
-        { device, seed: params.seed, sink, onProgress },
-      );
-      return file ?? fallback.exportWallpaper(params, device, onProgress);
+      if (engineOf(params) === "v1") {
+        return (await fallback.load()).exportWallpaper(params, device, onProgress);
+      }
+      const { exportV2 } = await exporter.load();
+      const file = await exportV2(toV2(params), device, {
+        seed: params.seed,
+        sink: deps.sink,
+        supported,
+        renderer: deps.renderer,
+        onProgress,
+      });
+      return file ?? (await fallback.load()).exportWallpaper(params, device, onProgress);
     },
   };
 }
