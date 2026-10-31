@@ -4,7 +4,8 @@ import { PALETTES } from "@/lib/palettes";
 import { applyPalette, useConfigStore } from "@/store";
 import { useRequestReveal } from "./reveal";
 
-/** The ten curated palettes as dots; a ring springs to the one in use. */
+/** The curated palettes as dots; a ring springs to the one in use. The dots
+ * share the row (up to 32px each) so a narrow phone never clips the last ones. */
 export function PaletteSwatches() {
   const colors = useConfigStore((s) => s.colors);
   const current = curatedPaletteIndex(colors);
@@ -26,7 +27,7 @@ export function PaletteSwatches() {
             requestReveal(e.currentTarget);
             applyPalette(i);
           }}
-          className="gws-tip group/sw relative grid h-11 w-8 place-items-center outline-none @max-[360px]:w-[30px]"
+          className="gws-tip group/sw relative grid h-11 min-w-0 max-w-8 flex-1 place-items-center outline-none"
         >
           {i === current && (
             <m.span

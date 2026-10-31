@@ -35,10 +35,15 @@ export function applyPalette(i: number): void {
   });
 }
 
-/** Shuffle: a new wallpaper, keeping the one it replaces one ‹ away. */
-export function shuffleWallpaper(): void {
+/**
+ * Shuffle: a new wallpaper, keeping the one it replaces one ‹ away. With a
+ * `look` (the hero) the style and material change too; without one (the
+ * Studio) they stay the visitor's choice.
+ */
+export function shuffleWallpaper(look?: Pick<Look, "style" | "material">): void {
   useLookHistoryStore.getState().record();
   useConfigStore.getState().applySurprise();
+  if (look) useConfigStore.setState({ style: look.style, material: look.material });
 }
 
 /** Remix: a close variation of the current wallpaper, keeping the original one ‹ away. */

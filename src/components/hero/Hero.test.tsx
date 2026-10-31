@@ -107,6 +107,27 @@ describe("Hero", () => {
     expect(useConfigStore.getState().seed).toBe(before);
   });
 
+  it("changes the style on every shuffle, so the hero shows them all", () => {
+    const { getByRole } = render(
+      <EngineProvider engine={webglEngine}>
+        <Hero />
+      </EngineProvider>,
+    );
+    const shuffle = getByRole("button", { name: /shuffle: generate another wallpaper/i });
+    const lookNow = () => {
+      const s = useConfigStore.getState();
+      return `${s.style}/${s.material ?? "none"}`;
+    };
+    const seen = new Set([lookNow()]);
+    for (let i = 0; i < 40; i++) {
+      const before = lookNow();
+      fireEvent.click(shuffle);
+      expect(lookNow()).not.toBe(before);
+      seen.add(lookNow());
+    }
+    expect(seen.size).toBe(6);
+  });
+
   it("names the palette on screen and follows it", () => {
     const { getByText } = render(<Hero />);
     act(() => useConfigStore.getState().setColors([...PALETTES[1].colors]));

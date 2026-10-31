@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { nextLookOption } from "@/lib/look-shuffle";
 import { getPacks, type Pack } from "@/lib/packs";
 import { heroPackPeek, nextHeroPackPeek, pieceRenders } from "@/lib/packs/showcase";
 import { paletteName } from "@/lib/palette-name";
@@ -49,7 +50,9 @@ export function Hero({
   const hold = useMotionStore((s) => s.paused) ? "[animation-play-state:paused]" : "";
 
   const shuffle = () => {
-    shuffleWallpaper();
+    // The hero has no style picker, so its Shuffle changes the look as well.
+    const looks = engine.looksFor?.(params) ?? [];
+    shuffleWallpaper(nextLookOption(looks, params) ?? undefined);
     setSpins(spins + 1);
     setPeekAt(spins + 1);
   };

@@ -22,6 +22,22 @@ describe("coordinator gestures keep the wallpaper they replace", () => {
     expect(past()[0].seed).toBe(before);
   });
 
+  it("shuffleWallpaper can also change the look, as one step back", () => {
+    useConfigStore.setState({ style: "mesh", material: "dither" });
+    shuffleWallpaper({ style: "aurora", material: "none" });
+    const s = useConfigStore.getState();
+    expect([s.style, s.material]).toEqual(["aurora", "none"]);
+    expect(past()).toHaveLength(1);
+    expect([past()[0].style, past()[0].material]).toEqual(["mesh", "dither"]);
+  });
+
+  it("shuffleWallpaper without a look keeps the user's style", () => {
+    useConfigStore.setState({ style: "liquid", material: "halftone" });
+    shuffleWallpaper();
+    const s = useConfigStore.getState();
+    expect([s.style, s.material]).toEqual(["liquid", "halftone"]);
+  });
+
   it("remixWallpaper keeps the palette and leaves the old wallpaper one step back", () => {
     const { colors, seed } = useConfigStore.getState();
     remixWallpaper();
