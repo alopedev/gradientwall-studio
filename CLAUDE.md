@@ -217,8 +217,9 @@ El Studio v2 es ahora el único Studio (cutover Fase 5 completado). Mini-framewo
 
 **Motor de generación (capa nueva, Fase 1)** en `src/lib/gradient/`:
 - `curated-seeds.ts` — 80 seeds aprobados. `pickCuratedSeed(rng?)`, `pickCuratedSeedExcluding(prev, rng?)`.
-- `palette-constraints.ts` — `randomHarmonicColors(rng)` con 4 esquemas armónicos + constraints HSL.
-- `surprise.ts` — `generateSurprise(prevSeed?)`. Devuelve style `"liquid"`, pero `applySurprise` del store lo ignora y conserva el estilo elegido por el usuario; el motor sigue soportando los 4 styles para favoritos guardados.
+- `palette-library.ts` — paletas del Shuffle (opción C, elegida 2026-10-31): `PALETTE_LIBRARY` (200 paletas hechas a mano: las 10 del Studio + las galerías de las landings, copiadas; sin las de packs) `SHUFFLE_PALETTES` (las que tienen ≥0,15 de diferencia de luminosidad OKLCH entre su color más oscuro y el más claro; fuera los pasteles casi blancos y los neón planos) y `designerColors(rng)`, que gira todos los tonos ≤30° y escala la luminosidad ±6 % en OKLCH (`hexToOklch`/`oklchToHex` en `lib/color.ts`). Una paleta nueva se añade aquí a mano.
+- `palette-constraints.ts` — `randomHarmonicColors(rng)`: el generador HSL anterior (todo a luminosidad 42–78, sin oscuros ni claros → neón plano). Sin uso desde 2026-10-31.
+- `surprise.ts` — `generateSurprise(prevSeed?)` (colores de `designerColors`). Devuelve style `"liquid"`, pero `applySurprise` del store lo ignora y conserva el estilo elegido por el usuario; el motor sigue soportando los 4 styles para favoritos guardados.
 - `remix.ts` — `generateRemix(current)` paleta intacta, varía seed/light/density.
 - `harmonic-edit.ts` — sin uso desde que se retiró el `HarmonicWheel` (2026-10-20); se conserva porque `lib/gradient/` no se toca sin permiso.
 

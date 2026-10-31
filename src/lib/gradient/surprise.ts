@@ -2,13 +2,13 @@ import { lerp } from "../color";
 import { DEFAULT_CONTRAST, STUDIO_VIBRANCE, V2_DEFAULT_GRAIN } from "../defaults";
 import type { Colors4, GradientConfig, Style } from "../palettes";
 import { pickCuratedSeed, pickCuratedSeedExcluding } from "./curated-seeds";
-import { randomHarmonicColors } from "./palette-constraints";
+import { designerColors } from "./palette-library";
 import { mulberry32 } from "./spec";
 
 /**
  * `generateSurprise` — núcleo del modelo "surprise-first" de Studio v2.
  *
- * Devuelve un `GradientConfig` completo (paleta armónica + seed + light +
+ * Devuelve un `GradientConfig` completo (paleta de diseñador + seed + light +
  * density) listo para que `useConfigStore.applySurprise` lo aplique
  * atómicamente. Cada llamada produce un wallpaper distinto al anterior
  * (excluye el seed previo).
@@ -66,7 +66,8 @@ export function generateSurprise(
 ): GradientConfig {
   const seed =
     prevSeed === undefined ? pickCuratedSeed(rng) : pickCuratedSeedExcluding(prevSeed, rng);
-  const colors: Colors4 = randomHarmonicColors(rng);
+  // Paleta de la biblioteca curada, girada un poco (`palette-library.ts`).
+  const colors: Colors4 = designerColors(rng);
   // Studio v2 (rediseño): style hardcoded a "liquid". El picker de estilo se
   // eliminó del CustomizePanel; los favoritos guardados antes del cambio
   // conservan su style original porque el motor sigue soportando los 4.
