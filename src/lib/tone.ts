@@ -47,12 +47,24 @@ export function applyToneToPixels(data: Uint8ClampedArray, tone = 0): void {
   }
 }
 
+/** What `applyToneToCanvas` needs of a canvas (typed without the DOM lib: this module is shared). */
+interface PixelCanvas {
+  width: number;
+  height: number;
+  getContext(id: "2d"): {
+    getImageData(x: number, y: number, w: number, h: number): { data: Uint8ClampedArray };
+    putImageData(img: { data: Uint8ClampedArray }, x: number, y: number): void;
+  } | null;
+}
+
 /** The curve over a 2D canvas, for wallpapers drawn without the GPU pass. Returns the canvas. */
-export function applyToneToCanvas<C extends HTMLCanvasElement>(canvas: C, tone = 0): C {
+export function applyToneToCanvas<C extends PixelCanvas>(canvas: C, tone = 0): C {
   if (clampTone(tone) === 0 || !canvas.width || !canvas.height) return canvas;
   const ctx = canvas.getContext("2d");
   if (!ctx) return canvas;
   const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  // A canvas stub (tests, odd browsers) may hand back nothing: leave it as drawn.
+  if (!img?.data) return canvas;
   applyToneToPixels(img.data, tone);
   ctx.putImageData(img, 0, 0);
   return canvas;

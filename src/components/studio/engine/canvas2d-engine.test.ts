@@ -50,7 +50,10 @@ describe("canvas2d engine", () => {
     });
     vi.spyOn(HTMLCanvasElement.prototype, "toDataURL").mockReturnValue("data:image/webp;base64,AA");
     await engine.exportWallpaper({ ...params, tone: 30 }, "mobile");
-    expect(applyToneToCanvas).toHaveBeenLastCalledWith(composeWallpaper.mock.results.at(-1)?.value, 30);
+    expect(applyToneToCanvas).toHaveBeenLastCalledWith(
+      composeWallpaper.mock.results.at(-1)?.value,
+      30,
+    );
     vi.restoreAllMocks();
   });
 

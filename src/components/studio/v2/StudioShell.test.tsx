@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { act, fireEvent, render } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { useConfigStore } from "@/store";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { StudioShell } from "./StudioShell";
@@ -12,6 +12,12 @@ vi.mock("motion/react", async (importOriginal) => ({
 }));
 
 const INITIAL = useConfigStore.getState();
+
+// jsdom has no WebGL2, so the thumbnails ask for the v1 engine, which loads on demand.
+// Load it up front: a dynamic import still resolving when the file ends fails the run.
+beforeAll(async () => {
+  await import("../engine/canvas2d-engine");
+});
 
 const pressSpace = () => {
   const ev = new KeyboardEvent("keydown", {
