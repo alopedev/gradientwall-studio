@@ -7,6 +7,7 @@
 import { parseHex, wrapAngle } from "../color";
 import { V2_DEFAULT_GRAIN, V2_DEFAULT_LIGHT_ANGLE } from "../defaults";
 import type { ColorRamp, Material, Style } from "../palettes";
+import { toneExponent } from "../tone";
 
 export const V2_STYLES = ["liquid", "aurora", "grain-mesh"] as const;
 export type V2Style = (typeof V2_STYLES)[number];
@@ -60,6 +61,8 @@ export interface V2Params {
   material?: Material;
   /** Clockwise turn of the colour field and its light, degrees. Undefined = 0. */
   rotation?: number;
+  /** Lighter / darker over the finished wallpaper, −100..100 (`lib/tone.ts`). Undefined = 0. */
+  tone?: number;
 }
 
 export interface V2Uniforms {
@@ -78,6 +81,8 @@ export interface V2Uniforms {
   material: Material;
   /** `uRotate`: radians the field turns (counter-clockwise in sample space = clockwise on screen). */
   rotateRad: number;
+  /** `uTone`: gamma exponent of the tone curve; exactly 1 = no tone pass needed. */
+  toneExp: number;
 }
 
 // The v2 starting look is defined in `lib/defaults.ts`; re-exported for callers of this module.
@@ -128,5 +133,6 @@ export function resolveV2Uniforms(params: V2Params): V2Uniforms {
     dither: params.dither === false ? 0 : 1,
     material: params.material ?? "none",
     rotateRad,
+    toneExp: toneExponent(params.tone),
   };
 }

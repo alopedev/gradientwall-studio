@@ -19,6 +19,8 @@ export const DEFAULT_DENSITY = 0.5;
 export const DEFAULT_MATERIAL = "none" as const;
 /** Rotation assumed when absent: none, the field at the seed's own angle. */
 export const DEFAULT_ROTATION = 0;
+/** Tone assumed when absent: 0, the wallpaper as drawn (see `lib/tone.ts`). */
+export const DEFAULT_TONE = 0;
 /** Contrast / vibrance assumed when absent: identity (no grading). */
 export const DEFAULT_CONTRAST = 1;
 export const DEFAULT_VIBRANCE = 1;

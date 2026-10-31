@@ -15,13 +15,18 @@
 import type { Material } from "../palettes";
 
 export type DrawnMaterial = Exclude<Material, "none">;
+/** A program of the second pass: a material, or "tone" alone over a wallpaper without one. */
+export type SecondPass = DrawnMaterial | "tone";
 
 const HEAD = `#version 300 es
 precision highp float;
 uniform sampler2D uBase;
 uniform vec2 uRes;
 uniform vec3 uCol[4];
+uniform float uTone;
 out vec4 outColor;
+// Lighter / darker (lib/tone.ts): per-channel gamma; uTone = 1 leaves the pixels exactly as they are.
+vec3 tone(vec3 c){ return uTone == 1.0 ? c : pow(clamp(c, 0.0, 1.0), vec3(uTone)); }
 vec3 base(vec2 px){ return texture(uBase, clamp(px, vec2(0.5), uRes - 0.5) / uRes).rgb; }
 float luma(vec3 c){ return dot(c, vec3(0.2126, 0.7152, 0.0722)); }
 float h21(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
@@ -49,7 +54,7 @@ void main(){
   float hi = smoothstep(0.55, 0.0, abs(n + 0.45)) * 0.10;
   c = c * (1.0 - rim * 0.14) + hi + rim * 0.04;
   c += (h21(fc) - 0.5) / 255.0;
-  outColor = vec4(clamp(c, 0.0, 1.0), 1.0);
+  outColor = vec4(tone(clamp(c, 0.0, 1.0)), 1.0);
 }`,
 
   // Rippled glass: soft diagonal waves bend the image like poured glass.
@@ -66,7 +71,7 @@ void main(){
   c += pow(max(sl, 0.0), 3.0) * 0.07;
   c *= 1.0 - pow(max(-sl, 0.0), 3.0) * 0.07;
   c += (h21(fc) - 0.5) / 255.0;
-  outColor = vec4(clamp(c, 0.0, 1.0), 1.0);
+  outColor = vec4(tone(clamp(c, 0.0, 1.0)), 1.0);
 }`,
 
   // Ordered dither: Bayer 8×8 on chunky pixels, 4 levels per channel so hues survive.
@@ -81,7 +86,7 @@ void main(){
   vec2 cell = floor(gl_FragCoord.xy / px);
   vec3 c = base((cell + 0.5) * px);
   vec3 q = floor(c * 3.0 + bayer(ivec2(cell))) / 3.0;
-  outColor = vec4(clamp(q, 0.0, 1.0), 1.0);
+  outColor = vec4(tone(clamp(q, 0.0, 1.0)), 1.0);
 }`,
 
   // Halftone: a 30° dot screen, each dot in its own colour, on a darkened first colour.
@@ -97,6 +102,12 @@ void main(){
   float r = sqrt(0.08 + 0.92 * lnorm(c)) * 0.64;
   float aa = 1.2 / cs;
   float m = 1.0 - smoothstep(r - aa, r + aa, length(q - id));
-  outColor = vec4(clamp(mix(uCol[0] * 0.55, c * 1.08, m), 0.0, 1.0), 1.0);
+  outColor = vec4(tone(clamp(mix(uCol[0] * 0.55, c * 1.08, m), 0.0, 1.0)), 1.0);
 }`,
 };
+
+/** The tone curve alone, for a wallpaper without a material: the pixels through `tone()`. */
+export const TONE_FRAG = `${HEAD}
+void main(){
+  outColor = vec4(tone(base(gl_FragCoord.xy)), 1.0);
+}`;

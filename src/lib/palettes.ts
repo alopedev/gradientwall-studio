@@ -120,6 +120,8 @@ export interface GradientConfig {
   material?: Material;
   /** Clockwise turn in degrees. Absent = 0. Only the v2 engine draws it (liquid and mesh). */
   rotation?: number;
+  /** Lighter / darker, −100..100 (`lib/tone.ts`). Absent = 0. Only the v2 engine draws it. */
+  tone?: number;
 }
 
 // Fallback values for absent fields live in `defaults.ts`; re-exported here
@@ -130,6 +132,7 @@ export {
   DEFAULT_LIGHT_ANGLE,
   DEFAULT_MATERIAL,
   DEFAULT_ROTATION,
+  DEFAULT_TONE,
   DEFAULT_VIBRANCE,
 } from "./defaults";
 
@@ -174,6 +177,8 @@ export interface RenderParams {
   material?: Material;
   /** Clockwise turn in degrees. Absent = 0. Only the v2 engine draws it. */
   rotation?: number;
+  /** Lighter / darker, −100..100. Absent = 0. Only the v2 engine draws it. */
+  tone?: number;
 }
 
 export interface Palette {

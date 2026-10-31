@@ -17,6 +17,7 @@ import {
   DEFAULT_CONTRAST,
   DEFAULT_DENSITY,
   DEFAULT_ROTATION,
+  DEFAULT_TONE,
   STUDIO_BLUR,
   STUDIO_COLORS,
   STUDIO_MATERIAL,
@@ -28,6 +29,7 @@ import { type Look, pickLook, toFavoriteConfig, toRenderParams } from "@/lib/loo
 import { generateRemix } from "@/lib/gradient/remix";
 import { generateSurprise } from "@/lib/gradient/surprise";
 import { makeRafBatcher } from "@/lib/raf-batcher";
+import { clampTone } from "@/lib/tone";
 
 /**
  * Current wallpaper configuration — the "what the studio is showing right now".
@@ -61,6 +63,8 @@ export interface ConfigState extends Look {
   setMaterial: (m: Material) => void;
   /** Clockwise turn of the wallpaper in degrees (0..360). Kept by shuffle and remix. */
   setRotation: (deg: number) => void;
+  /** Lighter / darker, −100..100 (`lib/tone.ts`). Kept by shuffle and remix, like grain. */
+  setTone: (tone: number) => void;
   setBlur: (n: number) => void;
   setGrain: (n: number) => void;
   /** Set the painterly highlight direction in compass degrees (0..360). */
@@ -93,7 +97,7 @@ const clampGrade = (n: number) => clamp(n, 0.5, 1.5);
 type RafPatch = Partial<
   Pick<
     ConfigState,
-    "blur" | "grain" | "lightAngle" | "density" | "contrast" | "vibrance" | "rotation"
+    "blur" | "grain" | "lightAngle" | "density" | "contrast" | "vibrance" | "rotation" | "tone"
   >
 >;
 
@@ -116,6 +120,7 @@ const configStore = createStore<ConfigState>()((set) => {
     vibrance: STUDIO_VIBRANCE,
     material: STUDIO_MATERIAL,
     rotation: DEFAULT_ROTATION,
+    tone: DEFAULT_TONE,
 
     setDevice: (d) => set({ device: d }),
     // A fresh palette invalidates any per-slot deactivation — reset the mask.
@@ -138,6 +143,7 @@ const configStore = createStore<ConfigState>()((set) => {
     setStyle: (s) => set({ style: s }),
     setMaterial: (m) => set({ material: m }),
     setRotation: (deg) => rafSet({ rotation: ((deg % 360) + 360) % 360 }),
+    setTone: (tone) => rafSet({ tone: clampTone(tone) }),
     // Slider/dial setters route through the rAF batcher so a fast drag fires at
     // most one render per frame instead of one per pointermove event.
     setBlur: (n) => rafSet({ blur: n }),

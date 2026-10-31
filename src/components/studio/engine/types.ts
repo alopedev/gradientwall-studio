@@ -12,7 +12,14 @@ import type { Device, Material, RenderParams, Style } from "@/lib/palettes";
  */
 
 /** Numeric knobs the "Adjust" panel can expose. Keys match fields of `RenderParams`. */
-export type AdjustmentKey = "blur" | "grain" | "lightAngle" | "contrast" | "vibrance" | "rotation";
+export type AdjustmentKey =
+  | "blur"
+  | "grain"
+  | "lightAngle"
+  | "contrast"
+  | "vibrance"
+  | "rotation"
+  | "tone";
 
 export interface AdjustmentSpec {
   key: AdjustmentKey;
@@ -24,6 +31,11 @@ export interface AdjustmentSpec {
   default: number;
   /** Text shown next to the slider (and in the drag bubble). */
   format: (value: number) => string;
+  /**
+   * A dark-to-light ramp with a centre mark instead of a fill, on its own full-width
+   * row under the others (the tone, Àlex 2026-10-31). Absent = a plain slider.
+   */
+  ramp?: boolean;
 }
 
 export interface StyleOption {

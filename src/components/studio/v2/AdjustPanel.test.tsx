@@ -14,15 +14,36 @@ describe("AdjustPanel", () => {
     act(() => useConfigStore.setState(INITIAL, true));
   });
 
-  it("offers only grain and rotate for a v2 wallpaper", () => {
+  it("offers grain, rotate and the dark / light tone for a v2 wallpaper", () => {
     render(<AdjustPanel id="adjust" />);
-    expect(names()).toEqual(["Grain", "Rotate"]);
+    expect(names()).toEqual(["Grain", "Rotate", "Dark / Light"]);
+  });
+
+  it("darkens and lightens from the keyboard, and Reset brings the tone back to 0", async () => {
+    const user = userEvent.setup();
+    render(<AdjustPanel id="adjust" />);
+    const tone = screen.getByRole("slider", { name: "Dark / Light" });
+    expect(tone).toHaveAttribute("aria-valuetext", "0");
+    act(() => tone.focus());
+    await user.keyboard("{ArrowLeft}");
+    await act(() => new Promise((r) => requestAnimationFrame(() => r(null))));
+    expect(useConfigStore.getState().tone).toBe(-1);
+    await user.click(screen.getByRole("button", { name: /reset/i }));
+    expect(useConfigStore.getState().tone).toBe(0);
+  });
+
+  it("keeps the tone through Remix, like grain", async () => {
+    const user = userEvent.setup();
+    act(() => useConfigStore.setState({ tone: -40 }));
+    render(<AdjustPanel id="adjust" />);
+    await user.click(screen.getByRole("button", { name: /remix/i }));
+    expect(useConfigStore.getState().tone).toBe(-40);
   });
 
   it("keeps light for an aurora, which can't turn", () => {
     act(() => useConfigStore.setState({ style: "aurora" }));
     render(<AdjustPanel id="adjust" />);
-    expect(names()).toEqual(["Grain", "Light"]);
+    expect(names()).toEqual(["Grain", "Light", "Dark / Light"]);
   });
 
   it("offers the full v1 set for a favorite saved with v1, and Reset applies v1 defaults", async () => {
@@ -54,6 +75,6 @@ describe("AdjustPanel", () => {
 
     await user.click(screen.getByRole("button", { name: /remix/i }));
     expect(useConfigStore.getState().engine).toBe("v2");
-    expect(names()).toEqual(["Grain", "Rotate"]);
+    expect(names()).toEqual(["Grain", "Rotate", "Dark / Light"]);
   });
 });

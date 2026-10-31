@@ -73,11 +73,11 @@ describe("webgl v2 engine", () => {
     expect(engine.exportFormat()).toBe("WebP");
   });
 
-  it("declares grain and light only, with defaults matching the store's start", () => {
+  it("declares grain, light and tone only, with defaults matching the store's start", () => {
     const { engine } = setup();
     const store = useConfigStore.getState();
     const adjustments = engine.adjustmentsFor(v2);
-    expect(adjustments.map((a) => a.key)).toEqual(["grain", "lightAngle"]);
+    expect(adjustments.map((a) => a.key)).toEqual(["grain", "lightAngle", "tone"]);
     for (const spec of adjustments) expect(spec.default, spec.key).toBe(store[spec.key]);
     expect(engine.styles.map((s) => s.id)).toEqual(["mesh", "aurora", "liquid"]);
   });
@@ -85,7 +85,7 @@ describe("webgl v2 engine", () => {
   it("gives a v1 favorite the v1 sliders without loading the v1 engine", () => {
     const { engine, loadFallback } = setup();
     expect(engine.adjustmentsFor(v1)).toBe(V1_ADJUSTMENTS);
-    expect(engine.adjustmentsFor(v2).map((a) => a.key)).toEqual(["grain", "lightAngle"]);
+    expect(engine.adjustmentsFor(v2).map((a) => a.key)).toEqual(["grain", "lightAngle", "tone"]);
     expect(loadFallback).not.toHaveBeenCalled();
   });
 
@@ -127,11 +127,19 @@ describe("webgl v2 engine", () => {
     expect(engine.adjustmentsFor({ ...v2, style: "liquid" }).map((a) => a.key)).toEqual([
       "grain",
       "rotation",
+      "tone",
     ]);
     expect(engine.adjustmentsFor({ ...v2, style: "aurora" }).map((a) => a.key)).toEqual([
       "grain",
       "lightAngle",
+      "tone",
     ]);
+  });
+
+  it("passes the tone to the shader", () => {
+    const { engine, draw } = setup();
+    engine.paintThumbnail(document.createElement("canvas"), { ...v2, tone: -35 }, { w: 40, h: 80 });
+    expect(draw).toHaveBeenCalledWith(expect.objectContaining({ tone: -35 }), 40, 80, {});
   });
 
   it("passes the material to the shader", () => {

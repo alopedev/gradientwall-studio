@@ -12,6 +12,8 @@ interface Props {
   display: string;
   onChange: (value: number) => void;
   className?: string;
+  /** Dark-to-light ramp with a centre mark instead of an ink fill (the tone slider). */
+  ramp?: boolean;
 }
 
 /**
@@ -19,7 +21,17 @@ interface Props {
  * value bubble above the thumb while it is dragged or focused by keyboard.
  * Radix handles keyboard, pointer and ARIA.
  */
-export function GlassSlider({ label, value, min, max, step, display, onChange, className }: Props) {
+export function GlassSlider({
+  label,
+  value,
+  min,
+  max,
+  step,
+  display,
+  onChange,
+  className,
+  ramp = false,
+}: Props) {
   const [dragging, setDragging] = useState(false);
   return (
     <div className={cn("group/slider grid min-w-0", className)}>
@@ -43,9 +55,22 @@ export function GlassSlider({ label, value, min, max, step, display, onChange, c
         onPointerCancel={() => setDragging(false)}
         className="relative -my-1 flex h-11 w-full touch-none cursor-pointer select-none items-center"
       >
-        <SliderPrimitive.Track className="relative h-1 grow rounded-full bg-ink/20">
-          <SliderPrimitive.Range className="absolute h-full rounded-full bg-primary" />
-        </SliderPrimitive.Track>
+        {ramp ? (
+          <SliderPrimitive.Track
+            data-ramp
+            className="relative h-2 grow rounded-full bg-[linear-gradient(90deg,var(--color-ink),var(--color-bg))] shadow-[inset_0_0_0_1.5px_var(--color-ink)]"
+          >
+            {/* Where the wallpaper is as drawn. */}
+            <span
+              aria-hidden
+              className="absolute -inset-y-1 left-1/2 w-0.5 -translate-x-1/2 rounded-full bg-ink/40"
+            />
+          </SliderPrimitive.Track>
+        ) : (
+          <SliderPrimitive.Track className="relative h-1 grow rounded-full bg-ink/20">
+            <SliderPrimitive.Range className="absolute h-full rounded-full bg-primary" />
+          </SliderPrimitive.Track>
+        )}
         <SliderPrimitive.Thumb
           aria-label={label}
           aria-valuetext={display}

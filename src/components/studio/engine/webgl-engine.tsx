@@ -10,7 +10,14 @@ import {
   type V2Params,
   type V2Renderer,
 } from "@/lib/gradient-v2";
-import { DEFAULT_ROTATION, DEVICE_SIZES, engineOf, type RenderParams } from "@/lib/palettes";
+import {
+  DEFAULT_ROTATION,
+  DEFAULT_TONE,
+  DEVICE_SIZES,
+  engineOf,
+  type RenderParams,
+} from "@/lib/palettes";
+import { formatTone, TONE_MAX, TONE_MIN } from "@/lib/tone";
 import { useFittedCanvas } from "@/lib/useFittedCanvas";
 import { lazy } from "./lazy";
 import { ScreenMotion } from "./ScreenMotion";
@@ -30,6 +37,7 @@ const toV2 = (p: RenderParams): V2Params => ({
   grain: p.grain,
   material: p.material,
   rotation: p.rotation,
+  tone: p.tone,
 });
 
 /** The shader has no softness / contrast / vibrance: its look is calibrated. */
@@ -41,6 +49,18 @@ const GRAIN: AdjustmentSpec = {
   step: 1,
   default: V2_DEFAULT_GRAIN,
   format: (v) => `${Math.round(v)}%`,
+};
+
+/** Lighter / darker over the finished wallpaper (`lib/tone.ts`), on every look. */
+const TONE: AdjustmentSpec = {
+  key: "tone",
+  label: "Dark / Light",
+  min: TONE_MIN,
+  max: TONE_MAX,
+  step: 1,
+  default: DEFAULT_TONE,
+  format: formatTone,
+  ramp: true,
 };
 
 /**
@@ -58,6 +78,7 @@ const ADJUSTMENTS: readonly AdjustmentSpec[] = [
     default: DEFAULT_ROTATION,
     format: (v) => `${Math.round(v)}°`,
   },
+  TONE,
 ];
 
 const AURORA_ADJUSTMENTS: readonly AdjustmentSpec[] = [
@@ -71,6 +92,7 @@ const AURORA_ADJUSTMENTS: readonly AdjustmentSpec[] = [
     default: V2_DEFAULT_LIGHT_ANGLE,
     format: (v) => `${Math.round(v)}°`,
   },
+  TONE,
 ];
 
 /**
