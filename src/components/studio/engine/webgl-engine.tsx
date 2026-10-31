@@ -78,12 +78,12 @@ const AURORA_ADJUSTMENTS: readonly AdjustmentSpec[] = [
  * and links that carry it, but left the picker (too close to Liquid).
  */
 const LOOK_OPTIONS: readonly LookOption[] = [
-  { id: "mesh", label: "Mesh", style: "mesh", material: "none" },
-  { id: "aurora", label: "Aurora", style: "aurora", material: "none" },
-  { id: "liquid", label: "Liquid", style: "liquid", material: "none" },
   { id: "glass", label: "Glass", style: "mesh", material: "fluted" },
   { id: "dots", label: "Dots", style: "liquid", material: "halftone" },
   { id: "pixel", label: "Pixel", style: "mesh", material: "dither" },
+  { id: "mesh", label: "Mesh", style: "mesh", material: "none" },
+  { id: "aurora", label: "Aurora", style: "aurora", material: "none" },
+  { id: "liquid", label: "Liquid", style: "liquid", material: "none" },
 ];
 
 export interface WebGLEngineDeps {

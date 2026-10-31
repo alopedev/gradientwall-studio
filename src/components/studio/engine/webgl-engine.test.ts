@@ -92,12 +92,12 @@ describe("webgl v2 engine", () => {
   it("offers six looks for v2 wallpapers, ripple left out, and none for v1", () => {
     const { engine } = setup();
     expect(engine.looksFor?.(v2).map((o) => [o.label, o.style, o.material])).toEqual([
-      ["Mesh", "mesh", "none"],
-      ["Aurora", "aurora", "none"],
-      ["Liquid", "liquid", "none"],
       ["Glass", "mesh", "fluted"],
       ["Dots", "liquid", "halftone"],
       ["Pixel", "mesh", "dither"],
+      ["Mesh", "mesh", "none"],
+      ["Aurora", "aurora", "none"],
+      ["Liquid", "liquid", "none"],
     ]);
     expect(engine.looksFor?.(v1)).toEqual([]);
   });

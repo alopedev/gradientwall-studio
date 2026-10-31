@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach } from "vitest";
 import { useConfigStore } from "./useConfigStore";
-import { ALL_ACTIVE, PALETTES } from "@/lib/palettes";
+import { ALL_ACTIVE } from "@/lib/palettes";
 import { flushRaf } from "@/test-utils";
 
 // Snapshot the pristine state so each test starts fresh.

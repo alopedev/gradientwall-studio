@@ -24,9 +24,13 @@ export const DEFAULT_CONTRAST = 1;
 export const DEFAULT_VIBRANCE = 1;
 
 // ── Starting look of the Studio ──
-/** Palette (by name, from `PALETTES`) and material a fresh Studio opens on: Ember under Glass. */
-export const STUDIO_PALETTE = "Ember";
-export const STUDIO_MATERIAL = "fluted" as const;
+/**
+ * Colours and material a fresh visit opens on, in the hero and the Studio: the
+ * blue / pink / lime / violet mix named Orchid, as Pixel (mesh under dither).
+ * Chosen by Àlex, 2026-10-31.
+ */
+export const STUDIO_COLORS = ["#449ac7", "#ec59b2", "#bef784", "#af68e3"] as const;
+export const STUDIO_MATERIAL = "dither" as const;
 export const STUDIO_BLUR = 48;
 /** Subtle pop; only the Canvas2D engine exposes vibrance. */
 export const STUDIO_VIBRANCE = 1.05;
