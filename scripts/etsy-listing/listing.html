@@ -143,7 +143,7 @@
       <div class="item"><span class="k">5K</span><span class="v"><b>5120 × 2880</b> · iMac, Studio Display</span></div>
       <div class="item"><span class="k">Phone</span><span class="v"><b>1320 × 2868</b> · every modern iPhone &amp; Android</span></div>
     </div>
-    <p class="note"><span data-text="zips"></span> · high-quality JPG · personal use.<br>Designed by GradientWall with AI-assisted image generation, upscaled and curated by hand.</p>
+    <p class="note"><span data-text="zips"></span> · high-quality JPG · personal use.<br><span data-text="madeBy"></span></p>
   </div>
   <div class="stack">
     <div class="phone s1" data-pick="stack1" data-fmt="mobile"><div class="time">9:41</div></div>
@@ -194,10 +194,26 @@
       darkClock: ["04"], // iOS switches the clock to dark on light wallpapers
       names: { "01": "Kreise", "02": "Rot", "03": "Schwarz", "04": "Gelb", "05": "Sonne", "06": "Halbkreise" },
     },
+    // Drawn by the Studio's own engine (scripts/render-engine-pack.mjs), no AI.
+    marble: {
+      count: 12, gridCols: 6, zips: "3 ZIP files",
+      title: "Marble", sub: "12 liquid <em>marble</em> wallpapers",
+      gridTitle: "All <em>12</em> designs", phonesBTitle: "Five more, <em>all included</em>",
+      designs: "<b>original marble designs</b>, each in three sizes",
+      phonesA: "01,04,07,10,12", phonesB: "02,03,05,06,09",
+      coverDesk: "10", coverPhone1: "01", coverPhone2: "07", desktop: "04", stack1: "12", stack2: "03",
+      madeBy: "Made by GradientWall with its own gradient engine. No AI, rendered natively at every size.",
+      names: {
+        "01": "Terracotta", "02": "Olive", "03": "Slate Blue", "04": "Rose Clay", "05": "Graphite", "06": "Ochre",
+        "07": "Jade", "08": "Lavender", "09": "Apricot", "10": "Navy and Gold", "11": "Walnut", "12": "Sienna",
+      },
+    },
   };
+  const AI_MADE_BY = "Designed by GradientWall with AI-assisted image generation, upscaled and curated by hand.";
   const q = new URLSearchParams(location.search);
   const slug = q.get("slug") || "impasto";
   const pack = PACKS[slug];
+  pack.madeBy ??= AI_MADE_BY;
   if (pack.count < 10) document.body.classList.add("short-pack");
   const single = q.get("single");
   if (single) {
@@ -219,8 +235,10 @@
   });
   document.querySelector("#grid .tiles:not(.phones)").style.gridTemplateColumns = `repeat(${pack.gridCols}, 1fr)`;
   document.querySelector("#s-pack .tiles").style.gridTemplateColumns = `repeat(${pack.gridCols}, 1fr)`;
-  // Phone strip keeps the 10-up tile width; shorter packs stay centered.
-  if (pack.count < 10) {
+  // Phone strip keeps the 10-up tile width; shorter packs stay centered, longer ones get one column each.
+  if (pack.count > 10) {
+    document.querySelector("#grid .tiles.phones").style.gridTemplateColumns = `repeat(${pack.count}, 1fr)`;
+  } else if (pack.count < 10) {
     const strip = document.querySelector("#grid .tiles.phones");
     strip.style.gridTemplateColumns = `repeat(${pack.count}, 230px)`;
     strip.style.justifyContent = "center";
