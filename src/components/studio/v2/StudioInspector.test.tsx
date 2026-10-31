@@ -200,14 +200,14 @@ describe("StudioInspector", () => {
   it("shows the engine's sliders and Reset restores their defaults", async () => {
     const user = userEvent.setup();
     render(<Harness />);
-    // The v2 shader's look is calibrated: only grain and the turn are exposed.
-    expect(screen.getAllByRole("slider")).toHaveLength(2);
+    // The v2 shader's look is calibrated: only grain, the turn and the tone are exposed.
+    expect(screen.getAllByRole("slider")).toHaveLength(3);
     expect(screen.getByRole("slider", { name: "Rotate" })).toBeTruthy();
 
-    act(() => useConfigStore.setState({ grain: 80, rotation: 90 }));
+    act(() => useConfigStore.setState({ grain: 80, rotation: 90, tone: 40 }));
     await user.click(screen.getByRole("button", { name: /reset/i }));
     const s = useConfigStore.getState();
-    expect([s.grain, s.rotation]).toEqual([45, 0]);
+    expect([s.grain, s.rotation, s.tone]).toEqual([45, 0, 0]);
   });
 
   describe("going back to a previous wallpaper", () => {

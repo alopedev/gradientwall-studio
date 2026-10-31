@@ -68,14 +68,16 @@ export function pixelKey(
     | "grain"
     | "material"
     | "rotation"
+    | "tone"
   >,
   pipeline: Pipeline,
 ): string {
-  const { style, colors, blur, seed, lightAngle, density, grain, material, rotation } = params;
+  const { style, colors, blur, seed, lightAngle, density, grain, material, rotation, tone } =
+    params;
   const ramp = colors.join(",");
   const fields =
     pipeline === "v1"
       ? [style, ramp, blur, seed, lightAngle, density, grain]
-      : [style, ramp, seed, lightAngle, grain, material ?? "none", rotation ?? 0];
+      : [style, ramp, seed, lightAngle, grain, material ?? "none", rotation ?? 0, tone ?? 0];
   return fields.join("|");
 }

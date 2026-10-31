@@ -14,6 +14,7 @@ const SETTERS = {
   contrast: "setContrast",
   vibrance: "setVibrance",
   rotation: "setRotation",
+  tone: "setTone",
 } as const;
 
 function AdjustSlider({ spec }: { spec: AdjustmentSpec }) {
@@ -28,11 +29,15 @@ function AdjustSlider({ spec }: { spec: AdjustmentSpec }) {
       step={spec.step}
       display={spec.format(value)}
       onChange={set}
+      ramp={spec.ramp}
     />
   );
 }
 
-/** The engine's sliders, with Reset and Remix. */
+/**
+ * The engine's sliders, two to a row so the panel doesn't grow (Àlex, 2026-10-31,
+ * mockup B), then the ramp sliders (the tone) on full-width rows, Reset and Remix.
+ */
 export function AdjustPanel({ id }: { id?: string }) {
   const engine = useWallpaperEngine();
   const adjustments = engine.adjustmentsFor(useRenderParams());
@@ -50,9 +55,18 @@ export function AdjustPanel({ id }: { id?: string }) {
       <h3 id={headingId} className="sr-only">
         Adjust the wallpaper
       </h3>
-      {adjustments.map((spec) => (
-        <AdjustSlider key={spec.key} spec={spec} />
-      ))}
+      <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+        {adjustments
+          .filter((spec) => !spec.ramp)
+          .map((spec) => (
+            <AdjustSlider key={spec.key} spec={spec} />
+          ))}
+      </div>
+      {adjustments
+        .filter((spec) => spec.ramp)
+        .map((spec) => (
+          <AdjustSlider key={spec.key} spec={spec} />
+        ))}
       <div className="-mx-2 flex flex-wrap items-center justify-end gap-1">
         <InkButton variant="quiet" onClick={reset}>
           <RotateCcw className="size-[15px]" aria-hidden />

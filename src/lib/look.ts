@@ -6,6 +6,7 @@ import {
   DEFAULT_LIGHT_ANGLE,
   DEFAULT_MATERIAL,
   DEFAULT_ROTATION,
+  DEFAULT_TONE,
   DEFAULT_VIBRANCE,
   engineOf,
   type ActiveMask,
@@ -44,6 +45,7 @@ export interface Look {
   vibrance: number;
   material: Material;
   rotation: number;
+  tone: number;
 }
 
 /** What a favorite persists. Fields added after the first release are optional. */
@@ -65,6 +67,7 @@ export function pickLook(s: Look): Look {
     vibrance: s.vibrance,
     material: s.material,
     rotation: s.rotation,
+    tone: s.tone,
   };
 }
 
@@ -83,6 +86,7 @@ export function toRenderParams(look: Look): RenderParams {
     vibrance: look.vibrance,
     material: look.material,
     rotation: look.rotation,
+    tone: look.tone,
   };
 }
 
@@ -102,6 +106,7 @@ export function toFavoriteConfig(look: Look): FavoriteConfig {
     vibrance: look.vibrance,
     material: look.material,
     rotation: look.rotation,
+    tone: look.tone,
   };
 }
 
@@ -125,6 +130,7 @@ export function fromFavorite(config: FavoriteConfig): Look {
     vibrance: config.vibrance ?? DEFAULT_VIBRANCE,
     material: config.material ?? DEFAULT_MATERIAL,
     rotation: config.rotation ?? DEFAULT_ROTATION,
+    tone: config.tone ?? DEFAULT_TONE,
   };
 }
 
@@ -147,11 +153,12 @@ export function isSameLook(a: Look, b: Look): boolean {
     a.contrast === b.contrast &&
     a.vibrance === b.vibrance &&
     a.material === b.material &&
-    a.rotation === b.rotation
+    a.rotation === b.rotation &&
+    a.tone === b.tone
   );
 }
 
-/** A look from a link (`lib/look-url`) on top of the current one: drawn by v2, all four colours on, no material or turn unless the link names them. */
+/** A look from a link (`lib/look-url`) on top of the current one: drawn by v2, all four colours on, no material, turn or tone unless the link names them. */
 export function withSharedLook(look: Look, shared: SharedLook): Look {
   return {
     ...look,
@@ -164,5 +171,6 @@ export function withSharedLook(look: Look, shared: SharedLook): Look {
     grain: shared.grain,
     material: shared.material ?? DEFAULT_MATERIAL,
     rotation: shared.rotation ?? DEFAULT_ROTATION,
+    tone: shared.tone ?? DEFAULT_TONE,
   };
 }

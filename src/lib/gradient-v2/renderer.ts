@@ -7,13 +7,14 @@
  * `paintV2`, which draws off-screen and blits into a 2D canvas, so the page
  * never holds more than one GPU context for wallpapers.
  *
- * A wallpaper with a material draws in two passes: the signed-off shader into
- * a texture the size of the output, then the material shader (`material.ts`)
- * from that texture onto the canvas. Without one, the first pass draws straight
- * to the canvas, as it always did.
+ * A wallpaper with a material or a tone draws in two passes: the signed-off
+ * shader into a texture the size of the output, then the material shader
+ * (`material.ts`, which also applies the tone; `TONE_FRAG` when there is only a
+ * tone) from that texture onto the canvas. Without either, the first pass draws
+ * straight to the canvas, as it always did.
  */
 
-import { type DrawnMaterial, MATERIAL_FRAG } from "./material";
+import { MATERIAL_FRAG, type SecondPass, TONE_FRAG } from "./material";
 import { VERT } from "./shader";
 import { FRAG_ANIMATED_ROTATABLE, FRAG_STILL_ROTATABLE } from "./shader-rotate";
 import { resolveV2Uniforms, type V2Params } from "./params";
@@ -177,15 +178,17 @@ export function createRendererV2(
     gl.uniform1f(loc.uRotate, u.rotateRad);
     if (animated) gl.uniform1f(loc.uTime, opts.time ?? 0);
 
-    if (u.material === "none") {
+    const pass: SecondPass | null =
+      u.material !== "none" ? u.material : u.toneExp !== 1 ? "tone" : null;
+    if (!pass) {
       drawStrips(w, h, opts.strip);
       return;
     }
-    // Pass 1: the wallpaper into the base texture. Pass 2: the material onto the canvas.
+    // Pass 1: the wallpaper into the base texture. Pass 2: the material and tone onto the canvas.
     gl.bindFramebuffer(gl.FRAMEBUFFER, baseTarget(w, h));
     drawStrips(w, h, opts.strip);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    const m = materialProgram(u.material);
+    const m = materialProgram(pass);
     // biome-ignore lint/correctness/useHookAtTopLevel: WebGL's useProgram, not a React hook.
     gl.useProgram(m.prog);
     gl.activeTexture(gl.TEXTURE0);
@@ -193,6 +196,7 @@ export function createRendererV2(
     gl.uniform1i(m.uBase, 0);
     gl.uniform2f(m.uRes, w, h);
     gl.uniform3fv(m.uCol, new Float32Array(u.colors));
+    gl.uniform1f(m.uTone, u.toneExp);
     drawStrips(w, h, opts.strip);
   }
 
@@ -243,16 +247,21 @@ export function createRendererV2(
     uBase: WebGLUniformLocation | null;
     uRes: WebGLUniformLocation | null;
     uCol: WebGLUniformLocation | null;
+    uTone: WebGLUniformLocation | null;
   }
-  // Compiled the first time a material is drawn: most visitors never pick one.
-  const materials = new Map<DrawnMaterial, MaterialProgram>();
-  function materialProgram(material: DrawnMaterial): MaterialProgram {
+  // Compiled the first time a material (or a tone) is drawn: many visitors never pick one.
+  const materials = new Map<SecondPass, MaterialProgram>();
+  function materialProgram(material: SecondPass): MaterialProgram {
     const known = materials.get(material);
     if (known) return known;
     const p = gl.createProgram();
     if (!p) throw new WebGL2UnavailableError("Could not create program");
     const mvs = createShader(gl, gl.VERTEX_SHADER, VERT);
-    const mfs = createShader(gl, gl.FRAGMENT_SHADER, MATERIAL_FRAG[material]);
+    const mfs = createShader(
+      gl,
+      gl.FRAGMENT_SHADER,
+      material === "tone" ? TONE_FRAG : MATERIAL_FRAG[material],
+    );
     checkCompiled(gl, mvs);
     checkCompiled(gl, mfs);
     gl.attachShader(p, mvs);
@@ -267,6 +276,7 @@ export function createRendererV2(
       uBase: gl.getUniformLocation(p, "uBase"),
       uRes: gl.getUniformLocation(p, "uRes"),
       uCol: gl.getUniformLocation(p, "uCol"),
+      uTone: gl.getUniformLocation(p, "uTone"),
     };
     materials.set(material, made);
     return made;

@@ -41,6 +41,18 @@ describe("look URL", () => {
     expect(encodeLookParam({ ...look, rotation: 0 })).toBe(encodeLookParam(look));
   });
 
+  it("adds a tone as l<n> (lighter) or d<n> (darker), and reads it back", () => {
+    const dark = { ...look, material: "dither" as const, rotation: 90, tone: -30 };
+    expect(encodeLookParam(dark)).toBe(
+      "liquid-1234-2b1055.7597de.ff6e7f.ffd86e-315-45-dither-r90-d30",
+    );
+    expect(decodeLookParam(encodeLookParam(dark))).toEqual(dark);
+    expect(decodeLookParam("liquid-1234-2b1055.7597de.ff6e7f.ffd86e-315-45-l45")?.tone).toBe(45);
+    expect(encodeLookParam({ ...look, tone: 0 })).toBe(encodeLookParam(look));
+    expect(decodeLookParam("liquid-1234-2b1055.7597de.ff6e7f.ffd86e-315-45-d101")).toBeNull();
+    expect(decodeLookParam("liquid-1234-2b1055.7597de.ff6e7f.ffd86e-315-45-l5-d5")).toBeNull();
+  });
+
   it("lowercases colours and accepts upper case", () => {
     expect(decodeLookParam("mesh-7-2B1055.7597DE.FF6E7F.FFD86E-90-0")?.colors[0]).toBe("#2b1055");
   });

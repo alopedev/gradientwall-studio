@@ -9,7 +9,7 @@ import {
   WebGL2UnavailableError,
   type V2Renderer,
 } from "./renderer";
-import { MATERIAL_FRAG } from "./material";
+import { MATERIAL_FRAG, TONE_FRAG } from "./material";
 import { FRAG, VERT } from "./shader";
 import { FRAG_ANIMATED } from "./shader-animated";
 import { rotatable } from "./shader-rotate";
@@ -238,6 +238,35 @@ describe("createRendererV2 (material pass)", () => {
     expect(() =>
       r.draw({ colors: RAMP, style: "liquid", seed: 1, material: "ripple" }, 5120, 2880),
     ).toThrow(WebGL2UnavailableError);
+  });
+});
+
+describe("createRendererV2 (tone)", () => {
+  it("draws a wallpaper with no material and no tone in one pass, as before", () => {
+    const { canvas, calls } = fakeGl();
+    createRendererV2(canvas).draw({ colors: RAMP, style: "liquid", seed: 1, tone: 0 }, 400, 800);
+    expect(named(calls, "bindFramebuffer")).toHaveLength(0);
+    expect(named(calls, "drawArrays")).toHaveLength(1);
+  });
+
+  it("runs the tone pass alone over a wallpaper without a material", () => {
+    const { canvas, calls } = fakeGl();
+    createRendererV2(canvas).draw({ colors: RAMP, style: "liquid", seed: 1, tone: -50 }, 400, 800);
+    expect(named(calls, "shaderSource").map((c) => c.args[1])).toContain(TONE_FRAG);
+    expect(named(calls, "drawArrays")).toHaveLength(2);
+    const exp = named(calls, "uniform1f").find((c) => c.args[0] === "uTone")?.args[1] as number;
+    expect(exp).toBeCloseTo(2 ** 0.6);
+  });
+
+  it("folds the tone into the material pass, and sends 1 when there is none", () => {
+    const { canvas, calls } = fakeGl();
+    const r = createRendererV2(canvas);
+    r.draw({ colors: RAMP, style: "mesh", seed: 1, material: "dither", tone: 40 }, 400, 800);
+    expect(named(calls, "shaderSource").map((c) => c.args[1])).not.toContain(TONE_FRAG);
+    expect(named(calls, "drawArrays")).toHaveLength(2);
+    r.draw({ colors: RAMP, style: "mesh", seed: 1, material: "dither" }, 400, 800);
+    const tones = named(calls, "uniform1f").filter((c) => c.args[0] === "uTone");
+    expect(tones.at(-1)?.args[1]).toBe(1);
   });
 });
 

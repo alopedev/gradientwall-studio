@@ -142,6 +142,7 @@ export function ScreenMotion({ params }: { params: RenderParams }) {
             lightAngle: p.lightAngle,
             material: p.material,
             rotation: p.rotation,
+            tone: p.tone,
           },
           width,
           height,
