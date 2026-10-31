@@ -14,7 +14,13 @@ describe("AdjustPanel", () => {
     act(() => useConfigStore.setState(INITIAL, true));
   });
 
-  it("offers only grain and light for a v2 wallpaper", () => {
+  it("offers only grain and rotate for a v2 wallpaper", () => {
+    render(<AdjustPanel id="adjust" />);
+    expect(names()).toEqual(["Grain", "Rotate"]);
+  });
+
+  it("keeps light for an aurora, which can't turn", () => {
+    act(() => useConfigStore.setState({ style: "aurora" }));
     render(<AdjustPanel id="adjust" />);
     expect(names()).toEqual(["Grain", "Light"]);
   });
@@ -48,6 +54,6 @@ describe("AdjustPanel", () => {
 
     await user.click(screen.getByRole("button", { name: /remix/i }));
     expect(useConfigStore.getState().engine).toBe("v2");
-    expect(names()).toEqual(["Grain", "Light"]);
+    expect(names()).toEqual(["Grain", "Rotate"]);
   });
 });

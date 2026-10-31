@@ -89,6 +89,49 @@ describe("webgl v2 engine", () => {
     expect(engine.adjustmentsFor(v2).map((a) => a.key)).toEqual(["grain", "lightAngle"]);
   });
 
+  it("offers six looks for v2 wallpapers, ripple left out, and none for v1", () => {
+    const { engine } = setup();
+    expect(engine.looksFor?.(v2).map((o) => [o.label, o.style, o.material])).toEqual([
+      ["Mesh", "mesh", "none"],
+      ["Aurora", "aurora", "none"],
+      ["Liquid", "liquid", "none"],
+      ["Glass", "mesh", "fluted"],
+      ["Dots", "liquid", "halftone"],
+      ["Pixel", "mesh", "dither"],
+    ]);
+    expect(engine.looksFor?.(v1)).toEqual([]);
+  });
+
+  it("turns with Rotate; aurora, which can't turn, keeps Light", () => {
+    const { engine } = setup();
+    expect(engine.adjustmentsFor({ ...v2, style: "liquid" }).map((a) => a.key)).toEqual([
+      "grain",
+      "rotation",
+    ]);
+    expect(engine.adjustmentsFor({ ...v2, style: "aurora" }).map((a) => a.key)).toEqual([
+      "grain",
+      "lightAngle",
+    ]);
+  });
+
+  it("passes the material to the shader", () => {
+    const { engine, draw } = setup();
+    engine.paintThumbnail(
+      document.createElement("canvas"),
+      { ...v2, material: "halftone" },
+      {
+        w: 88,
+        h: 152,
+      },
+    );
+    expect(draw).toHaveBeenCalledWith(
+      expect.objectContaining({ material: "halftone" }),
+      88,
+      152,
+      {},
+    );
+  });
+
   it("paints v2 thumbnails with the shader", () => {
     const { engine, draw, fallback } = setup();
     engine.paintThumbnail(document.createElement("canvas"), v2, { w: 88, h: 152 });

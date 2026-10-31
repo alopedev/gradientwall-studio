@@ -49,7 +49,16 @@ describe("StudioInspector", () => {
     expect(screen.queryByRole("button", { name: /^adjust$/i })).toBeNull();
   });
 
-  it("orders the styles Mesh, Aurora, Liquid", () => {
+  it("offers one Style picker: six looks, each a style and a material", () => {
+    render(<Harness />);
+    const style = screen.getByLabelText("Style");
+    const labels = Array.from(style.querySelectorAll("button")).map((b) => b.textContent);
+    expect(labels).toEqual(["Mesh", "Aurora", "Liquid", "Glass", "Dots", "Pixel"]);
+    expect(screen.queryByLabelText("Material")).toBeNull();
+  });
+
+  it("keeps the plain style switch for a favorite drawn by the v1 engine", () => {
+    act(() => useConfigStore.setState({ engine: "v1" }));
     render(<Harness />);
     const style = screen.getByLabelText("Style");
     const labels = Array.from(style.querySelectorAll("button")).map((b) => b.textContent);
@@ -142,14 +151,16 @@ describe("StudioInspector", () => {
     expect(useConfigStore.getState().seed).toBe(before);
   });
 
-  it("the style control updates the store and its pressed state", async () => {
+  it("a look sets both style and material, and shows as pressed", async () => {
     const user = userEvent.setup();
     render(<Harness />);
-    const aurora = screen.getByRole("button", { name: "Aurora" });
-    expect(aurora.getAttribute("aria-pressed")).toBe("false");
-    await user.click(aurora);
-    expect(useConfigStore.getState().style).toBe("aurora");
-    expect(aurora.getAttribute("aria-pressed")).toBe("true");
+    const glass = screen.getByRole("button", { name: "Glass" });
+    expect(glass.getAttribute("aria-pressed")).toBe("false");
+    await user.click(glass);
+    const s = useConfigStore.getState();
+    expect([s.style, s.material]).toEqual(["mesh", "fluted"]);
+    expect(glass.getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByRole("button", { name: "Mesh" }).getAttribute("aria-pressed")).toBe("false");
   });
 
   it("picking a swatch applies that palette", async () => {
@@ -176,14 +187,14 @@ describe("StudioInspector", () => {
   it("shows the engine's sliders and Reset restores their defaults", async () => {
     const user = userEvent.setup();
     render(<Harness />);
-    // The v2 shader's look is calibrated: only grain and light are exposed.
+    // The v2 shader's look is calibrated: only grain and the turn are exposed.
     expect(screen.getAllByRole("slider")).toHaveLength(2);
-    expect(screen.getByRole("slider", { name: "Light" })).toBeTruthy();
+    expect(screen.getByRole("slider", { name: "Rotate" })).toBeTruthy();
 
-    act(() => useConfigStore.setState({ grain: 80, lightAngle: 90 }));
+    act(() => useConfigStore.setState({ grain: 80, rotation: 90 }));
     await user.click(screen.getByRole("button", { name: /reset/i }));
     const s = useConfigStore.getState();
-    expect([s.grain, s.lightAngle]).toEqual([45, 315]);
+    expect([s.grain, s.rotation]).toEqual([45, 0]);
   });
 
   describe("going back to a previous wallpaper", () => {

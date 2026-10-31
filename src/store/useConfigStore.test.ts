@@ -85,10 +85,12 @@ describe("useConfigStore", () => {
       for (const c of after.colors) expect(c).toMatch(/^#[0-9a-f]{6}$/i);
     });
 
-    it("keeps the user's style, grain, contrast and vibrance", () => {
+    it("keeps the user's style, material, grain, contrast and vibrance", () => {
       useConfigStore.setState({ style: "aurora", grain: 77, contrast: 1.2, vibrance: 0.8 });
+      useConfigStore.getState().setMaterial("fluted");
       useConfigStore.getState().applySurprise();
       const s = useConfigStore.getState();
+      expect(s.material).toBe("fluted");
       expect(s.style).toBe("aurora");
       expect(s.grain).toBe(77);
       expect(s.contrast).toBe(1.2);

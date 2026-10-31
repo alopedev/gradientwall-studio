@@ -13,6 +13,7 @@ const SETTERS = {
   lightAngle: "setLightAngle",
   contrast: "setContrast",
   vibrance: "setVibrance",
+  rotation: "setRotation",
 } as const;
 
 function AdjustSlider({ spec }: { spec: AdjustmentSpec }) {

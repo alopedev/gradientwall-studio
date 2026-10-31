@@ -15,6 +15,10 @@
 export const DEFAULT_LIGHT_ANGLE = 135;
 /** Density assumed when absent: the midpoint reproduces the pre-density layer counts. */
 export const DEFAULT_DENSITY = 0.5;
+/** Material assumed when absent: none, the wallpaper as drawn before materials. */
+export const DEFAULT_MATERIAL = "none" as const;
+/** Rotation assumed when absent: none, the field at the seed's own angle. */
+export const DEFAULT_ROTATION = 0;
 /** Contrast / vibrance assumed when absent: identity (no grading). */
 export const DEFAULT_CONTRAST = 1;
 export const DEFAULT_VIBRANCE = 1;

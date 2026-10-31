@@ -7,6 +7,7 @@ export type {
   EngineCanvasProps,
   ExportProgress,
   ExportResult,
+  LookOption,
   StyleOption,
   WallpaperEngine,
 } from "./types";

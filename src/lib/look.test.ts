@@ -8,6 +8,7 @@ import {
   pickLook,
   toFavoriteConfig,
   toRenderParams,
+  withSharedLook,
 } from "./look";
 
 const look: Look = {
@@ -22,6 +23,8 @@ const look: Look = {
   density: 0.5,
   contrast: 1,
   vibrance: 1,
+  material: "fluted",
+  rotation: 90,
 };
 
 describe("toRenderParams", () => {
@@ -68,6 +71,8 @@ describe("toFavoriteConfig / fromFavorite", () => {
       density: 0.5,
       contrast: 1,
       vibrance: 1,
+      material: "none",
+      rotation: 0,
     });
   });
 });
@@ -102,7 +107,32 @@ describe("isSameLook", () => {
     ["density", { density: 0.6 }],
     ["contrast", { contrast: 1.1 }],
     ["vibrance", { vibrance: 1.1 }],
+    ["material", { material: "halftone" }],
+    ["rotation", { rotation: 91 }],
   ])("is false when %s differs", (_name, patch) => {
     expect(isSameLook(look, { ...look, ...patch })).toBe(false);
+  });
+});
+
+describe("withSharedLook", () => {
+  const shared = {
+    style: "mesh" as const,
+    seed: 9,
+    colors: ["#010101", "#020202", "#030303", "#040404"] as Look["colors"],
+    lightAngle: 90,
+    grain: 10,
+  };
+
+  it("drops the current material when the link names none", () => {
+    expect(withSharedLook(look, shared).material).toBe("none");
+  });
+
+  it("drops the current turn when the link names none, and takes the link's", () => {
+    expect(withSharedLook(look, shared).rotation).toBe(0);
+    expect(withSharedLook(look, { ...shared, rotation: 45 }).rotation).toBe(45);
+  });
+
+  it("takes the link's material", () => {
+    expect(withSharedLook(look, { ...shared, material: "dither" }).material).toBe("dither");
   });
 });
