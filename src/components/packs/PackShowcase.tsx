@@ -1,6 +1,8 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { m } from "motion/react";
-import type { Pack } from "@/lib/packs";
+import type { Pack, PackCover as PackCoverType } from "@/lib/packs";
+import { preloadImage } from "@/lib/preload-image";
+import { imageSources } from "@/lib/responsive-image";
 import {
   pieceName,
   pieceRenders,
@@ -13,6 +15,38 @@ import { PackCover } from "./PackCover";
 
 const FILL = "absolute inset-0 block h-full w-full object-cover";
 const SWIPE_MIN_PX = 48;
+/** Longest wait for the next wallpaper before swapping anyway. */
+const SWAP_TIMEOUT_MS = 1500;
+
+/**
+ * Largest CSS size of each device's screen, and on phones the share of the
+ * viewport the laptop screen's 16:9 image spans (82% or 100% of the width,
+ * a 16:10 screen, so ×1.11), so a phone doesn't fetch the 1600 px file.
+ */
+const LAPTOP_BOX = [900, 563] as const;
+const LAPTOP_ON_PHONES = { both: "92vw", desktop: "111vw" } as const;
+const PHONE_BOX = [250, 540] as const;
+/** The phone beside the laptop on phones: 30% of the width, so the centre crop is sharp enough. */
+const PHONE_BESIDE_LAPTOP_ON_PHONES = [190, 410] as const;
+
+const phoneOnPhones = (view: ShowcaseView) =>
+  view === "both" ? PHONE_BESIDE_LAPTOP_ON_PHONES : undefined;
+
+type Stage = { index: number; view: ShowcaseView };
+
+/** The image files the stage shows for a piece in a view, as `PackCover` will request them. */
+function stageFiles(piece: PackCoverType, view: ShowcaseView) {
+  const renders = pieceRenders(piece);
+  const shown: ShowcaseView = renders.desktop ? view : "phone";
+  const files = [];
+  if (shown !== "phone" && renders.desktop?.kind === "image") {
+    files.push(imageSources(renders.desktop, LAPTOP_BOX, LAPTOP_ON_PHONES[shown]));
+  }
+  if (shown !== "desktop" && renders.phone?.kind === "image") {
+    files.push(imageSources(renders.phone, PHONE_BOX, phoneOnPhones(shown)));
+  }
+  return files;
+}
 const VIEW_LABEL: Record<ShowcaseView, string> = {
   both: "Both",
   phone: "Phone",
@@ -38,14 +72,63 @@ export function PackShowcase({
   const total = pack.previews.length;
   const [index, setIndex] = useState(0);
   const [view, setView] = useState<ShowcaseView>(views[0]);
+  // What the devices show: lags the selection until its files have loaded, so a
+  // change never paints a black screen filling in strip by strip.
+  const [stage, setStage] = useState<Stage>({ index: 0, view: views[0] });
   const touch = useRef<{ x: number; y: number } | null>(null);
+  const loaded = useRef(new Map<string, Promise<void> | null>());
+  const nextShuffle = useRef<number | null>(null);
 
   const go = (to: number) => setIndex(((to % total) + total) % total);
-  const piece = pack.previews[index];
+
+  /** Starts loading the stage files of piece `i` in the current view, once per file. */
+  const load = (i: number, v: ShowcaseView) =>
+    stageFiles(pack.previews[i], v).map((f) => {
+      const key = `${f.src} ${f.srcSet ?? ""}`;
+      if (!loaded.current.has(key)) loaded.current.set(key, preloadImage(f));
+      return loaded.current.get(key) ?? null;
+    });
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: load reads only refs and the pack
+  useEffect(() => {
+    if (stage.index === index && stage.view === view) return;
+    const ready = load(index, view);
+    if (ready.some((r) => r === null)) {
+      setStage({ index, view });
+      return;
+    }
+    let live = true;
+    const swap = () => live && setStage({ index, view });
+    const timer = setTimeout(swap, SWAP_TIMEOUT_MS);
+    Promise.all(ready).then(swap);
+    return () => {
+      live = false;
+      clearTimeout(timer);
+    };
+  }, [index, view, stage]);
+
+  // Once the page has loaded, fetch what the arrows and Shuffle lead to next.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: load reads only refs and the pack
+  useEffect(() => {
+    if (total < 2) return;
+    nextShuffle.current = shuffleIndex(stage.index, total);
+    const ahead = () => {
+      for (const i of [stage.index + 1, stage.index - 1 + total, nextShuffle.current ?? 0]) {
+        load(i % total, stage.view);
+      }
+    };
+    if (document.readyState === "complete") ahead();
+    else {
+      window.addEventListener("load", ahead, { once: true });
+      return () => window.removeEventListener("load", ahead);
+    }
+  }, [stage, total]);
+
+  const piece = pack.previews[stage.index];
   const renders = pieceRenders(piece);
   // A mixed pack may have a piece without a desktop file: show its phone render rather than nothing.
-  const shown: ShowcaseView = renders.desktop ? view : "phone";
-  const name = pieceName(piece);
+  const shown: ShowcaseView = renders.desktop ? stage.view : "phone";
+  const name = pieceName(pack.previews[index]);
 
   return (
     <section
@@ -84,7 +167,7 @@ export function PackShowcase({
           }}
         >
           <m.div
-            key={`${index}-${shown}`}
+            key={`${stage.index}-${shown}`}
             className="flex w-full items-end justify-center"
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -102,7 +185,8 @@ export function PackShowcase({
                   cover={renders.desktop}
                   w={1280}
                   h={800}
-                  box={[900, 563]}
+                  box={LAPTOP_BOX}
+                  phoneBox={LAPTOP_ON_PHONES[shown]}
                   className={FILL}
                   priority
                 />
@@ -121,7 +205,8 @@ export function PackShowcase({
                   cover={renders.phone!}
                   w={720}
                   h={1560}
-                  box={[250, 540]}
+                  box={PHONE_BOX}
+                  phoneBox={phoneOnPhones(shown)}
                   className={FILL}
                   priority
                 />
@@ -145,7 +230,10 @@ export function PackShowcase({
               <ArrowButton side="next" onClick={() => go(index + 1)} />
               <button
                 type="button"
-                onClick={() => go(shuffleIndex(index, total))}
+                onClick={() => {
+                  const ahead = nextShuffle.current;
+                  go(ahead !== null && ahead !== index ? ahead : shuffleIndex(index, total));
+                }}
                 className="min-h-11 cursor-pointer rounded-sharp px-4 font-sans text-[14px] font-medium text-ink shadow-[inset_0_0_0_2px_var(--color-ink)] transition-colors hover:bg-ink hover:text-bg"
               >
                 Shuffle

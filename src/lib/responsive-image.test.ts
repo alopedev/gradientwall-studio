@@ -86,6 +86,10 @@ describe("responsive image variants", () => {
       });
     });
 
+    it("takes the phone width as a viewport share when the frame follows the screen", () => {
+      expect(imageSources(img, [900, 563], "92vw").sizes).toBe("(max-width: 767px) 92vw, 1001px");
+    });
+
     it("uses the phone crop as the only file when the frame fits it", () => {
       expect(imageSources(img, [160, 300])).toEqual({ src: "/a/01-phone.webp", ...PHONE_CROP });
     });

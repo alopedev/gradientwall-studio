@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { PackCover as PackCoverType } from "@/lib/packs";
-import { coverDisplayWidth, phoneCropFor, srcSetFor } from "@/lib/responsive-image";
+import { imageSources, PHONE_MEDIA } from "@/lib/responsive-image";
 import { useWallpaperEngine } from "../studio/engine";
 
 interface Props {
@@ -23,12 +23,10 @@ interface Props {
   /**
    * The same frame's largest CSS size on phones (under Tailwind's `md`), when it
    * is smaller there: phones then get a file sized for it, such as the centre crop.
+   * A `vw` share when the frame follows the screen width there.
    */
-  phoneBox?: readonly [number, number];
+  phoneBox?: readonly [number, number] | `${number}vw`;
 }
-
-/** Phones, as Tailwind's `max-md:` reads them. */
-const PHONE_MEDIA = "(max-width: 767px)";
 
 /**
  * Renders a pack cover regardless of source — gradient (drawn by the wallpaper engine
@@ -49,48 +47,20 @@ export function PackCover({
   phoneBox,
 }: Props) {
   if (cover.kind === "image") {
-    const loading = priority || eager ? "eager" : "lazy";
-    const crop = box && phoneCropFor(cover, box);
-    if (crop) {
-      return (
-        <img
-          src={crop.url}
-          {...(priority ? { fetchpriority: "high" } : {})}
-          alt={decorative ? "" : cover.alt}
-          aria-hidden={decorative || undefined}
-          width={crop.width}
-          height={crop.height}
-          className={className}
-          loading={loading}
-          decoding="async"
-        />
-      );
-    }
-    const srcSet = box && srcSetFor(cover.url, cover.width);
-    const aspect = cover.width && cover.height ? cover.width / cover.height : undefined;
-    const sizes =
-      srcSet && box && aspect
-        ? [
-            phoneBox && `${PHONE_MEDIA} ${coverDisplayWidth(aspect, phoneBox)}px`,
-            `${coverDisplayWidth(aspect, box)}px`,
-          ]
-            .filter(Boolean)
-            .join(", ")
-        : undefined;
-    const phoneCrop = phoneBox && phoneCropFor(cover, phoneBox);
+    const { src, srcSet, sizes, width, height, phoneCrop } = imageSources(cover, box, phoneBox);
     const img = (
       <img
-        src={cover.url}
+        src={src}
         srcSet={srcSet}
         sizes={sizes}
         // React 18 has no fetchPriority prop; the lowercase attribute passes through.
         {...(priority ? { fetchpriority: "high" } : {})}
         alt={decorative ? "" : cover.alt}
         aria-hidden={decorative || undefined}
-        width={cover.width}
-        height={cover.height}
+        width={width}
+        height={height}
         className={className}
-        loading={loading}
+        loading={priority || eager ? "eager" : "lazy"}
         decoding="async"
       />
     );
@@ -99,7 +69,7 @@ export function PackCover({
       <picture>
         <source
           media={PHONE_MEDIA}
-          srcSet={phoneCrop.url}
+          srcSet={phoneCrop.src}
           width={phoneCrop.width}
           height={phoneCrop.height}
         />
