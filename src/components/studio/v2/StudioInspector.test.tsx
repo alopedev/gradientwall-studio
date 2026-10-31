@@ -179,10 +179,10 @@ describe("StudioInspector", () => {
   it("picking a swatch applies that palette", async () => {
     const user = userEvent.setup();
     render(<Harness />);
-    await user.click(screen.getByLabelText("Palette Forest"));
-    const forest = PALETTES.find((p) => p.name === "Forest")!;
-    expect(useConfigStore.getState().colors).toEqual(forest.colors);
-    expect(screen.getByLabelText("Palette Forest").getAttribute("aria-pressed")).toBe("true");
+    await user.click(screen.getByLabelText("Palette Tokyo"));
+    const tokyo = PALETTES.find((p) => p.name === "Tokyo")!;
+    expect(useConfigStore.getState().colors).toEqual(tokyo.colors);
+    expect(screen.getByLabelText("Palette Tokyo").getAttribute("aria-pressed")).toBe("true");
   });
 
   it("the heart saves the wallpaper and a second tap removes it", async () => {
