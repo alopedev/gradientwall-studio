@@ -17,12 +17,14 @@ describe("PaletteList", () => {
     });
   });
 
-  it("shows four palettes in one row and opens all ten by name", async () => {
+  it("shows four palettes in one row and opens them all by name", async () => {
     const user = userEvent.setup();
     render(<PaletteList />);
     const group = screen.getByRole("group", { name: "Palette" });
     expect(group.querySelectorAll("button")).toHaveLength(4);
-    await user.click(screen.getByRole("button", { name: /all 10/i }));
+    await user.click(
+      screen.getByRole("button", { name: new RegExp(`all ${PALETTES.length}`, "i") }),
+    );
     expect(group.querySelectorAll("button")).toHaveLength(PALETTES.length);
     for (const p of PALETTES)
       expect(screen.getByLabelText(`Palette ${p.name}`).textContent).toBe(p.name);

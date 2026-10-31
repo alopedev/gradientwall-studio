@@ -234,6 +234,8 @@ export const PALETTE_LIBRARY: readonly Colors4[] = [
   ["#3f3f46", "#a1a1aa", "#ddd6fe", "#f5f3ff"],
   ["#030303", "#2a1a05", "#b7791f", "#f6d365"],
   ["#7dd3fc", "#e0f2fe", "#fda4af", "#fff1f2"],
+  ["#449ac7", "#ec59b2", "#bef784", "#af68e3"],
+  ["#07080a", "#ff2136", "#ff6363", "#ffa2a2"],
 ];
 
 export function lightSpread(colors: readonly string[]): number {

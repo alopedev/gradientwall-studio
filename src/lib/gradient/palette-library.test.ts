@@ -26,7 +26,7 @@ describe("PALETTE_LIBRARY", () => {
     expect(new Set(PALETTE_LIBRARY.map(key)).size).toBe(PALETTE_LIBRARY.length);
   });
 
-  it("includes the 10 curated Studio palettes", () => {
+  it("includes every curated Studio palette", () => {
     const all = new Set(PALETTE_LIBRARY.map(key));
     for (const p of PALETTES) expect(all.has(key(p.colors))).toBe(true);
   });

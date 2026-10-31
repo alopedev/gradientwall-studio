@@ -200,4 +200,8 @@ export const PALETTES: Palette[] = [
   { name: "Velvet", colors: ["#1a0b2e", "#5b21b6", "#c026d3", "#fb7185"] },
   { name: "Mercury", colors: ["#0f172a", "#475569", "#cbd5e1", "#f8fafc"] },
   { name: "Cherry", colors: ["#2b0a0a", "#9f1239", "#f43f5e", "#fecdd3"] },
+  // The Studio's opening look (`STUDIO_COLORS`), now also a palette to come back to.
+  { name: "Orchid", colors: ["#449ac7", "#ec59b2", "#bef784", "#af68e3"] },
+  // Red light on near-black, taken from raycast.com's CSS (2026-10-31).
+  { name: "Flare", colors: ["#07080a", "#ff2136", "#ff6363", "#ffa2a2"] },
 ];
