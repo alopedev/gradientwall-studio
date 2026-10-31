@@ -38,6 +38,10 @@ function useNarrowStudio(ref: React.RefObject<HTMLElement>): boolean {
 
 const HEART_HINT_KEY = "gw:hint:heart";
 
+/** A key in the shortcut legend: a small ink-edged cap. */
+const KEYCAP =
+  "inline-flex h-5 items-center rounded-sharp bg-bg px-1.5 font-sans font-semibold text-[10px] text-ink shadow-[inset_0_0_0_1.5px_var(--color-ink)]";
+
 const isTypingTarget = (t: EventTarget | null): boolean => {
   const el = t as HTMLElement | null;
   if (!el) return false;
@@ -167,6 +171,21 @@ export function StudioInspector({ keysActive }: Props) {
         shuffleClassName={keysActive && spins === 0 ? "gws-nudge" : ""}
         className="grid grid-cols-[44px_minmax(0,1fr)_44px] items-center justify-items-center gap-2"
       />
+
+      {/* The keys, for a keyboard and mouse only (no keys on a phone); the buttons already
+          announce them to screen readers (aria-keyshortcuts). */}
+      <p
+        data-testid="studio-keys"
+        aria-hidden
+        className="-mt-1 hidden justify-center gap-[18px] font-medium font-sans text-[11px] text-ink-dim uppercase leading-none tracking-[0.14em] [@media(hover:hover)_and_(pointer:fine)]:flex"
+      >
+        <span className="inline-flex items-center gap-1.5">
+          <kbd className={KEYCAP}>Space</kbd>Shuffle
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <kbd className={KEYCAP}>R</kbd>Remix
+        </span>
+      </p>
 
       {/* Only the middle scrolls on a short screen: Shuffle and Download stay in view. */}
       <div className="-mx-[18px] grid min-h-0 flex-1 content-start gap-[18px] overflow-y-auto px-[18px] py-1 [scrollbar-width:thin] @max-[760px]:mx-0 @max-[760px]:gap-3 @max-[760px]:overflow-visible @max-[760px]:px-0 @max-[760px]:py-0">
