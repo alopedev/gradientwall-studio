@@ -109,9 +109,9 @@ export function horizonCells(piece: HorizonPiece, cols: number, rows: number): U
             cols,
             short,
             rng,
-            hz + short * (0.08 + 0.17 * k),
-            short * (0.1 + 0.05 * k),
-            3.2 - 0.7 * k,
+            hz + short * [0.12, 0.45, 0.85][k],
+            short * [0.12, 0.2, 0.3][k],
+            [3, 2.2, 1.5][k],
           ),
         )
       : [];
@@ -146,7 +146,9 @@ export function horizonCells(piece: HorizonPiece, cols: number, rows: number): U
       // Sun-facing slopes catch light, the far side falls into shade; a lit rim on the crest.
       const slope = (crest[Math.min(cols - 1, x + 1)] - crest[Math.max(0, x - 1)]) / 2;
       const toward = Math.max(-1, Math.min(1, (cx - px) / (short * 0.35)));
-      const facing = Math.max(-1, Math.min(1, slope * 1.5)) * toward;
+      // Fades with depth, so a crest's light/shade split doesn't run down as a straight seam.
+      const fade = Math.max(0, 1 - (py - crest[x]) / (short * 0.1));
+      const facing = Math.max(-1, Math.min(1, slope * 1.5)) * toward * fade;
       const rim = Math.max(0, 1 - (py - crest[x]) / 2) * 0.3;
       const body = Math.max(0, 1 - (py - crest[x]) / (short * 0.2)) * 0.1;
       return ditherIndex(0.3 - k * 0.08 - facing * 0.14 + rim + body, x, y);
@@ -162,8 +164,9 @@ export function horizonCells(piece: HorizonPiece, cols: number, rows: number): U
         return ditherIndex((py / hz) * 0.32 + glow, x, y);
       }
       if (d < 1) {
-        // Horizontal cuts across the lower half, wider towards the bottom.
-        if (dy > 0) {
+        // Over the sea, horizontal cuts across the lower half, wider towards the
+        // bottom; over the dunes, a plain high sun so the two scenes don't rhyme.
+        if (dy > 0 && dunes.length === 0) {
           const bands = dy * 6;
           if (bands - Math.floor(bands) < 0.15 + dy * 0.6)
             return ditherIndex((py / hz) * 0.5, x, y);
@@ -207,9 +210,9 @@ const dunes = (name: string, ramp: HorizonRamp, x: number, seed: number): Horizo
   name,
   scene: "dunes",
   ramp,
-  horizon: 0.6,
-  sun: { x, y: 0.5 },
-  radius: 0.28,
+  horizon: 0.5,
+  sun: { x, y: 0.27 },
+  radius: 0.14,
   seed,
 });
 const moon = (
