@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach } from "vitest";
 import { useConfigStore } from "./useConfigStore";
-import { ALL_ACTIVE, PALETTES } from "@/lib/palettes";
+import { ALL_ACTIVE } from "@/lib/palettes";
 import { flushRaf } from "@/test-utils";
 
 // Snapshot the pristine state so each test starts fresh.
@@ -10,11 +10,12 @@ const INITIAL = useConfigStore.getState();
 describe("useConfigStore", () => {
   beforeEach(() => useConfigStore.setState(INITIAL, true));
 
-  it("initializes on v2 with Dusk palette, mesh style and the approved grain and light", () => {
+  it("initializes on v2 with the Orchid colours as Pixel and the approved grain and light", () => {
     const s = useConfigStore.getState();
     expect(s.device).toBe("mobile");
-    expect(s.colors).toEqual(PALETTES[0].colors);
+    expect(s.colors).toEqual(["#449ac7", "#ec59b2", "#bef784", "#af68e3"]);
     expect(s.style).toBe("mesh");
+    expect(s.material).toBe("dither");
     expect(s.blur).toBe(48);
     expect(s.engine).toBe("v2");
     expect(s.grain).toBe(45);

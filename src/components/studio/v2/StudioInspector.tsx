@@ -245,9 +245,7 @@ export function StudioInspector({ keysActive }: Props) {
         ) : (
           <>
             <Group title="Style">{styleControl}</Group>
-            <Group title="Palette">
-              <PaletteList />
-            </Group>
+            <PaletteList />
             <ColorEditor onMessage={say} />
             <AdjustPanel />
           </>

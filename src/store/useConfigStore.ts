@@ -6,7 +6,6 @@ import { useShallow } from "zustand/react/shallow";
 import {
   ALL_ACTIVE,
   MIN_ACTIVE_COLORS,
-  PALETTES,
   type ActiveMask,
   type Colors4,
   type Device,
@@ -17,9 +16,10 @@ import {
 import {
   DEFAULT_CONTRAST,
   DEFAULT_DENSITY,
-  DEFAULT_MATERIAL,
   DEFAULT_ROTATION,
   STUDIO_BLUR,
+  STUDIO_COLORS,
+  STUDIO_MATERIAL,
   STUDIO_VIBRANCE,
   V2_DEFAULT_GRAIN,
   V2_DEFAULT_LIGHT_ANGLE,
@@ -102,7 +102,7 @@ const configStore = createStore<ConfigState>()((set) => {
   return {
     device: "mobile",
     engine: "v2",
-    colors: [...PALETTES[0].colors] as Colors4,
+    colors: [...STUDIO_COLORS] as Colors4,
     active: freshMask(),
     style: "mesh",
     // Starting look (lib/defaults.ts). Grain / contrast / vibrance are the user's
@@ -114,7 +114,7 @@ const configStore = createStore<ConfigState>()((set) => {
     density: DEFAULT_DENSITY,
     contrast: DEFAULT_CONTRAST,
     vibrance: STUDIO_VIBRANCE,
-    material: DEFAULT_MATERIAL,
+    material: STUDIO_MATERIAL,
     rotation: DEFAULT_ROTATION,
 
     setDevice: (d) => set({ device: d }),

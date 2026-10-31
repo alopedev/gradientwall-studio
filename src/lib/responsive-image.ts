@@ -59,3 +59,52 @@ export function phoneCropFor(
   if (w / h > PHONE_CROP.width / PHONE_CROP.height || h * 2 > PHONE_CROP.height) return null;
   return { url: phoneCropUrl(img.url), ...PHONE_CROP };
 }
+
+/** Phones, as Tailwind's `max-md:` reads them. */
+export const PHONE_MEDIA = "(max-width: 767px)";
+
+export interface ImageSources {
+  src: string;
+  srcSet?: string;
+  sizes?: string;
+  width?: number;
+  height?: number;
+  /** A file for phones only (a `<picture>` source on `PHONE_MEDIA`). */
+  phoneCrop?: { src: string; width: number; height: number };
+}
+
+/**
+ * The files an `<img>` showing `img` in a frame of `box` CSS px (and
+ * `phoneBox` on phones: a frame size, or the CSS width the image takes there
+ * when it follows the viewport, such as `"92vw"`) should offer. `PackCover` renders them and the pack
+ * showcase preloads the same set, so the browser picks the same file twice.
+ */
+export function imageSources(
+  img: { url: string; width?: number; height?: number },
+  box?: readonly [number, number],
+  phoneBox?: readonly [number, number] | `${number}vw`,
+): ImageSources {
+  const crop = box && phoneCropFor(img, box);
+  if (crop) return { src: crop.url, width: crop.width, height: crop.height };
+  const plain = { src: img.url, width: img.width, height: img.height };
+  const srcSet = box && srcSetFor(img.url, img.width);
+  const aspect = img.width && img.height ? img.width / img.height : undefined;
+  if (!box || !srcSet || !aspect) return plain;
+  const phoneFrame = typeof phoneBox === "string" ? undefined : phoneBox;
+  const sizes = [
+    typeof phoneBox === "string" && `${PHONE_MEDIA} ${phoneBox}`,
+    phoneFrame && `${PHONE_MEDIA} ${coverDisplayWidth(aspect, phoneFrame)}px`,
+    `${coverDisplayWidth(aspect, box)}px`,
+  ]
+    .filter(Boolean)
+    .join(", ");
+  const phoneCrop = phoneFrame && phoneCropFor(img, phoneFrame);
+  return {
+    ...plain,
+    srcSet,
+    sizes,
+    ...(phoneCrop
+      ? { phoneCrop: { src: phoneCrop.url, width: phoneCrop.width, height: phoneCrop.height } }
+      : {}),
+  };
+}

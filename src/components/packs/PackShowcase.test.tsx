@@ -1,5 +1,5 @@
 import { afterEach, describe, it, expect, vi } from "vitest";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { getPackBySlug } from "@/lib/packs";
 import type { Pack } from "@/lib/packs";
 import { PackShowcase } from "./PackShowcase";
@@ -142,5 +142,48 @@ describe("PackShowcase", () => {
     for (const img of screen.getByTestId("showcase-stage").querySelectorAll("[data-device] img")) {
       expect(img).toHaveAttribute("loading", "eager");
     }
+  });
+
+  describe("changing piece once the new wallpaper is ready", () => {
+    /** Holds every Image().decode() until `finish()`, as a slow network would. */
+    function holdDecodes() {
+      const pending: (() => void)[] = [];
+      vi.spyOn(HTMLImageElement.prototype, "decode").mockImplementation(
+        () => new Promise<void>((resolve) => pending.push(resolve)),
+      );
+      return async () => {
+        await act(async () => {
+          for (const done of pending.splice(0)) done();
+        });
+      };
+    }
+
+    it("keeps the current wallpaper on screen until the next one has loaded", async () => {
+      HTMLImageElement.prototype.decode ??= () => Promise.resolve();
+      const finish = holdDecodes();
+      show(dessau());
+      fireEvent.click(screen.getByRole("button", { name: /next wallpaper/i }));
+      expect(screen.getByText("02 / 6")).toBeInTheDocument();
+      expect(shownOn("phone")).toBe("/assets/packs/dessau/01_kreise.png");
+      await finish();
+      expect(shownOn("phone")).toBe("/assets/packs/dessau/02_rot.png");
+    });
+
+    it("loads the neighbours ahead, so the arrows find them ready", async () => {
+      HTMLImageElement.prototype.decode ??= () => Promise.resolve();
+      const loaded: string[] = [];
+      const real = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, "src")!;
+      vi.spyOn(HTMLImageElement.prototype, "src", "set").mockImplementation(function (
+        this: HTMLImageElement,
+        v: string,
+      ) {
+        loaded.push(v);
+        real.set!.call(this, v);
+      });
+      show(dessau());
+      await act(async () => {});
+      expect(loaded).toContain("/assets/packs/dessau/02_rot.png");
+      expect(loaded).toContain("/assets/packs/dessau/06_halbkreise.png");
+    });
   });
 });

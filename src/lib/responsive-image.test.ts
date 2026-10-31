@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import packsData from "../data/packs.json";
 import {
   coverDisplayWidth,
+  imageSources,
   PHONE_CROP,
   phoneCropFor,
   phoneCropUrl,
@@ -66,5 +67,38 @@ describe("responsive image variants", () => {
       const crop = phoneCropFor({ url: img.url, width: img.width, height: img.height }, [160, 300]);
       if (crop) expect(existsSync(`public${crop.url}`), crop.url).toBe(true);
     }
+  });
+
+  describe("imageSources", () => {
+    const img = { url: "/a/01.jpg", width: 1600, height: 900 };
+
+    it("gives the plain file when no frame size is known", () => {
+      expect(imageSources(img)).toEqual({ src: "/a/01.jpg", width: 1600, height: 900 });
+    });
+
+    it("gives a srcset sized for the frame, and a smaller size on phones", () => {
+      expect(imageSources(img, [900, 563], [500, 313])).toEqual({
+        src: "/a/01.jpg",
+        srcSet: "/a/01-640w.webp 640w, /a/01-1280w.webp 1280w, /a/01.jpg 1600w",
+        sizes: "(max-width: 767px) 556px, 1001px",
+        width: 1600,
+        height: 900,
+      });
+    });
+
+    it("takes the phone width as a viewport share when the frame follows the screen", () => {
+      expect(imageSources(img, [900, 563], "92vw").sizes).toBe("(max-width: 767px) 92vw, 1001px");
+    });
+
+    it("uses the phone crop as the only file when the frame fits it", () => {
+      expect(imageSources(img, [160, 300])).toEqual({ src: "/a/01-phone.webp", ...PHONE_CROP });
+    });
+
+    it("offers the phone crop on phones only when just the phone frame fits it", () => {
+      expect(imageSources(img, [900, 563], [160, 300]).phoneCrop).toEqual({
+        src: "/a/01-phone.webp",
+        ...PHONE_CROP,
+      });
+    });
   });
 });

@@ -1,3 +1,4 @@
+import { DEFAULT_MATERIAL } from "@/lib/defaults";
 import { pickLook, withSharedLook } from "@/lib/look";
 import { decodeLookParam, LOOK_PARAM } from "@/lib/look-url";
 import { ALL_ACTIVE } from "@/lib/palettes";
@@ -16,8 +17,14 @@ export function startLookFor(pathname: string): void {
   const path = pathname.endsWith("/") ? pathname : `${pathname}/`;
   const look = LANDINGS.find((l) => landingPath(l.slug) === path)?.look;
   if (!look) return;
+  // A landing about a style shows that style bare, not under the Studio's starting Glass.
+  const material = look.style ? { material: DEFAULT_MATERIAL } : {};
   // New colours bring every slot back on, as picking a palette does.
-  useConfigStore.setState(look.colors ? { ...look, active: [...ALL_ACTIVE] } : look);
+  useConfigStore.setState({
+    ...look,
+    ...material,
+    ...(look.colors ? { active: [...ALL_ACTIVE] } : {}),
+  });
 }
 
 /** After the page has loaded and gone idle: React has hydrated by then. */
