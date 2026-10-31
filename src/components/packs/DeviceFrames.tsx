@@ -1,4 +1,5 @@
 import { type CSSProperties, type ReactNode, useEffect, useState } from "react";
+import { HERO_PHONE_IMAGE } from "@/lib/seo/pages";
 
 /**
  * Pure-CSS device bezels used to show wallpapers the way buyers will see them.
@@ -42,19 +43,57 @@ export function PhoneFrame({ children, className = "", style, ...marks }: PhoneP
   );
 }
 
-/** Laptop: lid with the screen on top, a thin base below. Width-driven; height follows. */
+/**
+ * The hero's cut-out phone photo (599 × 1283, transparent screen) with the
+ * wallpaper behind its screen hole: a real phone, for the pack page's stage.
+ * The screen box is measured on that photo, like the hero's.
+ */
+export function PhotoPhoneFrame({ children, className = "", style, ...marks }: PhoneProps) {
+  return (
+    <div
+      {...marks}
+      data-device="phone"
+      className={`${/\babsolute\b/.test(className) ? "" : "relative"} ${className}`}
+      style={style}
+    >
+      <div className="absolute inset-x-[4.34%] inset-y-[1.71%] overflow-hidden rounded-[13.5%/6%] bg-black">
+        {children}
+      </div>
+      <img
+        src={HERO_PHONE_IMAGE}
+        alt=""
+        width={599}
+        height={1283}
+        loading="eager"
+        className="relative block h-auto w-full select-none"
+        draggable={false}
+      />
+    </div>
+  );
+}
+
+/**
+ * Laptop: a black-glass lid with a camera notch on top of an aluminium base
+ * with its opening lip. Width-driven; height follows.
+ */
 export function LaptopFrame({ children, className = "", style }: FrameProps) {
   return (
     <div data-device="laptop" className={className} style={style}>
-      <div className={`aspect-[16/10] rounded-t-[2.2%/3.5%] rounded-b-[0.6%] p-[2.2%] ${BEZEL}`}>
-        <div className="relative h-full w-full overflow-hidden rounded-[0.8%] bg-black">
+      <div className="relative aspect-[16/10.4] rounded-t-[clamp(8px,1.6vw,22px)] rounded-b-[4px] bg-[#0c0c0e] px-[1.8%] pt-[1.8%] pb-[2.8%] shadow-[0_0_0_2px_#b9bbbf]">
+        <div className="relative h-full w-full overflow-hidden rounded-[1%] bg-black">
           {children}
         </div>
+        <span
+          aria-hidden
+          className="absolute left-1/2 top-[1.8%] h-[2.4%] w-[9%] -translate-x-1/2 rounded-b-[6px] bg-[#0c0c0e]"
+        />
       </div>
       <div
         aria-hidden
-        className="-mx-[6%] h-[1.6%] min-h-[5px] rounded-b-[12px] rounded-t-[2px] bg-[linear-gradient(180deg,#3a3a42,#17171b)] shadow-[0_20px_30px_-10px_rgba(0,0,0,0.8)]"
-      />
+        className="relative -mx-[6.5%] h-[1.9%] min-h-[6px] rounded-b-[18px] rounded-t-[2px] bg-[linear-gradient(180deg,#e2e3e5,#a9abaf)] shadow-[0_24px_30px_-12px_rgba(0,0,0,0.45)]"
+      >
+        <span className="absolute left-1/2 top-0 h-[45%] w-[14%] -translate-x-1/2 rounded-b-[8px] bg-[#8e9095]" />
+      </div>
     </div>
   );
 }

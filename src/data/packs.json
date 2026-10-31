@@ -207,6 +207,19 @@
     "previews": [
       {
         "kind": "image",
+        "url": "/assets/packs/marble/10_navy-and-gold.jpg",
+        "alt": "Liquid marble phone wallpaper: navy blue swirls veined with gold and cream",
+        "width": 1170,
+        "height": 2542,
+        "desktop": {
+          "url": "/assets/packs/marble/10_navy-and-gold-desktop.jpg",
+          "alt": "Liquid marble desktop wallpaper: navy blue swirls veined with gold and cream",
+          "width": 2080,
+          "height": 1170
+        }
+      },
+      {
+        "kind": "image",
         "url": "/assets/packs/marble/01_terracotta.jpg",
         "alt": "Liquid marble phone wallpaper: terracotta and copper swirls with cream highlights",
         "width": 1170,
@@ -318,19 +331,6 @@
         "desktop": {
           "url": "/assets/packs/marble/09_apricot-desktop.jpg",
           "alt": "Liquid marble desktop wallpaper: apricot, burnt orange and cream swirls",
-          "width": 2080,
-          "height": 1170
-        }
-      },
-      {
-        "kind": "image",
-        "url": "/assets/packs/marble/10_navy-and-gold.jpg",
-        "alt": "Liquid marble phone wallpaper: navy blue swirls veined with gold and cream",
-        "width": 1170,
-        "height": 2542,
-        "desktop": {
-          "url": "/assets/packs/marble/10_navy-and-gold-desktop.jpg",
-          "alt": "Liquid marble desktop wallpaper: navy blue swirls veined with gold and cream",
           "width": 2080,
           "height": 1170
         }
