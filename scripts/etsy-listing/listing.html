@@ -46,6 +46,17 @@
   #cover .p2 { width: 400px; right: 470px; top: 1290px; transform: rotate(3deg); }
   #cover .phone .time { font-size: 120px; }
 
+  /* cover, mosaic variant — every design edge to edge, the title on an ink plate in the thumbnail square */
+  #cover.mosaic { padding: 0; }
+  #cover.mosaic > :not(.mosaic-grid, .mosaic-plate) { display: none; }
+  #cover .mosaic-grid, #cover .mosaic-plate { display: none; }
+  #cover.mosaic .mosaic-grid { display: grid; position: absolute; inset: 0; grid-template-columns: repeat(6, 1fr); grid-template-rows: repeat(2, 1fr); }
+  #cover.mosaic .mosaic-grid div { background-size: cover; background-position: center; }
+  #cover.mosaic .mosaic-plate { display: grid; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: var(--ink); color: var(--bg); padding: 90px 130px; gap: 24px; justify-items: center; text-align: center; }
+  #cover.mosaic .mosaic-plate .eyebrow { color: var(--bg); opacity: .7; }
+  #cover.mosaic .mosaic-plate h1 { font-size: 220px; }
+  #cover.mosaic .mosaic-plate .sub { font-weight: 500; font-size: 72px; line-height: 1; }
+
   /* grid */
   #grid .head { display: flex; justify-content: space-between; align-items: end; margin-bottom: 90px; }
   #grid .tiles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 48px; }
@@ -110,6 +121,8 @@
   <div class="monitor"><div class="screen" data-pick="coverDesk" data-fmt="4k"></div><div class="neck"></div><div class="foot"></div></div>
   <div class="phone p1" data-pick="coverPhone1" data-fmt="mobile"><div class="time">9:41</div></div>
   <div class="phone p2" data-pick="coverPhone2" data-fmt="mobile"><div class="time">9:41</div></div>
+  <div class="mosaic-grid" data-mosaic></div>
+  <div class="mosaic-plate"><div class="eyebrow" data-text="mosaicEyebrow"></div><h1 data-text="title"></h1><div class="sub" data-text="mosaicSub"></div></div>
 </section>
 
 <section class="view" id="grid">
@@ -202,6 +215,7 @@
       designs: "<b>original marble designs</b>, each in three sizes",
       phonesA: "01,04,07,10,12", phonesB: "02,03,05,06,09",
       coverDesk: "10", coverPhone1: "01", coverPhone2: "07", desktop: "04", stack1: "12", stack2: "03",
+      cover: "mosaic", mosaicEyebrow: "12 designs · phone + desktop", mosaicSub: "4K + 5K · <em>no AI</em>",
       madeBy: "Made by GradientWall with its own gradient engine. No AI, rendered natively at every size.",
       names: {
         "01": "Terracotta", "02": "Olive", "03": "Slate Blue", "04": "Rose Clay", "05": "Graphite", "06": "Ochre",
@@ -229,6 +243,11 @@
   };
   const ids = Array.from({ length: pack.count }, (_, i) => String(i + 1).padStart(2, "0"));
 
+  // Mosaic cover: the phone file of every design, edge to edge (chosen for Marble, 2026-10-31).
+  if (pack.cover === "mosaic") {
+    document.getElementById("cover").classList.add("mosaic");
+    document.querySelector("[data-mosaic]").innerHTML = ids.map((n) => `<div data-img="mobile/${n}"></div>`).join("");
+  }
   document.querySelectorAll("[data-text]").forEach((el) => { el.innerHTML = pack[el.dataset.text]; });
   document.querySelectorAll("[data-pick]").forEach((el) => {
     el.dataset.img = `${el.dataset.fmt}/${pack[el.dataset.pick]}`;
