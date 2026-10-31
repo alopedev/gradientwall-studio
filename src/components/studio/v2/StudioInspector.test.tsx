@@ -53,7 +53,7 @@ describe("StudioInspector", () => {
     render(<Harness />);
     const style = screen.getByLabelText("Style");
     const labels = Array.from(style.querySelectorAll("button")).map((b) => b.textContent);
-    expect(labels).toEqual(["Mesh", "Aurora", "Liquid", "Glass", "Dots", "Pixel"]);
+    expect(labels).toEqual(["Glass", "Dots", "Pixel", "Mesh", "Aurora", "Liquid"]);
     expect(screen.queryByLabelText("Material")).toBeNull();
   });
 
@@ -165,7 +165,7 @@ describe("StudioInspector", () => {
     const user = userEvent.setup();
     render(<Harness />);
     const dots = screen.getByRole("button", { name: "Dots" });
-    expect(screen.getByRole("button", { name: "Glass" }).getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByRole("button", { name: "Pixel" }).getAttribute("aria-pressed")).toBe("true");
     expect(dots.getAttribute("aria-pressed")).toBe("false");
     await user.click(dots);
     const s = useConfigStore.getState();

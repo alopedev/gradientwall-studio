@@ -10,12 +10,12 @@ const INITIAL = useConfigStore.getState();
 describe("useConfigStore", () => {
   beforeEach(() => useConfigStore.setState(INITIAL, true));
 
-  it("initializes on v2 with the Ember palette under Glass and the approved grain and light", () => {
+  it("initializes on v2 with the Orchid colours as Pixel and the approved grain and light", () => {
     const s = useConfigStore.getState();
     expect(s.device).toBe("mobile");
-    expect(s.colors).toEqual(PALETTES.find((p) => p.name === "Ember")?.colors);
+    expect(s.colors).toEqual(["#449ac7", "#ec59b2", "#bef784", "#af68e3"]);
     expect(s.style).toBe("mesh");
-    expect(s.material).toBe("fluted");
+    expect(s.material).toBe("dither");
     expect(s.blur).toBe(48);
     expect(s.engine).toBe("v2");
     expect(s.grain).toBe(45);

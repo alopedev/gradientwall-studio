@@ -41,6 +41,6 @@ describe("entry-server starting look", () => {
     const { useConfigStore } = await import("./store");
     const home = await render("/");
     expect(useConfigStore.getState().style).toBe("mesh");
-    expect(pressed(home, "Glass")).toBe(true);
+    expect(pressed(home, "Pixel")).toBe(true);
   });
 });

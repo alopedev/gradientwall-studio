@@ -41,6 +41,8 @@ describe("PaletteList", () => {
 
   it("marks the palette in use and applies another one, leaving a step to go back to", async () => {
     const user = userEvent.setup();
+    const ember = PALETTES.find((p) => p.name === "Ember")!;
+    act(() => useConfigStore.getState().setColors(ember.colors));
     render(<PaletteList />);
     expect(screen.getByLabelText("Palette Ember").getAttribute("aria-pressed")).toBe("true");
 
