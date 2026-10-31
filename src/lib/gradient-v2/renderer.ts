@@ -6,8 +6,14 @@
  * canvases (preview, thumbnails, export) share one renderer through
  * `paintV2`, which draws off-screen and blits into a 2D canvas, so the page
  * never holds more than one GPU context for wallpapers.
+ *
+ * A wallpaper with a material draws in two passes: the signed-off shader into
+ * a texture the size of the output, then the material shader (`material.ts`)
+ * from that texture onto the canvas. Without one, the first pass draws straight
+ * to the canvas, as it always did.
  */
 
+import { type DrawnMaterial, MATERIAL_FRAG } from "./material";
 import { FRAG, VERT } from "./shader";
 import { FRAG_ANIMATED } from "./shader-animated";
 import { resolveV2Uniforms, type V2Params } from "./params";
@@ -165,7 +171,27 @@ export function createRendererV2(
     gl.uniform1f(loc.uDither, u.dither);
     if (animated) gl.uniform1f(loc.uTime, opts.time ?? 0);
 
-    const strip = opts.strip ?? 0;
+    if (u.material === "none") {
+      drawStrips(w, h, opts.strip);
+      return;
+    }
+    // Pass 1: the wallpaper into the base texture. Pass 2: the material onto the canvas.
+    gl.bindFramebuffer(gl.FRAMEBUFFER, baseTarget(w, h));
+    drawStrips(w, h, opts.strip);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    const m = materialProgram(u.material);
+    // biome-ignore lint/correctness/useHookAtTopLevel: WebGL's useProgram, not a React hook.
+    gl.useProgram(m.prog);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, base?.tex ?? null);
+    gl.uniform1i(m.uBase, 0);
+    gl.uniform2f(m.uRes, w, h);
+    gl.uniform3fv(m.uCol, new Float32Array(u.colors));
+    drawStrips(w, h, opts.strip);
+  }
+
+  /** One full-screen draw, or one per strip of `strip` rows (the GPU watchdog on big exports). */
+  function drawStrips(w: number, h: number, strip = 0): void {
     if (strip > 0 && strip < h) {
       gl.enable(gl.SCISSOR_TEST);
       for (let y = 0; y < h; y += strip) {
@@ -177,6 +203,67 @@ export function createRendererV2(
     } else {
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     }
+  }
+
+  // The material pass reads the wallpaper from this texture; sized to the output, made on first use.
+  let base: { tex: WebGLTexture; fb: WebGLFramebuffer; w: number; h: number } | null = null;
+  function baseTarget(w: number, h: number): WebGLFramebuffer {
+    if (base && base.w === w && base.h === h) return base.fb;
+    const max = gl.getParameter(gl.MAX_TEXTURE_SIZE) as number;
+    if (w > max || h > max) {
+      throw new WebGL2UnavailableError(`Material texture ${w}×${h} exceeds ${max}`);
+    }
+    const tex = base?.tex ?? gl.createTexture();
+    const fb = base?.fb ?? gl.createFramebuffer();
+    if (!tex || !fb) throw new WebGL2UnavailableError("Could not create the material texture");
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+    if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      throw new WebGL2UnavailableError("Material framebuffer incomplete");
+    }
+    base = { tex, fb, w, h };
+    return fb;
+  }
+
+  interface MaterialProgram {
+    prog: WebGLProgram;
+    uBase: WebGLUniformLocation | null;
+    uRes: WebGLUniformLocation | null;
+    uCol: WebGLUniformLocation | null;
+  }
+  // Compiled the first time a material is drawn: most visitors never pick one.
+  const materials = new Map<DrawnMaterial, MaterialProgram>();
+  function materialProgram(material: DrawnMaterial): MaterialProgram {
+    const known = materials.get(material);
+    if (known) return known;
+    const p = gl.createProgram();
+    if (!p) throw new WebGL2UnavailableError("Could not create program");
+    const mvs = createShader(gl, gl.VERTEX_SHADER, VERT);
+    const mfs = createShader(gl, gl.FRAGMENT_SHADER, MATERIAL_FRAG[material]);
+    checkCompiled(gl, mvs);
+    checkCompiled(gl, mfs);
+    gl.attachShader(p, mvs);
+    gl.attachShader(p, mfs);
+    gl.bindAttribLocation(p, 0, "aPos");
+    gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+      throw new Error(`Program link failed: ${gl.getProgramInfoLog(p)}`);
+    }
+    const made = {
+      prog: p,
+      uBase: gl.getUniformLocation(p, "uBase"),
+      uRes: gl.getUniformLocation(p, "uRes"),
+      uCol: gl.getUniformLocation(p, "uCol"),
+    };
+    materials.set(material, made);
+    return made;
   }
 
   return { canvas, draw, isContextLost: () => gl.isContextLost(), isReady };

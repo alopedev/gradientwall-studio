@@ -59,15 +59,15 @@ export type Pipeline = "v1" | "v2";
 export function pixelKey(
   params: Pick<
     RenderParams,
-    "style" | "colors" | "blur" | "seed" | "lightAngle" | "density" | "grain"
+    "style" | "colors" | "blur" | "seed" | "lightAngle" | "density" | "grain" | "material"
   >,
   pipeline: Pipeline,
 ): string {
-  const { style, colors, blur, seed, lightAngle, density, grain } = params;
+  const { style, colors, blur, seed, lightAngle, density, grain, material } = params;
   const ramp = colors.join(",");
   const fields =
     pipeline === "v1"
       ? [style, ramp, blur, seed, lightAngle, density, grain]
-      : [style, ramp, seed, lightAngle, grain];
+      : [style, ramp, seed, lightAngle, grain, material ?? "none"];
   return fields.join("|");
 }

@@ -1,7 +1,7 @@
 import { AnimatePresence, m } from "motion/react";
 import { type ReactNode, useCallback, useEffect, useId, useRef, useState } from "react";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
-import { remixWallpaper, shuffleWallpaper, useConfigStore } from "@/store";
+import { remixWallpaper, shuffleWallpaper, useConfigStore, useRenderParams } from "@/store";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { useWallpaperEngine } from "../engine";
 import { AdjustPanel } from "./AdjustPanel";
@@ -76,6 +76,10 @@ export function StudioInspector({ keysActive }: Props) {
   const engine = useWallpaperEngine();
   const style = useConfigStore((s) => s.style);
   const setStyle = useConfigStore((s) => s.setStyle);
+  const material = useConfigStore((s) => s.material);
+  const setMaterial = useConfigStore((s) => s.setMaterial);
+  const params = useRenderParams();
+  const materials = engine.materialsFor?.(params) ?? [];
   const requestReveal = useRequestReveal();
   const tabsId = useId();
   const shuffleRef = useRef<HTMLButtonElement>(null);
@@ -145,6 +149,17 @@ export function StudioInspector({ keysActive }: Props) {
     />
   );
 
+  const materialControl = materials.length > 0 && (
+    <SegmentedControl
+      ariaLabel="Material"
+      value={material}
+      onChange={setMaterial}
+      options={materials.map((o) => ({ value: o.id, label: o.label }))}
+      className="flex w-full"
+      dense
+    />
+  );
+
   return (
     <aside
       ref={rootRef}
@@ -205,7 +220,12 @@ export function StudioInspector({ keysActive }: Props) {
               transition={{ duration: 0.18, ease: [0.2, 0.7, 0.2, 1] }}
               className="grid gap-3"
             >
-              {tab === "style" && styleControl}
+              {tab === "style" && (
+                <>
+                  {styleControl}
+                  {materialControl}
+                </>
+              )}
               {tab === "colors" && (
                 <>
                   <div className="flex justify-center">
@@ -220,6 +240,7 @@ export function StudioInspector({ keysActive }: Props) {
         ) : (
           <>
             <Group title="Style">{styleControl}</Group>
+            {materialControl && <Group title="Material">{materialControl}</Group>}
             <Group title="Palette">
               <PaletteList />
             </Group>

@@ -10,12 +10,14 @@ import {
   type ActiveMask,
   type Colors4,
   type Device,
+  type Material,
   type RenderParams,
   type Style,
 } from "@/lib/palettes";
 import {
   DEFAULT_CONTRAST,
   DEFAULT_DENSITY,
+  DEFAULT_MATERIAL,
   STUDIO_BLUR,
   STUDIO_VIBRANCE,
   V2_DEFAULT_GRAIN,
@@ -54,6 +56,8 @@ export interface ConfigState extends Look {
    */
   toggleColor: (i: number) => void;
   setStyle: (s: Style) => void;
+  /** Material over the wallpaper. Like the style, it is the user's: shuffle and remix keep it. */
+  setMaterial: (m: Material) => void;
   setBlur: (n: number) => void;
   setGrain: (n: number) => void;
   /** Set the painterly highlight direction in compass degrees (0..360). */
@@ -104,6 +108,7 @@ const configStore = createStore<ConfigState>()((set) => {
     density: DEFAULT_DENSITY,
     contrast: DEFAULT_CONTRAST,
     vibrance: STUDIO_VIBRANCE,
+    material: DEFAULT_MATERIAL,
 
     setDevice: (d) => set({ device: d }),
     // A fresh palette invalidates any per-slot deactivation — reset the mask.
@@ -124,6 +129,7 @@ const configStore = createStore<ConfigState>()((set) => {
         return { active: next };
       }),
     setStyle: (s) => set({ style: s }),
+    setMaterial: (m) => set({ material: m }),
     // Slider/dial setters route through the rAF batcher so a fast drag fires at
     // most one render per frame instead of one per pointermove event.
     setBlur: (n) => rafSet({ blur: n }),

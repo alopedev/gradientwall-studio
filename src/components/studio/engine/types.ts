@@ -1,6 +1,6 @@
 import type { ComponentType } from "react";
 import type { ExportedFile } from "@/lib/download/export";
-import type { Device, RenderParams, Style } from "@/lib/palettes";
+import type { Device, Material, RenderParams, Style } from "@/lib/palettes";
 
 /**
  * Contract between the Studio UI and whatever draws the wallpapers.
@@ -31,6 +31,11 @@ export interface StyleOption {
   label: string;
 }
 
+export interface MaterialOption {
+  id: Material;
+  label: string;
+}
+
 export interface EngineCanvasProps {
   params: RenderParams;
   device: Device;
@@ -58,6 +63,11 @@ export interface WallpaperEngine {
    * the sliders (and Reset defaults) of the renderer that draws it.
    */
   adjustmentsFor: (params: RenderParams) => readonly AdjustmentSpec[];
+  /**
+   * Materials the Studio offers for this wallpaper, "none" first. Empty (or
+   * absent) when the renderer drawing it has none: the control then hides.
+   */
+  materialsFor?: (params: RenderParams) => readonly MaterialOption[];
   /** Live preview. Fills its parent box, keeping the device aspect ratio. */
   Canvas: ComponentType<EngineCanvasProps>;
   /**

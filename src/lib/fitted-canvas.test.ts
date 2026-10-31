@@ -88,6 +88,12 @@ describe("pixelKey", () => {
     expect(pixelKey({ ...base, blur: 80, density: 0.8 }, "v2")).toBe(pixelKey(base, "v2"));
   });
 
+  it("v2 repaints on a new material; v1 ignores it (it has none)", () => {
+    expect(pixelKey({ ...base, material: "fluted" }, "v2")).not.toBe(pixelKey(base, "v2"));
+    expect(pixelKey({ ...base, material: "none" }, "v2")).toBe(pixelKey(base, "v2"));
+    expect(pixelKey({ ...base, material: "fluted" }, "v1")).toBe(pixelKey(base, "v1"));
+  });
+
   it("distinguishes a ramp of 3 colours from a ramp of 4", () => {
     expect(pixelKey({ ...base, colors: base.colors.slice(0, 3) }, "v2")).not.toBe(
       pixelKey(base, "v2"),

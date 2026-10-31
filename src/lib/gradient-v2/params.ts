@@ -6,7 +6,7 @@
 
 import { parseHex, wrapAngle } from "../color";
 import { V2_DEFAULT_GRAIN, V2_DEFAULT_LIGHT_ANGLE } from "../defaults";
-import type { ColorRamp, Style } from "../palettes";
+import type { ColorRamp, Material, Style } from "../palettes";
 
 export const V2_STYLES = ["liquid", "aurora", "grain-mesh"] as const;
 export type V2Style = (typeof V2_STYLES)[number];
@@ -56,6 +56,8 @@ export interface V2Params {
   grain?: number;
   /** TPDF dither before 8-bit quantisation. On unless explicitly disabled. */
   dither?: boolean;
+  /** Second pass over the wallpaper (`material.ts`). Undefined = "none". */
+  material?: Material;
 }
 
 export interface V2Uniforms {
@@ -70,6 +72,8 @@ export interface V2Uniforms {
   lightAngleRad: number;
   style: number;
   dither: number;
+  /** Which material pass runs after the wallpaper, or "none". */
+  material: Material;
 }
 
 // The v2 starting look is defined in `lib/defaults.ts`; re-exported for callers of this module.
@@ -113,5 +117,6 @@ export function resolveV2Uniforms(params: V2Params): V2Uniforms {
     lightAngleRad: compassToRadians(params.lightAngle ?? DEFAULT_COMPASS),
     style: V2_STYLE_INDEX[style],
     dither: params.dither === false ? 0 : 1,
+    material: params.material ?? "none",
   };
 }

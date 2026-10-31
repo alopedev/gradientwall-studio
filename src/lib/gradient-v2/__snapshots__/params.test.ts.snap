@@ -20,6 +20,7 @@ exports[`resolveV2Uniforms > is stable for a fixed input (regression guard) 1`] 
   "grain": 0.45,
   "light": 0.55,
   "lightAngleRad": 5.497787143782138,
+  "material": "none",
   "scale": 0.45,
   "seed": 4821,
   "style": 0,

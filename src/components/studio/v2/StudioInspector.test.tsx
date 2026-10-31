@@ -49,6 +49,21 @@ describe("StudioInspector", () => {
     expect(screen.queryByRole("button", { name: /^adjust$/i })).toBeNull();
   });
 
+  it("offers the materials and sets the one picked", async () => {
+    render(<Harness />);
+    const material = screen.getByLabelText("Material");
+    const labels = Array.from(material.querySelectorAll("button")).map((b) => b.textContent);
+    expect(labels).toEqual(["None", "Fluted", "Ripple", "Dots", "Pixel"]);
+    await userEvent.click(within(material).getByRole("button", { name: "Fluted" }));
+    expect(useConfigStore.getState().material).toBe("fluted");
+  });
+
+  it("hides the materials for a favorite drawn by the v1 engine", () => {
+    act(() => useConfigStore.setState({ engine: "v1" }));
+    render(<Harness />);
+    expect(screen.queryByLabelText("Material")).toBeNull();
+  });
+
   it("orders the styles Mesh, Aurora, Liquid", () => {
     render(<Harness />);
     const style = screen.getByLabelText("Style");

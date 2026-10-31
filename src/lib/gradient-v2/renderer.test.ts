@@ -9,6 +9,7 @@ import {
   WebGL2UnavailableError,
   type V2Renderer,
 } from "./renderer";
+import { MATERIAL_FRAG } from "./material";
 import { FRAG, VERT } from "./shader";
 import { FRAG_ANIMATED } from "./shader-animated";
 
@@ -22,6 +23,8 @@ function fakeGl(
     compileOk?: boolean;
     /** Expose KHR_parallel_shader_compile; `done` says whether the link has finished. */
     parallel?: { done: boolean };
+    maxTexture?: number;
+    framebufferComplete?: boolean;
   } = {},
 ) {
   const calls: { name: string; args: unknown[] }[] = [];
@@ -42,6 +45,25 @@ function fakeGl(
     FLOAT: 7,
     TRIANGLES: 8,
     SCISSOR_TEST: 9,
+    FRAMEBUFFER: 10,
+    TEXTURE_2D: 11,
+    TEXTURE0: 12,
+    FRAMEBUFFER_COMPLETE: 13,
+    MAX_TEXTURE_SIZE: 14,
+    COLOR_ATTACHMENT0: 15,
+    RGBA8: 16,
+    RGBA: 17,
+    UNSIGNED_BYTE: 18,
+    getParameter: (pname: number) => (pname === 14 ? (opts.maxTexture ?? 16384) : 0),
+    createTexture: rec("createTexture", { texture: true }),
+    bindTexture: rec("bindTexture"),
+    activeTexture: rec("activeTexture"),
+    texImage2D: rec("texImage2D"),
+    texParameteri: rec("texParameteri"),
+    createFramebuffer: rec("createFramebuffer", { framebuffer: true }),
+    bindFramebuffer: rec("bindFramebuffer"),
+    framebufferTexture2D: rec("framebufferTexture2D"),
+    checkFramebufferStatus: () => ((opts.framebufferComplete ?? true) ? 13 : 0),
     get drawingBufferWidth() {
       return opts.clampTo?.[0] ?? canvas.width;
     },
@@ -144,6 +166,77 @@ describe("createRendererV2", () => {
     expect(() => r.draw({ colors: RAMP, style: "liquid", seed: 1 }, 5120, 2880)).toThrow(
       WebGL2UnavailableError,
     );
+  });
+});
+
+describe("createRendererV2 (material pass)", () => {
+  it("draws a wallpaper without a material straight to the canvas, as before", () => {
+    const { canvas, calls } = fakeGl();
+    createRendererV2(canvas).draw(
+      { colors: RAMP, style: "liquid", seed: 1, material: "none" },
+      400,
+      800,
+    );
+    expect(named(calls, "bindFramebuffer")).toHaveLength(0);
+    expect(named(calls, "createTexture")).toHaveLength(0);
+    expect(named(calls, "drawArrays")).toHaveLength(1);
+  });
+
+  it("draws the wallpaper into a texture, then the material from it onto the canvas", () => {
+    const { canvas, calls } = fakeGl();
+    createRendererV2(canvas).draw(
+      { colors: RAMP, style: "liquid", seed: 1, material: "fluted" },
+      400,
+      800,
+    );
+    const order = calls
+      .filter((c) => ["bindFramebuffer", "drawArrays"].includes(c.name))
+      .map((c) => {
+        if (c.name === "drawArrays") return "draw";
+        return c.args[1] ? "to-texture" : "to-canvas";
+      })
+      .filter((step, i, all) => step !== all[i - 1]);
+    expect(order).toEqual(["to-texture", "draw", "to-canvas", "draw"]);
+    expect(named(calls, "texImage2D")[0].args.slice(3, 5)).toEqual([400, 800]);
+    expect(named(calls, "shaderSource").map((c) => c.args[1])).toContain(MATERIAL_FRAG.fluted);
+    expect(named(calls, "uniform1i").find((c) => c.args[0] === "uBase")?.args[1]).toBe(0);
+    expect(named(calls, "uniform2f").at(-1)?.args).toEqual(["uRes", 400, 800]);
+  });
+
+  it("compiles each material once and keeps the texture while the size holds", () => {
+    const { canvas, calls } = fakeGl();
+    const r = createRendererV2(canvas);
+    const p = { colors: RAMP, style: "liquid" as const, seed: 1, material: "halftone" as const };
+    r.draw(p, 400, 800);
+    r.draw({ ...p, seed: 2 }, 400, 800);
+    const compiled = (src: string) => named(calls, "shaderSource").filter((c) => c.args[1] === src);
+    expect(compiled(MATERIAL_FRAG.halftone)).toHaveLength(1);
+    expect(named(calls, "texImage2D")).toHaveLength(1);
+    r.draw(p, 200, 400);
+    expect(named(calls, "texImage2D")).toHaveLength(2);
+    expect(named(calls, "createTexture")).toHaveLength(1);
+  });
+
+  it("runs both passes in strips on a large export", () => {
+    const { canvas, calls } = fakeGl();
+    createRendererV2(canvas).draw(
+      { colors: RAMP, style: "liquid", seed: 1, material: "dither" },
+      5120,
+      2880,
+      { strip: 512 },
+    );
+    expect(named(calls, "drawArrays")).toHaveLength(12);
+  });
+
+  it.each([
+    ["the texture is larger than the GPU allows", { maxTexture: 4096 }],
+    ["the framebuffer can't be made", { framebufferComplete: false }],
+  ])("throws WebGL2UnavailableError when %s, so callers can fall back", (_why, opts) => {
+    const { canvas } = fakeGl(opts);
+    const r = createRendererV2(canvas);
+    expect(() =>
+      r.draw({ colors: RAMP, style: "liquid", seed: 1, material: "ripple" }, 5120, 2880),
+    ).toThrow(WebGL2UnavailableError);
   });
 });
 

@@ -5,6 +5,14 @@ export type Device = (typeof DEVICES)[number];
 export const STYLES = ["mesh", "liquid", "aurora", "nebula"] as const;
 export type Style = (typeof STYLES)[number];
 
+/**
+ * Material laid over a v2 wallpaper (a second GPU pass, `gradient-v2/material.ts`):
+ * fluted glass, rippled glass, ordered dither, halftone dots. "none" draws the
+ * wallpaper as it always was.
+ */
+export const MATERIALS = ["none", "fluted", "ripple", "dither", "halftone"] as const;
+export type Material = (typeof MATERIALS)[number];
+
 export type Colors4 = [string, string, string, string];
 
 /**
@@ -108,6 +116,8 @@ export interface GradientConfig {
   vibrance?: number;
   /** Renderer that made this config. Optional: absent = v1 (see `engineOf`). */
   engine?: Engine;
+  /** Absent = "none" (favorites saved before materials). Only the v2 engine draws it. */
+  material?: Material;
 }
 
 // Fallback values for absent fields live in `defaults.ts`; re-exported here
@@ -116,6 +126,7 @@ export {
   DEFAULT_CONTRAST,
   DEFAULT_DENSITY,
   DEFAULT_LIGHT_ANGLE,
+  DEFAULT_MATERIAL,
   DEFAULT_VIBRANCE,
 } from "./defaults";
 
@@ -156,6 +167,8 @@ export interface RenderParams {
   vibrance?: number;
   /** Renderer to use. Absent = v1. */
   engine?: Engine;
+  /** Absent = "none". Only the v2 engine draws it. */
+  material?: Material;
 }
 
 export interface Palette {

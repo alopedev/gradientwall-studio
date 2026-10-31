@@ -18,6 +18,17 @@ describe("look URL", () => {
     expect(decodeLookParam(encodeLookParam(look))).toEqual(look);
   });
 
+  it("adds the material as a sixth part, and leaves it out when there is none", () => {
+    expect(encodeLookParam({ ...look, material: "fluted" })).toBe(
+      "liquid-1234-2b1055.7597de.ff6e7f.ffd86e-315-45-fluted",
+    );
+    expect(encodeLookParam({ ...look, material: "none" })).toBe(encodeLookParam(look));
+    expect(decodeLookParam(encodeLookParam({ ...look, material: "halftone" }))).toEqual({
+      ...look,
+      material: "halftone",
+    });
+  });
+
   it("lowercases colours and accepts upper case", () => {
     expect(decodeLookParam("mesh-7-2B1055.7597DE.FF6E7F.FFD86E-90-0")?.colors[0]).toBe("#2b1055");
   });
@@ -31,6 +42,7 @@ describe("look URL", () => {
     ["liquid-1-2b1055.7597de.ff6e7f.ffd86e-400-45", "angle out of range"],
     ["liquid-1-2b1055.7597de.ff6e7f.ffd86e-315-101", "grain out of range"],
     ["liquid-1-2b1055.7597de.ff6e7f.ffd86e-315", "missing field"],
+    ["liquid-1-2b1055.7597de.ff6e7f.ffd86e-315-45-velvet", "unknown material"],
   ])("rejects %s (%s)", (value) => {
     expect(decodeLookParam(value)).toBeNull();
   });

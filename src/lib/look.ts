@@ -4,12 +4,14 @@ import {
   DEFAULT_CONTRAST,
   DEFAULT_DENSITY,
   DEFAULT_LIGHT_ANGLE,
+  DEFAULT_MATERIAL,
   DEFAULT_VIBRANCE,
   engineOf,
   type ActiveMask,
   type Colors4,
   type Engine,
   type GradientConfig,
+  type Material,
   type RenderParams,
   type Style,
 } from "@/lib/palettes";
@@ -39,6 +41,7 @@ export interface Look {
   density: number;
   contrast: number;
   vibrance: number;
+  material: Material;
 }
 
 /** What a favorite persists. Fields added after the first release are optional. */
@@ -58,6 +61,7 @@ export function pickLook(s: Look): Look {
     density: s.density,
     contrast: s.contrast,
     vibrance: s.vibrance,
+    material: s.material,
   };
 }
 
@@ -74,6 +78,7 @@ export function toRenderParams(look: Look): RenderParams {
     density: look.density,
     contrast: look.contrast,
     vibrance: look.vibrance,
+    material: look.material,
   };
 }
 
@@ -91,6 +96,7 @@ export function toFavoriteConfig(look: Look): FavoriteConfig {
     density: look.density,
     contrast: look.contrast,
     vibrance: look.vibrance,
+    material: look.material,
   };
 }
 
@@ -112,6 +118,7 @@ export function fromFavorite(config: FavoriteConfig): Look {
     density: config.density ?? DEFAULT_DENSITY,
     contrast: config.contrast ?? DEFAULT_CONTRAST,
     vibrance: config.vibrance ?? DEFAULT_VIBRANCE,
+    material: config.material ?? DEFAULT_MATERIAL,
   };
 }
 
@@ -132,11 +139,12 @@ export function isSameLook(a: Look, b: Look): boolean {
     a.lightAngle === b.lightAngle &&
     a.density === b.density &&
     a.contrast === b.contrast &&
-    a.vibrance === b.vibrance
+    a.vibrance === b.vibrance &&
+    a.material === b.material
   );
 }
 
-/** A look from a link (`lib/look-url`) on top of the current one: drawn by v2, all four colours on. */
+/** A look from a link (`lib/look-url`) on top of the current one: drawn by v2, all four colours on, no material unless the link names one. */
 export function withSharedLook(look: Look, shared: SharedLook): Look {
   return {
     ...look,
@@ -147,5 +155,6 @@ export function withSharedLook(look: Look, shared: SharedLook): Look {
     seed: shared.seed,
     lightAngle: shared.lightAngle,
     grain: shared.grain,
+    material: shared.material ?? DEFAULT_MATERIAL,
   };
 }

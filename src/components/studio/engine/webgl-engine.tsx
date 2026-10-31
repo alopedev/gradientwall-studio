@@ -15,7 +15,7 @@ import { DEVICE_SIZES, engineOf, type RenderParams } from "@/lib/palettes";
 import { useFittedCanvas } from "@/lib/useFittedCanvas";
 import { canvas2DEngine } from "./canvas2d-engine";
 import { ScreenMotion } from "./ScreenMotion";
-import type { AdjustmentSpec, EngineCanvasProps, WallpaperEngine } from "./types";
+import type { AdjustmentSpec, EngineCanvasProps, MaterialOption, WallpaperEngine } from "./types";
 
 /** Longest preview side and DPR cap, same budget as the Canvas2D preview. */
 const MAX_DIM = DEFAULT_MAX_DIM;
@@ -27,6 +27,7 @@ const toV2 = (p: RenderParams): V2Params => ({
   seed: p.seed,
   lightAngle: p.lightAngle,
   grain: p.grain,
+  material: p.material,
 });
 
 /** The shader has no softness / contrast / vibrance: its look is calibrated. */
@@ -49,6 +50,15 @@ const ADJUSTMENTS: readonly AdjustmentSpec[] = [
     default: V2_DEFAULT_LIGHT_ANGLE,
     format: (v) => `${Math.round(v)}°`,
   },
+];
+
+/** The material pass (`gradient-v2/material.ts`), in the order Àlex chose them (2026-10-31). */
+const MATERIAL_OPTIONS: readonly MaterialOption[] = [
+  { id: "none", label: "None" },
+  { id: "fluted", label: "Fluted" },
+  { id: "ripple", label: "Ripple" },
+  { id: "halftone", label: "Dots" },
+  { id: "dither", label: "Pixel" },
 ];
 
 export interface WebGLEngineDeps {
@@ -118,6 +128,8 @@ export function createWebGLEngine(deps: WebGLEngineDeps = {}): WallpaperEngine {
     // Favorites saved with v1 keep the v1 sliders: that is the renderer drawing them.
     adjustmentsFor: (params) =>
       engineOf(params) === "v1" ? fallback.adjustmentsFor(params) : ADJUSTMENTS,
+    // Only the shader draws materials; a v1 favorite has none to offer.
+    materialsFor: (params) => (engineOf(params) === "v1" ? [] : MATERIAL_OPTIONS),
     Canvas: EngineCanvas,
     Motion: ScreenMotion,
     paintThumbnail(canvas, params, size) {

@@ -8,6 +8,7 @@ import {
   pickLook,
   toFavoriteConfig,
   toRenderParams,
+  withSharedLook,
 } from "./look";
 
 const look: Look = {
@@ -22,6 +23,7 @@ const look: Look = {
   density: 0.5,
   contrast: 1,
   vibrance: 1,
+  material: "fluted",
 };
 
 describe("toRenderParams", () => {
@@ -68,6 +70,7 @@ describe("toFavoriteConfig / fromFavorite", () => {
       density: 0.5,
       contrast: 1,
       vibrance: 1,
+      material: "none",
     });
   });
 });
@@ -102,7 +105,26 @@ describe("isSameLook", () => {
     ["density", { density: 0.6 }],
     ["contrast", { contrast: 1.1 }],
     ["vibrance", { vibrance: 1.1 }],
+    ["material", { material: "halftone" }],
   ])("is false when %s differs", (_name, patch) => {
     expect(isSameLook(look, { ...look, ...patch })).toBe(false);
+  });
+});
+
+describe("withSharedLook", () => {
+  const shared = {
+    style: "mesh" as const,
+    seed: 9,
+    colors: ["#010101", "#020202", "#030303", "#040404"] as Look["colors"],
+    lightAngle: 90,
+    grain: 10,
+  };
+
+  it("drops the current material when the link names none", () => {
+    expect(withSharedLook(look, shared).material).toBe("none");
+  });
+
+  it("takes the link's material", () => {
+    expect(withSharedLook(look, { ...shared, material: "dither" }).material).toBe("dither");
   });
 });

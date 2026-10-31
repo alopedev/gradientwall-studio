@@ -89,6 +89,36 @@ describe("webgl v2 engine", () => {
     expect(engine.adjustmentsFor(v2).map((a) => a.key)).toEqual(["grain", "lightAngle"]);
   });
 
+  it("offers materials for v2 wallpapers only, none first", () => {
+    const { engine } = setup();
+    expect(engine.materialsFor?.(v2).map((m) => m.id)).toEqual([
+      "none",
+      "fluted",
+      "ripple",
+      "halftone",
+      "dither",
+    ]);
+    expect(engine.materialsFor?.(v1)).toEqual([]);
+  });
+
+  it("passes the material to the shader", () => {
+    const { engine, draw } = setup();
+    engine.paintThumbnail(
+      document.createElement("canvas"),
+      { ...v2, material: "halftone" },
+      {
+        w: 88,
+        h: 152,
+      },
+    );
+    expect(draw).toHaveBeenCalledWith(
+      expect.objectContaining({ material: "halftone" }),
+      88,
+      152,
+      {},
+    );
+  });
+
   it("paints v2 thumbnails with the shader", () => {
     const { engine, draw, fallback } = setup();
     engine.paintThumbnail(document.createElement("canvas"), v2, { w: 88, h: 152 });
