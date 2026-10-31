@@ -3,7 +3,7 @@ import { AnimatePresence, m } from "motion/react";
 import { SegmentedControl, type SegmentOption } from "@/components/ui/SegmentedControl";
 import { paletteName } from "@/lib/palette-name";
 import { type Device, DEVICE_SIZES } from "@/lib/palettes";
-import { useConfigStore } from "@/store";
+import { useConfigStore, useRenderParams } from "@/store";
 import { MotionToggle } from "@/components/ui/MotionToggle";
 import { useWallpaperEngine } from "../engine";
 
@@ -36,7 +36,11 @@ export function StudioTopBar() {
   const device = useConfigStore((s) => s.device);
   const setDevice = useConfigStore((s) => s.setDevice);
   const name = paletteName(colors);
-  const styleLabel = engine.styles.find((o) => o.id === style)?.label ?? style;
+  const params = useRenderParams();
+  const look = engine
+    .looksFor?.(params)
+    .find((o) => o.style === style && o.material === (params.material ?? "none"));
+  const styleLabel = look?.label ?? engine.styles.find((o) => o.id === style)?.label ?? style;
 
   return (
     <header className="relative z-[5] flex items-center justify-between gap-3 px-[18px] pb-1.5 pt-4 @max-[760px]:px-3.5 @max-[760px]:pb-1 @max-[760px]:pt-3.5">
@@ -47,7 +51,7 @@ export function StudioTopBar() {
         <div className="relative h-[1.9rem] overflow-hidden" aria-live="polite">
           <AnimatePresence mode="popLayout" initial={false}>
             <m.span
-              key={`${name}-${style}`}
+              key={`${name}-${styleLabel}`}
               initial={{ y: 22, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: -22, opacity: 0 }}

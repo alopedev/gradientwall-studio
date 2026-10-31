@@ -11,11 +11,11 @@ import {
   type V2Params,
   type V2Renderer,
 } from "@/lib/gradient-v2";
-import { DEVICE_SIZES, engineOf, type RenderParams } from "@/lib/palettes";
+import { DEFAULT_ROTATION, DEVICE_SIZES, engineOf, type RenderParams } from "@/lib/palettes";
 import { useFittedCanvas } from "@/lib/useFittedCanvas";
 import { canvas2DEngine } from "./canvas2d-engine";
 import { ScreenMotion } from "./ScreenMotion";
-import type { AdjustmentSpec, EngineCanvasProps, WallpaperEngine } from "./types";
+import type { AdjustmentSpec, EngineCanvasProps, LookOption, WallpaperEngine } from "./types";
 
 /** Longest preview side and DPR cap, same budget as the Canvas2D preview. */
 const MAX_DIM = DEFAULT_MAX_DIM;
@@ -27,19 +27,40 @@ const toV2 = (p: RenderParams): V2Params => ({
   seed: p.seed,
   lightAngle: p.lightAngle,
   grain: p.grain,
+  material: p.material,
+  rotation: p.rotation,
 });
 
 /** The shader has no softness / contrast / vibrance: its look is calibrated. */
+const GRAIN: AdjustmentSpec = {
+  key: "grain",
+  label: "Grain",
+  min: 0,
+  max: 100,
+  step: 1,
+  default: V2_DEFAULT_GRAIN,
+  format: (v) => `${Math.round(v)}%`,
+};
+
+/**
+ * Turns the wallpaper (Àlex, 2026-10-31: the light barely showed). Aurora hangs
+ * from the top of the screen and can't turn, so it keeps the Light slider.
+ */
 const ADJUSTMENTS: readonly AdjustmentSpec[] = [
+  GRAIN,
   {
-    key: "grain",
-    label: "Grain",
+    key: "rotation",
+    label: "Rotate",
     min: 0,
-    max: 100,
+    max: 360,
     step: 1,
-    default: V2_DEFAULT_GRAIN,
-    format: (v) => `${Math.round(v)}%`,
+    default: DEFAULT_ROTATION,
+    format: (v) => `${Math.round(v)}°`,
   },
+];
+
+const AURORA_ADJUSTMENTS: readonly AdjustmentSpec[] = [
+  GRAIN,
   {
     key: "lightAngle",
     label: "Light",
@@ -49,6 +70,20 @@ const ADJUSTMENTS: readonly AdjustmentSpec[] = [
     default: V2_DEFAULT_LIGHT_ANGLE,
     format: (v) => `${Math.round(v)}°`,
   },
+];
+
+/**
+ * The Style picker (Àlex, 2026-10-31): the three styles and three materials,
+ * each material over the style it reads best on. Ripple is drawn for favorites
+ * and links that carry it, but left the picker (too close to Liquid).
+ */
+const LOOK_OPTIONS: readonly LookOption[] = [
+  { id: "mesh", label: "Mesh", style: "mesh", material: "none" },
+  { id: "aurora", label: "Aurora", style: "aurora", material: "none" },
+  { id: "liquid", label: "Liquid", style: "liquid", material: "none" },
+  { id: "glass", label: "Glass", style: "mesh", material: "fluted" },
+  { id: "dots", label: "Dots", style: "liquid", material: "halftone" },
+  { id: "pixel", label: "Pixel", style: "mesh", material: "dither" },
 ];
 
 export interface WebGLEngineDeps {
@@ -116,8 +151,12 @@ export function createWebGLEngine(deps: WebGLEngineDeps = {}): WallpaperEngine {
       { id: "liquid", label: "Liquid" },
     ],
     // Favorites saved with v1 keep the v1 sliders: that is the renderer drawing them.
-    adjustmentsFor: (params) =>
-      engineOf(params) === "v1" ? fallback.adjustmentsFor(params) : ADJUSTMENTS,
+    adjustmentsFor: (params) => {
+      if (engineOf(params) === "v1") return fallback.adjustmentsFor(params);
+      return params.style === "aurora" ? AURORA_ADJUSTMENTS : ADJUSTMENTS;
+    },
+    // Only the shader draws materials; a v1 favorite keeps the plain style switch.
+    looksFor: (params) => (engineOf(params) === "v1" ? [] : LOOK_OPTIONS),
     Canvas: EngineCanvas,
     Motion: ScreenMotion,
     paintThumbnail(canvas, params, size) {

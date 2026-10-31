@@ -140,6 +140,8 @@ export function ScreenMotion({ params }: { params: RenderParams }) {
             seed: p.seed,
             grain: p.grain,
             lightAngle: p.lightAngle,
+            material: p.material,
+            rotation: p.rotation,
           },
           width,
           height,

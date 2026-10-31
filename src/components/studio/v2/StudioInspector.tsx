@@ -1,12 +1,13 @@
 import { AnimatePresence, m } from "motion/react";
 import { type ReactNode, useCallback, useEffect, useId, useRef, useState } from "react";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
-import { remixWallpaper, shuffleWallpaper, useConfigStore } from "@/store";
+import { remixWallpaper, shuffleWallpaper, useConfigStore, useRenderParams } from "@/store";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { useWallpaperEngine } from "../engine";
 import { AdjustPanel } from "./AdjustPanel";
 import { ColorEditor } from "./ColorEditor";
 import { ExportButton } from "./ExportButton";
+import { LookPicker } from "./LookPicker";
 import { PaletteList } from "./PaletteList";
 import { PaletteSwatches } from "./PaletteSwatches";
 import { useRequestReveal } from "./reveal";
@@ -76,6 +77,7 @@ export function StudioInspector({ keysActive }: Props) {
   const engine = useWallpaperEngine();
   const style = useConfigStore((s) => s.style);
   const setStyle = useConfigStore((s) => s.setStyle);
+  const looks = engine.looksFor?.(useRenderParams()) ?? [];
   const requestReveal = useRequestReveal();
   const tabsId = useId();
   const shuffleRef = useRef<HTMLButtonElement>(null);
@@ -135,15 +137,19 @@ export function StudioInspector({ keysActive }: Props) {
     return () => window.removeEventListener("keydown", onKey);
   }, [keysActive, requestReveal, shuffle]);
 
-  const styleControl = (
-    <SegmentedControl
-      ariaLabel="Style"
-      value={style}
-      onChange={setStyle}
-      options={engine.styles.map((s) => ({ value: s.id, label: s.label }))}
-      className="flex w-full"
-    />
-  );
+  // v2 wallpapers pick a finished look from thumbnails; a v1 favorite keeps the plain switch.
+  const styleControl =
+    looks.length > 0 ? (
+      <LookPicker options={looks} />
+    ) : (
+      <SegmentedControl
+        ariaLabel="Style"
+        value={style}
+        onChange={setStyle}
+        options={engine.styles.map((s) => ({ value: s.id, label: s.label }))}
+        className="flex w-full"
+      />
+    );
 
   return (
     <aside

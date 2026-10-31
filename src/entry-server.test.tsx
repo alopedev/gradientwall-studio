@@ -33,9 +33,9 @@ describe("entry-server starting look", () => {
     const aurora = await render("/aurora-gradient-wallpapers/");
     // The Studio's style picker marks the selected style.
     const pressed = (html: string, label: string) =>
-      new RegExp(
-        `aria-pressed="true"[^>]*>(?:<span[^>]*></span>)?<span[^>]*><span class="">${label}<`,
-      ).test(html);
+      new RegExp(`aria-pressed="true"[^>]*>(?:(?!</button>).)*>${label}</span></button>`).test(
+        html,
+      );
     expect(pressed(aurora, "Aurora")).toBe(true);
     expect(pressed(aurora, "Mesh")).toBe(false);
     const { useConfigStore } = await import("./store");
