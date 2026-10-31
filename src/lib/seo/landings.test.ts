@@ -8,7 +8,8 @@ import {
   landingPath,
   MACBOOK_SCREENS,
 } from "./landings";
-import { buildHomePage, buildLandingPage, buildSeoPages, fullTitle, type SeoPack } from "./pages";
+import { buildHomePage, fullTitle, type SeoPack } from "./pages";
+import { buildLandingPage, buildSeoPages } from "./site-pages";
 import { outputFile, renderSitemap } from "./render";
 
 describe("landings", () => {

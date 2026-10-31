@@ -3,7 +3,7 @@
  * wallpaper", "4k gradient wallpaper", one per style). Each is the home's hero
  * with its own headline and starting look, then a short guide written for
  * that search only, then the Studio and the packs. Pure content with no
- * imports; `buildLandingPage` in `pages.ts` turns it into SEO data for the
+ * imports; `buildLandingPage` in `site-pages.ts` turns it into SEO data for the
  * prerender and `PageMeta`.
  *
  * Kept few on purpose: many near-identical pages read as doorway pages to

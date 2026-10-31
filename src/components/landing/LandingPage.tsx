@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
 import type { Landing, LandingGuide } from "@/lib/seo/landings";
-import { buildLandingPage, landingLinks } from "@/lib/seo/pages";
+import { landingLinks } from "@/lib/seo/pages";
+import { buildLandingPage } from "@/lib/seo/site-pages";
 import { useConfigStore } from "@/store";
 import { Footer } from "../Footer";
 import { Hero } from "../hero/Hero";

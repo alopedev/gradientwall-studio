@@ -4,7 +4,6 @@
  * Vite build (prerender + sitemap in `vite.config.ts`) and tests.
  */
 
-import { galleryFor, GALLERY_DIR } from "./gallery";
 import { LANDINGS, landingPath, type Landing } from "./landings";
 
 // Also in public/robots.txt, and the old Netlify address 301s here
@@ -280,53 +279,6 @@ export function buildPackPage(pack: SeoPack): SeoPage {
 }
 
 /** SEO data for a landing. Shared by `LandingPage` (runtime) and the prerender. */
-export function buildLandingPage(landing: Landing): SeoPage {
-  const url = `${SITE_ORIGIN}${landingPath(landing.slug)}`;
-  const text = [landing.description, ...landing.guides.flatMap((g) => g.body)].join(" ");
-  const gallery = galleryFor(landing);
-  return {
-    path: landingPath(landing.slug),
-    title: landing.title,
-    description: landing.description,
-    ogType: "website",
-    // The share image is the gallery's first wallpaper, drawn at 1200 × 630.
-    ...(gallery.length
-      ? {
-          ogImage: `${GALLERY_DIR}/${landing.slug}/og.jpg`,
-          ogImageAlt: gallery[0].alt,
-          ogImageSize: DEFAULT_OG_SIZE,
-        }
-      : {}),
-    images: gallery.map((g) => g.src),
-    preloadImage: HERO_PHONE_IMAGE,
-    jsonLd: [
-      {
-        "@context": "https://schema.org",
-        "@type": "WebPage",
-        name: landing.title,
-        description: landing.description,
-        url,
-        isPartOf: { "@type": "WebSite", name: SITE_NAME, url: `${SITE_ORIGIN}/` },
-      },
-      {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        itemListElement: [
-          { "@type": "ListItem", position: 1, name: SITE_NAME, item: `${SITE_ORIGIN}/` },
-          { "@type": "ListItem", position: 2, name: landing.title, item: url },
-        ],
-      },
-      ...gallery.map(imageObjectJsonLd),
-    ],
-    noindex: false,
-    shell: {
-      h1: landing.h1,
-      text,
-      links: [{ href: "/", label: "Free gradient wallpaper generator" }, ...landingLinks(landing)],
-    },
-  };
-}
-
 /** Links to every landing, for crawlable shells and the footer. */
 export function landingLinks(except?: Landing): { href: string; label: string }[] {
   return LANDINGS.filter((l) => l !== except).map((l) => ({
@@ -357,16 +309,4 @@ export function buildHomePage(packs: Pick<SeoPack, "slug" | "name">[] = []): Seo
       ],
     },
   };
-}
-
-/** Every page that gets its own prerendered HTML file (excluding the 404). */
-export function buildSeoPages(packs: SeoPack[]): SeoPage[] {
-  return [
-    buildHomePage(packs),
-    ...packs.map(buildPackPage),
-    ...LANDINGS.map(buildLandingPage),
-    RECOVER_PAGE,
-    PRIVACY_PAGE,
-    LICENCE_PAGE,
-  ];
 }
