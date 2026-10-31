@@ -106,6 +106,16 @@ describe("StudioInspector", () => {
     expect(shuffle.className).not.toContain("gws-nudge");
   });
 
+  it("names the keys under Shuffle, only where there is a keyboard and mouse", () => {
+    render(<Harness />);
+    const legend = screen.getByTestId("studio-keys");
+    expect(within(legend).getByText("Space").tagName).toBe("KBD");
+    expect(within(legend).getByText("R").tagName).toBe("KBD");
+    expect(legend).toHaveTextContent(/Space\s*Shuffle\s*R\s*Remix/);
+    expect(legend.className).toContain("hidden");
+    expect(legend.className).toContain("[@media(hover:hover)_and_(pointer:fine)]:flex");
+  });
+
   it("does not cue Shuffle while the studio is off screen", () => {
     render(<Harness keysActive={false} />);
     expect(screen.getByLabelText(/shuffle: generate another wallpaper/i).className).not.toContain(
