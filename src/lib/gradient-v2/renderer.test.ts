@@ -12,6 +12,7 @@ import {
 import { MATERIAL_FRAG } from "./material";
 import { FRAG, VERT } from "./shader";
 import { FRAG_ANIMATED } from "./shader-animated";
+import { rotatable } from "./shader-rotate";
 
 const RAMP = ["#0a0a10", "#3b1a63", "#e2553a", "#f7c890"];
 const COMPLETION_STATUS = 0x91b1;
@@ -240,16 +241,33 @@ describe("createRendererV2 (material pass)", () => {
   });
 });
 
+describe("createRendererV2 (rotation)", () => {
+  it("passes the turn as radians and turns the light with it", () => {
+    const { canvas, calls } = fakeGl();
+    const r = createRendererV2(canvas);
+    r.draw({ colors: RAMP, style: "liquid", seed: 1, lightAngle: 90 }, 400, 800);
+    r.draw({ colors: RAMP, style: "liquid", seed: 1, lightAngle: 90, rotation: 90 }, 400, 800);
+    const f = (n: string) =>
+      named(calls, "uniform1f")
+        .filter((c) => c.args[0] === n)
+        .map((c) => c.args[1] as number);
+    expect(f("uRotate")[0]).toBe(0);
+    expect(f("uRotate")[1]).toBeCloseTo(Math.PI / 2);
+    // Compass 90 (right) turned 90° clockwise points down: math −90° = 270°.
+    expect(f("uLightAngle")[1]).toBeCloseTo((3 * Math.PI) / 2);
+  });
+});
+
 describe("createRendererV2 (animated)", () => {
   const sources = (calls: { name: string; args: unknown[] }[]) =>
     named(calls, "shaderSource").map((c) => c.args[1]);
 
-  it("compiles the signed-off shader by default and never sets a time", () => {
+  it("compiles the signed-off shader (turnable) by default and never sets a time", () => {
     const { canvas, calls } = fakeGl();
     createRendererV2(canvas).draw({ colors: RAMP, style: "liquid", seed: 1 }, 640, 360, {
       time: 5,
     });
-    expect(sources(calls)).toEqual([VERT, FRAG]);
+    expect(sources(calls)).toEqual([VERT, rotatable(FRAG)]);
     expect(named(calls, "uniform1f").some((c) => c.args[0] === "uTime")).toBe(false);
   });
 
@@ -257,7 +275,7 @@ describe("createRendererV2 (animated)", () => {
     const { canvas, calls } = fakeGl();
     const r = createRendererV2(canvas, { animated: true });
     r.draw({ colors: RAMP, style: "liquid", seed: 1 }, 640, 360, { time: 12.5 });
-    expect(sources(calls)).toEqual([VERT, FRAG_ANIMATED]);
+    expect(sources(calls)).toEqual([VERT, rotatable(FRAG_ANIMATED)]);
     expect(named(calls, "uniform1f").find((c) => c.args[0] === "uTime")?.args[1]).toBe(12.5);
   });
 

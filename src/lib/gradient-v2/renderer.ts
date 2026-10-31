@@ -14,8 +14,8 @@
  */
 
 import { type DrawnMaterial, MATERIAL_FRAG } from "./material";
-import { FRAG, VERT } from "./shader";
-import { FRAG_ANIMATED } from "./shader-animated";
+import { VERT } from "./shader";
+import { FRAG_ANIMATED_ROTATABLE, FRAG_STILL_ROTATABLE } from "./shader-rotate";
 import { resolveV2Uniforms, type V2Params } from "./params";
 
 /** Rows per draw call when exporting large sizes; keeps each draw under the GPU watchdog. */
@@ -57,6 +57,7 @@ const UNIFORMS = [
   "uStyle",
   "uDither",
   "uTime",
+  "uRotate",
 ] as const;
 type UniformName = (typeof UNIFORMS)[number];
 
@@ -110,7 +111,11 @@ export function createRendererV2(
   const prog = gl.createProgram();
   if (!prog) throw new WebGL2UnavailableError("Could not create program");
   const vs = createShader(gl, gl.VERTEX_SHADER, VERT);
-  const fs = createShader(gl, gl.FRAGMENT_SHADER, animated ? FRAG_ANIMATED : FRAG);
+  const fs = createShader(
+    gl,
+    gl.FRAGMENT_SHADER,
+    animated ? FRAG_ANIMATED_ROTATABLE : FRAG_STILL_ROTATABLE,
+  );
   gl.attachShader(prog, vs);
   gl.attachShader(prog, fs);
   gl.bindAttribLocation(prog, 0, "aPos");
@@ -169,6 +174,7 @@ export function createRendererV2(
     gl.uniform1f(loc.uLightAngle, u.lightAngleRad);
     gl.uniform1i(loc.uStyle, u.style);
     gl.uniform1f(loc.uDither, u.dither);
+    gl.uniform1f(loc.uRotate, u.rotateRad);
     if (animated) gl.uniform1f(loc.uTime, opts.time ?? 0);
 
     if (u.material === "none") {

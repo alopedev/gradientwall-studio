@@ -12,7 +12,7 @@ import type { Device, Material, RenderParams, Style } from "@/lib/palettes";
  */
 
 /** Numeric knobs the "Adjust" panel can expose. Keys match fields of `RenderParams`. */
-export type AdjustmentKey = "blur" | "grain" | "lightAngle" | "contrast" | "vibrance";
+export type AdjustmentKey = "blur" | "grain" | "lightAngle" | "contrast" | "vibrance" | "rotation";
 
 export interface AdjustmentSpec {
   key: AdjustmentKey;
@@ -31,9 +31,16 @@ export interface StyleOption {
   label: string;
 }
 
-export interface MaterialOption {
-  id: Material;
+/**
+ * One choice of the Studio's single Style picker: a style with a material over
+ * it ("Glass" = mesh under fluted glass). Àlex, 2026-10-31: two pickers read as
+ * the same thing, so the Studio offers finished looks, like Raycast's wallpapers.
+ */
+export interface LookOption {
+  id: string;
   label: string;
+  style: Style;
+  material: Material;
 }
 
 export interface EngineCanvasProps {
@@ -64,10 +71,11 @@ export interface WallpaperEngine {
    */
   adjustmentsFor: (params: RenderParams) => readonly AdjustmentSpec[];
   /**
-   * Materials the Studio offers for this wallpaper, "none" first. Empty (or
-   * absent) when the renderer drawing it has none: the control then hides.
+   * The looks the Style picker offers for this wallpaper, as live thumbnails.
+   * Empty (or absent) when the renderer drawing it has no materials: the
+   * picker then falls back to the plain `styles` switch.
    */
-  materialsFor?: (params: RenderParams) => readonly MaterialOption[];
+  looksFor?: (params: RenderParams) => readonly LookOption[];
   /** Live preview. Fills its parent box, keeping the device aspect ratio. */
   Canvas: ComponentType<EngineCanvasProps>;
   /**

@@ -24,6 +24,7 @@ const look: Look = {
   contrast: 1,
   vibrance: 1,
   material: "fluted",
+  rotation: 90,
 };
 
 describe("toRenderParams", () => {
@@ -71,6 +72,7 @@ describe("toFavoriteConfig / fromFavorite", () => {
       contrast: 1,
       vibrance: 1,
       material: "none",
+      rotation: 0,
     });
   });
 });
@@ -106,6 +108,7 @@ describe("isSameLook", () => {
     ["contrast", { contrast: 1.1 }],
     ["vibrance", { vibrance: 1.1 }],
     ["material", { material: "halftone" }],
+    ["rotation", { rotation: 91 }],
   ])("is false when %s differs", (_name, patch) => {
     expect(isSameLook(look, { ...look, ...patch })).toBe(false);
   });
@@ -122,6 +125,11 @@ describe("withSharedLook", () => {
 
   it("drops the current material when the link names none", () => {
     expect(withSharedLook(look, shared).material).toBe("none");
+  });
+
+  it("drops the current turn when the link names none, and takes the link's", () => {
+    expect(withSharedLook(look, shared).rotation).toBe(0);
+    expect(withSharedLook(look, { ...shared, rotation: 45 }).rotation).toBe(45);
   });
 
   it("takes the link's material", () => {

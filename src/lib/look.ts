@@ -5,6 +5,7 @@ import {
   DEFAULT_DENSITY,
   DEFAULT_LIGHT_ANGLE,
   DEFAULT_MATERIAL,
+  DEFAULT_ROTATION,
   DEFAULT_VIBRANCE,
   engineOf,
   type ActiveMask,
@@ -42,6 +43,7 @@ export interface Look {
   contrast: number;
   vibrance: number;
   material: Material;
+  rotation: number;
 }
 
 /** What a favorite persists. Fields added after the first release are optional. */
@@ -62,6 +64,7 @@ export function pickLook(s: Look): Look {
     contrast: s.contrast,
     vibrance: s.vibrance,
     material: s.material,
+    rotation: s.rotation,
   };
 }
 
@@ -79,6 +82,7 @@ export function toRenderParams(look: Look): RenderParams {
     contrast: look.contrast,
     vibrance: look.vibrance,
     material: look.material,
+    rotation: look.rotation,
   };
 }
 
@@ -97,6 +101,7 @@ export function toFavoriteConfig(look: Look): FavoriteConfig {
     contrast: look.contrast,
     vibrance: look.vibrance,
     material: look.material,
+    rotation: look.rotation,
   };
 }
 
@@ -119,6 +124,7 @@ export function fromFavorite(config: FavoriteConfig): Look {
     contrast: config.contrast ?? DEFAULT_CONTRAST,
     vibrance: config.vibrance ?? DEFAULT_VIBRANCE,
     material: config.material ?? DEFAULT_MATERIAL,
+    rotation: config.rotation ?? DEFAULT_ROTATION,
   };
 }
 
@@ -140,11 +146,12 @@ export function isSameLook(a: Look, b: Look): boolean {
     a.density === b.density &&
     a.contrast === b.contrast &&
     a.vibrance === b.vibrance &&
-    a.material === b.material
+    a.material === b.material &&
+    a.rotation === b.rotation
   );
 }
 
-/** A look from a link (`lib/look-url`) on top of the current one: drawn by v2, all four colours on, no material unless the link names one. */
+/** A look from a link (`lib/look-url`) on top of the current one: drawn by v2, all four colours on, no material or turn unless the link names them. */
 export function withSharedLook(look: Look, shared: SharedLook): Look {
   return {
     ...look,
@@ -156,5 +163,6 @@ export function withSharedLook(look: Look, shared: SharedLook): Look {
     lightAngle: shared.lightAngle,
     grain: shared.grain,
     material: shared.material ?? DEFAULT_MATERIAL,
+    rotation: shared.rotation ?? DEFAULT_ROTATION,
   };
 }

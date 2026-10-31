@@ -58,6 +58,8 @@ export interface V2Params {
   dither?: boolean;
   /** Second pass over the wallpaper (`material.ts`). Undefined = "none". */
   material?: Material;
+  /** Clockwise turn of the colour field and its light, degrees. Undefined = 0. */
+  rotation?: number;
 }
 
 export interface V2Uniforms {
@@ -74,6 +76,8 @@ export interface V2Uniforms {
   dither: number;
   /** Which material pass runs after the wallpaper, or "none". */
   material: Material;
+  /** `uRotate`: radians the field turns (counter-clockwise in sample space = clockwise on screen). */
+  rotateRad: number;
 }
 
 // The v2 starting look is defined in `lib/defaults.ts`; re-exported for callers of this module.
@@ -103,10 +107,15 @@ export function compassToRadians(deg: number): number {
   return (math * Math.PI) / 180;
 }
 
+const wrapRadians = (r: number) => ((r % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+
 export function resolveV2Uniforms(params: V2Params): V2Uniforms {
   const style = toV2Style(params.style);
   const d = V2_STYLE_DEFAULTS[style];
   const grain = params.grain === undefined ? d.grain : Math.min(1, Math.max(0, params.grain / 100));
+  // The light turns with the field, so a rotated wallpaper is the same picture turned.
+  const rotateRad = (wrapAngle(params.rotation ?? 0) * Math.PI) / 180;
+  const light = compassToRadians(params.lightAngle ?? DEFAULT_COMPASS) - rotateRad;
   return {
     seed: params.seed >>> 0,
     colors: rampToFour(params.colors).flatMap(hexToRgb01),
@@ -114,9 +123,10 @@ export function resolveV2Uniforms(params: V2Params): V2Uniforms {
     scale: d.scale,
     grain,
     light: d.light,
-    lightAngleRad: compassToRadians(params.lightAngle ?? DEFAULT_COMPASS),
+    lightAngleRad: rotateRad === 0 ? light : wrapRadians(light),
     style: V2_STYLE_INDEX[style],
     dither: params.dither === false ? 0 : 1,
     material: params.material ?? "none",
+    rotateRad,
   };
 }

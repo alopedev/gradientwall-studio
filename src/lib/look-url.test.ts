@@ -29,6 +29,18 @@ describe("look URL", () => {
     });
   });
 
+  it("adds a turn as r<degrees>, after the material, and reads both back", () => {
+    const turned = { ...look, material: "dither" as const, rotation: 90 };
+    expect(encodeLookParam(turned)).toBe(
+      "liquid-1234-2b1055.7597de.ff6e7f.ffd86e-315-45-dither-r90",
+    );
+    expect(decodeLookParam(encodeLookParam(turned))).toEqual(turned);
+    expect(decodeLookParam("liquid-1234-2b1055.7597de.ff6e7f.ffd86e-315-45-r30")?.rotation).toBe(
+      30,
+    );
+    expect(encodeLookParam({ ...look, rotation: 0 })).toBe(encodeLookParam(look));
+  });
+
   it("lowercases colours and accepts upper case", () => {
     expect(decodeLookParam("mesh-7-2B1055.7597DE.FF6E7F.FFD86E-90-0")?.colors[0]).toBe("#2b1055");
   });
@@ -43,6 +55,8 @@ describe("look URL", () => {
     ["liquid-1-2b1055.7597de.ff6e7f.ffd86e-315-101", "grain out of range"],
     ["liquid-1-2b1055.7597de.ff6e7f.ffd86e-315", "missing field"],
     ["liquid-1-2b1055.7597de.ff6e7f.ffd86e-315-45-velvet", "unknown material"],
+    ["liquid-1-2b1055.7597de.ff6e7f.ffd86e-315-45-r400", "turn out of range"],
+    ["liquid-1-2b1055.7597de.ff6e7f.ffd86e-315-45-r9-r9", "two turns"],
   ])("rejects %s (%s)", (value) => {
     expect(decodeLookParam(value)).toBeNull();
   });

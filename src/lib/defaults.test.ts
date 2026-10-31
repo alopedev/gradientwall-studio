@@ -27,7 +27,7 @@ describe("render defaults", () => {
     const s = useConfigStore.getState();
     expect(s.engine).toBe("v2");
     expect(s.grain).toBe(defaultOf(webglEngine, "grain"));
-    expect(s.lightAngle).toBe(defaultOf(webglEngine, "lightAngle"));
+    expect(s.rotation).toBe(defaultOf(webglEngine, "rotation"));
     expect(s.grain).toBe(V2_DEFAULT_GRAIN);
     expect(s.lightAngle).toBe(V2_DEFAULT_LIGHT_ANGLE);
   });

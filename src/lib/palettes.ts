@@ -118,6 +118,8 @@ export interface GradientConfig {
   engine?: Engine;
   /** Absent = "none" (favorites saved before materials). Only the v2 engine draws it. */
   material?: Material;
+  /** Clockwise turn in degrees. Absent = 0. Only the v2 engine draws it (liquid and mesh). */
+  rotation?: number;
 }
 
 // Fallback values for absent fields live in `defaults.ts`; re-exported here
@@ -127,6 +129,7 @@ export {
   DEFAULT_DENSITY,
   DEFAULT_LIGHT_ANGLE,
   DEFAULT_MATERIAL,
+  DEFAULT_ROTATION,
   DEFAULT_VIBRANCE,
 } from "./defaults";
 
@@ -169,6 +172,8 @@ export interface RenderParams {
   engine?: Engine;
   /** Absent = "none". Only the v2 engine draws it. */
   material?: Material;
+  /** Clockwise turn in degrees. Absent = 0. Only the v2 engine draws it. */
+  rotation?: number;
 }
 
 export interface Palette {

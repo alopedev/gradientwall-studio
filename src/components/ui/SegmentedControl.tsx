@@ -16,8 +16,6 @@ interface Props<T extends string> {
   options: readonly SegmentOption<T>[];
   ariaLabel: string;
   className?: string;
-  /** Tighter side padding, for five or more options in a narrow panel. */
-  dense?: boolean;
 }
 
 /**
@@ -32,7 +30,6 @@ export function SegmentedControl<T extends string>({
   options,
   ariaLabel,
   className,
-  dense = false,
 }: Props<T>) {
   const id = useId();
   return (
@@ -53,8 +50,7 @@ export function SegmentedControl<T extends string>({
             aria-label={o.iconOnlyWhenNarrow ? o.label : undefined}
             onClick={() => onChange(o.value)}
             className={cn(
-              "relative inline-flex min-h-[38px] min-w-11 @max-[760px]:min-h-11 items-center justify-center gap-[7px] rounded-[2px] font-sans text-[0.86rem] font-medium outline-none transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
-              dense ? "flex-auto px-1.5" : "flex-1 px-3.5",
+              "relative inline-flex min-h-[38px] min-w-11 @max-[760px]:min-h-11 flex-1 items-center justify-center gap-[7px] rounded-[2px] px-3.5 font-sans text-[0.86rem] font-medium outline-none transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
               selected ? "text-bg" : "text-ink-dim hover:text-ink",
             )}
           >

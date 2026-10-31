@@ -7,6 +7,7 @@ import { useWallpaperEngine } from "../engine";
 import { AdjustPanel } from "./AdjustPanel";
 import { ColorEditor } from "./ColorEditor";
 import { ExportButton } from "./ExportButton";
+import { LookPicker } from "./LookPicker";
 import { PaletteList } from "./PaletteList";
 import { PaletteSwatches } from "./PaletteSwatches";
 import { useRequestReveal } from "./reveal";
@@ -76,10 +77,7 @@ export function StudioInspector({ keysActive }: Props) {
   const engine = useWallpaperEngine();
   const style = useConfigStore((s) => s.style);
   const setStyle = useConfigStore((s) => s.setStyle);
-  const material = useConfigStore((s) => s.material);
-  const setMaterial = useConfigStore((s) => s.setMaterial);
-  const params = useRenderParams();
-  const materials = engine.materialsFor?.(params) ?? [];
+  const looks = engine.looksFor?.(useRenderParams()) ?? [];
   const requestReveal = useRequestReveal();
   const tabsId = useId();
   const shuffleRef = useRef<HTMLButtonElement>(null);
@@ -139,26 +137,19 @@ export function StudioInspector({ keysActive }: Props) {
     return () => window.removeEventListener("keydown", onKey);
   }, [keysActive, requestReveal, shuffle]);
 
-  const styleControl = (
-    <SegmentedControl
-      ariaLabel="Style"
-      value={style}
-      onChange={setStyle}
-      options={engine.styles.map((s) => ({ value: s.id, label: s.label }))}
-      className="flex w-full"
-    />
-  );
-
-  const materialControl = materials.length > 0 && (
-    <SegmentedControl
-      ariaLabel="Material"
-      value={material}
-      onChange={setMaterial}
-      options={materials.map((o) => ({ value: o.id, label: o.label }))}
-      className="flex w-full"
-      dense
-    />
-  );
+  // v2 wallpapers pick a finished look from thumbnails; a v1 favorite keeps the plain switch.
+  const styleControl =
+    looks.length > 0 ? (
+      <LookPicker options={looks} />
+    ) : (
+      <SegmentedControl
+        ariaLabel="Style"
+        value={style}
+        onChange={setStyle}
+        options={engine.styles.map((s) => ({ value: s.id, label: s.label }))}
+        className="flex w-full"
+      />
+    );
 
   return (
     <aside
@@ -220,12 +211,7 @@ export function StudioInspector({ keysActive }: Props) {
               transition={{ duration: 0.18, ease: [0.2, 0.7, 0.2, 1] }}
               className="grid gap-3"
             >
-              {tab === "style" && (
-                <>
-                  {styleControl}
-                  {materialControl}
-                </>
-              )}
+              {tab === "style" && styleControl}
               {tab === "colors" && (
                 <>
                   <div className="flex justify-center">
@@ -240,7 +226,6 @@ export function StudioInspector({ keysActive }: Props) {
         ) : (
           <>
             <Group title="Style">{styleControl}</Group>
-            {materialControl && <Group title="Material">{materialControl}</Group>}
             <Group title="Palette">
               <PaletteList />
             </Group>
