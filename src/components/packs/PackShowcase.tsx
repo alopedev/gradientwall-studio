@@ -8,7 +8,7 @@ import {
   shuffleIndex,
   type ShowcaseView,
 } from "@/lib/packs/showcase";
-import { LaptopFrame, LockScreen, PhoneFrame } from "./DeviceFrames";
+import { LaptopFrame, LockScreen, PhotoPhoneFrame } from "./DeviceFrames";
 import { PackCover } from "./PackCover";
 
 const FILL = "absolute inset-0 block h-full w-full object-cover";
@@ -109,9 +109,9 @@ export function PackShowcase({
               </LaptopFrame>
             )}
             {shown !== "desktop" && (
-              <PhoneFrame
+              <PhotoPhoneFrame
                 data-vt="pack-phone"
-                className={`relative z-10 shadow-[0_30px_50px_-24px_rgba(0,0,0,0.45)] ${
+                className={`relative z-10 drop-shadow-[0_30px_30px_rgba(0,0,0,0.3)] ${
                   shown === "both"
                     ? "-mb-[1%] -ml-[18%] w-[30%] sm:-ml-[7%] sm:w-[min(17%,190px)]"
                     : "w-[58%] sm:w-[min(36%,250px)]"
@@ -126,7 +126,7 @@ export function PackShowcase({
                   priority
                 />
                 <LockScreen />
-              </PhoneFrame>
+              </PhotoPhoneFrame>
             )}
           </m.div>
         </div>
