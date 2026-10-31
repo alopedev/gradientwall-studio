@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
-import type { Landing, LandingGuide } from "@/lib/seo/landings";
-import { buildLandingPage, landingLinks } from "@/lib/seo/pages";
+import { getLanding, type Landing, type LandingGuide } from "@/lib/seo/landings";
+import { landingLinks } from "@/lib/seo/pages";
+import { buildLandingPage } from "@/lib/seo/site-pages";
 import { useConfigStore } from "@/store";
 import { Footer } from "../Footer";
 import { Hero } from "../hero/Hero";
@@ -12,6 +13,12 @@ import { LazyStudioShell as StudioShell } from "../studio/v2/LazyStudioShell";
 import { PAGE_COLUMN } from "../ui/layout";
 import { PageLink } from "../ui/PageLink";
 import { LandingGallery } from "./LandingGallery";
+
+/** A landing's route: looks up its copy, which ships with this chunk, not with every page. */
+export function LandingRoutePage({ slug }: { slug: string }) {
+  const landing = getLanding(slug);
+  return landing ? <LandingPage landing={landing} /> : null;
+}
 
 /**
  * A landing (`lib/seo/landings.ts`): the home's hero with the landing's own

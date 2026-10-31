@@ -1,3 +1,4 @@
+import { buildSeoPages } from "./site-pages";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import packsData from "../../data/packs.json";
@@ -5,7 +6,6 @@ import {
   absoluteUrl,
   buildHomePage,
   buildPackPage,
-  buildSeoPages,
   fullTitle,
   HOME_DESCRIPTION,
   HOME_TITLE,

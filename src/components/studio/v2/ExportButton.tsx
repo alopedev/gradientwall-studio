@@ -49,6 +49,12 @@ export function ExportButton({ onMessage, primary = false, className = "" }: Pro
   // prerendered HTML can't know.
   const [format, setFormat] = useState<string | null>(null);
   useEffect(() => setFormat(engine.exportFormat()), [engine]);
+  // The Download pipeline isn't in the page's first JS: fetch it while the visitor looks around.
+  useEffect(() => {
+    if (typeof requestIdleCallback !== "function") return;
+    const id = requestIdleCallback(() => engine.prefetch?.("export"), { timeout: 5000 });
+    return () => cancelIdleCallback(id);
+  }, [engine]);
   const spec = format ? `${sizeLabel}, ${format}` : sizeLabel;
   const [phase, setPhase] = useState<Phase>("idle");
   const [progress, setProgress] = useState(0);
@@ -89,6 +95,8 @@ export function ExportButton({ onMessage, primary = false, className = "" }: Pro
     <>
       <InkButton
         onClick={run}
+        onPointerEnter={() => engine.prefetch?.("export")}
+        onFocus={() => engine.prefetch?.("export")}
         aria-busy={phase === "busy"}
         variant={primary ? "primary" : "ghost"}
         aria-label={`Download wallpaper, ${spec}`}

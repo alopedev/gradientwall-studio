@@ -3,7 +3,7 @@
  * wallpaper", "4k gradient wallpaper", one per style). Each is the home's hero
  * with its own headline and starting look, then a short guide written for
  * that search only, then the Studio and the packs. Pure content with no
- * imports; `buildLandingPage` in `pages.ts` turns it into SEO data for the
+ * imports; `buildLandingPage` in `site-pages.ts` turns it into SEO data for the
  * prerender and `PageMeta`.
  *
  * Kept few on purpose: many near-identical pages read as doorway pages to
@@ -37,13 +37,8 @@ export interface LandingGuide {
 }
 
 /** The footer groups the wallpaper pages so the column stays short and says what they are. */
-export const FOOTER_GROUPS = [
-  { id: "device", title: "By device" },
-  { id: "style", title: "By style" },
-  { id: "colour", title: "By colour" },
-] as const;
-
-export type FooterGroup = (typeof FOOTER_GROUPS)[number]["id"];
+export { FOOTER_GROUPS, type FooterGroup, landingPath } from "./landing-routes";
+import type { FooterGroup } from "./landing-routes";
 
 export interface Landing {
   slug: string;
@@ -685,10 +680,6 @@ export const LANDINGS: Landing[] = [
 ];
 
 export const GUIDES = LANDINGS.filter((l) => l.guide);
-
-export function landingPath(slug: string): string {
-  return `/${slug}/`;
-}
 
 export function getLanding(slug: string): Landing | undefined {
   return LANDINGS.find((l) => l.slug === slug);

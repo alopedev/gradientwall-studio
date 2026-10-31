@@ -1,5 +1,5 @@
 import { AI_DISCLOSURE, ETSY_PURCHASES_URL, ETSY_SHOP_URL } from "@/lib/copy";
-import { FOOTER_GROUPS, GUIDES, LANDINGS, landingPath } from "@/lib/seo/landings";
+import { FOOTER_GROUPS, GUIDE_ROUTES, LANDING_ROUTES, landingPath } from "@/lib/seo/landing-routes";
 import { LICENCE_PAGE, PRIVACY_PAGE } from "@/lib/seo/pages";
 import { isNewsletterEnabled } from "@/lib/newsletter/subscribe";
 import { useConfigStore } from "@/store/useConfigStore";
@@ -28,14 +28,14 @@ const MAKE: FooterLink[] = [
  */
 const WALLPAPER_GROUPS = FOOTER_GROUPS.map((g) => ({
   title: g.title,
-  links: LANDINGS.filter((l) => l.footerGroup === g.id).map((l) => ({
+  links: LANDING_ROUTES.filter((l) => l.footerGroup === g.id).map((l) => ({
     href: landingPath(l.slug),
     label: l.footerLabel,
   })),
 }));
 
 const HELP: FooterLink[] = [
-  ...GUIDES.map((l) => ({ href: landingPath(l.slug), label: l.footerLabel })),
+  ...GUIDE_ROUTES.map((l) => ({ href: landingPath(l.slug), label: l.footerLabel })),
   { label: "Find your download", href: ETSY_PURCHASES_URL, external: true },
   { label: "Privacy", href: PRIVACY_PAGE.path },
   { label: "Licence", href: LICENCE_PAGE.path },

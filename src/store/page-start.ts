@@ -2,7 +2,7 @@ import { DEFAULT_MATERIAL } from "@/lib/defaults";
 import { pickLook, withSharedLook } from "@/lib/look";
 import { decodeLookParam, LOOK_PARAM } from "@/lib/look-url";
 import { ALL_ACTIVE } from "@/lib/palettes";
-import { LANDINGS, landingPath } from "@/lib/seo/landings";
+import { LANDING_ROUTES, landingPath } from "@/lib/seo/landing-routes";
 import { loadLook } from "./coordinator";
 import { useConfigStore } from "./useConfigStore";
 import { useFavoritesStore } from "./useFavoritesStore";
@@ -15,7 +15,7 @@ import { useMotionStore } from "./useMotionStore";
  */
 export function startLookFor(pathname: string): void {
   const path = pathname.endsWith("/") ? pathname : `${pathname}/`;
-  const look = LANDINGS.find((l) => landingPath(l.slug) === path)?.look;
+  const look = LANDING_ROUTES.find((l) => landingPath(l.slug) === path)?.look;
   if (!look) return;
   // A landing about a style shows that style bare, not under the Studio's starting Glass.
   const material = look.style ? { material: DEFAULT_MATERIAL } : {};

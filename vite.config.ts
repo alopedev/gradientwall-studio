@@ -6,7 +6,8 @@ import { fileURLToPath, URL } from "node:url";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { buildHomePage, buildSeoPages, NOT_FOUND_PAGE, type SeoPack } from "./src/lib/seo/pages";
+import { buildHomePage, NOT_FOUND_PAGE, type SeoPack } from "./src/lib/seo/pages";
+import { buildSeoPages } from "./src/lib/seo/site-pages";
 import {
   outputFile,
   renderHeadTags,

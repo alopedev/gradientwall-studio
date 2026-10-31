@@ -11,6 +11,7 @@ vi.mock("@/lib/download/encode", () => ({
 }));
 
 import { ScreenMotion } from "./ScreenMotion";
+import { V1_ADJUSTMENTS } from "./v1-adjustments";
 import { createWebGLEngine } from "./webgl-engine";
 
 const v2: RenderParams = {
@@ -47,13 +48,14 @@ function setup(opts: { supported?: boolean; drawThrows?: boolean } = {}) {
     exportWallpaper: vi.fn(async () => ({ filename: "v1.webp", bytes: 1 })),
   } as unknown as WallpaperEngine;
   const sink = vi.fn(async () => undefined);
+  const loadFallback = vi.fn(async () => fallback);
   const engine = createWebGLEngine({
     sink,
-    fallback,
+    loadFallback,
     supported: () => opts.supported ?? true,
     renderer: () => renderer,
   });
-  return { engine, draw, fallback, sink };
+  return { engine, draw, fallback, sink, loadFallback };
 }
 
 describe("webgl v2 engine", () => {
@@ -80,13 +82,31 @@ describe("webgl v2 engine", () => {
     expect(engine.styles.map((s) => s.id)).toEqual(["mesh", "aurora", "liquid"]);
   });
 
-  it("hands the sliders of a v1 favorite to the v1 engine", () => {
-    const { engine, fallback } = setup();
-    const v1Sliders = [{ key: "blur" }] as never;
-    vi.mocked(fallback.adjustmentsFor).mockReturnValue(v1Sliders);
-    expect(engine.adjustmentsFor(v1)).toBe(v1Sliders);
-    expect(fallback.adjustmentsFor).toHaveBeenCalledWith(v1);
+  it("gives a v1 favorite the v1 sliders without loading the v1 engine", () => {
+    const { engine, loadFallback } = setup();
+    expect(engine.adjustmentsFor(v1)).toBe(V1_ADJUSTMENTS);
     expect(engine.adjustmentsFor(v2).map((a) => a.key)).toEqual(["grain", "lightAngle"]);
+    expect(loadFallback).not.toHaveBeenCalled();
+  });
+
+  it("loads the v1 engine only when something needs it, and only once", async () => {
+    const { engine, loadFallback } = setup();
+    await engine.paintThumbnail(document.createElement("canvas"), v2, { w: 88, h: 152 });
+    expect(loadFallback).not.toHaveBeenCalled();
+    await Promise.all([
+      engine.paintThumbnail(document.createElement("canvas"), v1, { w: 88, h: 152 }),
+      engine.paintThumbnail(document.createElement("canvas"), v1, { w: 88, h: 152 }),
+    ]);
+    engine.prefetch?.("v1");
+    expect(loadFallback).toHaveBeenCalledOnce();
+  });
+
+  it("starts loading the download code ahead of a click", async () => {
+    const loadExporter = vi.fn(async () => ({ exportV2: vi.fn(async () => null) }));
+    const engine = createWebGLEngine({ loadExporter, loadFallback: vi.fn() });
+    engine.prefetch?.("export");
+    engine.prefetch?.("export");
+    expect(loadExporter).toHaveBeenCalledOnce();
   });
 
   it("offers six looks for v2 wallpapers, ripple left out, and none for v1", () => {
@@ -146,7 +166,7 @@ describe("webgl v2 engine", () => {
 
   it("keeps favorites saved with v1 on the v1 engine", async () => {
     const { engine, draw, fallback } = setup();
-    engine.paintThumbnail(document.createElement("canvas"), v1, { w: 88, h: 152 });
+    await engine.paintThumbnail(document.createElement("canvas"), v1, { w: 88, h: 152 });
     await engine.exportWallpaper(v1, "mobile");
     expect(draw).not.toHaveBeenCalled();
     expect(fallback.paintThumbnail).toHaveBeenCalledOnce();
@@ -156,15 +176,15 @@ describe("webgl v2 engine", () => {
   it("falls back to v1 when the GPU path fails", async () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
     const { engine, fallback } = setup({ drawThrows: true });
-    engine.paintThumbnail(document.createElement("canvas"), v2, { w: 88, h: 152 });
+    await engine.paintThumbnail(document.createElement("canvas"), v2, { w: 88, h: 152 });
     await engine.exportWallpaper(v2, "desktop");
     expect(fallback.paintThumbnail).toHaveBeenCalledOnce();
     expect(fallback.exportWallpaper).toHaveBeenCalledOnce();
   });
 
-  it("falls back to v1 without WebGL2", () => {
+  it("falls back to v1 without WebGL2", async () => {
     const { engine, draw, fallback } = setup({ supported: false });
-    engine.paintThumbnail(document.createElement("canvas"), v2, { w: 88, h: 152 });
+    await engine.paintThumbnail(document.createElement("canvas"), v2, { w: 88, h: 152 });
     expect(draw).not.toHaveBeenCalled();
     expect(fallback.paintThumbnail).toHaveBeenCalledOnce();
   });
@@ -182,5 +202,26 @@ describe("webgl v2 engine", () => {
     expect(result.filename).toBe("gradientwall-desktop-A47B.webp");
     expect(progress.at(-1)).toBe(1);
     vi.unstubAllGlobals();
+  });
+});
+
+describe("what the first screen downloads", () => {
+  it("keeps the v1 engine and the download code out of the engine's static imports", async () => {
+    const { readFileSync } = await import("node:fs");
+    const files = ["webgl-engine.tsx", "index.ts", "context.tsx"].map((f) =>
+      readFileSync(`${process.cwd()}/src/components/studio/engine/${f}`, "utf8"),
+    );
+    const staticImports = files.flatMap((src) =>
+      [...src.matchAll(/^import\s+(?!type\b)[^;]*?from\s+"([^"]+)"/gms)].map((m) => m[1]),
+    );
+    for (const heavy of [
+      "./canvas2d-engine",
+      "@/lib/download/compose",
+      "@/lib/download/export",
+      "@/lib/download/sink",
+      "./webgl-export",
+    ]) {
+      expect(staticImports, heavy).not.toContain(heavy);
+    }
   });
 });

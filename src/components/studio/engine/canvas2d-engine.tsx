@@ -1,65 +1,11 @@
 import { composeWallpaper, paintWallpaper } from "@/lib/download/compose";
-import { exportCanvas, exportFormat } from "@/lib/download/export";
+import { exportCanvas } from "@/lib/download/export";
+import { exportFormat } from "@/lib/download/format";
 import { defaultSink, type Sink } from "@/lib/download/sink";
-import {
-  DEFAULT_CONTRAST,
-  DEFAULT_LIGHT_ANGLE,
-  STUDIO_BLUR,
-  STUDIO_VIBRANCE,
-  V1_DEFAULT_GRAIN,
-} from "@/lib/defaults";
 import { DEVICE_SIZES } from "@/lib/palettes";
 import { useFittedGradientCanvas } from "@/lib/useGradientCanvas";
-import type { AdjustmentSpec, EngineCanvasProps, WallpaperEngine } from "./types";
-
-/** Sliders of the Canvas2D pipeline: the full set, since v1 renders every one of them. */
-const ADJUSTMENTS: readonly AdjustmentSpec[] = [
-  {
-    key: "blur",
-    label: "Softness",
-    min: 10,
-    max: 120,
-    step: 1,
-    default: STUDIO_BLUR,
-    format: (v) => `${Math.round(v)}`,
-  },
-  {
-    key: "grain",
-    label: "Grain",
-    min: 0,
-    max: 100,
-    step: 1,
-    default: V1_DEFAULT_GRAIN,
-    format: (v) => `${Math.round(v)}%`,
-  },
-  {
-    key: "lightAngle",
-    label: "Light",
-    min: 0,
-    max: 360,
-    step: 1,
-    default: DEFAULT_LIGHT_ANGLE,
-    format: (v) => `${Math.round(v)}°`,
-  },
-  {
-    key: "contrast",
-    label: "Contrast",
-    min: 0.5,
-    max: 1.5,
-    step: 0.01,
-    default: DEFAULT_CONTRAST,
-    format: (v) => v.toFixed(2),
-  },
-  {
-    key: "vibrance",
-    label: "Vibrance",
-    min: 0.5,
-    max: 1.5,
-    step: 0.01,
-    default: STUDIO_VIBRANCE,
-    format: (v) => v.toFixed(2),
-  },
-];
+import type { EngineCanvasProps, WallpaperEngine } from "./types";
+import { V1_ADJUSTMENTS } from "./v1-adjustments";
 
 function Canvas2DCanvas({ params, device, className, onBeforePaint }: EngineCanvasProps) {
   const size = DEVICE_SIZES[device];
@@ -82,7 +28,7 @@ export function createCanvas2DEngine(sink: Sink = defaultSink): WallpaperEngine 
       { id: "aurora", label: "Aurora" },
       { id: "liquid", label: "Liquid" },
     ],
-    adjustmentsFor: () => ADJUSTMENTS,
+    adjustmentsFor: () => V1_ADJUSTMENTS,
     Canvas: Canvas2DCanvas,
     paintThumbnail(canvas, params, { w, h }) {
       paintWallpaper(canvas, { ...params, w, h });
