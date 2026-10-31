@@ -8,6 +8,11 @@ vi.mock("@/lib/download/compose", () => ({
   paintWallpaper: vi.fn(),
 }));
 
+const applyToneToCanvas = vi.fn((canvas: HTMLCanvasElement, _tone?: number) => canvas);
+vi.mock("@/lib/tone", () => ({
+  applyToneToCanvas: (c: HTMLCanvasElement, t?: number) => applyToneToCanvas(c, t),
+}));
+
 import { createCanvas2DEngine } from "./canvas2d-engine";
 
 const params: RenderParams = {
@@ -32,6 +37,21 @@ describe("canvas2d engine", () => {
     toDataURL.mockImplementation((() => "data:image/png;base64,AA") as never);
     expect(createCanvas2DEngine(vi.fn()).exportFormat()).toBe("JPEG");
     toDataURL.mockRestore();
+  });
+
+  it("runs the tone curve over thumbnails and downloads (a v2 look on a browser without WebGL2)", async () => {
+    applyToneToCanvas.mockClear();
+    const engine = createCanvas2DEngine(vi.fn(async () => undefined));
+    const thumb = document.createElement("canvas");
+    engine.paintThumbnail(thumb, { ...params, tone: -40 }, { w: 10, h: 20 });
+    expect(applyToneToCanvas).toHaveBeenCalledWith(thumb, -40);
+    vi.spyOn(HTMLCanvasElement.prototype, "toBlob").mockImplementation(function (cb) {
+      cb(new Blob(["x"], { type: "image/webp" }));
+    });
+    vi.spyOn(HTMLCanvasElement.prototype, "toDataURL").mockReturnValue("data:image/webp;base64,AA");
+    await engine.exportWallpaper({ ...params, tone: 30 }, "mobile");
+    expect(applyToneToCanvas).toHaveBeenLastCalledWith(composeWallpaper.mock.results.at(-1)?.value, 30);
+    vi.restoreAllMocks();
   });
 
   it("has no drifting layer: the still canvas is all it draws", () => {

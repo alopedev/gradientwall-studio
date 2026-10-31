@@ -3,6 +3,7 @@ import { exportCanvas } from "@/lib/download/export";
 import { exportFormat } from "@/lib/download/format";
 import { defaultSink, type Sink } from "@/lib/download/sink";
 import { DEVICE_SIZES } from "@/lib/palettes";
+import { applyToneToCanvas } from "@/lib/tone";
 import { useFittedGradientCanvas } from "@/lib/useGradientCanvas";
 import type { EngineCanvasProps, WallpaperEngine } from "./types";
 import { V1_ADJUSTMENTS } from "./v1-adjustments";
@@ -18,7 +19,10 @@ function Canvas2DCanvas({ params, device, className, onBeforePaint }: EngineCanv
 
 /**
  * Current engine: the Canvas2D mesh/liquid/aurora pipeline. Thin adapter over
- * `src/lib/gradient` and `src/lib/download`, which stay untouched.
+ * `src/lib/gradient` and `src/lib/download`, which stay untouched. It draws
+ * the v2 engine's wallpapers on browsers without WebGL2, so thumbnails and
+ * downloads run the tone curve on the pixels afterwards (a no-op at 0, which
+ * every v1 favorite has).
  */
 export function createCanvas2DEngine(sink: Sink = defaultSink): WallpaperEngine {
   return {
@@ -32,16 +36,15 @@ export function createCanvas2DEngine(sink: Sink = defaultSink): WallpaperEngine 
     Canvas: Canvas2DCanvas,
     paintThumbnail(canvas, params, { w, h }) {
       paintWallpaper(canvas, { ...params, w, h });
+      applyToneToCanvas(canvas, params.tone);
     },
     exportFormat,
     async exportWallpaper(params, device, onProgress) {
       const size = DEVICE_SIZES[device];
-      const file = await exportCanvas(() => composeWallpaper({ ...params, w: size.w, h: size.h }), {
-        device,
-        seed: params.seed,
-        sink,
-        onProgress,
-      });
+      const file = await exportCanvas(
+        () => applyToneToCanvas(composeWallpaper({ ...params, w: size.w, h: size.h }), params.tone),
+        { device, seed: params.seed, sink, onProgress },
+      );
       // composeWallpaper always returns a canvas, so this never happens.
       if (!file) throw new Error("Canvas2D export produced no canvas");
       return file;
