@@ -11,7 +11,7 @@ import { PacksSection } from "./components/packs/PacksSection";
 import { Footer } from "./components/Footer";
 import { PageMeta } from "./components/PageMeta";
 import { buildHomePage } from "./lib/seo/pages";
-import { LANDINGS } from "./lib/seo/landings";
+import { LANDING_ROUTES } from "./lib/seo/landing-routes";
 import { loadLinkedLook, loadSavedPrefs } from "./store/page-start";
 import { useScrollToHash } from "./components/ui/useScrollToHash";
 import { startAnalytics } from "./lib/analytics";
@@ -32,7 +32,7 @@ const RecoverForm = lazy(() =>
   import("./components/RecoverForm").then((m) => ({ default: m.RecoverForm })),
 );
 const LandingPage = lazy(() =>
-  import("./components/landing/LandingPage").then((m) => ({ default: m.LandingPage })),
+  import("./components/landing/LandingPage").then((m) => ({ default: m.LandingRoutePage })),
 );
 const LicencePage = lazy(() =>
   import("./components/LicencePage").then((m) => ({ default: m.LicencePage })),
@@ -99,12 +99,8 @@ function RoutesShell() {
             <Route path="/" element={<HomePage />} />
             <Route path="/packs/:slug" element={<PackPage />} />
             <Route path="/packs/:slug/success" element={<PackPurchaseSuccess />} />
-            {LANDINGS.map((landing) => (
-              <Route
-                key={landing.slug}
-                path={`/${landing.slug}`}
-                element={<LandingPage landing={landing} />}
-              />
+            {LANDING_ROUTES.map(({ slug }) => (
+              <Route key={slug} path={`/${slug}`} element={<LandingPage slug={slug} />} />
             ))}
             <Route path="/recover" element={<RecoverForm />} />
             <Route path="/privacy" element={<PrivacyPage />} />

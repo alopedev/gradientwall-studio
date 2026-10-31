@@ -19,7 +19,12 @@ describe("what every page downloads", () => {
 
   // The landings' copy (descriptions, guides) is only for a landing and the build.
   it("keeps the landings' copy out of the files every page imports", () => {
-    for (const file of ["lib/seo/pages.ts", "App.tsx", "components/Footer.tsx", "store/page-start.ts"]) {
+    for (const file of [
+      "lib/seo/pages.ts",
+      "App.tsx",
+      "components/Footer.tsx",
+      "store/page-start.ts",
+    ]) {
       const imports = importsOf(file);
       expect(imports, file).not.toContain("./landings");
       expect(imports, file).not.toContain("@/lib/seo/landings");

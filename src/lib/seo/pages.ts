@@ -4,7 +4,7 @@
  * Vite build (prerender + sitemap in `vite.config.ts`) and tests.
  */
 
-import { LANDINGS, landingPath, type Landing } from "./landings";
+import { LANDING_ROUTES, landingPath } from "./landing-routes";
 
 // Also in public/robots.txt, and the old Netlify address 301s here
 // (public/_redirects + netlify.toml).
@@ -280,8 +280,8 @@ export function buildPackPage(pack: SeoPack): SeoPage {
 
 /** SEO data for a landing. Shared by `LandingPage` (runtime) and the prerender. */
 /** Links to every landing, for crawlable shells and the footer. */
-export function landingLinks(except?: Landing): { href: string; label: string }[] {
-  return LANDINGS.filter((l) => l !== except).map((l) => ({
+export function landingLinks(except?: { slug: string }): { href: string; label: string }[] {
+  return LANDING_ROUTES.filter((l) => l.slug !== except?.slug).map((l) => ({
     href: landingPath(l.slug),
     label: l.title.replace(/^Free /, ""),
   }));
