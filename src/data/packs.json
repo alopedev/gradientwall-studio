@@ -189,5 +189,182 @@
     "seoTitle": "Bauhaus Wallpapers for iPhone and Mac: Dessau Pack",
     "seoDescription": "Six Bauhaus wallpapers for iPhone, each redrawn for Mac: bold circles and flat colour in cobalt, vermilion, mustard and black. Instant download.",
     "etsyUrl": "https://www.etsy.com/listing/4582570095"
+  },
+  {
+    "slug": "marble",
+    "name": "Marble",
+    "style": "gradient",
+    "tagline": "Liquid marble, drawn in code.",
+    "description": "Twelve liquid marble designs, 24 wallpapers in all: each one rendered separately for phone and for desktop, never cropped. Soft swirls of terracotta, olive, slate blue, rose clay, jade and ochre, each with a calm cream light. Drawn by our own gradient engine, no AI. Desktop in 4K and 5K, phone at 1320 × 2868.",
+    "priceEur": 5.99,
+    "cover": {
+      "kind": "image",
+      "url": "/assets/packs/marble/10_navy-and-gold-desktop.jpg",
+      "alt": "Marble — liquid marble wallpaper pack",
+      "width": 2080,
+      "height": 1170
+    },
+    "previews": [
+      {
+        "kind": "image",
+        "url": "/assets/packs/marble/01_terracotta.jpg",
+        "alt": "Liquid marble phone wallpaper: terracotta and copper swirls with cream highlights",
+        "width": 1170,
+        "height": 2542,
+        "desktop": {
+          "url": "/assets/packs/marble/01_terracotta-desktop.jpg",
+          "alt": "Liquid marble desktop wallpaper: terracotta and copper swirls with cream highlights",
+          "width": 2080,
+          "height": 1170
+        }
+      },
+      {
+        "kind": "image",
+        "url": "/assets/packs/marble/02_olive.jpg",
+        "alt": "Liquid marble phone wallpaper: olive green swirls with a pale cream light",
+        "width": 1170,
+        "height": 2542,
+        "desktop": {
+          "url": "/assets/packs/marble/02_olive-desktop.jpg",
+          "alt": "Liquid marble desktop wallpaper: olive green swirls with a pale cream light",
+          "width": 2080,
+          "height": 1170
+        }
+      },
+      {
+        "kind": "image",
+        "url": "/assets/packs/marble/03_slate-blue.jpg",
+        "alt": "Liquid marble phone wallpaper: slate blue and pale grey-blue swirls",
+        "width": 1170,
+        "height": 2542,
+        "desktop": {
+          "url": "/assets/packs/marble/03_slate-blue-desktop.jpg",
+          "alt": "Liquid marble desktop wallpaper: slate blue and pale grey-blue swirls",
+          "width": 2080,
+          "height": 1170
+        }
+      },
+      {
+        "kind": "image",
+        "url": "/assets/packs/marble/04_rose-clay.jpg",
+        "alt": "Liquid marble phone wallpaper: rose clay and burgundy swirls with blush highlights",
+        "width": 1170,
+        "height": 2542,
+        "desktop": {
+          "url": "/assets/packs/marble/04_rose-clay-desktop.jpg",
+          "alt": "Liquid marble desktop wallpaper: rose clay and burgundy swirls with blush highlights",
+          "width": 2080,
+          "height": 1170
+        }
+      },
+      {
+        "kind": "image",
+        "url": "/assets/packs/marble/05_graphite.jpg",
+        "alt": "Liquid marble phone wallpaper: graphite grey and white swirls",
+        "width": 1170,
+        "height": 2542,
+        "desktop": {
+          "url": "/assets/packs/marble/05_graphite-desktop.jpg",
+          "alt": "Liquid marble desktop wallpaper: graphite grey and white swirls",
+          "width": 2080,
+          "height": 1170
+        }
+      },
+      {
+        "kind": "image",
+        "url": "/assets/packs/marble/06_ochre.jpg",
+        "alt": "Liquid marble phone wallpaper: ochre and soft gold swirls with cream",
+        "width": 1170,
+        "height": 2542,
+        "desktop": {
+          "url": "/assets/packs/marble/06_ochre-desktop.jpg",
+          "alt": "Liquid marble desktop wallpaper: ochre and soft gold swirls with cream",
+          "width": 2080,
+          "height": 1170
+        }
+      },
+      {
+        "kind": "image",
+        "url": "/assets/packs/marble/07_jade.jpg",
+        "alt": "Liquid marble phone wallpaper: deep jade and sea-green swirls",
+        "width": 1170,
+        "height": 2542,
+        "desktop": {
+          "url": "/assets/packs/marble/07_jade-desktop.jpg",
+          "alt": "Liquid marble desktop wallpaper: deep jade and sea-green swirls",
+          "width": 2080,
+          "height": 1170
+        }
+      },
+      {
+        "kind": "image",
+        "url": "/assets/packs/marble/08_lavender.jpg",
+        "alt": "Liquid marble phone wallpaper: lavender and deep purple swirls",
+        "width": 1170,
+        "height": 2542,
+        "desktop": {
+          "url": "/assets/packs/marble/08_lavender-desktop.jpg",
+          "alt": "Liquid marble desktop wallpaper: lavender and deep purple swirls",
+          "width": 2080,
+          "height": 1170
+        }
+      },
+      {
+        "kind": "image",
+        "url": "/assets/packs/marble/09_apricot.jpg",
+        "alt": "Liquid marble phone wallpaper: apricot, burnt orange and cream swirls",
+        "width": 1170,
+        "height": 2542,
+        "desktop": {
+          "url": "/assets/packs/marble/09_apricot-desktop.jpg",
+          "alt": "Liquid marble desktop wallpaper: apricot, burnt orange and cream swirls",
+          "width": 2080,
+          "height": 1170
+        }
+      },
+      {
+        "kind": "image",
+        "url": "/assets/packs/marble/10_navy-and-gold.jpg",
+        "alt": "Liquid marble phone wallpaper: navy blue swirls veined with gold and cream",
+        "width": 1170,
+        "height": 2542,
+        "desktop": {
+          "url": "/assets/packs/marble/10_navy-and-gold-desktop.jpg",
+          "alt": "Liquid marble desktop wallpaper: navy blue swirls veined with gold and cream",
+          "width": 2080,
+          "height": 1170
+        }
+      },
+      {
+        "kind": "image",
+        "url": "/assets/packs/marble/11_walnut.jpg",
+        "alt": "Liquid marble phone wallpaper: walnut brown and taupe swirls",
+        "width": 1170,
+        "height": 2542,
+        "desktop": {
+          "url": "/assets/packs/marble/11_walnut-desktop.jpg",
+          "alt": "Liquid marble desktop wallpaper: walnut brown and taupe swirls",
+          "width": 2080,
+          "height": 1170
+        }
+      },
+      {
+        "kind": "image",
+        "url": "/assets/packs/marble/12_sienna.jpg",
+        "alt": "Liquid marble phone wallpaper: sienna orange and peach swirls",
+        "width": 1170,
+        "height": 2542,
+        "desktop": {
+          "url": "/assets/packs/marble/12_sienna-desktop.jpg",
+          "alt": "Liquid marble desktop wallpaper: sienna orange and peach swirls",
+          "width": 2080,
+          "height": 1170
+        }
+      }
+    ],
+    "headline": "Liquid marble wallpapers for iPhone and Mac",
+    "seoTitle": "Marble Wallpapers for iPhone and Mac: Liquid Pack",
+    "seoDescription": "Twelve liquid marble wallpapers for iPhone and Mac, in 4K and 5K: terracotta, olive, slate blue, jade and gold swirls. Made in code, no AI.",
+    "etsyUrl": "https://www.etsy.com/listing/4606798629"
   }
 ]

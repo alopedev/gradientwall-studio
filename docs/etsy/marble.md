@@ -1,6 +1,6 @@
 # Etsy listing — Marble (liquid marble pack, no AI)
 
-Pendiente de publicar (2026-10-31) · listing id: —
+Publicado el 2026-10-31 · listing `4606798629` (https://www.etsy.com/listing/4606798629).
 
 Primer pack dibujado por el motor v2 del Studio, no por IA. Las 12 piezas son looks fijadas en
 `src/lib/packs/engine-packs.ts` (dirección D "Marble", elegida por Àlex el 2026-10-31 entre 6). Se
@@ -64,7 +64,6 @@ Designed by GradientWall with its own code-based gradient engine (the same one b
 | Type | Digital files |
 | Who made it | I did |
 | What is it | A finished product |
-| When was it made | **2020–2026** |
 | AI | **No** marcar "Created with AI" (a diferencia de Impasto y Dessau) |
 | Category | Dibujos e ilustraciones digitales (igual que Dessau) |
 | Price | **4,95 €** base → **5,99 €** con IVA (21 %), como los otros packs |
@@ -87,9 +86,10 @@ marble wallpaper, liquid marble, iphone wallpaper, phone wallpaper pack, desktop
 | Número de piezas | 5 o más |
 | Relación de aspecto | 16:9, 1:2 (Etsy no ofrece 9:16) |
 | Orientación | Vertical |
-| Tema | Abstracto |
+| Tema | Abstracto y geométrico (no hay "Abstracto" solo) |
 
-## Después de publicar
+## Notas de la publicación (2026-10-31)
 
-- Apuntar aquí el listing id.
-- Web: añadir el pack a `src/data/packs.json` con `etsyUrl` (ficha `/packs/marble/`, indexable en cuanto tiene anuncio). Las vistas previas salen de `etsy-out/marble/`.
+- Etsy ya no pide "When was it made" en productos digitales.
+- Etsy sugirió otro título; se dejó este.
+- Web: en `src/data/packs.json` con `etsyUrl`; las vistas previas (`public/assets/packs/marble/`) salen de `etsy-out/marble/` reducidas a 1170 × 2542 y 2080 × 1170.
