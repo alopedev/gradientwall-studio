@@ -17,12 +17,26 @@ describe("PaletteList", () => {
     });
   });
 
-  it("lists the ten palettes by name", () => {
+  it("shows four palettes in one row and opens all ten by name", async () => {
+    const user = userEvent.setup();
     render(<PaletteList />);
     const group = screen.getByRole("group", { name: "Palette" });
+    expect(group.querySelectorAll("button")).toHaveLength(4);
+    await user.click(screen.getByRole("button", { name: /all 10/i }));
     expect(group.querySelectorAll("button")).toHaveLength(PALETTES.length);
     for (const p of PALETTES)
       expect(screen.getByLabelText(`Palette ${p.name}`).textContent).toBe(p.name);
+    await user.click(screen.getByRole("button", { name: /less/i }));
+    expect(group.querySelectorAll("button")).toHaveLength(4);
+  });
+
+  it("keeps a hidden palette in use in view when closed", () => {
+    const cherry = PALETTES.find((p) => p.name === "Cherry")!;
+    act(() => useConfigStore.getState().setColors(cherry.colors));
+    render(<PaletteList />);
+    const group = screen.getByRole("group", { name: "Palette" });
+    expect(group.querySelectorAll("button")).toHaveLength(4);
+    expect(screen.getByLabelText("Palette Cherry").getAttribute("aria-pressed")).toBe("true");
   });
 
   it("marks the palette in use and applies another one, leaving a step to go back to", async () => {
