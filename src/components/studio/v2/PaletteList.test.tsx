@@ -28,13 +28,13 @@ describe("PaletteList", () => {
   it("marks the palette in use and applies another one, leaving a step to go back to", async () => {
     const user = userEvent.setup();
     render(<PaletteList />);
-    expect(screen.getByLabelText("Palette Dusk").getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByLabelText("Palette Ember").getAttribute("aria-pressed")).toBe("true");
 
     await user.click(screen.getByLabelText("Palette Forest"));
     const forest = PALETTES.find((p) => p.name === "Forest")!;
     expect(useConfigStore.getState().colors).toEqual(forest.colors);
     expect(screen.getByLabelText("Palette Forest").getAttribute("aria-pressed")).toBe("true");
-    expect(screen.getByLabelText("Palette Dusk").getAttribute("aria-pressed")).toBe("false");
+    expect(screen.getByLabelText("Palette Ember").getAttribute("aria-pressed")).toBe("false");
     expect(useLookHistoryStore.getState().past).toHaveLength(1);
   });
 });

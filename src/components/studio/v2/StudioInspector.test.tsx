@@ -164,13 +164,16 @@ describe("StudioInspector", () => {
   it("a look sets both style and material, and shows as pressed", async () => {
     const user = userEvent.setup();
     render(<Harness />);
-    const glass = screen.getByRole("button", { name: "Glass" });
-    expect(glass.getAttribute("aria-pressed")).toBe("false");
-    await user.click(glass);
+    const dots = screen.getByRole("button", { name: "Dots" });
+    expect(screen.getByRole("button", { name: "Glass" }).getAttribute("aria-pressed")).toBe("true");
+    expect(dots.getAttribute("aria-pressed")).toBe("false");
+    await user.click(dots);
     const s = useConfigStore.getState();
-    expect([s.style, s.material]).toEqual(["mesh", "fluted"]);
-    expect(glass.getAttribute("aria-pressed")).toBe("true");
-    expect(screen.getByRole("button", { name: "Mesh" }).getAttribute("aria-pressed")).toBe("false");
+    expect([s.style, s.material]).toEqual(["liquid", "halftone"]);
+    expect(dots.getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByRole("button", { name: "Glass" }).getAttribute("aria-pressed")).toBe(
+      "false",
+    );
   });
 
   it("picking a swatch applies that palette", async () => {

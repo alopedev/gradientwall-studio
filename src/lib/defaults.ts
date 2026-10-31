@@ -24,6 +24,9 @@ export const DEFAULT_CONTRAST = 1;
 export const DEFAULT_VIBRANCE = 1;
 
 // ── Starting look of the Studio ──
+/** Palette (by name, from `PALETTES`) and material a fresh Studio opens on: Ember under Glass. */
+export const STUDIO_PALETTE = "Ember";
+export const STUDIO_MATERIAL = "fluted" as const;
 export const STUDIO_BLUR = 48;
 /** Subtle pop; only the Canvas2D engine exposes vibrance. */
 export const STUDIO_VIBRANCE = 1.05;
