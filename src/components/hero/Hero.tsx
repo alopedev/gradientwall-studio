@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { nextLookOption } from "@/lib/look-shuffle";
-import { getPacks, type Pack } from "@/lib/packs";
+import { PACKS_BLURB } from "@/lib/copy";
+import { getPacks, lowestPrice, type Pack } from "@/lib/packs";
 import { heroPackPeek, nextHeroPackPeek, pieceRenders } from "@/lib/packs/showcase";
 import { paletteName } from "@/lib/palette-name";
 import { DEVICE_SIZES } from "@/lib/palettes";
@@ -9,6 +10,7 @@ import { LockScreen } from "../packs/DeviceFrames";
 import { PackCover } from "../packs/PackCover";
 import { useWallpaperEngine } from "../studio/engine";
 import { ShuffleToolbar } from "../studio/v2/ShuffleToolbar";
+import { Arrow } from "../ui/Arrow";
 import { BauhausMarks } from "../ui/BauhausMarks";
 import { MotionToggle } from "../ui/MotionToggle";
 import { useMotionStore } from "@/store/useMotionStore";
@@ -23,7 +25,9 @@ import { HERO_PHONE_IMAGE, packPath } from "@/lib/seo/pages";
  * short so the packs show under it; the full Studio (style, colors, download)
  * comes after the packs, and "Customise it" leads there. Every fifth shuffle
  * puts a pack piece on the screen instead (`heroPackPeek`), with a link to its
- * pack; on phones both packs also sit under the shuffle.
+ * pack. The packs are named on the first screen: on phones each one sits under
+ * the shuffle, on wider screens a card beside the palette leads to them (5D,
+ * chosen 2026-11-09).
  *
  * The phone is a cut-out photo (public/assets/hero/phone.webp, 599 × 1283)
  * whose screen is transparent; the wallpaper canvas sits behind that hole. The
@@ -83,7 +87,7 @@ export function Hero({
               to="studio"
               className="font-sans text-[14px] font-medium text-ink underline underline-offset-4 focus-ring"
             >
-              Customise it ↓
+              Customise it <Arrow to="down" />
             </SectionLink>
           </div>
 
@@ -139,8 +143,8 @@ export function Hero({
                   to={packPath(peek.pack.slug)}
                   className="absolute -bottom-4 left-1/2 inline-flex min-h-11 -translate-x-1/2 items-center whitespace-nowrap rounded-sharp bg-ink px-3 font-sans text-[13px] font-medium text-paper focus-ring"
                 >
-                  from the {peek.pack.name.toLowerCase()} pack · see all {peek.pack.previews.length}{" "}
-                  →
+                  from the {peek.pack.name.toLowerCase()} pack · see all {peek.pack.previews.length}
+                  <Arrow className="ml-1.5" />
                 </PageLink>
               )}
             </div>
@@ -170,6 +174,7 @@ export function Hero({
             </p>
             {/* Phones get both packs right here: the packs section is a screen further down. */}
             <PackRow />
+            <PacksCard />
           </div>
         </div>
       </div>
@@ -181,7 +186,41 @@ const PHONE = DEVICE_SIZES.mobile;
 const PACKS = getPacks();
 
 /** The cheapest pack, as the hero's packs row quotes it. */
-const FROM_PRICE = `€${Math.min(...PACKS.map((p) => p.priceEur)).toFixed(2)}`;
+const FROM_PRICE = lowestPrice(PACKS);
+/** "€5.99 each" while every pack costs the same, "from €5.99" once they don't. */
+const PRICE_LINE =
+  new Set(PACKS.map((p) => p.priceEur)).size > 1 ? `from ${FROM_PRICE}` : `${FROM_PRICE} each`;
+
+/** Wider screens only: one card beside the palette that says the packs exist and leads to them. */
+function PacksCard() {
+  return (
+    <SectionLink
+      to="packs"
+      className="mt-3 hidden w-[250px] flex-col gap-2.5 rounded-sharp border-2 border-ink bg-paper-2 p-3 font-sans text-ink transition-colors hover:bg-[#cfcec9] focus-ring md:flex"
+    >
+      <span className="text-[12px] font-medium uppercase tracking-[0.18em] text-ink-dim">
+        Packs · {PRICE_LINE}
+      </span>
+      <span className="flex items-center gap-3">
+        <span className="flex shrink-0 gap-[3px]">
+          {PACKS.map((pack) => (
+            <PackCover
+              key={pack.slug}
+              cover={pieceRenders(pack.previews[0]).phone!}
+              box={[34, 70]}
+              decorative
+              className="h-[70px] w-[34px] rounded-[7px] border-2 border-ink object-cover"
+            />
+          ))}
+        </span>
+        <span className="text-[14px] leading-[1.35]">{PACKS_BLURB}</span>
+      </span>
+      <span className="text-[14px] font-semibold">
+        See the packs <Arrow to="down" />
+      </span>
+    </SectionLink>
+  );
+}
 
 /** Phones only: a small card per pack, under the shuffle, each opening its page. */
 function PackRow() {
@@ -223,7 +262,9 @@ function PackRowCard({ pack }: { pack: Pack }) {
         <span className="font-display text-[18px] font-medium leading-none">
           {pack.name.toLowerCase()}
         </span>
-        <span className="font-sans text-[13px] text-ink-dim">{pack.previews.length} designs →</span>
+        <span className="font-sans text-[13px] text-ink-dim">
+          {pack.previews.length} designs <Arrow />
+        </span>
       </span>
     </PageLink>
   );

@@ -2,6 +2,8 @@
 import { act, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ETSY_SHOP_URL } from "@/lib/copy";
+import { getPacks } from "@/lib/packs";
 import { getLanding } from "@/lib/seo/landings";
 import { useConfigStore } from "@/store";
 import { LandingPage } from "./LandingPage";
@@ -75,6 +77,27 @@ describe("LandingPage", () => {
     expect(edit.getAttribute("href")).toMatch(
       /^\/iphone-gradient-wallpapers\/\?w=mesh-\d+-.+#studio$/,
     );
+  });
+
+  it("offers the packs inside the gallery, after the fourth image, with a button to the Etsy shop", () => {
+    renderLanding(iphone.slug);
+    const gallery = screen.getByRole("region", { name: /iphone gradient wallpapers to download/i });
+    const heading = within(gallery).getByRole("heading", {
+      level: 3,
+      name: "want something you can't make here?",
+    });
+    const band = heading.closest("li")!;
+    expect([...gallery.querySelectorAll("ul > li")].indexOf(band)).toBe(4);
+    expect(within(band).getByText("Hand-picked packs")).toBeTruthy();
+    // One cover per pack, decoration only: the gallery still counts 12 images.
+    expect(band.querySelectorAll("img[alt='']")).toHaveLength(getPacks().length);
+
+    const shop = within(band).getByRole("link", { name: /^See the packs on Etsy · €5\.99/ });
+    expect(shop.getAttribute("href")).toBe(ETSY_SHOP_URL);
+    expect(shop.getAttribute("target")).toBe("_blank");
+    expect(shop.getAttribute("rel")).toContain("noopener");
+    expect(shop.getAttribute("data-etsy-source")).toBe("gallery-band");
+    expect(shop.querySelector("svg")).not.toBeNull();
   });
 
   it("opens a gallery wallpaper in the Studio", () => {

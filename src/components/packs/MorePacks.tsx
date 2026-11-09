@@ -4,6 +4,7 @@ import { useWallpaperEngine } from "../studio/engine";
 import { inkButton } from "../ui/InkButton";
 import { SectionLink } from "../ui/SectionLink";
 import { PackCard } from "./PackCard";
+import { Arrow } from "../ui/Arrow";
 
 /**
  * The end of a pack page: the other packs, plus the free Studio, so a visitor
@@ -56,7 +57,7 @@ function StudioCard() {
           </p>
         </div>
         <SectionLink to="studio" className={`${inkButton({ variant: "primary" })} px-5`}>
-          Open the Studio <span aria-hidden>→</span>
+          Open the Studio <Arrow />
         </SectionLink>
       </div>
     </div>

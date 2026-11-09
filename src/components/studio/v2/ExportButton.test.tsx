@@ -2,6 +2,7 @@
 import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { getPacks } from "@/lib/packs";
 import { useConfigStore } from "@/store";
 import { EngineProvider, type WallpaperEngine } from "../engine";
 import { canvas2DEngine } from "../engine/canvas2d-engine";
@@ -122,9 +123,20 @@ describe("ExportButton", () => {
     // On iPhone the share sheet's Save Image puts it in Photos (Files only as a fallback).
     expect(help.textContent).toMatch(/Save Image/);
     expect(help.textContent).not.toMatch(/Files › Downloads › open it/);
-    const packs = within(help).getByRole("link", { name: /see the packs/i });
-    expect(packs.getAttribute("href")).toBe("#packs");
-    expect(help.textContent).toMatch(/€5\.99 each on Etsy/);
+    // 4D: one row per pack, each with a button straight to its Etsy listing.
+    expect(within(help).getByText("Want something you can't make here?")).toBeTruthy();
+    for (const pack of getPacks()) {
+      const buy = within(help).getByRole("link", { name: new RegExp(`${pack.name} on Etsy`) });
+      expect(buy.getAttribute("href")).toBe(pack.etsyUrl);
+      expect(buy.getAttribute("target")).toBe("_blank");
+      expect(buy.getAttribute("data-etsy-source")).toBe("download-help");
+      expect(buy.textContent).toContain(`€${pack.priceEur.toFixed(2)}`);
+      expect(buy.querySelector("svg")).not.toBeNull();
+    }
+    expect(within(help).getByText("10 acrylic paint designs")).toBeTruthy();
+    expect(within(help).getByText("6 Bauhaus designs")).toBeTruthy();
+    expect(within(help).getByText("12 liquid marble designs")).toBeTruthy();
+    expect(help.textContent).toMatch(/Opens Etsy\. Instant download after checkout\./);
   });
 
   it("gives desktop steps for a desktop wallpaper", async () => {

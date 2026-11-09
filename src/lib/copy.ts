@@ -11,3 +11,6 @@ export const ETSY_SHOP_URL = "https://gradientwall.etsy.com";
 
 /** Where an Etsy buyer finds the files of a past order. */
 export const ETSY_PURCHASES_URL = "https://www.etsy.com/your/purchases";
+
+/** The packs in one line, for the hero card. Update it when a pack with a new look ships. */
+export const PACKS_BLURB = "Paint, Bauhaus and marble. For phone and desktop.";

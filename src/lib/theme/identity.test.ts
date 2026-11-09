@@ -49,6 +49,14 @@ describe("identity B: paper, ink, no AI tells", () => {
     expect(offenders(/\b(text|bg|border)-white\b|#fff\b|#ffffff/i, ON_WALLPAPER)).toEqual([]);
   });
 
+  it("draws arrows with the icon set, never as text glyphs", () => {
+    // "→" or "↗" in the text can come out as an emoji; `ui/Arrow` draws a Lucide icon instead.
+    const withoutComments = (text: string) =>
+      text.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+    const arrows = /[\u2190-\u21ff\u27a1\u2b05-\u2b07\u2b95]/;
+    expect(files.filter((f) => arrows.test(withoutComments(f.text))).map((f) => f.rel)).toEqual([]);
+  });
+
   it("loads only the identity's two faces", () => {
     // Self-hosted in public/fonts/, declared in index.css, preloaded in index.html.
     const fonts = readdirSync(join(ROOT, "../public/fonts")).filter((f) => f.endsWith(".woff2"));

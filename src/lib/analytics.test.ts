@@ -42,10 +42,30 @@ describe("startAnalytics", () => {
     expect(spy).toHaveBeenCalledWith("etsy-click", {
       href: "https://www.etsy.com/listing/1/impasto",
       page: window.location.pathname,
+      source: "other",
     });
     stop();
     document.querySelector<HTMLElement>("#etsy")?.click();
     expect(spy).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("etsy-click source", () => {
+  it("says which button was pressed, from the link's data-etsy-source", () => {
+    const spy = vi.fn();
+    (window as UmamiWindow).umami = { track: spy };
+    const stop = startAnalytics({ websiteId: "abc-123", domain: "gradientwall.app" });
+    document.body.innerHTML =
+      '<a id="buy" data-etsy-source="pack-card" href="https://www.etsy.com/listing/2"><svg></svg>Buy</a>';
+    document
+      .querySelector<SVGElement>("#buy svg")
+      ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(spy).toHaveBeenCalledWith("etsy-click", {
+      href: "https://www.etsy.com/listing/2",
+      page: window.location.pathname,
+      source: "pack-card",
+    });
+    stop();
   });
 });
 

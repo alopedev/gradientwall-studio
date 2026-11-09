@@ -7,6 +7,7 @@ import { canPurchasePack, openCheckout } from "@/lib/store";
 import { AI_DISCLOSURE } from "@/lib/copy";
 import { Nav } from "../Nav";
 import { Footer } from "../Footer";
+import { Arrow } from "../ui/Arrow";
 import { inkButton } from "../ui/InkButton";
 import { MorePacks } from "./MorePacks";
 import { PageMeta } from "../PageMeta";
@@ -59,7 +60,8 @@ export function PackPage() {
             The pack you're looking for has moved or doesn't exist. Browse the full catalog instead.
           </p>
           <SectionLink to="packs" className={`${inkButton({ variant: "primary" })} px-6`}>
-            ← Back to packs
+            <Arrow to="left" />
+            Back to packs
           </SectionLink>
         </main>
         <Footer />
@@ -81,7 +83,8 @@ export function PackPage() {
                 shared={() => backToCard(pack.slug)}
                 className="inline-flex min-h-11 items-center gap-1.5 font-sans text-[11px] tracking-[0.18em] uppercase text-ink-dim hover:text-ink transition-colors"
               >
-                ← All packs
+                <Arrow to="left" />
+                All packs
               </SectionLink>
               <span className="block mb-2 font-sans text-[11px] tracking-[0.22em] uppercase text-ink-dim">
                 Pack · {pack.style}
@@ -89,7 +92,7 @@ export function PackPage() {
               <h1>
                 <span
                   data-vt="pack-title"
-                  className="block display-head w-fit text-[clamp(56px,8vw,120px)] text-ink"
+                  className="block display-head w-fit text-[clamp(56px,8vw,120px)] text-ink lg:text-[clamp(64px,7vw,104px)]"
                 >
                   {pack.name}
                 </span>
@@ -111,7 +114,7 @@ export function PackPage() {
             (buyEnabled || pack.etsyUrl) && (
               <div
                 ref={ctaRef}
-                className="flex w-full items-center justify-between gap-4 rounded-sharp border-2 border-ink bg-bg py-2 pl-5 pr-2 sm:w-auto"
+                className="flex w-full items-center justify-between gap-4 rounded-sharp border-2 border-ink bg-bg py-2 pl-5 pr-2 sm:w-auto lg:w-full"
               >
                 <span className="display-head text-[28px] leading-none text-ink">
                   €{pack.priceEur.toFixed(2)}
@@ -133,13 +136,24 @@ export function PackPage() {
                     href={pack.etsyUrl}
                     target="_blank"
                     rel="noopener noreferrer"
+                    data-etsy-source="pack-page"
                     className={BUY_BUTTON}
                   >
-                    Get it on Etsy <span aria-hidden>↗</span>
+                    Get it on Etsy <Arrow to="out" />
                   </a>
                 )}
               </div>
             )
+          }
+          details={
+            <div className="grid gap-4">
+              <p className="m-0 font-sans text-[13px] text-ink-dim">
+                {buyEnabled
+                  ? "Instant download link by email. VAT included."
+                  : "Instant download from your Etsy account. VAT included."}
+              </p>
+              <PackSpecs pack={pack} compact />
+            </div>
           }
         />
 
@@ -159,7 +173,10 @@ export function PackPage() {
             </p>
           </div>
           <div className="grid content-start gap-6">
-            <PackSpecs pack={pack} />
+            {/* From `lg` the same numbers sit beside the buy button, as rows. */}
+            <div className="lg:hidden">
+              <PackSpecs pack={pack} />
+            </div>
             <p className="m-0 max-w-[48ch] font-sans text-[11px] text-ink-dim leading-relaxed">
               <span className="uppercase tracking-[0.18em]">How it was made</span>
               <br />
@@ -209,8 +226,14 @@ function StickyBuyBar({
     <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-4 border-t-2 border-ink bg-bg px-5 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 lg:hidden">
       <span className="display-head text-[28px] leading-none text-ink">€{price.toFixed(2)}</span>
       {href ? (
-        <a href={href} target="_blank" rel="noopener noreferrer" className={BUY_BUTTON}>
-          Get it on Etsy <span aria-hidden>↗</span>
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-etsy-source="pack-page-sticky"
+          className={BUY_BUTTON}
+        >
+          Get it on Etsy <Arrow to="out" />
         </a>
       ) : (
         <button type="button" onClick={onCheckout} className={BUY_BUTTON}>

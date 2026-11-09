@@ -1,8 +1,10 @@
 import { X } from "lucide-react";
 import { useEffect, useId, useRef } from "react";
 import { createPortal } from "react-dom";
-import { InkButton } from "@/components/ui/InkButton";
-import { getPacks } from "@/lib/packs";
+import { Arrow } from "@/components/ui/Arrow";
+import { InkButton, inkButton } from "@/components/ui/InkButton";
+import { describeDesigns, getPacks, type Pack } from "@/lib/packs";
+import { packPath } from "@/lib/seo/pages";
 import type { Device } from "@/lib/palettes";
 import { PackCover } from "../../packs/PackCover";
 
@@ -38,17 +40,15 @@ interface Props {
 /**
  * Shown after the first download of a visit: the file, how to set it as a
  * wallpaper (on iPhone the share sheet's Save Image puts it in Photos; a
- * fallback download lands in Files), and the packs
- * for whoever wants more. A modal `<dialog>`, so focus, Escape and the
- * backdrop come from the browser.
+ * fallback download lands in Files), and the packs for whoever wants more:
+ * one row each, with a button straight to its Etsy listing (4D, chosen
+ * 2026-11-09). A modal `<dialog>`, so focus, Escape and the backdrop come
+ * from the browser.
  */
 export function DownloadHelp({ device, filename, bytes, onClose }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const packs = getPacks();
-  const prices = new Set(packs.map((p) => p.priceEur));
-  const price = `€${Math.min(...prices).toFixed(2)}`;
-  const offer = `${prices.size > 1 ? `From ${price}` : `${price} each`}${packs.some((p) => p.etsyUrl) ? " on Etsy" : ""}.`;
 
   useEffect(() => {
     const dialog = ref.current;
@@ -94,37 +94,63 @@ export function DownloadHelp({ device, filename, bytes, onClose }: Props) {
           ))}
         </dl>
 
-        <div className="flex flex-wrap items-center gap-4 border-t-2 border-ink pt-5">
-          <div className="flex min-w-[260px] flex-1 items-center gap-4">
-            <div aria-hidden className="flex shrink-0 gap-1">
-              {packs.map((pack) => (
+        <div className="grid gap-3 border-t-2 border-ink pt-5 font-sans">
+          <p className="m-0 text-[15px] font-semibold">Want something you can't make here?</p>
+          <ul className="m-0 grid list-none gap-2.5 p-0">
+            {packs.map((pack) => (
+              <li key={pack.slug} className="flex items-center gap-3">
                 <PackCover
-                  key={pack.slug}
                   cover={pack.previews[0]}
                   w={240}
                   h={520}
-                  box={[46, 96]}
+                  box={[30, 62]}
                   decorative
-                  className="h-24 w-[46px] rounded-[9px] border-[3px] border-ink object-cover"
+                  className="h-[62px] w-[30px] shrink-0 rounded-[7px] border-2 border-ink object-cover"
                 />
-              ))}
-            </div>
-            <p className="m-0 grid gap-1 font-sans">
-              <span className="text-[15px] font-semibold">Want something you can't make here?</span>
-              <span className="text-[14px] text-ink-dim">Hand-picked packs. {offer}</span>
+                <p className="m-0 grid min-w-0 flex-1 gap-0.5">
+                  <span className="display-head text-[22px] text-ink">{pack.name}</span>
+                  <span className="text-[13px] text-ink-dim">{describeDesigns(pack)}</span>
+                </p>
+                <PackButton pack={pack} />
+              </li>
+            ))}
+          </ul>
+          {packs.some((p) => p.etsyUrl) && (
+            <p className="m-0 text-[13px] text-ink-dim">
+              Opens Etsy. Instant download after checkout.
             </p>
-          </div>
-          {/* biome-ignore lint/a11y/useValidAnchor: a real link to the packs; the click also closes the dialog over them */}
-          <a
-            href="#packs"
-            onClick={onClose}
-            className="inline-flex min-h-11 items-center rounded-sharp bg-ink px-4 font-sans text-[15px] font-semibold text-bg hover:bg-ink/85 focus-ring"
-          >
-            See the packs →
-          </a>
+          )}
         </div>
       </div>
     </dialog>,
     document.body,
+  );
+}
+
+/** The row's button: the price, straight to the Etsy listing (or to the pack page while it has none). */
+function PackButton({ pack }: { pack: Pack }) {
+  const price = `€${pack.priceEur.toFixed(2)}`;
+  const className = `${inkButton({ variant: "primary" })} shrink-0`;
+  if (!pack.etsyUrl) {
+    return (
+      <a href={packPath(pack.slug)} className={className}>
+        {price}
+        <span className="sr-only">: see {pack.name}</span>
+        <Arrow />
+      </a>
+    );
+  }
+  return (
+    <a
+      href={pack.etsyUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      data-etsy-source="download-help"
+      className={className}
+    >
+      {price}
+      <span className="sr-only">: {pack.name} on Etsy</span>
+      <Arrow to="out" />
+    </a>
   );
 }

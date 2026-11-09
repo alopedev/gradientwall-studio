@@ -151,6 +151,20 @@ describe("Hero", () => {
     );
   });
 
+  it("shows desktop visitors a packs card beside the palette, leading to the packs", () => {
+    const { getByRole } = render(<Hero />);
+    const card = getByRole("link", { name: /packs · €5\.99 each/i });
+    expect(card.getAttribute("href")).toBe("/#packs");
+    // Phones have the packs row instead.
+    expect(card.className).toMatch(/\bhidden\b/);
+    expect(card.className).toMatch(/\bmd:flex\b/);
+    expect(card.textContent).toContain("Paint, Bauhaus and marble. For phone and desktop.");
+    expect(card.textContent).toContain("See the packs");
+    // One small cover per pack, and an icon for the arrow.
+    expect(card.querySelectorAll("img")).toHaveLength(3);
+    expect(card.querySelector("svg")).not.toBeNull();
+  });
+
   it("shows a pack piece on every fifth shuffle, with a link to its pack", () => {
     const { getByRole, queryByRole } = render(<Hero />);
     const shuffle = getByRole("button", { name: /shuffle: generate another wallpaper/i });

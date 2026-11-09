@@ -6,6 +6,7 @@ import { inkButton } from "./ui/InkButton";
 import { PageMeta } from "./PageMeta";
 import { RECOVER_PAGE } from "@/lib/seo/pages";
 import { submitRecoverRequest } from "@/lib/store";
+import { Arrow } from "./ui/Arrow";
 
 type State =
   | { kind: "idle" }
@@ -44,7 +45,8 @@ export function RecoverForm() {
             to="packs"
             className="inline-flex min-h-11 items-center gap-1.5 mb-2 font-sans text-[11px] tracking-[0.18em] uppercase text-ink-dim hover:text-ink"
           >
-            ← All packs
+            <Arrow to="left" />
+            All packs
           </SectionLink>
           <span className="block mb-4 font-sans text-[11px] tracking-[0.22em] uppercase text-ink-dim">
             Recover download

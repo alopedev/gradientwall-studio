@@ -79,6 +79,19 @@ describe("PackPage showcase and specs", () => {
     expect(within(specs).getByText(/personal use/i)).toBeInTheDocument();
   });
 
+  it("keeps what a buyer checks beside the buy button: delivery, files and licence", () => {
+    renderPack("impasto");
+    const hero = screen.getByRole("region", { name: /impasto wallpapers/i });
+    expect(
+      within(hero).getByText("Instant download from your Etsy account. VAT included."),
+    ).toBeInTheDocument();
+    const glance = within(hero).getByRole("list", { name: /what you get/i });
+    expect(within(glance).getByText("10 × 4K and 5K")).toBeInTheDocument();
+    expect(within(glance).getByText("10 × iPhone & Android")).toBeInTheDocument();
+    expect(within(glance).getByText("High-quality JPG")).toBeInTheDocument();
+    expect(within(glance).getByText("Personal use")).toBeInTheDocument();
+  });
+
   it("counts Dessau's files from its own six pieces", () => {
     renderPack("dessau");
     const specs = screen.getByRole("list", { name: /specifications/i });
@@ -92,6 +105,10 @@ describe("PackPage buying", () => {
     const link = screen.getByRole("link", { name: /get it on etsy/i });
     expect(link.getAttribute("href")).toMatch(/^https:\/\/www\.etsy\.com\/listing\/\d+$/);
     expect(link.getAttribute("rel")).toContain("noopener");
+    expect(link.getAttribute("data-etsy-source")).toBe("pack-page");
+    // An icon from the icon set, never a text arrow.
+    expect(link.querySelector("svg")).not.toBeNull();
+    expect(link.textContent?.trim()).toBe("Get it on Etsy");
   });
 
   it("keeps a second buy link in a bar once the main button is out of view", () => {
@@ -109,7 +126,11 @@ describe("PackPage buying", () => {
     vi.stubGlobal("IntersectionObserver", OffScreen);
     try {
       renderPack("dessau");
-      expect(screen.getAllByRole("link", { name: /get it on etsy/i })).toHaveLength(2);
+      const links = screen.getAllByRole("link", { name: /get it on etsy/i });
+      expect(links.map((a) => a.getAttribute("data-etsy-source"))).toEqual([
+        "pack-page",
+        "pack-page-sticky",
+      ]);
     } finally {
       vi.unstubAllGlobals();
     }

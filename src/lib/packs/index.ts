@@ -67,3 +67,14 @@ export function describeContents(pack: Pick<Pack, "previews" | "phoneAndDesktop"
     return `${n} ${n === 1 ? "design" : "designs"} · ${n * 2} wallpapers`;
   return `${n} ${n === 1 ? "wallpaper" : "wallpapers"}`;
 }
+
+/** "10 acrylic paint designs": the pack in one short line, for lists that have no room for more. */
+export function describeDesigns(pack: Pick<Pack, "previews" | "look">): string {
+  const n = pack.previews.length;
+  return [n, pack.look, n === 1 ? "design" : "designs"].filter(Boolean).join(" ");
+}
+
+/** "€5.99": the cheapest pack's price, for lines that sell the packs as a group. */
+export function lowestPrice(packs: Pick<Pack, "priceEur">[] = PACKS): string {
+  return `€${Math.min(...packs.map((p) => p.priceEur)).toFixed(2)}`;
+}

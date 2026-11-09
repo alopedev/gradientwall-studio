@@ -12,6 +12,7 @@ import { PAGE_COLUMN } from "./ui/layout";
 import { BrandMark, Logo } from "./ui/Logo";
 import { PageLink } from "./ui/PageLink";
 import { SectionLink } from "./ui/SectionLink";
+import { Arrow } from "./ui/Arrow";
 
 type Section = "packs";
 
@@ -361,7 +362,7 @@ function PacksMenu({ width, onNavigate }: { width: number; onNavigate: () => voi
             to="packs"
             className="inline-flex min-h-9 items-center px-1 font-sans text-[11px] font-medium uppercase tracking-[0.14em] text-ink-dim hover:text-ink focus-ring"
           >
-            All packs →
+            All packs <Arrow className="ml-1" />
           </SectionLink>
         </div>
       </div>
@@ -413,8 +414,9 @@ function ActionsIsland() {
         to="studio"
         className={`${inkButton({ variant: "primary" })} rounded-[2px]! min-h-11 px-5 text-[0.82rem]`}
       >
-        <span className="md:hidden">Studio →</span>
-        <span className="hidden md:inline">Open the Studio →</span>
+        <span className="md:hidden">Studio</span>
+        <span className="hidden md:inline">Open the Studio</span>
+        <Arrow />
       </SectionLink>
     </div>
   );
