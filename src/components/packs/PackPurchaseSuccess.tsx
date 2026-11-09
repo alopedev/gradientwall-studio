@@ -7,6 +7,7 @@ import { Footer } from "../Footer";
 import { inkButton } from "../ui/InkButton";
 import { PageMeta } from "../PageMeta";
 import { RECOVER_PAGE } from "@/lib/seo/pages";
+import { Arrow } from "../ui/Arrow";
 
 /**
  * Landing after the LS overlay completes. The download link is sent by
@@ -50,7 +51,8 @@ export function PackPurchaseSuccess() {
 
           <div className="flex flex-wrap items-center justify-center gap-3 mb-12">
             <SectionLink to="packs" className={`${inkButton({ variant: "primary" })} px-6`}>
-              ← Browse more packs
+              <Arrow to="left" />
+              Browse more packs
             </SectionLink>
             <PageLink to={RECOVER_PAGE.path} className={`${inkButton({ variant: "ghost" })} px-6`}>
               Email didn't arrive?

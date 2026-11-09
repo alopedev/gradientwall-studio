@@ -15,6 +15,10 @@ function packLink(slug: string): HTMLElement {
   return screen.getAllByRole("link").find((a) => a.getAttribute("href") === `/packs/${slug}/`)!;
 }
 
+function packCard(slug: string): HTMLElement {
+  return document.querySelector<HTMLElement>(`[data-pack-card="${slug}"]`)!;
+}
+
 describe("PacksSection", () => {
   it("renders every pack in the manifest, none dropped by the Bento layout", () => {
     render(
@@ -41,24 +45,26 @@ describe("PacksSection", () => {
         <PacksSection />
       </MemoryRouter>,
     );
-    const dessau = packLink("dessau");
+    const dessau = packCard("dessau");
     expect(within(dessau).getByText("6 designs")).toBeInTheDocument();
     expect(within(dessau).getByText("Phone + desktop")).toBeInTheDocument();
     expect(within(dessau).getByText("Up to 5K")).toBeInTheDocument();
   });
 
-  it("says where each pack is sold and invites to see it, once per card", () => {
+  it("invites to see each pack and to buy it on Etsy, once per card", () => {
     render(
       <MemoryRouter>
         <PacksSection />
       </MemoryRouter>,
     );
     for (const pack of getPacks()) {
-      const link = packLink(pack.slug);
-      expect(within(link).getByText("See the pack →")).toBeInTheDocument();
-      if (pack.etsyUrl) expect(within(link).getByText("sold on Etsy")).toBeInTheDocument();
+      const card = packCard(pack.slug);
+      if (pack.etsyUrl) {
+        const buy = within(card).getByRole("link", { name: /^Buy · €/ });
+        expect(buy).toHaveAttribute("href", pack.etsyUrl);
+      }
       // The count shows once, not as a badge and a tag.
-      expect(within(link).getAllByText(`${pack.previews.length} designs`)).toHaveLength(1);
+      expect(within(card).getAllByText(`${pack.previews.length} designs`)).toHaveLength(1);
     }
   });
 
@@ -69,7 +75,7 @@ describe("PacksSection", () => {
       </MemoryRouter>,
     );
     for (const pack of getPacks()) {
-      const link = packLink(pack.slug);
+      const link = packCard(pack.slug);
       const phones = link.querySelectorAll("[data-device='phone']");
       expect(phones).toHaveLength(Math.min(5, pack.previews.length));
       expect(link.querySelector("[data-device='laptop']")).toBeNull();
@@ -99,9 +105,11 @@ describe("PacksSection", () => {
       </MemoryRouter>,
     );
     for (const pack of getPacks()) {
-      const link = packLink(pack.slug);
-      expect(within(link).getByText(`${pack.previews.length} designs`)).toBeInTheDocument();
-      expect(within(link).getByText(`€${pack.priceEur.toFixed(2)}`)).toBeInTheDocument();
+      const card = packCard(pack.slug);
+      expect(within(card).getByText(`${pack.previews.length} designs`)).toBeInTheDocument();
+      expect(
+        within(card).getByText(new RegExp(`€${pack.priceEur.toFixed(2)}`)),
+      ).toBeInTheDocument();
     }
   });
 
@@ -112,7 +120,7 @@ describe("PacksSection", () => {
       </MemoryRouter>,
     );
     for (const pack of getPacks()) {
-      const named = packLink(pack.slug).querySelectorAll("img[alt]:not([alt=''])");
+      const named = packCard(pack.slug).querySelectorAll("img[alt]:not([alt=''])");
       expect(named).toHaveLength(1);
     }
   });
@@ -127,16 +135,17 @@ describe("PacksSection", () => {
     expect(packLinks()).toHaveLength(getPacks().length);
   });
 
-  it("keeps the lock-screen clock out of each card's link text", () => {
+  it("keeps the lock-screen clock out of each card's text, and names each link after its pack", () => {
     render(
       <MemoryRouter>
         <PacksSection />
       </MemoryRouter>,
     );
     for (const pack of getPacks()) {
-      const text = packLink(pack.slug).textContent ?? "";
+      const text = packCard(pack.slug).textContent ?? "";
       expect(text).not.toContain("9:41");
       expect(text.trim().startsWith(pack.name)).toBe(true);
+      expect(packLink(pack.slug)).toHaveAccessibleName(`See the pack: ${pack.name}`);
     }
   });
 });

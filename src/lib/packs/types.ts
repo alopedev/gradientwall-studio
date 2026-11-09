@@ -47,6 +47,8 @@ export interface Pack {
   description: string;
   /** Tagline shown on the card and page hero (under the name). */
   tagline: string;
+  /** What the designs look like, in a word or two that fits "10 ___ designs" (e.g. "acrylic paint"). */
+  look?: string;
   /** Cover used on cards and at the top of the pack page. */
   cover: PackCover;
   /** Individual wallpaper pieces, in display order. Any count ≥ 1; a phone + desktop pair is one piece. */

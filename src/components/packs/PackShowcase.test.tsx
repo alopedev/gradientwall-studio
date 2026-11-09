@@ -46,6 +46,35 @@ describe("PackShowcase", () => {
     expect(within(hero).getByRole("link", { name: "Buy" })).toBeInTheDocument();
   });
 
+  it("keeps title, buy action and details in one column and the devices in the other", () => {
+    const pack = dessau();
+    render(
+      <PackShowcase
+        pack={pack}
+        header={<h1>{pack.name}.</h1>}
+        buy={<a href="#buy">Buy</a>}
+        details={<p>Instant download</p>}
+      />,
+    );
+    const hero = screen.getByRole("region", { name: /dessau wallpapers/i });
+    const info = hero.querySelector<HTMLElement>("[data-showcase=info]")!;
+    const devices = hero.querySelector<HTMLElement>("[data-showcase=devices]")!;
+    expect(within(info).getByRole("heading", { name: "Dessau." })).toBeInTheDocument();
+    expect(within(info).getByRole("link", { name: "Buy" })).toBeInTheDocument();
+    expect(within(devices).getByTestId("showcase-stage")).toBeInTheDocument();
+    expect(within(devices).getByRole("group", { name: "Device" })).toBeInTheDocument();
+    expect(within(devices).getByText("01 / 6")).toBeInTheDocument();
+    // Two columns from `lg` only: on smaller screens both dissolve into the one-column page.
+    for (const column of [info, devices]) {
+      expect(column.className).toMatch(/(^| )contents( |$)/);
+      expect(column.className).toMatch(/lg:(block|flex)/);
+    }
+    // The details are for the desktop column; phones read them further down the page.
+    const details = within(info).getByText("Instant download").parentElement!;
+    expect(details.className).toMatch(/(^| )hidden( |$)/);
+    expect(details.className).toMatch(/lg:block/);
+  });
+
   it("goes to the next and previous piece, wrapping at both ends", () => {
     show(dessau());
     fireEvent.click(screen.getByRole("button", { name: /next wallpaper/i }));

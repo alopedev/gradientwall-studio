@@ -7,6 +7,7 @@ import { EmailCapture } from "./EmailCapture";
 import { Reveal } from "./ui/Reveal";
 import { PageLink } from "./ui/PageLink";
 import { SectionLink } from "./ui/SectionLink";
+import { Arrow } from "./ui/Arrow";
 
 interface FooterLink {
   label: string;
@@ -157,11 +158,7 @@ function FooterCol({ title, links }: { title: string; links: FooterLink[] }) {
           <li key={l.label}>
             <FooterAnchor link={l}>
               {l.label}
-              {l.external && (
-                <span aria-hidden className="ml-1 text-ink-dim">
-                  ↗
-                </span>
-              )}
+              {l.external && <Arrow to="out" className="ml-1 text-ink-dim" />}
               <Underline />
             </FooterAnchor>
           </li>
@@ -192,7 +189,13 @@ function FooterAnchor({
   }
   if (link.external) {
     return (
-      <a href={link.href} target="_blank" rel="noopener noreferrer" className={className}>
+      <a
+        href={link.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        data-etsy-source="footer"
+        className={className}
+      >
         {children}
       </a>
     );

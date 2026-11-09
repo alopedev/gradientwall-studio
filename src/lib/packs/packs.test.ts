@@ -6,6 +6,8 @@ import {
   availableStyles,
   coverAspect,
   describeContents,
+  describeDesigns,
+  lowestPrice,
   pieceAspect,
   PACK_STYLES,
 } from "./index";
@@ -165,3 +167,25 @@ function assertCover(c: Pack["cover"]): void {
     expect(c.alt.length).toBeGreaterThan(0);
   }
 }
+
+describe("describeDesigns", () => {
+  it("says the count and the look in one short line", () => {
+    expect(getPacks().map(describeDesigns)).toEqual([
+      "10 acrylic paint designs",
+      "6 Bauhaus designs",
+      "12 liquid marble designs",
+    ]);
+  });
+
+  it("drops the look when a pack has none, and counts one design as one", () => {
+    const one = { previews: getPacks()[0].previews.slice(0, 1) };
+    expect(describeDesigns(one)).toBe("1 design");
+  });
+});
+
+describe("lowestPrice", () => {
+  it("is the cheapest pack's price, in euros", () => {
+    expect(lowestPrice()).toBe("€5.99");
+    expect(lowestPrice([{ priceEur: 9 }, { priceEur: 4.5 }])).toBe("€4.50");
+  });
+});

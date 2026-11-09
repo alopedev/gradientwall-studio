@@ -55,18 +55,27 @@ const VIEW_LABEL: Record<ShowcaseView, string> = {
 
 /**
  * The hero of a pack page: the current design on a laptop and a phone on the
- * page's paper, with the page's title (`header`) and buy action
- * (`buy`) on top. Arrows, keys, swipe, Shuffle and a thumbnail rail move
- * through the pack one design at a time.
+ * page's paper, with the page's title (`header`) and buy action (`buy`).
+ * Arrows, keys, swipe, Shuffle and a thumbnail rail move through the pack one
+ * design at a time.
+ *
+ * From `lg` it is two columns (3C, chosen 2026-11-09): title, buy action and
+ * `details` on the left, so the price and the button are on the first screen,
+ * and the devices on the right. Below `lg` the two columns dissolve
+ * (`display: contents`) and `order` lays their parts out as one page: title,
+ * view switch, devices, arrows, buy action.
  */
 export function PackShowcase({
   pack,
   header,
   buy,
+  details,
 }: {
   pack: Pack;
   header: ReactNode;
   buy: ReactNode;
+  /** What a buyer checks before paying (delivery, files); shown in the desktop column only. */
+  details?: ReactNode;
 }) {
   const views = showcaseViews(pack);
   const total = pack.previews.length;
@@ -142,107 +151,119 @@ export function PackShowcase({
       }}
     >
       <div className="mx-auto max-w-[1600px] px-[clamp(16px,4vw,56px)] pt-[clamp(96px,10vw,128px)] pb-[clamp(20px,3vw,40px)]">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="min-w-0">{header}</div>
-          {views.length > 1 && <ViewSwitch views={views} value={view} onChange={setView} />}
-        </div>
-
-        <div
-          data-testid="showcase-stage"
-          className="flex min-h-[clamp(260px,42vw,560px)] items-end justify-center py-[clamp(16px,3vw,32px)]"
-          onTouchStart={(e) => {
-            const t = e.touches[0];
-            touch.current = { x: t.clientX, y: t.clientY };
-          }}
-          onTouchEnd={(e) => {
-            const start = touch.current;
-            touch.current = null;
-            if (!start || total < 2) return;
-            const t = e.changedTouches[0];
-            const dx = t.clientX - start.x;
-            const dy = t.clientY - start.y;
-            if (Math.abs(dx) >= SWIPE_MIN_PX && Math.abs(dx) > Math.abs(dy) * 1.5) {
-              go(index + (dx < 0 ? 1 : -1));
-            }
-          }}
-        >
-          <m.div
-            key={`${stage.index}-${shown}`}
-            className="flex w-full items-end justify-center"
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          >
-            {shown !== "phone" && renders.desktop && (
-              <LaptopFrame
-                className={`drop-shadow-[0_30px_40px_rgba(0,0,0,0.25)] ${
-                  shown === "both"
-                    ? "w-[82%] sm:w-[min(66%,760px)]"
-                    : "w-full sm:w-[min(80%,900px)]"
-                }`}
-              >
-                <PackCover
-                  cover={renders.desktop}
-                  w={1280}
-                  h={800}
-                  box={LAPTOP_BOX}
-                  phoneBox={LAPTOP_ON_PHONES[shown]}
-                  className={FILL}
-                  priority
-                />
-              </LaptopFrame>
-            )}
-            {shown !== "desktop" && (
-              <PhotoPhoneFrame
-                data-vt="pack-phone"
-                className={`relative z-10 drop-shadow-[0_30px_30px_rgba(0,0,0,0.3)] ${
-                  shown === "both"
-                    ? "-mb-[1%] -ml-[18%] w-[30%] sm:-ml-[7%] sm:w-[min(17%,190px)]"
-                    : "w-[58%] sm:w-[min(36%,250px)]"
-                }`}
-              >
-                <PackCover
-                  cover={renders.phone!}
-                  w={720}
-                  h={1560}
-                  box={PHONE_BOX}
-                  phoneBox={phoneOnPhones(shown)}
-                  className={FILL}
-                  priority
-                />
-                <LockScreen />
-              </PhotoPhoneFrame>
-            )}
-          </m.div>
-        </div>
-
-        <div className="flex flex-wrap items-center justify-center gap-3 sm:justify-between">
-          {total > 1 ? (
-            <div className="flex items-center gap-2.5">
-              <ArrowButton side="prev" onClick={() => go(index - 1)} />
-              <div
-                aria-live="polite"
-                className="min-w-[104px] text-center font-sans tabular-nums text-[13px] text-ink-dim"
-              >
-                {name && <span className="block text-[15px] font-medium text-ink">{name}</span>}
-                {String(index + 1).padStart(2, "0")} / {total}
+        <div className="grid grid-cols-1 gap-x-4 md:grid-cols-[minmax(0,1fr)_auto] lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start lg:gap-x-[clamp(40px,5vw,80px)]">
+          <div data-showcase="info" className="contents lg:block">
+            <div className="order-1 min-w-0">{header}</div>
+            {buy && (
+              <div className="order-5 self-center max-md:mt-3 sm:justify-self-center md:col-start-2 md:justify-self-end lg:mt-6 lg:justify-self-stretch">
+                {buy}
               </div>
-              <ArrowButton side="next" onClick={() => go(index + 1)} />
-              <button
-                type="button"
-                onClick={() => {
-                  const ahead = nextShuffle.current;
-                  go(ahead !== null && ahead !== index ? ahead : shuffleIndex(index, total));
-                }}
-                className="min-h-11 cursor-pointer rounded-sharp px-4 font-sans text-[14px] font-medium text-ink shadow-[inset_0_0_0_2px_var(--color-ink)] transition-colors hover:bg-ink hover:text-bg"
+            )}
+            {details && <div className="hidden lg:mt-4 lg:block">{details}</div>}
+          </div>
+
+          <div data-showcase="devices" className="contents lg:flex lg:min-w-0 lg:flex-col">
+            {views.length > 1 && (
+              <div className="order-2 self-start justify-self-start max-md:mt-4 md:justify-self-end lg:self-end">
+                <ViewSwitch views={views} value={view} onChange={setView} />
+              </div>
+            )}
+
+            <div
+              data-testid="showcase-stage"
+              className="order-3 flex min-h-[clamp(260px,42vw,560px)] items-end justify-center py-[clamp(16px,3vw,32px)] md:col-span-2 lg:min-h-0"
+              onTouchStart={(e) => {
+                const t = e.touches[0];
+                touch.current = { x: t.clientX, y: t.clientY };
+              }}
+              onTouchEnd={(e) => {
+                const start = touch.current;
+                touch.current = null;
+                if (!start || total < 2) return;
+                const t = e.changedTouches[0];
+                const dx = t.clientX - start.x;
+                const dy = t.clientY - start.y;
+                if (Math.abs(dx) >= SWIPE_MIN_PX && Math.abs(dx) > Math.abs(dy) * 1.5) {
+                  go(index + (dx < 0 ? 1 : -1));
+                }
+              }}
+            >
+              <m.div
+                key={`${stage.index}-${shown}`}
+                className="flex w-full items-end justify-center"
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               >
-                Shuffle
-              </button>
+                {shown !== "phone" && renders.desktop && (
+                  <LaptopFrame
+                    className={`drop-shadow-[0_30px_40px_rgba(0,0,0,0.25)] ${
+                      shown === "both"
+                        ? "w-[82%] sm:w-[min(66%,760px)] lg:w-[80%]"
+                        : "w-full sm:w-[min(80%,900px)] lg:w-full"
+                    }`}
+                  >
+                    <PackCover
+                      cover={renders.desktop}
+                      w={1280}
+                      h={800}
+                      box={LAPTOP_BOX}
+                      phoneBox={LAPTOP_ON_PHONES[shown]}
+                      className={FILL}
+                      priority
+                    />
+                  </LaptopFrame>
+                )}
+                {shown !== "desktop" && (
+                  <PhotoPhoneFrame
+                    data-vt="pack-phone"
+                    className={`relative z-10 drop-shadow-[0_30px_30px_rgba(0,0,0,0.3)] ${
+                      shown === "both"
+                        ? "-mb-[1%] -ml-[18%] w-[30%] sm:-ml-[7%] sm:w-[min(17%,190px)] lg:-ml-[9%] lg:w-[min(21%,190px)]"
+                        : "w-[58%] sm:w-[min(36%,250px)]"
+                    }`}
+                  >
+                    <PackCover
+                      cover={renders.phone!}
+                      w={720}
+                      h={1560}
+                      box={PHONE_BOX}
+                      phoneBox={phoneOnPhones(shown)}
+                      className={FILL}
+                      priority
+                    />
+                    <LockScreen />
+                  </PhotoPhoneFrame>
+                )}
+              </m.div>
             </div>
-          ) : (
-            <span />
-          )}
-          {buy}
+
+            {total > 1 ? (
+              <div className="order-4 flex items-center gap-2.5 self-center justify-self-center md:justify-self-start lg:self-center">
+                <ArrowButton side="prev" onClick={() => go(index - 1)} />
+                <div
+                  aria-live="polite"
+                  className="min-w-[104px] text-center font-sans tabular-nums text-[13px] text-ink-dim"
+                >
+                  {name && <span className="block text-[15px] font-medium text-ink">{name}</span>}
+                  {String(index + 1).padStart(2, "0")} / {total}
+                </div>
+                <ArrowButton side="next" onClick={() => go(index + 1)} />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const ahead = nextShuffle.current;
+                    go(ahead !== null && ahead !== index ? ahead : shuffleIndex(index, total));
+                  }}
+                  className="min-h-11 cursor-pointer rounded-sharp px-4 font-sans text-[14px] font-medium text-ink shadow-[inset_0_0_0_2px_var(--color-ink)] transition-colors hover:bg-ink hover:text-bg"
+                >
+                  Shuffle
+                </button>
+              </div>
+            ) : (
+              <span className="order-4" />
+            )}
+          </div>
         </div>
       </div>
 

@@ -1,8 +1,8 @@
 /**
  * Cookieless visit counting with Umami Cloud: page views (the tracker follows
  * route changes on its own) plus three events, the numbers the launch plan
- * measures: `download` (Studio), `etsy-click` (any link to Etsy) and
- * `email-signup`. No cookies and no personal data, so no consent banner.
+ * measures: `download` (Studio), `etsy-click` (any link to Etsy, with the
+ * button that was pressed as `source`) and `email-signup`. No cookies and no personal data, so no consent banner.
  *
  * The tracker posts to gateway.umami.is; both hosts are allowed in the CSP
  * (public/_headers).
@@ -69,7 +69,12 @@ export function startAnalytics({
   const onClick = (e: MouseEvent) => {
     const link = (e.target as Element | null)?.closest?.("a[href]") as HTMLAnchorElement | null;
     if (link && isEtsyLink(link.href)) {
-      track("etsy-click", { href: link.href, page: window.location.pathname });
+      track("etsy-click", {
+        href: link.href,
+        page: window.location.pathname,
+        // Which button: the link names itself with `data-etsy-source` (pack-card, gallery-band…).
+        source: link.dataset.etsySource ?? "other",
+      });
     }
   };
   document.addEventListener("click", onClick, { capture: true });

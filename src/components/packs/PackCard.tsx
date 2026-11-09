@@ -7,6 +7,9 @@ import { useInView } from "motion/react";
 import { isPlainClick, runPageTransition } from "@/lib/page-transition";
 import { isPhoneAndDesktop, type Pack } from "@/lib/packs";
 import { fanPieces } from "@/lib/packs/showcase";
+import { Arrow } from "../ui/Arrow";
+import { inkButton } from "../ui/InkButton";
+import { cn } from "../ui/shadcn/utils";
 import { LockScreen, PhoneFrame } from "./DeviceFrames";
 import { PackCover } from "./PackCover";
 
@@ -15,11 +18,14 @@ const FILL = "absolute inset-0 block h-full w-full object-cover";
 /**
  * Catalog card: the pack as a stack of phones over its own blurred colours.
  * Hover or keyboard focus fans the stack open to show the designs inside; on
- * touch screens (no hover) it opens once the card is on screen. Opening the
- * pack morphs the front phone and the name into the pack page (A1).
+ * touch screens (no hover) it opens once the card is on screen. It ends with
+ * two buttons (1C, chosen 2026-11-09): "See the pack", whose link is stretched
+ * over the whole card and morphs the front phone and the name into the pack
+ * page (A1), and "Buy", straight to the pack's Etsy listing. Links can't nest,
+ * so the card itself is not one.
  */
 export function PackCard({ pack }: { pack: Pack }) {
-  const ref = useRef<HTMLAnchorElement>(null);
+  const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { amount: 0.6 });
   const open = inView && !canHover();
   const fan = fanPieces(pack);
@@ -31,7 +37,7 @@ export function PackCard({ pack }: { pack: Pack }) {
     const doc = document as Document & { startViewTransition?: unknown };
     if (!isPlainClick(e) || typeof doc.startViewTransition !== "function") return;
     e.preventDefault();
-    const card = e.currentTarget;
+    const card = ref.current;
     void runPageTransition({
       update: () => flushSync(() => navigate(to)),
       ready: () => document.querySelector(PACK_PAGE_PHONE) !== null,
@@ -39,29 +45,31 @@ export function PackCard({ pack }: { pack: Pack }) {
       shared: [
         {
           name: "pack-phone",
-          source: card.querySelector("[data-vt-src=phone]"),
+          source: card?.querySelector("[data-vt-src=phone]") ?? null,
           dest: PACK_PAGE_PHONE,
         },
-        { name: "pack-title", source: card.querySelector("h3"), dest: "[data-vt=pack-title]" },
+        {
+          name: "pack-title",
+          source: card?.querySelector("h3") ?? null,
+          dest: "[data-vt=pack-title]",
+        },
       ],
     });
   };
 
   return (
-    <Link
+    <article
       ref={ref}
-      to={to}
-      onClick={onClick}
       data-pack-card={pack.slug}
       data-open={open || undefined}
       className="group relative flex h-full min-h-[500px] flex-col overflow-hidden rounded-sharp border-2 border-ink bg-bg-2 transition-colors duration-300 hover:bg-[#cfcec9]"
     >
-      <div className="relative z-10 flex flex-1 items-end justify-center px-6 pt-16 pb-6">
+      <div className="flex flex-1 items-end justify-center px-6 pt-16 pb-6">
         <div className="relative aspect-[4/3] w-[74%] sm:w-[min(86%,380px)]">
           {fan.map(({ cover, offset }) => (
             <PhoneFrame
               key={offset}
-              className="absolute bottom-0 left-[33%] w-[34%] origin-[50%_120%] shadow-[0_24px_40px_-24px_rgba(0,0,0,0.45)] transition-transform duration-700 ease-[cubic-bezier(0.2,0.8,0.2,1)] motion-reduce:transition-none [transform:var(--rest)] group-hover:[transform:var(--open)] group-focus-visible:[transform:var(--open)] group-data-[open]:[transform:var(--open)]"
+              className="absolute bottom-0 left-[33%] w-[34%] origin-[50%_120%] shadow-[0_24px_40px_-24px_rgba(0,0,0,0.45)] transition-transform duration-700 ease-[cubic-bezier(0.2,0.8,0.2,1)] motion-reduce:transition-none [transform:var(--rest)] group-hover:[transform:var(--open)] group-has-[a:focus-visible]:[transform:var(--open)] group-data-[open]:[transform:var(--open)]"
               style={fanStyle(offset)}
               data-vt-src={offset === 0 ? "phone" : undefined}
             >
@@ -79,7 +87,8 @@ export function PackCard({ pack }: { pack: Pack }) {
         </div>
       </div>
 
-      <div className="relative z-10 p-5 sm:p-6">
+      {/* No positioned wrapper here: the "See the pack" link stretches to the card's edges. */}
+      <div className="p-5 sm:p-6">
         <h3 className="display-head w-fit text-[clamp(32px,3.4vw,48px)] text-ink">{pack.name}</h3>
         <p className="m-0 mt-2 font-sans text-[16px] leading-snug text-ink-dim">{pack.tagline}</p>
         <ul className="m-0 mt-2 flex list-none flex-wrap p-0 font-sans text-[14px] text-ink-dim [&>li+li]:before:px-1.5 [&>li+li]:before:content-['·']">
@@ -87,18 +96,40 @@ export function PackCard({ pack }: { pack: Pack }) {
           {isPhoneAndDesktop(pack) && <li>Phone + desktop</li>}
           <li>Up to 5K</li>
         </ul>
-        <div className="mt-4 flex items-center justify-between gap-4 border-t-2 border-ink pt-4">
-          <p className="m-0 grid font-sans">
-            <span className="text-[20px] font-semibold text-ink">{price}</span>
-            {pack.etsyUrl && <span className="text-[13px] text-ink-dim">sold on Etsy</span>}
-          </p>
-          {/* The whole card is the link; this only shows where it leads. */}
-          <span className="inline-flex min-h-11 shrink-0 items-center rounded-sharp bg-ink px-4 font-sans text-[15px] font-semibold text-bg transition-colors group-hover:bg-ink/85">
-            See the pack →
-          </span>
+        <div className="mt-4 grid grid-cols-2 items-center gap-3 border-t-2 border-ink pt-4">
+          <Link
+            to={to}
+            onClick={onClick}
+            className={cn(
+              inkButton({ variant: "ghost" }),
+              "static px-3 font-semibold after:absolute after:inset-0 after:z-20",
+            )}
+          >
+            See the pack<span className="sr-only">: {pack.name}</span>
+          </Link>
+          {pack.etsyUrl ? (
+            <a
+              href={pack.etsyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-etsy-source="pack-card"
+              className={cn(inkButton({ variant: "primary" }), "z-30 px-3")}
+            >
+              Buy · {price}
+              <span className="sr-only">: {pack.name} on Etsy</span>
+              <Arrow to="out" />
+            </a>
+          ) : (
+            <p className="m-0 text-right font-sans text-[20px] font-semibold text-ink">{price}</p>
+          )}
         </div>
+        {pack.etsyUrl && (
+          <p className="m-0 mt-2 text-right font-sans text-[13px] text-ink-dim">
+            Checkout on Etsy. Instant download.
+          </p>
+        )}
       </div>
-    </Link>
+    </article>
   );
 }
 

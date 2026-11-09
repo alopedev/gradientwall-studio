@@ -4,6 +4,7 @@
     "name": "Impasto",
     "style": "acrylic",
     "tagline": "Thick paint, frozen mid-stroke.",
+    "look": "acrylic paint",
     "description": "Ten designs, each ready for phone and desktop: 20 wallpapers with the look of thick acrylic paint. Glossy brushstrokes, pigment trails, soft pulls. Desktop in 4K and 5K, phone at 1320 × 2868.",
     "priceEur": 5.99,
     "cover": {
@@ -96,6 +97,7 @@
     "name": "Dessau",
     "style": "bauhaus",
     "tagline": "Flat colour and plain geometry, after the Bauhaus.",
+    "look": "Bauhaus",
     "description": "Six Bauhaus-inspired designs, 12 wallpapers in all: each one composed separately for phone and for desktop, never cropped. Bold circles, clean lines and flat colour fields in cobalt, vermilion, mustard and black, with plenty of calm space so your clock and icons stay easy to read.",
     "priceEur": 5.99,
     "cover": {
@@ -195,6 +197,7 @@
     "name": "Marble",
     "style": "gradient",
     "tagline": "Liquid marble, drawn in code.",
+    "look": "liquid marble",
     "description": "Twelve liquid marble designs, 24 wallpapers in all: each one rendered separately for phone and for desktop, never cropped. Soft swirls of terracotta, olive, slate blue, rose clay, jade and ochre, each with a calm cream light. Drawn by our own gradient engine, no AI. Desktop in 4K and 5K, phone at 1320 × 2868.",
     "priceEur": 5.99,
     "cover": {
